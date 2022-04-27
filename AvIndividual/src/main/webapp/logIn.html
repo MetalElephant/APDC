@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <title>Login Page</title>  
+    <script src="operationsScript.js"></script>
+
+  </head>
+ 
+      <h1>Welcome, you're logged in. </h1>
+
+ <form method="post">
+  <div style="text-align:center;" class="container">
+      <h1>Remove another user:</h1>
+  
+    <label for="usernameRemove"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="usernameRemove" id="usernameRemove">
+    
+    <p><button onclick= "removeForm()" type="button" class="registerbtn">Remove</button></p>
+    
+    <hr/>
+    
+  	<h1>Show users:</h1>
+      
+    <p><button onclick= "showForm()" type="button" class="registerbtn">Show Users</button></p>
+    <hr/>
+    
+    <h1>Modify user attributes:</h1>
+  
+    <label for="usernameM"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="usernameM" id="usernameM">
+    <br>
+    
+    <label for="emailM"><b>Email</b></label>
+    <input type="text" placeholder="Enter Username" name="emailM" id="emailM">
+    <br>
+    
+    <label for="nameM"><b>Name</b></label>
+    <input type="text" placeholder="Enter name" name="nameM" id="nameM">
+    <br>
+    
+    <label for="profileM"><b>Profile</b></label>
+    <input type="text" placeholder="Enter 'Private' or 'Public'" name="profileM" id="profileM">
+    <br>
+    
+    <label for="landphoneM"><b>Home Phone</b></label>
+    <input type="text" placeholder="Enter home phone number" name="landphoneM" id="landphoneM">
+    <br>
+    
+    <label for="mobilephoneM"><b>Mobile Phone</b></label>
+    <input type="text" placeholder="Enter mobile phone number" name="mobilephoneM" id="mobilephoneM">
+    <br>
+    
+    <label for="addressM"><b>Address Street</b></label>
+    <input type="text" placeholder="Enter Address Street" name="addressM" id="addressM">
+    <br>
+    
+    <label for="nifM"><b>NIF</b></label>
+    <input type="text" placeholder="Enter NIF" name="nifM" id="nifM">
+    <br>
+    
+    <label for="roleM"><b>Role</b></label>
+    <input type="text" placeholder="Enter Username" name="roleM" id="roleM">
+    <br>
+    
+    <label for="stateM"><b>State</b></label>
+    <input type="text" placeholder="Enter 'ACTIVE' or 'INACTIVE'" name="stateM" id="stateM">
+    
+    <p><button onclick= "modifyForm()" type="button" class="registerbtn">Modify</button></p>
+    <hr/>
+    
+    <h1>Change your password:</h1>
+  
+    <label for="currentPassword"><b>Password</b></label>
+    <input type="password" placeholder="Enter your password" name="currentPassword" id="currentPassword">
+    <br>
+    <label for="newPassword"><b>New Password</b></label>
+    <input type="password" placeholder="Enter new password" name="newPassword" id="newPassword">
+    <br>
+    <label for="newPasswordConfirm"><b>Confirm New Password</b></label>
+    <input type="password" placeholder="Confirm new password" name="newPasswordConfirm" id="newPasswordConfirm">
+    
+     <p><button onclick= "modifyPwdForm()" type="button" class="registerbtn">Change Password</button></p>
+    <hr/>
+    
+    <h1>Show session token:</h1> 
+    
+    <p><button onclick= "tokenForm()" type="button" class="registerbtn">Show Token</button></p>
+    <hr/>
+    
+    <h1>Logout</h1> 
+    
+    <p><button onclick= "logoutForm()" type="button" class="registerbtn">Logout</button></p>
+    <hr/>
+    
+    
+    <input type="button" value="Go back to Main Page" id="loginB" onclick="location.href='/';">
+    <hr/>
+    
+  </div>
+</form>
+
+
+
+</html>
