@@ -50,8 +50,12 @@ public class RegisterResource {
 	public static final String INACTIVE = "INACTIVE";
 	
 	private static final String USERNAME = "username";
+	private static final String PARCELID = "parcelId";
 	private static final String OWNER = "owner";
-	private static final String MARKERS = "markers";
+	private static final String MARKER1 = "marker1";
+	private static final String MARKER2 = "marker2";
+	private static final String MARKER3 = "marker3";
+	private static final String MARKER4 = "marker4";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -393,20 +397,35 @@ public class RegisterResource {
 	@Path("/parcel")
 	public Response putParcel(ParcelData data) {
 		Transaction tn = datastore.newTransaction();
+		float p1,p2,p3,p4;
+		
+		p1 = data.points[0];
+		p2 = data.points[1];
+		p3 = data.points[2];
+		p4 = data.points[3];
 		
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
 		Entity user = tn.get(userKey1);
 		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(currParcelId);
 		Entity parcel = tn.get(parcelKey);
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.token);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.owner);
 		Entity token = tn.get(tokenKey);
 		
-		
 		try {
-			if(user == null || token == null || parcel != null) {
+			if(user == null) {
 				LOG.warning("Something about the request is wrong");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
+			}
+			if(token == null) {
+				LOG.warning("Something about the token is wrong");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Something about the token is wrong").build();
+			}
+			if(parcel != null) {
+				LOG.warning("Something about the parcel is wrong");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Something about the parcel is wrong").build();
 			}
 			if(isTokenExpired(token, tn)) {
 				LOG.warning("Token has expired");
@@ -416,6 +435,11 @@ public class RegisterResource {
 			
 			parcel = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
+					.set(MARKER1, p1)
+					.set(MARKER2, p2)
+					.set(MARKER3, p3)
+					.set(MARKER4, p4)
+					.set(PARCELID, currParcelId)
 					.build();
 			
 			tn.put(parcel);
