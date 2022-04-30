@@ -19,6 +19,7 @@ import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.ModifyData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordChangeData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
@@ -34,6 +35,7 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 public class RegisterResource {
 
 	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
+	private int currParcelId = 1;
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -48,6 +50,8 @@ public class RegisterResource {
 	public static final String INACTIVE = "INACTIVE";
 	
 	private static final String USERNAME = "username";
+	private static final String OWNER = "owner";
+	private static final String MARKERS = "markers";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -383,6 +387,51 @@ public class RegisterResource {
 				tn.rollback();
 		}
 
+	}
+	
+	@POST
+	@Path("/parcel")
+	public Response putParcel(ParcelData data) {
+		Transaction tn = datastore.newTransaction();
+		
+		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
+		Entity user = tn.get(userKey1);
+		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(currParcelId);
+		Entity parcel = tn.get(parcelKey);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.token);
+		Entity token = tn.get(tokenKey);
+		
+		
+		try {
+			if(user == null || token == null || parcel != null) {
+				LOG.warning("Something about the request is wrong");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
+			}
+			if(isTokenExpired(token, tn)) {
+				LOG.warning("Token has expired");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
+			}
+			
+			parcel = Entity.newBuilder(parcelKey)
+					.set(OWNER, data.owner)
+					.build();
+			
+			tn.put(parcel);
+			tn.commit();
+			currParcelId++;
+			
+			return Response.ok("parcel added").build();
+			
+		} catch (Exception e) {
+			tn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (tn.isActive())
+				tn.rollback();
+		}
 	}
 	
 	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
