@@ -35,7 +35,6 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 public class RegisterResource {
 
 	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
-	private int currParcelId = 1;
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -50,8 +49,14 @@ public class RegisterResource {
 	public static final String INACTIVE = "INACTIVE";
 	
 	private static final String USERNAME = "username";
-	private static final String PARCELID = "parcelId";
+	private static final String PARCEL_ID = "parcelId";
 	private static final String OWNER = "owner";
+	private static final String PARCEL_NAME = "name";
+	private static final String DESCRIPTION = "description";
+	private static final String GROUND_COVER_TYPE = "ground cover type";
+	private static final String CURR_USAGE = "current usage";
+	private static final String PREV_USAGE = "previous usage";
+	private static final String AREA = "area";
 	private static final String LAT1 = "lat1";
 	private static final String LAT2 = "lat2";
 	private static final String LAT3 = "lat3";
@@ -415,7 +420,7 @@ public class RegisterResource {
 		
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
 		Entity user = tn.get(userKey1);
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(currParcelId);
+		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelId);
 		Entity parcel = tn.get(parcelKey);
 		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.owner);
 		Entity token = tn.get(tokenKey);
@@ -443,12 +448,17 @@ public class RegisterResource {
 					.set(LONG2, long2)
 					.set(LONG3, long3)
 					.set(LONG4, long4)
-					.set(PARCELID, currParcelId)
+					.set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_NAME, data.parcelName)
+					.set(DESCRIPTION, data.description)
+					.set(GROUND_COVER_TYPE, data.groundType)
+					.set(CURR_USAGE, data.currUsage)
+					.set(PREV_USAGE, data.prevUsage)
+					.set(AREA, data.area)
 					.build();
 			
 			tn.put(parcel);
 			tn.commit();
-			currParcelId++;
 			
 			return Response.ok("parcel added").build();
 			
