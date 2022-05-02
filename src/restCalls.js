@@ -59,6 +59,36 @@ class restCalls {
         }) 
     }
 
+    parcelRegister (owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/parcel", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                owner: owner,
+                parcelName: parcelName,
+                parcelId: parcelId,
+                description: description,
+                groundType: groundType,
+                currUsage: currUsage,
+                prevUsage: prevUsage,
+                area: area
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        }) 
+    }
+
 }
 
 const restCallsExport = new restCalls();

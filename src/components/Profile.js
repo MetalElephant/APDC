@@ -1,12 +1,57 @@
-import React from 'react'
+import react from 'react'
+import restCalls from "../restCalls"
 import {Box, Container, Typography, TextField, Button, Grid} from "@mui/material";
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
 
-function Profile() {
-  const [markers, setMarkers] = React.useState([]);
+export default function Profile() {
+    const [markers, setMarkers] = react.useState([]);
+    const [owner, setOwner] = react.useState("");
+    const [parcelName, setParcelName] = react.useState("");
+    const [parcelId, setParcelId] = react.useState("");
+    const [description, setDescription] = react.useState("");
+    const [groundType, setGroundType] = react.useState("");
+    const [currUsage, setCurrUsage] = react.useState("");
+    const [prevUsage, setPrevUsage] = react.useState("");
+    const [area, setArea] = react.useState("");
 
-  return (
+    function ownerHandler(e) {
+        setOwner(e.target.value);
+    }
+
+    function parcelIdHandler(e) {
+        setParcelId(e.target.value);
+    }
+
+    function parcelNameHandler(e) {
+        setParcelName(e.target.value);
+    }
+
+    function descriptionHandler(e) {
+        setDescription(e.target.value);
+    }
+
+    function groundTypeHandler(e) {
+        setGroundType(e.target.value);
+    }
+
+    function currUsageHandler(e) {
+        setCurrUsage(e.target.value);
+    }
+
+    function prevUsageHandler(e) {
+        setPrevUsage(e.target.value);
+    }
+
+    function areaHandler(e) {
+        setArea(e.target.value);
+    }
+
+    function parcelRegisterManager() {
+        restCalls.parcelRegister(owner, parcelId, parcelName, description, groundType, currUsage, prevUsage, area);
+    }
+  
+    return (
     <Grid container spacing={2} direction="column">
         <Grid item xs={12} container>
             <Grid item xs={8}> 
@@ -57,11 +102,21 @@ function Profile() {
                                 margin="normal"
                                 required
                                 fullWidth
+                                id="owner"
+                                label="Proprietario"
+                                name="owner"
+                                autoFocus
+                                onChange = {ownerHandler}
+                            />
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
                                 id="freguesiaSeccaoArtigo"
                                 label="Freguesia, Secção e Artigo"
                                 name="freguesiaSeccaoArtigo"
                                 autoFocus
-                                
+                                onChange = {parcelIdHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -70,7 +125,7 @@ function Profile() {
                                 name="nome"
                                 label="Nome"
                                 id="nome"
-                                
+                                onChange = {parcelNameHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -79,7 +134,7 @@ function Profile() {
                                 name="descricao"
                                 label="Descrição"
                                 id="descricao"
-                                
+                                onChange = {descriptionHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -88,7 +143,7 @@ function Profile() {
                                 name="tipoCoberturaSolo"
                                 label="Tipo de Cobertura do Solo"
                                 id="tipoCoberturaSolo"
-                                
+                                onChange = {groundTypeHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -97,7 +152,7 @@ function Profile() {
                                 name="utilizacaoAtual"
                                 label="Utilização Atual"
                                 id="utilizacaoAtual"
-                                
+                                onChange = {currUsageHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -106,7 +161,7 @@ function Profile() {
                                 name="utilizacaoAnterior"
                                 label="Utilização Anterior"
                                 id="utilizacaoAnterior"
-                                
+                                onChange = {prevUsageHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -115,7 +170,7 @@ function Profile() {
                                 name="area"
                                 label="Área (aproximada)"
                                 id="area"
-                                
+                                onChange = {areaHandler}
                             />
 
                             
@@ -124,7 +179,8 @@ function Profile() {
                                 fullWidth
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2, height:"40px" }}
-                                                                >
+                                onClick = {parcelRegisterManager}
+                            >
                                 submit
                             </Button>  
                         </Box>
@@ -133,7 +189,5 @@ function Profile() {
             </Grid>
         </Grid>
     </Grid>
-  )
+    )
 }
-
-export default React.memo(Profile)
