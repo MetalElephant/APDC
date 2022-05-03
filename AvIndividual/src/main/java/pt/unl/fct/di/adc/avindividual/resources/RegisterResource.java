@@ -218,7 +218,7 @@ public class RegisterResource {
 					
 					LOG.info("User logged in: "+data.username);
 					
-					return Response.ok(g.toJson(token)).entity("User sucessfully logged in").build();
+					return Response.ok(g.toJson(token)).build();
 					
 					
 				}finally {
@@ -408,6 +408,7 @@ public class RegisterResource {
 		Transaction tn = datastore.newTransaction();
 		float lat1, lat2, lat3, lat4, long1, long2, long3, long4;
 		
+		/**
 		lat1 = data.points[0][0];
 		lat2 = data.points[1][0];
 		lat3 = data.points[2][0];
@@ -416,6 +417,7 @@ public class RegisterResource {
 		long2 = data.points[1][1];
 		long3 = data.points[2][1];
 		long4 = data.points[3][1];
+		*/
 		
 		
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
@@ -440,6 +442,7 @@ public class RegisterResource {
 			
 			parcel = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
+					/**
 					.set(LAT1, lat1)
 					.set(LAT2, lat2)
 					.set(LAT3, lat3)
@@ -448,6 +451,7 @@ public class RegisterResource {
 					.set(LONG2, long2)
 					.set(LONG3, long3)
 					.set(LONG4, long4)
+					*/
 					.set(PARCEL_ID, data.parcelId)
 					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
