@@ -47,7 +47,8 @@ export default function Profile() {
         setArea(e.target.value);
     }
 
-    function parcelRegisterManager() {
+    function parcelRegisterManager(e) {
+        e.preventDefault();
         restCalls.parcelRegister(owner, parcelId, parcelName, description, groundType, currUsage, prevUsage, area);
     }
   
@@ -71,6 +72,7 @@ export default function Profile() {
                                     time: new Date(),
                                 },
                             ]);
+                            console.log(markers)
                         }}
                     >
                         {markers.map(marker => (
@@ -115,7 +117,6 @@ export default function Profile() {
                                 id="freguesiaSeccaoArtigo"
                                 label="Freguesia, Secção e Artigo"
                                 name="freguesiaSeccaoArtigo"
-                                autoFocus
                                 onChange = {parcelIdHandler}
                             />
                             <TextField
@@ -179,7 +180,7 @@ export default function Profile() {
                                 fullWidth
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2, height:"40px" }}
-                                onClick = {parcelRegisterManager}
+                                onClick={(e) => { parcelRegisterManager(e) }} 
                             >
                                 submit
                             </Button>  

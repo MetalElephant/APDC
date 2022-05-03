@@ -33,15 +33,15 @@ class restCalls {
     
 
     register (username, password, email, name) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/register", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 username: username,
                 password: password,
-                confirmation: password,
+                pwdConfirmation: password,
                 email: email,
                 name: name
             })
@@ -63,7 +63,7 @@ class restCalls {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/parcel", {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 owner: owner,

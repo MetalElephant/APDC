@@ -34,7 +34,8 @@ export default function Login() {
         history.push("/profile");
     }
 
-    function registerManager() {
+    function registerManager(e) {
+        e.preventDefault();
         restCalls.register(username, password, email, name);
     }
 
@@ -132,7 +133,7 @@ export default function Login() {
                                     fullWidth
                                     name="passwordConfirmation"
                                     label="Password Confirmation"
-                                    type="passwordConfirmation"
+                                    type="password"
                                     id="passwordConfirmation"
                                     onChange = {passwordHandler}
                                 />
@@ -161,7 +162,7 @@ export default function Login() {
                                     fullWidth
                                     variant="contained"
                                     sx={{ mt: 3, mb: 2, height:"40px" }}
-                                    onClick = {registerManager}
+                                    onClick={(e) => { registerManager(e) }} 
                                 >
                                     submit
                                 </Button>
