@@ -1,6 +1,6 @@
 import React from "react"
 import Navbar from "./components/Navbar"
-import Main from "./components/Main"
+import LoginRegister from "./components/LoginRegister"
 import Profile from "./components/Profile"
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
@@ -14,7 +14,7 @@ export default function App() {
                 <div className="content">
                     <Switch>
                         <Route exact path="/">
-                            <Main />
+                            <LoginRegister />
                         </Route>
                         <Route exact path="/profile">
                             <Profile />

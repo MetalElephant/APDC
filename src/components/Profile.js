@@ -98,8 +98,8 @@ export default function Profile() {
                 <Container component="main" maxWidth="xs">
                     <Box
                         sx={{
-                            marginTop: 4,
-                            marginBottom: 4,
+                            marginTop: 3,
+                            marginBottom: 2,
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',

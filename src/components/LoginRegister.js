@@ -4,7 +4,7 @@ import restCalls from "../restCalls"
 import {Box, Container, Typography, TextField, Button, Grid} from "@mui/material";
 import {useHistory} from "react-router-dom"
 
-export default function Login() {
+export default function LoginRegister() {
     let history = useHistory();
 
     const [username, setUsername] = react.useState("");
