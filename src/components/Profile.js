@@ -1,11 +1,12 @@
 import react from 'react'
 import restCalls from "../restCalls"
 import {Box, Container, Typography, TextField, Button, Grid} from "@mui/material";
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 
 export default function Profile() {
     const [markers, setMarkers] = react.useState([]);
+
     const [owner, setOwner] = react.useState("");
     const [parcelName, setParcelName] = react.useState("");
     const [parcelId, setParcelId] = react.useState("");
@@ -80,7 +81,15 @@ export default function Profile() {
                                 key={marker.time.toISOString()} 
                                 position={{ lat: marker.lat, lng: marker.lng}} 
                             />
+
                         ))}
+
+                        <Polygon
+                            paths={markers}
+                            onClick={() => this.handleClick()}
+                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor:"#191970"}}
+                        />
+
                         { /* Child components, such as markers, info windows, etc. */ }
                     </GoogleMap>
                 </LoadScript>
