@@ -464,7 +464,7 @@ public class RegisterResource {
 			tn.put(parcel);
 			tn.commit();
 			
-			return Response.ok("parcel added").build();
+			return Response.ok("Parcel added").build();
 			
 		} catch (Exception e) {
 			tn.rollback();
@@ -535,7 +535,7 @@ public class RegisterResource {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
 		
-		return Response.ok("undefined").build();
+		return Response.ok("Parcel changed").build();
 	}
 	
 	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
