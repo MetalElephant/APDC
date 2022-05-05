@@ -14,7 +14,7 @@ import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 
 import com.google.cloud.datastore.*;
 
-@Path("/register")
+@Path("/parcel")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class ParcelResource {
 
@@ -88,8 +88,7 @@ public class ParcelResource {
 			
 			parcel = builder.build();
 			
-			//Later you can search for parcel with queary
-			tn.put(parcel);
+			tn.add(parcel);
 			tn.commit();
 			
 			return Response.ok("Parcel added").build();
@@ -162,9 +161,10 @@ public class ParcelResource {
 
 		QueryResults<Entity> parcels = datastore.run(query);
 
-        //Since we can't stop a forEachRemaining it needs to be ran as an iterator
-		parcels.forEachRemaining(parcel-> {
+		while(parcels.hasNext()){
+			Entity parcel = parcels.next();
 			int nParcels = Integer.parseInt(parcel.getString(NPOINTS));
+
 			LatLng[] loc = new LatLng[nParcels];
 
             for(int i = 0; i < nParcels; i++){
@@ -172,15 +172,15 @@ public class ParcelResource {
             }
 
             if (overlaps(points, loc)){
-                //return true;
+                return true;
             }
-		});
-
+		}
 		return false;
 	}
 
     //Calculates if 2 arrays of LatLng overlap eachother
     private boolean overlaps(LatLng[] points1, LatLng[] points2){
+		
         return false;
     }
 }
