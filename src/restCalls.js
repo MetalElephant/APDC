@@ -67,10 +67,40 @@ class restCalls {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                owner: localStorage.getItem('username'),
+                owner: owner,
                 parcelName: parcelName,
                 parcelId: parcelId,
                 points:markers,
+                description: description,
+                groundType: groundType,
+                currUsage: currUsage,
+                prevUsage: prevUsage,
+                area: area
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        }) 
+    }
+
+    modifyParcel (parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/modifyParcel", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                owner: localStorage.getItem('username'),
+                parcelName: parcelName,
+                parcelId: parcelId,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
