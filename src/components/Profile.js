@@ -50,7 +50,7 @@ export default function Profile() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(owner, parcelId, parcelName, description, groundType, currUsage, prevUsage, area);
+        restCalls.parcelRegister(owner, parcelId, parcelName, markers, description, groundType, currUsage, prevUsage, area);
     }
   
     return (
