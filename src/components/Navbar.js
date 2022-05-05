@@ -7,7 +7,7 @@ import { Box } from "@mui/system";
 export default function Navbar() {
     return(
         <nav>
-            <Grid container direction="row" justifycontext="space-between" alignItems="center" bgcolor="#D3D3D3" >
+            <Grid container direction="row" justifycontext="space-between" alignItems="center" bgcolor="#D3D3D3" height="170px" >
                     <Grid item xs ={3}>
                        <Box component="img" src = {logoProduto} width="170px" sx={{ml: "20px"}}  />
                     </Grid>
