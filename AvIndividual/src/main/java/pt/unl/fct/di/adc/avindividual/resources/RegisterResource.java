@@ -483,16 +483,6 @@ public class RegisterResource {
 			
 			parcel = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
-					/**
-					.set(LAT1, lat1)
-					.set(LAT2, lat2)
-					.set(LAT3, lat3)
-					.set(LAT4, lat4)
-					.set(LONG1, long1)
-					.set(LONG2, long2)
-					.set(LONG3, long3)
-					.set(LONG4, long4)
-					*/
 					.set(PARCEL_ID, data.parcelId)
 					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
