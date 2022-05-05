@@ -27,6 +27,7 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem('token', text);
+            localStorage.setItem('username', username);
             return text;
         }) 
     }
@@ -59,14 +60,16 @@ class restCalls {
         }) 
     }
 
-    parcelRegister (owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/parcel", {
+    
+    
+    modifyParcel (owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/modifyParcel", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                owner: owner,
+                owner: localStorage.getItem('username'),
                 parcelName: parcelName,
                 parcelId: parcelId,
                 description: description,
