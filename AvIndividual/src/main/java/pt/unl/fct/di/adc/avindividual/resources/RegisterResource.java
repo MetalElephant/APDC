@@ -433,9 +433,10 @@ public class RegisterResource {
 			for(int i = 0; i< data.points.length; i++) {
 				builder.set(POINTS+i, data.points[i]);
 			}
-
+			
 			parcel = builder.build();
 			
+			//Later you can search for parcel with queary
 			tn.put(parcel);
 			tn.commit();
 			
