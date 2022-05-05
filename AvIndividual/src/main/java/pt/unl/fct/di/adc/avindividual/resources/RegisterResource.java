@@ -12,7 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
+import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
@@ -57,14 +57,7 @@ public class RegisterResource {
 	private static final String CURR_USAGE = "current usage";
 	private static final String PREV_USAGE = "previous usage";
 	private static final String AREA = "area";
-	private static final String LAT1 = "lat1";
-	private static final String LAT2 = "lat2";
-	private static final String LAT3 = "lat3";
-	private static final String LAT4 = "lat4";
-	private static final String LONG1 = "long1";
-	private static final String LONG2 = "long2";
-	private static final String LONG3 = "long3";
-	private static final String LONG4 = "long4";
+	private static final String POINTS = "parcel point ";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -406,20 +399,7 @@ public class RegisterResource {
 	@Path("/parcel")
 	public Response putParcel(ParcelData data) {
 		Transaction tn = datastore.newTransaction();
-		float lat1, lat2, lat3, lat4, long1, long2, long3, long4;
-		
-		/**
-		lat1 = data.points[0][0];
-		lat2 = data.points[1][0];
-		lat3 = data.points[2][0];
-		lat4 = data.points[3][0];
-		long1 = data.points[0][1];
-		long2 = data.points[1][1];
-		long3 = data.points[2][1];
-		long4 = data.points[3][1];
-		*/
-		
-		
+				
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
 		Entity user = tn.get(userKey1);
 		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
@@ -440,27 +420,23 @@ public class RegisterResource {
 				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
 			}
 			
-			parcel = Entity.newBuilder(parcelKey)
+			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
-					/**
-					.set(LAT1, lat1)
-					.set(LAT2, lat2)
-					.set(LAT3, lat3)
-					.set(LAT4, lat4)
-					.set(LONG1, long1)
-					.set(LONG2, long2)
-					.set(LONG3, long3)
-					.set(LONG4, long4)
-					*/
 					.set(PARCEL_ID, data.parcelId)
 					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.build();
+					.set(AREA, data.area);
 			
+			for(int i = 0; i< data.points.length; i++) {
+				builder.set(POINTS+i, data.points[i]);
+			}
+			
+			parcel = builder.build();
+			
+			//Later you can search for parcel with queary
 			tn.put(parcel);
 			tn.commit();
 			
@@ -894,6 +870,15 @@ public class RegisterResource {
 		});
 		
 		return allUsers;
+	}
+
+	private boolean isOverlapped(Entity parcel1, Entity parcel2){
+
+
+		return false;
+	}
+
+	private List<LatLng> parcelPoints(Entity parcel){
 		
 	}
 	
