@@ -214,7 +214,7 @@ public class RegisterResource {
 							.build();
 
 					tn.add(tokenEntity);
-					tn.commit();					
+					tn.commit();
 					
 					LOG.info("User logged in: "+data.username);
 					
@@ -422,7 +422,7 @@ public class RegisterResource {
 		
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
 		Entity user = tn.get(userKey1);
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelId);
+		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
 		Entity parcel = tn.get(parcelKey);
 		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.owner);
 		Entity token = tn.get(tokenKey);
@@ -474,6 +474,56 @@ public class RegisterResource {
 			if (tn.isActive())
 				tn.rollback();
 		}
+	}
+	
+	@POST
+	@Path("/modifyParcel")
+	public Response modifyParcel(ParcelData data) {
+		Transaction tn = datastore.newTransaction();
+
+		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
+		Entity parcel = tn.get(parcelKey);
+		
+		try {
+			if(parcel == null) {
+				LOG.warning("Parcel does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
+			}
+			
+			//if user != owner -> no permission
+			
+			parcel = Entity.newBuilder(parcelKey)
+					.set(OWNER, data.owner)
+					/**
+					.set(LAT1, lat1)
+					.set(LAT2, lat2)
+					.set(LAT3, lat3)
+					.set(LAT4, lat4)
+					.set(LONG1, long1)
+					.set(LONG2, long2)
+					.set(LONG3, long3)
+					.set(LONG4, long4)
+					*/
+					.set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_NAME, data.parcelName)
+					.set(DESCRIPTION, data.description)
+					.set(GROUND_COVER_TYPE, data.groundType)
+					.set(CURR_USAGE, data.currUsage)
+					.set(PREV_USAGE, data.prevUsage)
+					.set(AREA, data.area)
+					.build();
+			
+			tn.put(parcel);
+			tn.commit();
+			
+		}catch (Exception e) {
+			tn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+		
+		return Response.ok("undefined").build();
 	}
 	
 	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
