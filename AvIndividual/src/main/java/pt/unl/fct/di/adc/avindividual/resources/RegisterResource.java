@@ -12,12 +12,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.ModifyData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordChangeData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
@@ -30,9 +32,9 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-public class UserResource {
+public class RegisterResource {
 
-	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -47,6 +49,15 @@ public class UserResource {
 	public static final String INACTIVE = "INACTIVE";
 	
 	private static final String USERNAME = "username";
+	private static final String PARCEL_ID = "parcelId";
+	private static final String OWNER = "owner";
+	private static final String PARCEL_NAME = "name";
+	private static final String DESCRIPTION = "description";
+	private static final String GROUND_COVER_TYPE = "ground cover type";
+	private static final String CURR_USAGE = "current usage";
+	private static final String PREV_USAGE = "previous usage";
+	private static final String AREA = "area";
+	private static final String POINTS = "parcel point ";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -62,7 +73,7 @@ public class UserResource {
 	/**
 	 * Empty constructor
 	 */
-	public UserResource() {
+	public RegisterResource() {
 
 	}
 
@@ -102,6 +113,7 @@ public class UserResource {
 						.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 						.set(EMAIL, data.email)
 						.set(ROLE, SU)
+						
 						.set(MPHONE, data.mobilePhone)
 						.set(LPHONE,data.landPhone)
 						.set(ADDRESS,data.address)
@@ -129,11 +141,12 @@ public class UserResource {
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
-					.set(ROLE, USER)		
+					.set(ROLE, USER)
+					
 					.set(MPHONE, data.mobilePhone)
 					.set(LPHONE,data.landPhone)
 					.set(ADDRESS,data.address)
-					.set(NIF,data.NIF)
+					.set(NIF,data.NIF)//the fucking string problem
 					.set(PROFILE, PUBLIC)
 					.set(STATE, INACTIVE)
 					.set(CTIME, Timestamp.now()).build();
@@ -380,6 +393,115 @@ public class UserResource {
 				tn.rollback();
 		}
 
+	}
+	
+	@POST
+	@Path("/parcel")
+	public Response putParcel(ParcelData data) {
+		Transaction tn = datastore.newTransaction();
+				
+		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
+		Entity user = tn.get(userKey1);
+		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
+		Entity parcel = tn.get(parcelKey);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.owner);
+		Entity token = tn.get(tokenKey);
+		
+		try {
+			if(user == null || token == null || parcel != null) {
+				LOG.warning("Something about the request is wrong");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
+			}
+				
+			if(isTokenExpired(token, tn)) {
+				LOG.warning("Token has expired");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
+			}
+			
+			Builder builder = Entity.newBuilder(parcelKey)
+					.set(OWNER, data.owner)
+					.set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_NAME, data.parcelName)
+					.set(DESCRIPTION, data.description)
+					.set(GROUND_COVER_TYPE, data.groundType)
+					.set(CURR_USAGE, data.currUsage)
+					.set(PREV_USAGE, data.prevUsage)
+					.set(AREA, data.area);
+			
+			for(int i = 0; i< data.points.length; i++) {
+				builder.set(POINTS+i, data.points[i]);
+			}
+			
+			parcel = builder.build();
+			
+			//Later you can search for parcel with queary
+			tn.put(parcel);
+			tn.commit();
+			
+			return Response.ok("Parcel added").build();
+			
+		} catch (Exception e) {
+			tn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		} finally {
+			if (tn.isActive())
+				tn.rollback();
+		}
+	}
+	
+	@POST
+	@Path("/modifyParcel")
+	public Response modifyParcel(ParcelData data) {
+		Transaction tn = datastore.newTransaction();
+
+		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
+		Entity parcel = tn.get(parcelKey);
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.owner);
+		Entity user = tn.get(userKey);
+		
+		try {
+			if(parcel == null) {
+				LOG.warning("Parcel does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
+			}
+			
+			if(user == null) {
+				LOG.warning("User does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User does not exist").build();
+			}
+			
+			if(!parcel.getString("owner").equals(user.getString("username"))) {
+				LOG.warning("User does not have the permission");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User does not have the permission").build();
+			}
+			
+			parcel = Entity.newBuilder(parcelKey)
+					.set(OWNER, data.owner)
+					.set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_NAME, data.parcelName)
+					.set(DESCRIPTION, data.description)
+					.set(GROUND_COVER_TYPE, data.groundType)
+					.set(CURR_USAGE, data.currUsage)
+					.set(PREV_USAGE, data.prevUsage)
+					.set(AREA, data.area)
+					.build();
+			
+			tn.put(parcel);
+			tn.commit();
+			
+		}catch (Exception e) {
+			tn.rollback();
+			LOG.severe(e.getMessage());
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
+		
+		return Response.ok("Parcel changed").build();
 	}
 	
 	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
@@ -739,13 +861,26 @@ public class UserResource {
 		
 		return allUsers;
 	}
+
+	private boolean isOverlapped(Entity parcel1, Entity parcel2){
+
+
+		return false;
+	}
+
+	/**
+	private List<LatLng> parcelPoints(Entity parcel){
+		
+	}
+	*/
+	
 	
 	/**
 	 * Verify if token has expired, logout and remove said token if so
 	 * @param token
 	 * @return
 	 */
-	public boolean isTokenExpired(Entity token, Transaction t) {
+	private boolean isTokenExpired(Entity token, Transaction t) {
 		long currentTime = System.currentTimeMillis();
 		
 		if(token.getLong("token_validTo") < currentTime) {
