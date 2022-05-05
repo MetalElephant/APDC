@@ -36,6 +36,7 @@ export default function LoginRegister() {
 
     function registerManager(e) {
         e.preventDefault();
+        if(username !== "")
         restCalls.register(username, password, email, name);
     }
 
@@ -114,6 +115,7 @@ export default function LoginRegister() {
                                     id="username"
                                     label="Username"
                                     name="username"
+                                    inputProps={{ pattern: "{5,20}" }}
                                     autoFocus
                                     onChange = {usernameHandler}
                                 />
@@ -125,6 +127,7 @@ export default function LoginRegister() {
                                     label="Password"
                                     type="password"
                                     id="password"
+                                    inputProps={{ pattern: "(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}" }}
                                     onChange = {passwordHandler}
                                 />
                                 <TextField
@@ -145,6 +148,8 @@ export default function LoginRegister() {
                                     label="Email"
                                     type="email"
                                     id="email"
+                                    pattern="/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/"
+                                    inputProps={{ pattern: "/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/" }}
                                     onChange = {emailHandler}
                                 />
                                 <TextField
