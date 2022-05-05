@@ -1,7 +1,8 @@
 import react from "react"
-import { Box, Container, Typography, TextField, Button, Grid } from "@mui/material";
+import {Typography, Button, Grid } from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
-import { Component } from "react";
+import ModifyParcel from "./ModifyParcel";
+import Logout from "./Logout";
 
 export default function Main() {
 
@@ -52,10 +53,10 @@ export default function Main() {
                         Logout
                     </Button>
                 </Grid>
-                {(display == 0) ? <Typography> O RAFA É BOSS </Typography>: <></>}
-                {(display == 1) ? <RegisterParcel /> : <></>}
-                {(display == 2) ? <Typography> GUILHERME E KIARA, DEUSES DO ANDROID </Typography>: <></>}
-                {(display == 3) ? <Typography> O ALEX É BOSS </Typography>: <></>}
+                {(display === 0) ? <Typography> O RAFA É BOSS </Typography>: <></>}
+                {(display === 1) ? <RegisterParcel /> : <></>}
+                {(display === 2) ? <ModifyParcel />: <></>}
+                {(display === 3) ? <Logout />: <></>}
                 
             </Grid>
         </Grid>
