@@ -870,6 +870,15 @@ public class RegisterResource {
 		});
 		
 		return allUsers;
+	}
+
+	private boolean isOverlapped(Entity parcel1, Entity parcel2){
+
+
+		return false;
+	}
+
+	private List<LatLng> parcelPoints(Entity parcel){
 		
 	}
 	
