@@ -483,6 +483,8 @@ public class RegisterResource {
 
 		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
 		Entity parcel = tn.get(parcelKey);
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.owner);
+		Entity user = tn.get(userKey);
 		
 		try {
 			if(parcel == null) {
@@ -491,7 +493,17 @@ public class RegisterResource {
 				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
 			}
 			
-			//if user != owner -> no permission
+			if(user == null) {
+				LOG.warning("User does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User does not exist").build();
+			}
+			
+			if(!parcel.getString("owner").equals(user.getString("username"))) {
+				LOG.warning("User does not have the permission");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User does not have the permission").build();
+			}
 			
 			parcel = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
