@@ -58,7 +58,7 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
 			}
 				
-			if(ur.isTokenExpired(token, tn)) {
+			if(!ur.isLoggedIn(token, tn)) {
 				LOG.warning("Token has expired");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
