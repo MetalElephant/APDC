@@ -14,7 +14,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -24,7 +23,6 @@ import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.UserUpdateData;
-import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
@@ -76,20 +74,6 @@ public class UserResource {
 	//Keys
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
-    private static final String USTATS = "User Stats";
-	private static final String ULOGS = "User Logs";
-	private static final String STATSCOUNT = "counter";
-
-	//Login information
-	private static final String USERLOGINS = "stats logins";
-    private static final String USERFAILS = "stats failed";
-    private static final String FIRSTLOGIN = "first login";
-	private static final String LASTLOGIN = "last login";
-	private static final String LOGINIP = "login ip";
-	private static final String LOGINHOST = "login host";
-	private static final String LOGINCITY = "login city";
-	private static final String LOGINCOUNTRY = "login country";
-	private static final String LOGINTIME = "login time";
 	
 	public UserResource() {}
 
@@ -113,12 +97,9 @@ public class UserResource {
 		Transaction tn = datastore.newTransaction();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-        Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username))
-				.setKind(USTATS).newKey(STATSCOUNT);
 
 		try {
 			Entity user = tn.get(userKey);
-            Entity stats;
 			
 			//We could possibly create super user elsewhere with a admin only page, see: secret from pp
             /*
@@ -170,15 +151,8 @@ public class UserResource {
 					.set(STATE, INACTIVE)
 					.set(CTIME, Timestamp.now())
                     .build();
-            
-            stats = Entity.newBuilder(statsKey)
-				.set(USERLOGINS, 0L)
-				.set(USERFAILS, 0L)
-				.set(FIRSTLOGIN , Timestamp.now())
-				.set(LASTLOGIN, Timestamp.now())
-				.build();
 
-			tn.add(user, stats);
+			tn.add(user);
 			tn.commit(); 
 
 			LOG.fine("User registered: " + data.username);
@@ -199,17 +173,11 @@ public class UserResource {
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-		Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username))
-					   .setKind(USTATS).newKey(STATSCOUNT);
-		Key logKey = datastore.allocateId(datastore.newKeyFactory()
-					.addAncestors(PathElement.of(USER, data.username))
-					.setKind(ULOGS).newKey());
 
 		Transaction tn = datastore.newTransaction();
 
 		try{
 			Entity user = datastore.get(userKey);
-			Entity stats = tn.get(statsKey);
 			
 			if (user != null){
 				String hashedPwd = user.getString(PASSWORD);
@@ -222,23 +190,7 @@ public class UserResource {
 							LOG.warning("User Already logged in:" + data.username);
 							tn.rollback();
 							return Response.status(Status.CONFLICT).entity("User Already Logged In").build();
-						}
-						
-						//Create login log, the token and update the statistics
-	                    Entity log = Entity.newBuilder(logKey)
-									.set(LOGINIP, request.getRemoteAddr())
-									.set(LOGINHOST, request.getRemoteHost())
-									.set(LOGINCITY, headers.getHeaderString("X-AppEngine-City"))
-									.set(LOGINCOUNTRY, headers.getHeaderString("X-AppEngine-Country"))
-									.set(LOGINTIME, Timestamp.now())
-									.build();
-	                    
-						Entity uStats = Entity.newBuilder(statsKey)
-										.set(USERLOGINS, 1L + stats.getLong(USERLOGINS))
-										.set(USERFAILS, stats.getLong(USERFAILS))
-										.set(FIRSTLOGIN, stats.getTimestamp(FIRSTLOGIN))
-										.set(LASTLOGIN, Timestamp.now())
-										.build();                    
+						}              
 						
 						AuthToken token = new AuthToken(data.username);
 		
@@ -249,8 +201,7 @@ public class UserResource {
 								.set(TOKENEXPIRATION, token.validTo)
 								.build();
 						
-						//Put to overwrite previous stats
-						tn.put(tokenEntity, log, uStats);
+						tn.add(tokenEntity);
 						tn.commit();
 						
 						LOG.info("User logged in: "+data.username);
@@ -259,17 +210,6 @@ public class UserResource {
 
 					}else {
 						LOG.warning("Wrong password for :" + data.username);
-						
-						Entity uStats = Entity.newBuilder(statsKey)
-								.set(USERLOGINS, stats.getLong(USERLOGINS))
-								.set(USERFAILS, 1L + stats.getLong(USERFAILS))
-								.set(FIRSTLOGIN, stats.getTimestamp(FIRSTLOGIN))
-								.set(LASTLOGIN, Timestamp.now())
-								.build(); 
-						
-						tn.put(uStats);
-						tn.commit();
-
 						return Response.status(Status.FORBIDDEN).entity("Wrong password").build();
 					}
 			}else{
@@ -296,9 +236,6 @@ public class UserResource {
 
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameToRemove);
-
-        Key statsToRemoveKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.usernameToRemove))
-				.setKind(USTATS).newKey(STATSCOUNT);
 
 		try {
             Entity user = tn.get(userKey);
@@ -335,7 +272,7 @@ public class UserResource {
 			if(tn.get(tokenToRemoveKey) != null)
 				tn.delete(tokenToRemoveKey);
 			
-			tn.delete(userToRemoveKey, statsToRemoveKey);
+			tn.delete(userToRemoveKey);
 			tn.commit();
 
 			return Response.ok("User " + data.username + " deleted User " + data.usernameToRemove).build();
