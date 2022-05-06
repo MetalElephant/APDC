@@ -16,8 +16,6 @@ import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 import java.awt.geom.Line2D;
 
-
-
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
@@ -43,7 +41,7 @@ public class RegisterResource {
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-	
+
 	private static final String USER = "USER";
 	private static final String GS = "GS";
 	private static final String GBO = "GBO";
@@ -52,7 +50,7 @@ public class RegisterResource {
 	public static final String PRIVATE = "Private";
 	public static final String ACTIVE = "ACTIVE";
 	public static final String INACTIVE = "INACTIVE";
-	
+
 	private static final String USERNAME = "username";
 	private static final String PARCEL_ID = "parcelId";
 	private static final String OWNER = "owner";
@@ -74,7 +72,7 @@ public class RegisterResource {
 	private static final String PROFILE = "profile";
 	private static final String STATE = "state";
 	private static final String CTIME = "creation time";
-	
+
 	/**
 	 * Empty constructor
 	 */
@@ -82,7 +80,7 @@ public class RegisterResource {
 
 	}
 
-	//----------------------------------------------------------------------------------------------------------------//
+	// ----------------------------------------------------------------------------------------------------------------//
 
 	@POST
 	@Path("/register")
@@ -94,14 +92,15 @@ public class RegisterResource {
 		// check validity of stuff
 		if (!data.validRegistration())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		if(!data.validEmailFormat())
+		if (!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-		if(!data.validPasswordFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character").build();
-		if(!data.confirmedPassword())
+		if (!data.validPasswordFormat())
+			return Response.status(Status.BAD_REQUEST).entity(
+					"Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character")
+					.build();
+		if (!data.confirmedPassword())
 			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
 		data.optionalAttributes();
-
 
 		// Transaction --> if information is not correct, we can rollback
 		Transaction tn = datastore.newTransaction();
@@ -109,59 +108,43 @@ public class RegisterResource {
 		try {
 			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 			Entity person = tn.get(userKey);
-			
-			//SUPERUSER creation
-			if(data.name.equals("SUPERUSER") && person==null) {
-				person = Entity.newBuilder(userKey)
-						.set(USERNAME, data.username)
-						.set(NAME, data.name)
-						.set(PASSWORD, DigestUtils.sha512Hex(data.password))
-						.set(EMAIL, data.email)
-						.set(ROLE, SU)
-						
-						.set(MPHONE, data.mobilePhone)
-						.set(LPHONE,data.landPhone)
-						.set(ADDRESS,data.address)
-						.set(NIF,data.NIF)
-						.set(PROFILE, PRIVATE)
-						.set(STATE, ACTIVE)
-						.set(CTIME, Timestamp.now()).build();
+
+			// SUPERUSER creation
+			if (data.name.equals("SUPERUSER") && person == null) {
+				person = Entity.newBuilder(userKey).set(USERNAME, data.username).set(NAME, data.name)
+						.set(PASSWORD, DigestUtils.sha512Hex(data.password)).set(EMAIL, data.email).set(ROLE, SU)
+
+						.set(MPHONE, data.mobilePhone).set(LPHONE, data.landPhone).set(ADDRESS, data.address)
+						.set(NIF, data.NIF).set(PROFILE, PRIVATE).set(STATE, ACTIVE).set(CTIME, Timestamp.now())
+						.build();
 
 				tn.put(person);
-				tn.commit(); 
-				
+				tn.commit();
+
 				LOG.info("User registered: " + data.username);
 
-				return Response.ok("User "+ data.username ).build();
+				return Response.ok("User " + data.username).build();
 			}
-			
-			//other users - not superuser - creation
+
+			// other users - not superuser - creation
 			if ((person != null)) {
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User Already Exists").build();
 			}
 
-			person = Entity.newBuilder(userKey)
-					.set(USERNAME, data.username)
-					.set(NAME, data.name)
-					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
-					.set(EMAIL, data.email)
-					.set(ROLE, USER)
-					
-					.set(MPHONE, data.mobilePhone)
-					.set(LPHONE,data.landPhone)
-					.set(ADDRESS,data.address)
-					.set(NIF,data.NIF)//the fucking string problem
-					.set(PROFILE, PUBLIC)
-					.set(STATE, INACTIVE)
-					.set(CTIME, Timestamp.now()).build();
+			person = Entity.newBuilder(userKey).set(USERNAME, data.username).set(NAME, data.name)
+					.set(PASSWORD, DigestUtils.sha512Hex(data.password)).set(EMAIL, data.email).set(ROLE, USER)
+
+					.set(MPHONE, data.mobilePhone).set(LPHONE, data.landPhone).set(ADDRESS, data.address)
+					.set(NIF, data.NIF)// the fucking string problem
+					.set(PROFILE, PUBLIC).set(STATE, INACTIVE).set(CTIME, Timestamp.now()).build();
 
 			tn.put(person);
-			tn.commit(); 
+			tn.commit();
 
 			LOG.info("User registered: " + data.username);
 
-			return Response.ok("User "+ data.username ).build();
+			return Response.ok("User " + data.username).build();
 
 		} finally {
 			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
@@ -169,74 +152,66 @@ public class RegisterResource {
 		}
 
 	}
-	
+
 	@POST
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response doLogin(LoginData data) {
-		
+
 		LOG.fine("Attempt to login user: " + data.username);
 
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = datastore.get(userKey);
-		
-		if(user!= null) {
+
+		if (user != null) {
 			String hashedPwd = user.getString(PASSWORD);
-			
-			//if password matches, login
-			if(hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {
-				
+
+			// if password matches, login
+			if (hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {
+
 				Transaction tn = datastore.newTransaction();
 
-				
 				try {
 					String userRole = user.getString(ROLE);
-					AuthToken token = new AuthToken(data.username, userRole); //authentication token
-					
+					AuthToken token = new AuthToken(data.username, userRole); // authentication token
+
 					Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.username);
 					Entity tokenEntity = tn.get(tokenKey);
-					
-					//Guarantee user is not logging in again
+
+					// Guarantee user is not logging in again
 					if (tokenEntity != null) {
 						tn.rollback();
 						return Response.ok().entity("User Already Logged In").build();
-					}		
-					
-					tokenEntity = Entity.newBuilder(tokenKey)
-							.set("token_ID", token.tokenID)
-							.set("token_username", token.username)
-							.set("token_validFrom", token.validFrom)
-							.set("token_validTo", token.validTo)
-							.set("token_user_role", token.role)
-							.build();
+					}
+
+					tokenEntity = Entity.newBuilder(tokenKey).set("token_ID", token.tokenID)
+							.set("token_username", token.username).set("token_validFrom", token.validFrom)
+							.set("token_validTo", token.validTo).set("token_user_role", token.role).build();
 
 					tn.add(tokenEntity);
 					tn.commit();
-					
-					LOG.info("User logged in: "+data.username);
-					
+
+					LOG.info("User logged in: " + data.username);
+
 					return Response.ok(g.toJson(token)).build();
-					
-					
-				}finally {
+
+				} finally {
 					if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
 						tn.rollback();
 				}
 
-			}
-			else {
+			} else {
 				LOG.warning("Wrong password for :" + data.username);
 				return Response.status(Status.FORBIDDEN).entity("Wrong password").build();
 			}
+		} else {// username doesn't exist
+			LOG.warning("User " + data.username + " does not exist");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not exist").build();
 		}
-		else {//username doesn't exist
-			LOG.warning("User " + data.username +" does not exist");
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username +" does not exist").build();
-		}
-		
+
 	}
-	
+
 	@DELETE
 	@Path("/remove")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -255,7 +230,7 @@ public class RegisterResource {
 
 		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
-		
+
 		Key tokenKeytoRemove = datastore.newKeyFactory().setKind("Token").newKey(data.username2);
 
 		try {
@@ -270,7 +245,7 @@ public class RegisterResource {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
-			if(isTokenExpired(token, tn)) {
+			if (isTokenExpired(token, tn)) {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
@@ -278,11 +253,11 @@ public class RegisterResource {
 			if (!canRemove(user, userToRemove)) {
 				return Response.status(Status.FORBIDDEN).entity("User Unathourized to Remove Other User").build();
 			}
-			
-			//remove the authtoken associated with the user
-			if(tokenKeytoRemove != null)
+
+			// remove the authtoken associated with the user
+			if (tokenKeytoRemove != null)
 				tn.delete(tokenKeytoRemove);
-			
+
 			tn.delete(userKey2);
 			tn.commit();
 
@@ -299,7 +274,7 @@ public class RegisterResource {
 				tn.rollback();
 		}
 	}
-	
+
 	private boolean canRemove(Entity user, Entity userToRemove) {
 
 		String role1 = user.getString(ROLE);
@@ -307,16 +282,15 @@ public class RegisterResource {
 		String name1 = user.getString(USERNAME);
 		String name2 = userToRemove.getString(USERNAME);
 
-
-			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
-				return false;
-			}
-			if (role1.equals(GBO) && !role2.equals(USER)) { // can only remove USER level 
-				return false;
-			}
-			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
-				return false;
-			}
+		if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
+			return false;
+		}
+		if (role1.equals(GBO) && !role2.equals(USER)) { // can only remove USER level
+			return false;
+		}
+		if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
+			return false;
+		}
 
 		return true;
 	}
@@ -327,21 +301,22 @@ public class RegisterResource {
 	public Response modifyUser(ModifyData data) {
 
 		LOG.fine("Attempt to modify user: " + data.username2);
-		
-		if(!data.validEmailFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-		if(!data.validRoleFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Wrong type of role: try 'USER', 'GBO', 'GS' or 'SU'").build();
-		if(!data.validStateFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Wrong type of state: try 'ACTIVE' or 'INACTIVE'").build();
 
-		
+		if (!data.validEmailFormat())
+			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
+		if (!data.validRoleFormat())
+			return Response.status(Status.BAD_REQUEST).entity("Wrong type of role: try 'USER', 'GBO', 'GS' or 'SU'")
+					.build();
+		if (!data.validStateFormat())
+			return Response.status(Status.BAD_REQUEST).entity("Wrong type of state: try 'ACTIVE' or 'INACTIVE'")
+					.build();
+
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
-		
+
 		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
 		Entity userToModify = tn.get(userKey2);
 
@@ -360,29 +335,22 @@ public class RegisterResource {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
-			if(isTokenExpired(token, tn)) {
+			if (isTokenExpired(token, tn)) {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
-			
-			// To set what will stay the same value or what will actually be changed
-			if(!canModify(data, user, userToModify))
-				return Response.status(Status.FORBIDDEN).entity("User does not have authorization to change one or more attributes.").build();
 
-			userToModify = Entity.newBuilder(userKey2)
-					.set(USERNAME, data.username2)
-					.set(NAME, data.name)
-					.set(PASSWORD, userToModify.getString(PASSWORD))
-					.set(EMAIL, data.email)
-					.set(ROLE, data.role)
-					.set(MPHONE, data.mobilePhone)
-					.set(LPHONE, data.landPhone)
-					.set(ADDRESS, data.address)
-					.set(NIF, data.NIF)
-					.set(PROFILE, data.profile)
-					.set(STATE, data.state)
+			// To set what will stay the same value or what will actually be changed
+			if (!canModify(data, user, userToModify))
+				return Response.status(Status.FORBIDDEN)
+						.entity("User does not have authorization to change one or more attributes.").build();
+
+			userToModify = Entity.newBuilder(userKey2).set(USERNAME, data.username2).set(NAME, data.name)
+					.set(PASSWORD, userToModify.getString(PASSWORD)).set(EMAIL, data.email).set(ROLE, data.role)
+					.set(MPHONE, data.mobilePhone).set(LPHONE, data.landPhone).set(ADDRESS, data.address)
+					.set(NIF, data.NIF).set(PROFILE, data.profile).set(STATE, data.state)
 					.set(CTIME, userToModify.getTimestamp(CTIME)).build();
-			
+
 			tn.put(userToModify);
 			tn.commit();
 
@@ -399,57 +367,50 @@ public class RegisterResource {
 		}
 
 	}
-	
+
 	@POST
 	@Path("/parcel")
 	public Response putParcel(ParcelData data) {
 		Transaction tn = datastore.newTransaction();
-				
+
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
 		Entity user = tn.get(userKey1);
 		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
 		Entity parcel = tn.get(parcelKey);
 		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.owner);
 		Entity token = tn.get(tokenKey);
-		
+
 		try {
-			if(user == null || token == null || parcel != null) {
+			if (user == null || token == null || parcel != null) {
 				LOG.warning("Something about the request is wrong");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
 			}
-				
-			if(isTokenExpired(token, tn)) {
+
+			if (isTokenExpired(token, tn)) {
 				LOG.warning("Token has expired");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
 			}
-			
-			parcel = Entity.newBuilder(parcelKey)
-					.set(OWNER, data.owner)
-					.set(PARCEL_ID, data.parcelId)
-					.set(PARCEL_NAME, data.parcelName)
-					.set(DESCRIPTION, data.description)
-					.set(GROUND_COVER_TYPE, data.groundType)
-					.set(CURR_USAGE, data.currUsage)
-					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.build();
-			
-			/*123
-			for(int i = 0; i< data.points.length; i++) {
-				builder.set(POINTS+i, data.points[i]);
-			}
-			
-			parcel = builder.build();
-			*/
-			
-			//Later you can search for parcel with queary
+
+			parcel = Entity.newBuilder(parcelKey).set(OWNER, data.owner).set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_NAME, data.parcelName).set(DESCRIPTION, data.description)
+					.set(GROUND_COVER_TYPE, data.groundType).set(CURR_USAGE, data.currUsage)
+					.set(PREV_USAGE, data.prevUsage).set(AREA, data.area).build();
+
+			/*
+			 * 123 for(int i = 0; i< data.points.length; i++) { builder.set(POINTS+i,
+			 * data.points[i]); }
+			 * 
+			 * parcel = builder.build();
+			 */
+
+			// Later you can search for parcel with queary
 			tn.put(parcel);
 			tn.commit();
-			
+
 			return Response.ok("Parcel added").build();
-			
+
 		} catch (Exception e) {
 			tn.rollback();
 			LOG.severe(e.getMessage());
@@ -459,7 +420,7 @@ public class RegisterResource {
 				tn.rollback();
 		}
 	}
-	
+
 	@POST
 	@Path("/modifyParcel")
 	public Response modifyParcel(ParcelData data) {
@@ -469,84 +430,79 @@ public class RegisterResource {
 		Entity parcel = tn.get(parcelKey);
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.owner);
 		Entity user = tn.get(userKey);
-		
+
 		try {
-			if(parcel == null) {
+			if (parcel == null) {
 				LOG.warning("Parcel does not exist");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
 			}
-			
-			if(user == null) {
+
+			if (user == null) {
 				LOG.warning("User does not exist");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User does not exist").build();
 			}
-			
-			if(!parcel.getString("owner").equals(user.getString("username"))) {
+
+			if (!parcel.getString("owner").equals(user.getString("username"))) {
 				LOG.warning("User does not have the permission");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User does not have the permission").build();
 			}
-			
-			parcel = Entity.newBuilder(parcelKey)
-					.set(OWNER, data.owner)
-					.set(PARCEL_ID, data.parcelId)
-					.set(PARCEL_NAME, data.parcelName)
-					.set(DESCRIPTION, data.description)
-					.set(GROUND_COVER_TYPE, data.groundType)
-					.set(CURR_USAGE, data.currUsage)
-					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.build();
-			
+
+			parcel = Entity.newBuilder(parcelKey).set(OWNER, data.owner).set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_NAME, data.parcelName).set(DESCRIPTION, data.description)
+					.set(GROUND_COVER_TYPE, data.groundType).set(CURR_USAGE, data.currUsage)
+					.set(PREV_USAGE, data.prevUsage).set(AREA, data.area).build();
+
 			tn.put(parcel);
 			tn.commit();
-			
-		}catch (Exception e) {
+
+		} catch (Exception e) {
 			tn.rollback();
 			LOG.severe(e.getMessage());
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 		}
-		
+
 		return Response.ok("Parcel changed").build();
 	}
-	
+
 	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
-		
-		if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
+
+		if (!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
 			return false;
-		
-		//update values so its easier to do transaction.put throught the data from ModifyData
+
+		// update values so its easier to do transaction.put throught the data from
+		// ModifyData
 		if (data.name == null)
 			data.name = userToModify.getString(NAME);
-		
+
 		if (data.email == null)
 			data.email = userToModify.getString(EMAIL);
-		
+
 		if (data.role == null)
 			data.role = userToModify.getString(ROLE);
-		
+
 		if (data.mobilePhone == null)
 			data.mobilePhone = userToModify.getString(MPHONE);
-		
+
 		if (data.landPhone == null)
 			data.landPhone = userToModify.getString(LPHONE);
-		
+
 		if (data.address == null)
 			data.address = userToModify.getString(ADDRESS);
-		
+
 		if (data.NIF == null)
 			data.NIF = userToModify.getString(NIF);
-		
+
 		if (data.profile == null)
 			data.profile = userToModify.getString(PROFILE);
-		
+
 		if (data.state == null)
 			data.state = userToModify.getString(STATE);
-		
+
 		return true;
-		
+
 	}
 
 	@POST
@@ -555,14 +511,16 @@ public class RegisterResource {
 	public Response modifyPwd(PasswordChangeData data) {
 
 		LOG.fine("Attempt to modify password for user: " + data.username);
-		
-		if(!data.validParameters())
+
+		if (!data.validParameters())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		if(!data.verifyPassword())
+		if (!data.verifyPassword())
 			return Response.status(Status.FORBIDDEN).entity("Passwords don't match").build();
-		if(!data.validPasswordFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character").build();
-		
+		if (!data.validPasswordFormat())
+			return Response.status(Status.BAD_REQUEST).entity(
+					"Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character")
+					.build();
+
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
@@ -571,43 +529,33 @@ public class RegisterResource {
 
 		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
-		
-		try {
 
+		try {
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST)
-						.entity("User " + data.username + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
-			if(!user.getString(PASSWORD).equals(DigestUtils.sha512Hex(data.oldPwd))) 
-				return Response.status(Status.BAD_REQUEST)
-						.entity("Wrong password").build();
+			if (!user.getString(PASSWORD).equals(DigestUtils.sha512Hex(data.oldPwd)))
+				return Response.status(Status.BAD_REQUEST).entity("Wrong password").build();
 			if (token == null) {
 				// tn.rollback();
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
-			if(isTokenExpired(token, tn)) {
+			if (isTokenExpired(token, tn)) {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
 
-			user = Entity.newBuilder(userKey)
-					.set(USERNAME, user.getString(USERNAME))
-					.set(NAME, user.getString(NAME))
-					.set(PASSWORD, DigestUtils.sha512Hex(data.newPwd))
-					.set(EMAIL, user.getString(EMAIL))
-					.set(ROLE, user.getString(ROLE))
-					.set(MPHONE, user.getString(MPHONE))
-					.set(LPHONE, user.getString(LPHONE))
-					.set(ADDRESS, user.getString(ADDRESS))
-					.set(NIF, user.getString(NIF))
-					.set(PROFILE, user.getString(PROFILE))
-					.set(STATE, user.getString(STATE))
-					.set(CTIME, user.getTimestamp(CTIME)).build();
-			
+			user = Entity.newBuilder(userKey).set(USERNAME, user.getString(USERNAME)).set(NAME, user.getString(NAME))
+					.set(PASSWORD, DigestUtils.sha512Hex(data.newPwd)).set(EMAIL, user.getString(EMAIL))
+					.set(ROLE, user.getString(ROLE)).set(MPHONE, user.getString(MPHONE))
+					.set(LPHONE, user.getString(LPHONE)).set(ADDRESS, user.getString(ADDRESS))
+					.set(NIF, user.getString(NIF)).set(PROFILE, user.getString(PROFILE))
+					.set(STATE, user.getString(STATE)).set(CTIME, user.getTimestamp(CTIME)).build();
+
 			tn.put(user);
 			tn.commit();
 
@@ -630,7 +578,6 @@ public class RegisterResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response doLogout(LogoutData data) {
 
-
 		LOG.fine("Attempt to logout user: " + data.username);
 
 		Transaction tn = datastore.newTransaction();
@@ -649,12 +596,11 @@ public class RegisterResource {
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
-			if (token == null) {//TODO - change here to isValidToken?
+			if (token == null) {// TODO - change here to isValidToken?
 				// tn.rollback();
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
-			
 
 			tn.delete(tokenKey);
 			tn.commit();
@@ -677,18 +623,18 @@ public class RegisterResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response getToken(LogoutData data) {
-		
+
 		LOG.fine("Attempt to retrieve login token for user: " + data.username);
-		
+
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
-		
+
 		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
-		
+
 		try {
 
 			if (user == null) {
@@ -701,13 +647,13 @@ public class RegisterResource {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
-			if(isTokenExpired(token, tn)) {
+			if (isTokenExpired(token, tn)) {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
-			
+
 			AuthToken at = new AuthToken(data.username, user.getString(ROLE));
-			
+
 			return Response.ok(g.toJson(at)).build();
 
 		} catch (Exception e) {
@@ -719,26 +665,26 @@ public class RegisterResource {
 			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
 				tn.rollback();
 		}
-		
+
 	}
-	
+
 	@POST
 	@Path("/show")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showUsers(LogoutData data) {
-		
+
 		LOG.fine("Attempt to retrieve login token for user: " + data.username);
-		
+
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
-		
+
 		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
-		
+
 		try {
 
 			if (user == null) {
@@ -751,15 +697,14 @@ public class RegisterResource {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
-			if(isTokenExpired(token, tn)) {
+			if (isTokenExpired(token, tn)) {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
-			
+
 			String userRole = user.getString(ROLE);
-			
+
 			List<String> userList = getQueries(userRole);
-			
 
 			return Response.ok(g.toJson(userList)).build();
 
@@ -772,18 +717,15 @@ public class RegisterResource {
 			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
 				tn.rollback();
 		}
-		
-	}
-	
-	private List<String> getQueries(String role) {
 
+	}
+
+	private List<String> getQueries(String role) {
 
 		if (role.equals(USER)) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, USER),
-							PropertyFilter.eq(PROFILE, PUBLIC), 
+					.setFilter(CompositeFilter.and(PropertyFilter.eq(ROLE, USER), PropertyFilter.eq(PROFILE, PUBLIC),
 							PropertyFilter.eq(STATE, ACTIVE)))
 					.build();
 
@@ -804,9 +746,7 @@ public class RegisterResource {
 
 			// Define query
 			Query<Entity> queryGBO = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, USER)))
-					.build();
+					.setFilter(CompositeFilter.and(PropertyFilter.eq(ROLE, USER))).build();
 
 			return buildQueryList(queryGBO);
 
@@ -816,14 +756,10 @@ public class RegisterResource {
 			// Queries don't have an OR operation, apparently, so we have to do 2 separate
 			// ones
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, USER)))
-					.build();
+					.setFilter(CompositeFilter.and(PropertyFilter.eq(ROLE, USER))).build();
 
 			Query<Entity> query2 = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, GBO)))
-					.build();
+					.setFilter(CompositeFilter.and(PropertyFilter.eq(ROLE, GBO))).build();
 
 			List<String> allUsers = buildQueryList(query);
 			List<String> usersGBO = buildQueryList(query2);
@@ -832,7 +768,7 @@ public class RegisterResource {
 
 			return allUsers;
 		}
-		
+
 		if (role.equals(SU)) {
 
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User").build();
@@ -843,64 +779,57 @@ public class RegisterResource {
 		return null;
 
 	}
-	
+
 	private List<String> buildQueryList(Query<Entity> query) {
-		
+
 		QueryResults<Entity> users = datastore.run(query);
-		
+
 		List<String> allUsers = new ArrayList<String>();
 		allUsers.add("List of Users: ");
-		
-		users.forEachRemaining(userList-> {
-			allUsers.add("Username: "+ userList.getString(USERNAME) +
-					" -|- Name: "+ userList.getString(NAME) +
-					" -|- Email: " + userList.getString(EMAIL) +
-					" -|- Role: "+ userList.getString(ROLE)+
-					" -|- Profile: "+ userList.getString(PROFILE)+
-					" -|- State: "+ userList.getString(STATE)+
-					" -|- Password: "+ userList.getString(PASSWORD)+
-					" -|- Address: "+ userList.getString(ADDRESS)+
-					" -|- Landphone: "+ userList.getString(LPHONE)+
-					" -|- Mobile Phone: "+ userList.getString(MPHONE)+
-					" -|- NIF: "+ userList.getString(NIF)+
-					" -|- Creation Time: "+ userList.getTimestamp(CTIME).toString()
-					);
+
+		users.forEachRemaining(userList -> {
+			allUsers.add("Username: " + userList.getString(USERNAME) + " -|- Name: " + userList.getString(NAME)
+					+ " -|- Email: " + userList.getString(EMAIL) + " -|- Role: " + userList.getString(ROLE)
+					+ " -|- Profile: " + userList.getString(PROFILE) + " -|- State: " + userList.getString(STATE)
+					+ " -|- Password: " + userList.getString(PASSWORD) + " -|- Address: " + userList.getString(ADDRESS)
+					+ " -|- Landphone: " + userList.getString(LPHONE) + " -|- Mobile Phone: "
+					+ userList.getString(MPHONE) + " -|- NIF: " + userList.getString(NIF) + " -|- Creation Time: "
+					+ userList.getTimestamp(CTIME).toString());
 		});
-		
+
 		return allUsers;
 	}
 
-	private boolean isOverlapped(Entity parcel1, Entity parcel2){
+	private boolean isOverlapped(Entity parcel1, Entity parcel2) {
 
-		
 		return false;
 	}
 
 	/**
-	private List<LatLng> parcelPoints(Entity parcel){
-		
-	}
-	*/
-	
-	
+	 * private List<LatLng> parcelPoints(Entity parcel){
+	 * 
+	 * }
+	 */
+
 	/**
 	 * Verify if token has expired, logout and remove said token if so
+	 * 
 	 * @param token
 	 * @return
 	 */
 	private boolean isTokenExpired(Entity token, Transaction t) {
 		long currentTime = System.currentTimeMillis();
-		
-		if(token.getLong("token_validTo") < currentTime) {
+
+		if (token.getLong("token_validTo") < currentTime) {
 			t.delete(token.getKey());
 			t.commit();
 			return true;
 		}
-			
+
 		return false;
 	}
-	//---------------------------------------------------------------------------------------------------------------//
-	
+	// ---------------------------------------------------------------------------------------------------------------//
+
 	@POST
 	@Path("/op9")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -913,7 +842,7 @@ public class RegisterResource {
 
 		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = datastore.get(tokenKey);
-		
+
 		Transaction tn = datastore.newTransaction();
 
 		if (user == null) {
@@ -928,20 +857,20 @@ public class RegisterResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-		if (!isTokenExpired(token, tn)) {
+		if (isTokenExpired(token, tn)) {
 			LOG.warning("User " + data.username + "  session has expired.");
 
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
 		UserInfo u = new UserInfo(user.getString("username"), user.getString("email"), user.getString("name"),
-				user.getString("profileVisibility"), user.getString("homePhone"), user.getString("mobilePhone"),
+				 user.getString("landphone"), user.getString("mobilephone"),
 				user.getString("address"), user.getString("nif"), user.getString("role"), user.getString("state"));
 
 		return Response.ok(g.toJson(u)).build();
 
 	}
 
-	//teste
-	
+	// teste
+
 }
