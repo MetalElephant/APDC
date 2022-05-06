@@ -59,7 +59,7 @@ class restCalls {
     }
 
     parcelRegister (owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/parcel", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ class restCalls {
     }
 
     modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage, area) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/modifyParcel", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/modifyParcel", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
