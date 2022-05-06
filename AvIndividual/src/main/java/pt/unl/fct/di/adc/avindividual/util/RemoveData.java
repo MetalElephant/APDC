@@ -3,16 +3,16 @@ package pt.unl.fct.di.adc.avindividual.util;
 public class RemoveData {
 	
 	public String username;
-	public String username2;
+	public String usernameToRemove;
 	//public AuthToken token;
 	
 	public RemoveData() {
 		
 	}
 	
-	public RemoveData(String username, String username2) {
+	public RemoveData(String username, String usernameToRemove) {
 		this.username = username;
-		this.username2 = username2;
+		this.usernameToRemove = usernameToRemove;
 	}
 
 

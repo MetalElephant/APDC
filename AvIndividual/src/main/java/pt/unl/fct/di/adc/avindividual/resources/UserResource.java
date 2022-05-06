@@ -6,19 +6,24 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import com.google.gson.Gson;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.servlet.http.HttpServletRequest;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
-import pt.unl.fct.di.adc.avindividual.util.ModifyData;
-import pt.unl.fct.di.adc.avindividual.util.PasswordChangeData;
+import pt.unl.fct.di.adc.avindividual.util.UpdateData;
+import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
 import pt.unl.fct.di.adc.avindividual.util.ShowSelfData;
@@ -39,9 +44,9 @@ public class UserResource {
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
-	private static final String USER = "USER";
-	private static final String GS = "GS";
-	private static final String GBO = "GBO";
+	private static final String USER = "User";
+    private static final String TOKEN = "Token";
+    private static final String USERSTATS = "UserStats";
 	private static final String SU = "SU";
 	private static final String PUBLIC = "Public";
 	public static final String PRIVATE = "Private";
@@ -60,7 +65,10 @@ public class UserResource {
 	private static final String PROFILE = "profile";
 	private static final String STATE = "state";
 	private static final String CTIME = "creation time";
-	
+    private static final String USERLOGINS = "user logins";
+    private static final String USERFAILS = "user_stats_failed";
+    private static final String FIRSTLOGIN = "user_first_login";
+	private static final String LASTLOGIN = "user_last_login";
 	/**
 	 * Empty constructor
 	 */
@@ -74,10 +82,9 @@ public class UserResource {
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response registerUser(RegisterData data) {
+		LOG.info("Attempt to register user: " + data.username);
 
-		LOG.fine("Attempt to register user: " + data.username);
-
-		// check validity of stuff
+		//Check validity of data
 		if (!data.validRegistration())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
@@ -88,14 +95,17 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
 		data.optionalAttributes();
 
-
-		// Transaction --> if information is not correct, we can rollback
 		Transaction tn = datastore.newTransaction();
 
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username))
+				.setKind(USERSTATS).newKey("counters");
+
 		try {
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 			Entity person = tn.get(userKey);
+            Entity stats;
 			
+            //We could possibly create super user elsewhere with a admin only page, see: secret from pp
 			//SUPERUSER creation
 			if(data.name.equals("SUPERUSER") && person==null) {
 				person = Entity.newBuilder(userKey)
@@ -112,7 +122,7 @@ public class UserResource {
 						.set(STATE, ACTIVE)
 						.set(CTIME, Timestamp.now()).build();
 
-				tn.put(person);
+				tn.add(person);
 				tn.commit(); 
 				
 				LOG.info("User registered: " + data.username);
@@ -138,17 +148,24 @@ public class UserResource {
 					.set(NIF,data.NIF)
 					.set(PROFILE, PUBLIC)
 					.set(STATE, INACTIVE)
-					.set(CTIME, Timestamp.now()).build();
+					.set(CTIME, Timestamp.now())
+                    .build();
+            
+            stats = Entity.newBuilder(statsKey)
+				.set(USERLOGINS, 0L)
+				.set(USERFAILS, 0L)
+				.set(FIRSTLOGIN , Timestamp.now())
+				.set(LASTLOGIN, Timestamp.now())
+				.build();
 
-			tn.put(person);
+			tn.add(person, stats);
 			tn.commit(); 
 
-			LOG.info("User registered: " + data.username);
-
+			LOG.fine("User registered: " + data.username);
 			return Response.ok("User "+ data.username ).build();
 
 		} finally {
-			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
+			if (tn.isActive())
 				tn.rollback();
 		}
 
@@ -158,102 +175,124 @@ public class UserResource {
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response doLogin(LoginData data) {
-		
-		LOG.fine("Attempt to login user: " + data.username);
+	public Response doLogin(LoginData data, @Context HttpServletRequest request, @Context HttpHeaders headers) {	
+		LOG.info("Attempt to login user: " + data.username);
 
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = datastore.get(userKey);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+        Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username))
+					.setKind("UserStats").newKey("counters");
+		Key logKey = datastore.allocateId(datastore.newKeyFactory()
+				.addAncestors(PathElement.of(USER, data.username))
+				.setKind("UserLog").newKey());
 		
-		if(user!= null) {
-			String hashedPwd = user.getString(PASSWORD);
-			
-			//if password matches, login
-			if(hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {
-				
-				Transaction tn = datastore.newTransaction();
+        Transaction tn = datastore.newTransaction();
+		
+		try {
+            Entity user = datastore.get(userKey);
+            Entity stats = tn.get(statsKey);
 
-				
-				try {
-					String userRole = user.getString(ROLE);
-					AuthToken token = new AuthToken(data.username, userRole); //authentication token
-					
-					Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.username);
+            if (user != null){
+                String password = user.getString(PASSWORD);
+
+                if(password.equals(DigestUtils.sha512Hex(data.password))) {
 					Entity tokenEntity = tn.get(tokenKey);
-					
-					//Guarantee user is not logging in again
-					if (tokenEntity != null) {
-						tn.rollback();
+
+                    if (tokenEntity != null){
+                        tn.rollback();
 						return Response.ok().entity("User Already Logged In").build();
-					}		
-					
-					tokenEntity = Entity.newBuilder(tokenKey)
+                    }
+
+                    Entity log = Entity.newBuilder(logKey)
+							.set("user_login_ip", request.getRemoteAddr())
+							.set("user_login_host", request.getRemoteHost())
+							.set("user_login_city", headers.getHeaderString("X-AppEngine-City"))
+							.set("user_login_country", headers.getHeaderString("X-AppEngine-Country"))
+							.set("user_login_time", Timestamp.now())
+							.build();
+
+					Entity uStats = Entity.newBuilder(statsKey)
+							.set("user_stats_logins", 1L + stats.getLong("user_stats_logins"))
+							.set("user_stats_failed", stats.getLong("user_stats_failed"))
+							.set("user_first_login", stats.getTimestamp("user_first_login"))
+							.set("user_last_login", Timestamp.now())
+							.build();
+
+                    AuthToken token = new AuthToken(data.username);
+
+                    tokenEntity = Entity.newBuilder(tokenKey)
 							.set("token_ID", token.tokenID)
 							.set("token_username", token.username)
 							.set("token_validFrom", token.validFrom)
 							.set("token_validTo", token.validTo)
-							.set("token_user_role", token.role)
 							.build();
 
-					tn.add(tokenEntity);
-					tn.commit();
-					
-					LOG.info("User logged in: "+data.username);
+                    tn.add(tokenEntity, log, uStats);
+                    tn.commit();
+
+                    LOG.info("User logged in: "+data.username);
 					
 					return Response.ok(g.toJson(token)).build();
-					
-					
-				}finally {
-					if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
-						tn.rollback();
-				}
+                }else{
+                    LOG.warning("Wrong password for :" + data.username);
 
-			}
-			else {
-				LOG.warning("Wrong password for :" + data.username);
-				return Response.status(Status.FORBIDDEN).entity("Wrong password").build();
-			}
-		}
-		else {//username doesn't exist
-			LOG.warning("User " + data.username +" does not exist");
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username +" does not exist").build();
-		}
-		
+                    Entity uStats = Entity.newBuilder(statsKey)
+							.set("user_stats_logins", stats.getLong("user_stats_logins"))
+							.set("user_stats_failed", 1L + stats.getLong("user_stats_failed"))
+							.set("user_first_login", stats.getTimestamp("user_first_login"))
+							.set("user_last_login", stats.getTimestamp("user_last_login"))
+							.set("user_last_attempt", Timestamp.now())
+							.build();
+                    
+                    tn.add(uStats);
+                    tn.commit();        
+
+                    return Response.status(Status.FORBIDDEN).entity("Wrong password").build(); 
+                }
+            }else {
+                LOG.warning("User " + data.username +" does not exist");
+			    return Response.status(Status.FORBIDDEN).entity("User " + data.username +" does not exist").build();
+            }
+        }finally{
+            if (tn.isActive())
+                tn.rollback();
+        }
 	}
 	
 	@DELETE
 	@Path("/remove")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response removeUser(RemoveData data) {
-
-		LOG.fine("Attempt to remove user: " + data.username2);
+		LOG.info("Attempt to remove user: " + data.usernameToRemove);
 
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
-		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = tn.get(userKey1);
-
-		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
-		Entity userToRemove = tn.get(userKey2);
-
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		Entity token = tn.get(tokenKey);
-		
-		Key tokenKeytoRemove = datastore.newKeyFactory().setKind("Tokens").newKey(data.username2);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key userToRemoveKey = datastore.newKeyFactory().setKind(USER).newKey(data.usernameToRemove);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
+		Key tokenKeytoRemove = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameToRemove);
+        Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.usernameToRemove))
+				.setKind(USERSTATS).newKey("counters");
 
 		try {
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
+            Entity userToRemove = tn.get(userToRemoveKey);
 
 			if (user == null || userToRemove == null) {
 				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
+
+            //Probably don't need 2 ifs for token invalidity
 			if (token == null) {
-				// tn.rollback();
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
+
 			if(isTokenExpired(token, tn)) {
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - token expired.").build();
@@ -267,10 +306,10 @@ public class UserResource {
 			if(tokenKeytoRemove != null)
 				tn.delete(tokenKeytoRemove);
 			
-			tn.delete(userKey2);
+			tn.delete(userToRemoveKey, statsKey);
 			tn.commit();
 
-			return Response.ok(g.toJson(null)).entity("User" + data.username + " deleted User " + data.username2)
+			return Response.ok(g.toJson(null)).entity("User" + data.username + " deleted User " + data.usernameToRemove)
 					.build();
 
 		} catch (Exception e) {
@@ -279,18 +318,18 @@ public class UserResource {
 			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
 
 		} finally {
-			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
+			if (tn.isActive())
 				tn.rollback();
 		}
 	}
 	
+    //No roles yet so always true
 	private boolean canRemove(Entity user, Entity userToRemove) {
-
+        /*
 		String role1 = user.getString(ROLE);
 		String role2 = userToRemove.getString(ROLE);
 		String name1 = user.getString(USERNAME);
 		String name2 = userToRemove.getString(USERNAME);
-
 
 			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
 				return false;
@@ -301,16 +340,15 @@ public class UserResource {
 			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
 				return false;
 			}
-
+        */
 		return true;
 	}
 
-	@POST
-	@Path("/modify")
+	@PUT
+	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response modifyUser(ModifyData data) {
-
-		LOG.fine("Attempt to modify user: " + data.username2);
+	public Response updateUser(UpdateData data) {
+		LOG.info("Attempt to modify user: " + data.usernameToUpdate);
 		
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
@@ -319,28 +357,27 @@ public class UserResource {
 		if(!data.validStateFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong type of state: try 'ACTIVE' or 'INACTIVE'").build();
 
-		
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = tn.get(userKey);
-		
-		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
-		Entity userToModify = tn.get(userKey2);
-
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		Entity token = tn.get(tokenKey);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);		
+		Key userKey2 = datastore.newKeyFactory().setKind(USER).newKey(data.usernameToUpdate);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 
 		try {
 
-			if (user == null || userToModify == null) {
+            Entity user = tn.get(userKey);
+            Entity userToUpdate = tn.get(userKey2);
+            Entity token = tn.get(tokenKey);
+
+			if (user == null || userToUpdate == null) {
 				LOG.warning("User does not exist");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User does not exist").build();
 			}
+
 			if (token == null) {
-				// tn.rollback();
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
@@ -350,13 +387,14 @@ public class UserResource {
 			}
 			
 			// To set what will stay the same value or what will actually be changed
-			if(!canModify(data, user, userToModify))
+			if(!canModify(data, user, userToUpdate))
 				return Response.status(Status.FORBIDDEN).entity("User does not have authorization to change one or more attributes.").build();
 
-			userToModify = Entity.newBuilder(userKey2)
-					.set(USERNAME, data.username2)
+                //We send back the old info + the new one
+                userToUpdate = Entity.newBuilder(userKey2)
+					.set(USERNAME, data.usernameToUpdate)
 					.set(NAME, data.name)
-					.set(PASSWORD, userToModify.getString(PASSWORD))
+					.set(PASSWORD, userToUpdate.getString(PASSWORD))
 					.set(EMAIL, data.email)
 					.set(ROLE, data.role)
 					.set(MPHONE, data.mobilePhone)
@@ -365,12 +403,13 @@ public class UserResource {
 					.set(NIF, data.NIF)
 					.set(PROFILE, data.profile)
 					.set(STATE, data.state)
-					.set(CTIME, userToModify.getTimestamp(CTIME)).build();
+					.set(CTIME, userToUpdate.getTimestamp(CTIME))
+                    .build();
 			
-			tn.put(userToModify);
+			tn.add(userToUpdate);
 			tn.commit();
 
-			return Response.ok("User " + data.username2 + "'s parameters updated.").build();
+			return Response.ok("User " + data.usernameToUpdate + "'s parameters updated.").build();
 
 		} catch (Exception e) {
 			tn.rollback();
@@ -384,8 +423,7 @@ public class UserResource {
 
 	}
 	
-	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
-		
+	private boolean canModify(UpdateData data, Entity user, Entity userToModify) {	
 		if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
 			return false;
 		
@@ -421,10 +459,10 @@ public class UserResource {
 		
 	}
 
-	@POST
-	@Path("/modifyPwd")
+	@PUT
+	@Path("/updatePwd")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response modifyPwd(PasswordChangeData data) {
+	public Response modifyPwd(PasswordUpdateData data) {
 
 		LOG.fine("Attempt to modify password for user: " + data.username);
 		
@@ -438,14 +476,12 @@ public class UserResource {
 		Transaction tn = datastore.newTransaction();
 
 		// Get both users
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = tn.get(userKey);
-
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		Entity token = tn.get(tokenKey);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		
 		try {
-
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
@@ -480,7 +516,7 @@ public class UserResource {
 					.set(STATE, user.getString(STATE))
 					.set(CTIME, user.getTimestamp(CTIME)).build();
 			
-			tn.put(user);
+			tn.add(user);
 			tn.commit();
 
 			return Response.ok("User" + data.username + " updated password").build();
@@ -501,28 +537,25 @@ public class UserResource {
 	@Path("/logout")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response doLogout(LogoutData data) {
-
-
-		LOG.fine("Attempt to logout user: " + data.username);
+		LOG.info("Attempt to logout user: " + data.username);
 
 		Transaction tn = datastore.newTransaction();
 
-		// Get both users
-		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = tn.get(userKey1);
-
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		Entity token = tn.get(tokenKey);
 
 		try {
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
-			if (token == null) {//TODO - change here to isValidToken?
-				// tn.rollback();
+
+			if (token == null) {
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN)
 						.entity("User " + data.username + " not logged in - invalid token.").build();
 			}
@@ -533,35 +566,30 @@ public class UserResource {
 
 			return Response.ok(g.toJson(null)).entity("User" + data.username + " logged out.").build();
 
-		} catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-
 		} finally {
-			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
+			if (tn.isActive()){
 				tn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            }
 		}
 	}
 
-	@POST
+    //We already get the token from the login, this is kinda unecessary and it returns a new token not the one being used
+	@GET
 	@Path("/token")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response getToken(LogoutData data) {
-		
-		LOG.fine("Attempt to retrieve login token for user: " + data.username);
+		LOG.info("Attempt to retrieve login token for user: " + data.username);
 		
 		Transaction tn = datastore.newTransaction();
 
-		// Get both users
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = tn.get(userKey);
-		
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);		
 		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		Entity token = tn.get(tokenKey);
 		
 		try {
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
 
 			if (user == null) {
 				LOG.warning("User does not exist");
@@ -578,40 +606,34 @@ public class UserResource {
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
 			
-			AuthToken at = new AuthToken(data.username, user.getString(ROLE));
+			AuthToken at = new AuthToken(data.username);
 			
 			return Response.ok(g.toJson(at)).build();
 
-		} catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-
 		} finally {
-			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
+			if (tn.isActive()){
 				tn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            }
 		}
 		
 	}
 	
 	@POST
-	@Path("/show")
+	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUsers(LogoutData data) {
-		
-		LOG.fine("Attempt to retrieve login token for user: " + data.username);
+	public Response showUsers(LogoutData data) {	
+		LOG.info("Attempt to retrieve login token for user: " + data.username);
 		
 		Transaction tn = datastore.newTransaction();
 
-		// Get both users
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = tn.get(userKey);
-		
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);		
 		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		Entity token = tn.get(tokenKey);
 		
 		try {
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
 
 			if (user == null) {
 				LOG.warning("User does not exist");
@@ -634,66 +656,70 @@ public class UserResource {
 			
 
 			return Response.ok(g.toJson(userList)).build();
-
-		} catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-
 		} finally {
-			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
+			if (tn.isActive()){
 				tn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            }
 		}
 		
 	}
 
-    @POST
-	@Path("/op9")
+    @GET
+	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showSelf(ShowSelfData data) {
 		LOG.fine("Attempting to show user " + data.username);
 
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = datastore.get(userKey);
 
 		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = datastore.get(tokenKey);
 
 		Transaction tn = datastore.newTransaction();
 
-		if (user == null) {
-			LOG.warning("User " + data.username + " does not exist.");
+        try{
+            Entity user = datastore.get(userKey);
 
-			return Response.status(Status.FORBIDDEN).build();
-		}
-
-		if (token == null) {
-			LOG.warning("User " + data.username + " is not logged in.");
-
-			return Response.status(Status.FORBIDDEN).build();
-		}
-
-		if (!isTokenExpired(token, tn)) {
-			LOG.warning("User " + data.username + "  session has expired.");
-
-			return Response.status(Status.FORBIDDEN).build();
-		}
-
-		UserInfo u = new UserInfo(user.getString("username"), user.getString("email"), user.getString("name"),
-				user.getString("profileVisibility"), user.getString("homePhone"), user.getString("mobilePhone"),
-				user.getString("address"), user.getString("nif"), user.getString("role"), user.getString("state"));
-
-		return Response.ok(g.toJson(u)).build();
+            if (user == null) {
+                LOG.warning("User " + data.username + " does not exist.");
+    
+                return Response.status(Status.FORBIDDEN).build();
+            }
+    
+            if (token == null) {
+                LOG.warning("User " + data.username + " is not logged in.");
+    
+                return Response.status(Status.FORBIDDEN).build();
+            }
+    
+            if (!isTokenExpired(token, tn)) {
+                LOG.warning("User " + data.username + "  session has expired.");
+    
+                return Response.status(Status.FORBIDDEN).build();
+            }
+    
+            UserInfo u = new UserInfo(user.getString("username"), user.getString("email"), user.getString("name"),
+                    user.getString("profileVisibility"), user.getString("homePhone"), user.getString("mobilePhone"),
+                    user.getString("address"), user.getString("nif"), user.getString("role"), user.getString("state"));
+    
+            return Response.ok(g.toJson(u)).build();
+        }finally{
+            if (tn.isActive()){
+				tn.rollback();
+                return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+		
 
 	}
 	
 	private List<String> getQueries(String role) {
 
-
 		if (role.equals(USER)) {
 
-			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind("User")
+			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, USER),
 							PropertyFilter.eq(PROFILE, PUBLIC), 
@@ -713,6 +739,7 @@ public class UserResource {
 			return allUsers;
 
 		}
+        /*
 		if (role.equals(GBO)) {
 
 			// Define query
@@ -737,15 +764,16 @@ public class UserResource {
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, GBO)))
 					.build();
-
+        
 			List<String> allUsers = buildQueryList(query);
 			List<String> usersGBO = buildQueryList(query2);
 
 			allUsers.addAll(usersGBO);
 
 			return allUsers;
+        
 		}
-		
+		*/
 		if (role.equals(SU)) {
 
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User").build();
@@ -799,8 +827,5 @@ public class UserResource {
 			
 		return false;
 	}
-	//---------------------------------------------------------------------------------------------------------------//
-	
-
 
 }
