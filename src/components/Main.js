@@ -2,6 +2,7 @@ import react from "react"
 import {Typography, Button, Grid } from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
+import { UserInfo } from "./UserInfo";
 import Logout from "./Logout";
 
 export default function Main() {
@@ -53,7 +54,7 @@ export default function Main() {
                         Logout
                     </Button>
                 </Grid>
-                {(display === 0) ? <Typography> O RAFA É BOSS </Typography>: <></>}
+                {(display === 0) ? <UserInfo />: <></>}
                 {(display === 1) ? <RegisterParcel /> : <></>}
                 {(display === 2) ? <ModifyParcel />: <></>}
                 {(display === 3) ? <Logout />: <></>}

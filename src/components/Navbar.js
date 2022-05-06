@@ -12,7 +12,7 @@ export default function Navbar() {
                        <Box component="img" src = {logoProduto} width="170px" sx={{ml: "20px"}}  />
                     </Grid>
                     <Grid item xs ={6}> 
-                        <Typography variant="h2" align = "center"> Welcome!</Typography>
+                        <Typography variant="h3" align = "center"> Welcome!</Typography>
                     </Grid>
                     <Grid item xs ={3}>
                         <Box component="img" src = {logoEquipa} width="220px" sx={{ml: "auto", mr: "20px", display: "flex"}} />

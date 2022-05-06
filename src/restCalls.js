@@ -119,6 +119,29 @@ class restCalls {
         }) 
     }
 
+    userInfo() {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/op9", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: localStorage.getItem('username'),
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
     logout() {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/logout/", {
             method: 'DELETE',
