@@ -174,7 +174,7 @@ public class RegisterResource {
 
 				try {
 					String userRole = user.getString(ROLE);
-					AuthToken token = new AuthToken(data.username, userRole); // authentication token
+					AuthToken token = new AuthToken(data.username); // authentication token
 
 					Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.username);
 					Entity tokenEntity = tn.get(tokenKey);
@@ -187,7 +187,7 @@ public class RegisterResource {
 
 					tokenEntity = Entity.newBuilder(tokenKey).set("token_ID", token.tokenID)
 							.set("token_username", token.username).set("token_validFrom", token.validFrom)
-							.set("token_validTo", token.validTo).set("token_user_role", token.role).build();
+							.set("token_validTo", token.validTo).build();
 
 					tn.add(tokenEntity);
 					tn.commit();
@@ -652,7 +652,7 @@ public class RegisterResource {
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
 
-			AuthToken at = new AuthToken(data.username, user.getString(ROLE));
+			AuthToken at = new AuthToken(data.username);
 
 			return Response.ok(g.toJson(at)).build();
 
