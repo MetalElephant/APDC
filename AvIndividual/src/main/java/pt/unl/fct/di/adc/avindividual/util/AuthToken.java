@@ -8,10 +8,10 @@ public class AuthToken {
 	public String tokenID;
 	public long validFrom;
 	public long validTo;
-	
+	public String role;
 
-	public AuthToken(String username) {
-		
+	public AuthToken(String username, String role) {
+		this.role = role;
 		this.username = username;
 		this.tokenID = UUID.randomUUID().toString();
 		this.validFrom = System.currentTimeMillis();
