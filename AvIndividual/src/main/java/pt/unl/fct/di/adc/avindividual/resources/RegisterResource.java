@@ -14,6 +14,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
+import java.awt.geom.Line2D;
+
+
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
@@ -191,7 +194,7 @@ public class RegisterResource {
 					String userRole = user.getString(ROLE);
 					AuthToken token = new AuthToken(data.username, userRole); //authentication token
 					
-					Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(token.username);
+					Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.username);
 					Entity tokenEntity = tn.get(tokenKey);
 					
 					//Guarantee user is not logging in again
@@ -250,10 +253,10 @@ public class RegisterResource {
 		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
 		Entity userToRemove = tn.get(userKey2);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
-		Key tokenKeytoRemove = datastore.newKeyFactory().setKind("Tokens").newKey(data.username2);
+		Key tokenKeytoRemove = datastore.newKeyFactory().setKind("Token").newKey(data.username2);
 
 		try {
 
@@ -342,7 +345,7 @@ public class RegisterResource {
 		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
 		Entity userToModify = tn.get(userKey2);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 
 		try {
@@ -406,7 +409,7 @@ public class RegisterResource {
 		Entity user = tn.get(userKey1);
 		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
 		Entity parcel = tn.get(parcelKey);
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.owner);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.owner);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -422,7 +425,7 @@ public class RegisterResource {
 				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
 			}
 			
-			Builder builder = Entity.newBuilder(parcelKey)
+			parcel = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
 					.set(PARCEL_ID, data.parcelId)
 					.set(PARCEL_NAME, data.parcelName)
@@ -430,13 +433,16 @@ public class RegisterResource {
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area);
+					.set(AREA, data.area)
+					.build();
 			
+			/*
 			for(int i = 0; i< data.points.length; i++) {
 				builder.set(POINTS+i, data.points[i]);
 			}
 			
 			parcel = builder.build();
+			*/
 			
 			//Later you can search for parcel with queary
 			tn.put(parcel);
@@ -563,7 +569,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -633,7 +639,7 @@ public class RegisterResource {
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey1);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 
 		try {
@@ -680,7 +686,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
 		
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -730,7 +736,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
 		
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -866,7 +872,7 @@ public class RegisterResource {
 
 	private boolean isOverlapped(Entity parcel1, Entity parcel2){
 
-
+		
 		return false;
 	}
 
@@ -905,7 +911,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = datastore.get(userKey);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = datastore.get(tokenKey);
 		
 		Transaction tn = datastore.newTransaction();
