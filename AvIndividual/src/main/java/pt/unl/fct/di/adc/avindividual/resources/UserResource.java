@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
-import pt.unl.fct.di.adc.avindividual.util.UpdateData;
+import pt.unl.fct.di.adc.avindividual.util.UpdateUserData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
@@ -347,7 +347,7 @@ public class UserResource {
 	@PUT
 	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateUser(UpdateData data) {
+	public Response updateUser(UpdateUserData data) {
 		LOG.info("Attempt to modify user: " + data.usernameToUpdate);
 		
 		if(!data.validEmailFormat())
@@ -423,7 +423,7 @@ public class UserResource {
 
 	}
 	
-	private boolean canModify(UpdateData data, Entity user, Entity userToModify) {	
+	private boolean canModify(UpdateUserData data, Entity user, Entity userToModify) {	
 		if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
 			return false;
 		

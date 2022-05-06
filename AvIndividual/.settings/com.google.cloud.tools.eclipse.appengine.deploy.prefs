@@ -1,8 +1,12 @@
-account.email=jpgd2000@gmail.com
+account.email=masteragreenpower@gmail.com
 eclipse.preferences.version=1
 include.optional.configuration.files=true
 project.bucket=
-project.id=upbeat-polygon-344116
+project.id=our-hull-344121
 project.previousVersion.stop=true
 project.promote=true
+<<<<<<< HEAD
 project.version=54
+=======
+project.version=all
+>>>>>>> branch 'main' of https://github.com/MetalElephant/APDC.git
