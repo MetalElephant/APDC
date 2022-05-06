@@ -436,7 +436,7 @@ public class RegisterResource {
 					.set(AREA, data.area)
 					.build();
 			
-			/*
+			/*123
 			for(int i = 0; i< data.points.length; i++) {
 				builder.set(POINTS+i, data.points[i]);
 			}
