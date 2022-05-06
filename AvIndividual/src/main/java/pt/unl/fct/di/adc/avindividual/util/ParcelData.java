@@ -4,11 +4,9 @@ import com.google.cloud.datastore.LatLng;
 public class ParcelData {
 	
 	public String owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area;
-	//public LatLng[] points;
+	public LatLng[] points;
 	
-	public ParcelData() {
-		
-	}
+	public ParcelData() {}
 	
 	public ParcelData(String owner, String parcelName, String parcelId, String description, String groundType, String currUsage, String prevUsage, String area) {
 		this.owner = owner;

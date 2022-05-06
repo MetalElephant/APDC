@@ -14,9 +14,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
-import java.awt.geom.Line2D;
-
-
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.servlet.http.HttpServletRequest;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
@@ -37,32 +37,15 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-public class RegisterResource {
+public class UserResource {
 
-	private static final Logger LOG = Logger.getLogger(RegisterResource.class.getName());
+	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
-	private static final String USER = "USER";
-	private static final String GS = "GS";
-	private static final String GBO = "GBO";
-	private static final String SU = "SU";
-	private static final String PUBLIC = "Public";
-	public static final String PRIVATE = "Private";
-	public static final String ACTIVE = "ACTIVE";
-	public static final String INACTIVE = "INACTIVE";
-	
+	//User information
 	private static final String USERNAME = "username";
-	private static final String PARCEL_ID = "parcelId";
-	private static final String OWNER = "owner";
-	private static final String PARCEL_NAME = "name";
-	private static final String DESCRIPTION = "description";
-	private static final String GROUND_COVER_TYPE = "ground cover type";
-	private static final String CURR_USAGE = "current usage";
-	private static final String PREV_USAGE = "previous usage";
-	private static final String AREA = "area";
-	private static final String POINTS = "parcel point ";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -74,24 +57,47 @@ public class RegisterResource {
 	private static final String PROFILE = "profile";
 	private static final String STATE = "state";
 	private static final String CTIME = "creation time";
+	private static final String PUBLIC = "Public";
+	public static final String PRIVATE = "Private";
+	public static final String ACTIVE = "ACTIVE";
+	public static final String INACTIVE = "INACTIVE";
+
+	private static final String SU = "SU";
+
+	//Token information
+	public static final String TOKENID = "token ID";
+	public static final String TOKENUSER = "token user";
+	public static final String TOKENCREATION = "token creation";
+	public static final String TOKENEXPIRATION = "token expiration";
+
+
+	//Keys
+	private static final String USER = "User";
+    private static final String TOKEN = "Token";
+    private static final String USTATS = "User Stats";
+	private static final String ULOGS = "User Logs";
+	private static final String STATSCOUNT = "counter";
+
+	//Login information
+	private static final String USERLOGINS = "stats logins";
+    private static final String USERFAILS = "stats failed";
+    private static final String FIRSTLOGIN = "first login";
+	private static final String LASTLOGIN = "last login";
+	private static final String LOGINIP = "login ip";
+	private static final String LOGINHOST = "login host";
+	private static final String LOGINCITY = "login city";
+	private static final String LOGINCOUNTRY = "login country";
+	private static final String LOGINTIME = "login time";
 	
-	/**
-	 * Empty constructor
-	 */
-	public RegisterResource() {
-
-	}
-
-	//----------------------------------------------------------------------------------------------------------------//
+	public UserResource() {}
 
 	@POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response registerUser(RegisterData data) {
+		LOG.info("Attempt to register user: " + data.username);
 
-		LOG.fine("Attempt to register user: " + data.username);
-
-		// check validity of stuff
+		//Check if data is correctly input
 		if (!data.validRegistration())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
@@ -102,14 +108,18 @@ public class RegisterResource {
 			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
 		data.optionalAttributes();
 
-
-		// Transaction --> if information is not correct, we can rollback
 		Transaction tn = datastore.newTransaction();
 
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username))
+				.setKind(USTATS).newKey(STATSCOUNT);
+
 		try {
-			Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-			Entity person = tn.get(userKey);
+			Entity user = tn.get(userKey);
+            Entity stats;
 			
+			//We could possibly create super user elsewhere with a admin only page, see: secret from pp
+            /*
 			//SUPERUSER creation
 			if(data.name.equals("SUPERUSER") && person==null) {
 				person = Entity.newBuilder(userKey)
@@ -118,7 +128,6 @@ public class RegisterResource {
 						.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 						.set(EMAIL, data.email)
 						.set(ROLE, SU)
-						
 						.set(MPHONE, data.mobilePhone)
 						.set(LPHONE,data.landPhone)
 						.set(ADDRESS,data.address)
@@ -127,115 +136,150 @@ public class RegisterResource {
 						.set(STATE, ACTIVE)
 						.set(CTIME, Timestamp.now()).build();
 
-				tn.put(person);
+				tn.add(person);
 				tn.commit(); 
 				
 				LOG.info("User registered: " + data.username);
 
 				return Response.ok("User "+ data.username ).build();
 			}
-			
-			//other users - not superuser - creation
-			if ((person != null)) {
+			*/
+            
+			//Check if user already exists
+			if (user != null) {
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User Already Exists").build();
+				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
 			}
 
-			person = Entity.newBuilder(userKey)
+			//Create user and statistics entity
+			user = Entity.newBuilder(userKey)
 					.set(USERNAME, data.username)
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
-					.set(ROLE, USER)
-					
+					.set(ROLE, USER)		
 					.set(MPHONE, data.mobilePhone)
 					.set(LPHONE,data.landPhone)
 					.set(ADDRESS,data.address)
-					.set(NIF,data.NIF)//the fucking string problem
+					.set(NIF,data.NIF)
 					.set(PROFILE, PUBLIC)
 					.set(STATE, INACTIVE)
-					.set(CTIME, Timestamp.now()).build();
+					.set(CTIME, Timestamp.now())
+                    .build();
+            
+            stats = Entity.newBuilder(statsKey)
+				.set(USERLOGINS, 0L)
+				.set(USERFAILS, 0L)
+				.set(FIRSTLOGIN , Timestamp.now())
+				.set(LASTLOGIN, Timestamp.now())
+				.build();
 
-			tn.put(person);
+			tn.add(user, stats);
 			tn.commit(); 
 
-			LOG.info("User registered: " + data.username);
-
-			return Response.ok("User "+ data.username ).build();
+			LOG.fine("User registered: " + data.username);
+			return Response.ok("Registered user "+ data.username ).build();
 
 		} finally {
-			if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
+			if (tn.isActive()) {
 				tn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
 		}
-
 	}
 	
 	@POST
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response doLogin(LoginData data) {
-		
-		LOG.fine("Attempt to login user: " + data.username);
+	public Response doLogin(LoginData data, @Context HttpServletRequest request, @Context HttpHeaders headers) {	
+		LOG.info("Attempt to login user: " + data.username);
 
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = datastore.get(userKey);
-		
-		if(user!= null) {
-			String hashedPwd = user.getString(PASSWORD);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		Key statsKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username))
+					   .setKind(USTATS).newKey(STATSCOUNT);
+		Key logKey = datastore.allocateId(datastore.newKeyFactory()
+					.addAncestors(PathElement.of(USER, data.username))
+					.setKind(ULOGS).newKey());
+
+		Transaction tn = datastore.newTransaction();
+
+		try{
+			Entity user = datastore.get(userKey);
+			Entity stats = tn.get(statsKey);
 			
-			//if password matches, login
-			if(hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {
-				
-				Transaction tn = datastore.newTransaction();
+			if (user != null){
+				String hashedPwd = user.getString(PASSWORD);
 
-				
-				try {
-					String userRole = user.getString(ROLE);
-					AuthToken token = new AuthToken(data.username, userRole); //authentication token
-					
-					Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(token.username);
-					Entity tokenEntity = tn.get(tokenKey);
-					
-					//Guarantee user is not logging in again
-					if (tokenEntity != null) {
-						tn.rollback();
-						return Response.ok().entity("User Already Logged In").build();
-					}		
-					
-					tokenEntity = Entity.newBuilder(tokenKey)
-							.set("token_ID", token.tokenID)
-							.set("token_username", token.username)
-							.set("token_validFrom", token.validFrom)
-							.set("token_validTo", token.validTo)
-							.set("token_user_role", token.role)
-							.build();
-
-					tn.add(tokenEntity);
-					tn.commit();
-					
-					LOG.info("User logged in: "+data.username);
-					
-					return Response.ok(g.toJson(token)).build();
-					
-					
-				}finally {
-					if (tn.isActive()) // some error might've ocurred that made it not be commited or rolled back
-						tn.rollback();
-				}
-
-			}
-			else {
-				LOG.warning("Wrong password for :" + data.username);
-				return Response.status(Status.FORBIDDEN).entity("Wrong password").build();
-			}
-		}
-		else {//username doesn't exist
-			LOG.warning("User " + data.username +" does not exist");
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username +" does not exist").build();
-		}
+				if(hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {						
+						Entity tokenEntity = tn.get(tokenKey);
+						
+						//Guarantee user is not logging in again
+						if (tokenEntity != null) {
+							tn.rollback();
+							return Response.status(Status.CONFLICT).entity("User Already Logged In").build();
+						}
+						
+						//Create login log, the token and update the statistics
+	                    Entity log = Entity.newBuilder(logKey)
+									.set(LOGINIP, request.getRemoteAddr())
+									.set(LOGINHOST, request.getRemoteHost())
+									.set(LOGINCITY, headers.getHeaderString("X-AppEngine-City"))
+									.set(LOGINCOUNTRY, headers.getHeaderString("X-AppEngine-Country"))
+									.set(LOGINTIME, Timestamp.now())
+									.build();
+	                    
+						Entity uStats = Entity.newBuilder(statsKey)
+										.set(USERLOGINS, 1L + stats.getLong(USERLOGINS))
+										.set(USERFAILS, stats.getLong(USERFAILS))
+										.set(FIRSTLOGIN, stats.getTimestamp(FIRSTLOGIN))
+										.set(LASTLOGIN, Timestamp.now())
+										.build();                    
+						
+						AuthToken token = new AuthToken(data.username);
 		
+						tokenEntity = Entity.newBuilder(tokenKey)
+								.set(TOKENID, token.tokenID)
+								.set(TOKENUSER, token.username)
+								.set(TOKENCREATION, token.validFrom)
+								.set(TOKENEXPIRATION, token.validTo)
+								.build();
+						
+						//Put to overwrite previous stats
+						tn.put(tokenEntity, log, uStats);
+						tn.commit();
+						
+						LOG.info("User logged in: "+data.username);
+						
+						return Response.ok(g.toJson(token)).build();
+
+					}else {
+						LOG.warning("Wrong password for :" + data.username);
+						
+						Entity uStats = Entity.newBuilder(statsKey)
+								.set(USERLOGINS, stats.getLong(USERLOGINS))
+								.set(USERFAILS, 1L + stats.getLong(USERFAILS))
+								.set(FIRSTLOGIN, stats.getTimestamp(FIRSTLOGIN))
+								.set(LASTLOGIN, Timestamp.now())
+								.build(); 
+						
+						tn.put(uStats);
+						tn.commit();
+						return Response.status(Status.FORBIDDEN).entity("Wrong password").build();
+					}
+			}else{
+				LOG.warning("User " + data.username +" does not exist");
+				return Response.status(Status.NOT_FOUND).entity("User " + data.username +" does not exist").build();
+			}
+		}finally{
+			if (tn.isActive()){
+				tn.rollback();
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
+		}
 	}
+
 	
 	@DELETE
 	@Path("/remove")
@@ -253,10 +297,10 @@ public class RegisterResource {
 		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
 		Entity userToRemove = tn.get(userKey2);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
-		Key tokenKeytoRemove = datastore.newKeyFactory().setKind("Token").newKey(data.username2);
+		Key tokenKeytoRemove = datastore.newKeyFactory().setKind("Tokens").newKey(data.username2);
 
 		try {
 
@@ -300,8 +344,10 @@ public class RegisterResource {
 		}
 	}
 	
+	//No roles so right now we can always do it
 	private boolean canRemove(Entity user, Entity userToRemove) {
 
+		/*
 		String role1 = user.getString(ROLE);
 		String role2 = userToRemove.getString(ROLE);
 		String name1 = user.getString(USERNAME);
@@ -317,7 +363,7 @@ public class RegisterResource {
 			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
 				return false;
 			}
-
+		*/
 		return true;
 	}
 
@@ -345,7 +391,7 @@ public class RegisterResource {
 		Key userKey2 = datastore.newKeyFactory().setKind("User").newKey(data.username2);
 		Entity userToModify = tn.get(userKey2);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 
 		try {
@@ -398,118 +444,6 @@ public class RegisterResource {
 				tn.rollback();
 		}
 
-	}
-	
-	@POST
-	@Path("/parcel")
-	public Response putParcel(ParcelData data) {
-		Transaction tn = datastore.newTransaction();
-				
-		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
-		Entity user = tn.get(userKey1);
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
-		Entity parcel = tn.get(parcelKey);
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.owner);
-		Entity token = tn.get(tokenKey);
-		
-		try {
-			if(user == null || token == null || parcel != null) {
-				LOG.warning("Something about the request is wrong");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
-			}
-				
-			if(isTokenExpired(token, tn)) {
-				LOG.warning("Token has expired");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
-			}
-			
-			parcel = Entity.newBuilder(parcelKey)
-					.set(OWNER, data.owner)
-					.set(PARCEL_ID, data.parcelId)
-					.set(PARCEL_NAME, data.parcelName)
-					.set(DESCRIPTION, data.description)
-					.set(GROUND_COVER_TYPE, data.groundType)
-					.set(CURR_USAGE, data.currUsage)
-					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.build();
-			
-			/*123
-			for(int i = 0; i< data.points.length; i++) {
-				builder.set(POINTS+i, data.points[i]);
-			}
-			
-			parcel = builder.build();
-			*/
-			
-			//Later you can search for parcel with queary
-			tn.put(parcel);
-			tn.commit();
-			
-			return Response.ok("Parcel added").build();
-			
-		} catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		} finally {
-			if (tn.isActive())
-				tn.rollback();
-		}
-	}
-	
-	@POST
-	@Path("/modifyParcel")
-	public Response modifyParcel(ParcelData data) {
-		Transaction tn = datastore.newTransaction();
-
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
-		Entity parcel = tn.get(parcelKey);
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.owner);
-		Entity user = tn.get(userKey);
-		
-		try {
-			if(parcel == null) {
-				LOG.warning("Parcel does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
-			}
-			
-			if(user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User does not exist").build();
-			}
-			
-			if(!parcel.getString("owner").equals(user.getString("username"))) {
-				LOG.warning("User does not have the permission");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User does not have the permission").build();
-			}
-			
-			parcel = Entity.newBuilder(parcelKey)
-					.set(OWNER, data.owner)
-					.set(PARCEL_ID, data.parcelId)
-					.set(PARCEL_NAME, data.parcelName)
-					.set(DESCRIPTION, data.description)
-					.set(GROUND_COVER_TYPE, data.groundType)
-					.set(CURR_USAGE, data.currUsage)
-					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.build();
-			
-			tn.put(parcel);
-			tn.commit();
-			
-		}catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
-		
-		return Response.ok("Parcel changed").build();
 	}
 	
 	private boolean canModify(ModifyData data, Entity user, Entity userToModify) {
@@ -569,7 +503,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -639,7 +573,7 @@ public class RegisterResource {
 		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey1);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 
 		try {
@@ -686,7 +620,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
 		
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -706,7 +640,7 @@ public class RegisterResource {
 						.entity("User " + data.username + " not logged in - token expired.").build();
 			}
 			
-			AuthToken at = new AuthToken(data.username, user.getString(ROLE));
+			AuthToken at = new AuthToken(data.username);
 			
 			return Response.ok(g.toJson(at)).build();
 
@@ -736,7 +670,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = tn.get(userKey);
 		
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = tn.get(tokenKey);
 		
 		try {
@@ -800,6 +734,7 @@ public class RegisterResource {
 			return allUsers;
 
 		}
+		/*
 		if (role.equals(GBO)) {
 
 			// Define query
@@ -832,7 +767,7 @@ public class RegisterResource {
 
 			return allUsers;
 		}
-		
+		*/
 		if (role.equals(SU)) {
 
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User").build();
@@ -869,26 +804,13 @@ public class RegisterResource {
 		
 		return allUsers;
 	}
-
-	private boolean isOverlapped(Entity parcel1, Entity parcel2){
-
-		
-		return false;
-	}
-
-	/**
-	private List<LatLng> parcelPoints(Entity parcel){
-		
-	}
-	*/
-	
 	
 	/**
 	 * Verify if token has expired, logout and remove said token if so
 	 * @param token
 	 * @return
 	 */
-	private boolean isTokenExpired(Entity token, Transaction t) {
+	public boolean isTokenExpired(Entity token, Transaction t) {
 		long currentTime = System.currentTimeMillis();
 		
 		if(token.getLong("token_validTo") < currentTime) {
@@ -911,7 +833,7 @@ public class RegisterResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = datastore.get(userKey);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
 		Entity token = datastore.get(tokenKey);
 		
 		Transaction tn = datastore.newTransaction();
@@ -928,7 +850,7 @@ public class RegisterResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-		if (!isTokenExpired(token, tn)) {
+		if (isTokenExpired(token, tn)) {
 			LOG.warning("User " + data.username + "  session has expired.");
 
 			return Response.status(Status.FORBIDDEN).build();
@@ -942,6 +864,5 @@ public class RegisterResource {
 
 	}
 
-	//teste
-	
+
 }
