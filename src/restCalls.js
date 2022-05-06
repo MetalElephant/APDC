@@ -2,8 +2,6 @@
 
 class restCalls {
 
-    constructor(){}
-
 
     //depois alterar url
     login (username, password) {
@@ -60,7 +58,7 @@ class restCalls {
         }) 
     }
 
-    parcelRegister (owner, parcelName, parcelId, markers, description, groundType, currUsage, prevUsage, area) {
+    parcelRegister (owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/parcel", {
             method: 'POST',
             headers: {
@@ -70,7 +68,6 @@ class restCalls {
                 owner: owner,
                 parcelName: parcelName,
                 parcelId: parcelId,
-                points:markers,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
@@ -91,7 +88,7 @@ class restCalls {
         }) 
     }
 
-    modifyParcel (parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
+    modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage, area) {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/modifyParcel", {
             method: 'POST',
             headers: {
@@ -99,13 +96,60 @@ class restCalls {
             },
             body: JSON.stringify({
                 owner: localStorage.getItem('username'),
-                parcelName: parcelName,
                 parcelId: parcelId,
+                parcelName: parcelName,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
                 prevUsage: prevUsage,
                 area: area
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        }) 
+    }
+
+    userInfo() {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/op9", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: localStorage.getItem('username')
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('user', text);
+            return text;
+        })
+    }
+
+    logout() {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/logout/", {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: localStorage.getItem('username')
             })
         }).then (function (response) {
             if (!response.ok) {

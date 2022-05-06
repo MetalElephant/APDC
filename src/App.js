@@ -1,13 +1,15 @@
 import React, { useState } from "react"
 import Navbar from "./components/Navbar"
 import LoginRegister from "./components/LoginRegister"
-import Profile from "./components/Profile"
+import Main from "./components/Main"
+
+
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import './style.css';
 
+
 export default function App() {
-    const [show, setShow] = useState(false);
 
     return (
         <Router>
@@ -18,8 +20,8 @@ export default function App() {
                         <Route exact path="/">
                             <LoginRegister />
                         </Route>
-                        <Route exact path="/profile">
-                            <Profile />
+                        <Route exact path="/main">
+                            <Main />
                         </Route>
                     </Switch>
                 </div>
