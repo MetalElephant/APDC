@@ -1,9 +1,9 @@
 import react from "react"
-import {Typography, Button, Grid } from "@mui/material";
+import {Button, Grid, Typography } from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
-import { UserInfo } from "./UserInfo";
 import Logout from "./Logout";
+import UserInfo from "./UserInfo"
 
 export default function Main() {
 

@@ -6,7 +6,7 @@ export default function Logout() {
 
     function logoutManager() {
         restCalls.logout();
-        history.push("/welcome")
+        history.push("/")
     }
 
     return (
