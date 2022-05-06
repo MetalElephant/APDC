@@ -23,6 +23,8 @@ import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordChangeData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
+import pt.unl.fct.di.adc.avindividual.util.ShowSelfData;
+import pt.unl.fct.di.adc.avindividual.util.UserInfo;
 
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
@@ -893,6 +895,46 @@ public class RegisterResource {
 	}
 	//---------------------------------------------------------------------------------------------------------------//
 	
+	@POST
+	@Path("/op9")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response showSelf(ShowSelfData data) {
+		LOG.fine("Attempting to show user " + data.username);
+
+		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
+		Entity user = datastore.get(userKey);
+
+		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Entity token = datastore.get(tokenKey);
+		
+		Transaction tn = datastore.newTransaction();
+
+		if (user == null) {
+			LOG.warning("User " + data.username + " does not exist.");
+
+			return Response.status(Status.FORBIDDEN).build();
+		}
+
+		if (token == null) {
+			LOG.warning("User " + data.username + " is not logged in.");
+
+			return Response.status(Status.FORBIDDEN).build();
+		}
+
+		if (!isTokenExpired(token, tn)) {
+			LOG.warning("User " + data.username + "  session has expired.");
+
+			return Response.status(Status.FORBIDDEN).build();
+		}
+
+		UserInfo u = new UserInfo(user.getString("username"), user.getString("email"), user.getString("name"),
+				user.getString("profileVisibility"), user.getString("homePhone"), user.getString("mobilePhone"),
+				user.getString("address"), user.getString("nif"), user.getString("role"), user.getString("state"));
+
+		return Response.ok(g.toJson(u)).build();
+
+	}
 
 
 }
