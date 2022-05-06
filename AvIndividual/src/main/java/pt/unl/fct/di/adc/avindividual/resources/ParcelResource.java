@@ -63,12 +63,14 @@ public class ParcelResource {
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
 			}
-
+			
+			/**
 			if(isOverlapped(data.points)){
 				LOG.warning("Parcel overlaps with another parcel");
 				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel").build();
 			}
+			*/
 			
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
@@ -78,14 +80,15 @@ public class ParcelResource {
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
+					.set(AREA, data.area);
                     //Might break because isOverlap() reads it as a String
+					/**
                     .set(NPOINTS, data.points.length);
 			
 			for(int i = 0; i< data.points.length; i++) {
 				builder.set(POINTS+i, data.points[i]);
 			}
-			
+			*/
 			parcel = builder.build();
 			
 			tn.add(parcel);

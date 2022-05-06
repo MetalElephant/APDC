@@ -723,7 +723,7 @@ public class UserResource {
 		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
 		Entity user = datastore.get(userKey);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
 		Entity token = datastore.get(tokenKey);
 		
 		Transaction tn = datastore.newTransaction();
@@ -740,9 +740,9 @@ public class UserResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-		UserInfo u = new UserInfo(user.getString("username"), user.getString("email"), user.getString("name"),
-				user.getString("homePhone"), user.getString("mobilePhone"),
-				user.getString("address"), user.getString("nif"), user.getString("role"), user.getString("state"));
+		UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
+				user.getString(LPHONE), user.getString(MPHONE),
+				user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(STATE));
 
 		return Response.ok(g.toJson(u)).build();
 
