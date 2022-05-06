@@ -942,5 +942,6 @@ public class RegisterResource {
 
 	}
 
-
+	//teste
+	
 }
