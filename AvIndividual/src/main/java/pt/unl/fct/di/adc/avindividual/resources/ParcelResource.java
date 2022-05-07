@@ -198,7 +198,7 @@ public class ParcelResource {
 		}
 
 		ParcelData p = new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_ID), parcel.getString(DESCRIPTION), 
-				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA));
+				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]);
 
 		return Response.ok(g.toJson(p)).build();
 	}
