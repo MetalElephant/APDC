@@ -2,12 +2,20 @@ import react from "react"
 import {Button, Grid, Typography } from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
-import Logout from "./Logout";
+import restCalls from "../restCalls"
 import UserInfo from "./UserInfo"
+import ParcelInfo from "./ParcelInfo";
+import {useHistory} from "react-router-dom";
 
 export default function Main() {
+    let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+
+    function logoutManager(e) {
+        e.preventDefault()
+        restCalls.logout().then(() => {history.push("/")})
+    }
 
     return (
         <Grid container spacing={2} direction="column">
@@ -31,7 +39,7 @@ export default function Main() {
                         sx={{ mt: 1, mb: 1, height: "40px" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        Register Parcel
+                        Parcel Info
                     </Button>
                     <Button
                         type="submit"
@@ -41,7 +49,7 @@ export default function Main() {
                         sx={{ mt: 1, mb: 1, height: "40px" }}
                         onClick={() => { setDisplay(2) }}
                     >
-                        Modify Parcel
+                        Register Parcel
                     </Button>
                     <Button
                         type="submit"
@@ -51,13 +59,23 @@ export default function Main() {
                         sx={{ mt: 1, mb: 1, height: "40px" }}
                         onClick={() => { setDisplay(3) }}
                     >
+                        Modify Parcel
+                    </Button>
+                    <Button
+                        type="submit"
+                        id="5"
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        onClick={(e) => { logoutManager(e) }}
+                    >
                         Logout
                     </Button>
                 </Grid>
                 {(display === 0) ? <UserInfo />: <></>}
-                {(display === 1) ? <RegisterParcel /> : <></>}
-                {(display === 2) ? <ModifyParcel />: <></>}
-                {(display === 3) ? <Logout />: <></>}
+                {(display === 1) ? <ParcelInfo />: <></>}
+                {(display === 2) ? <RegisterParcel /> : <></>}
+                {(display === 3) ? <ModifyParcel />: <></>}
                 
             </Grid>
         </Grid>

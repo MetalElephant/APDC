@@ -4,9 +4,9 @@ import {useHistory} from "react-router-dom"
 export default function Logout() {
     let history = useHistory();
 
-    function logoutManager() {
-        restCalls.logout();
-        history.push("/")
+    function logoutManager(e) {
+        e.preventDefault()
+        restCalls.logout().then(() => {history.push("/")})
     }
 
     return (
