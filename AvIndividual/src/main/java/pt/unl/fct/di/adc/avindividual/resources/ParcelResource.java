@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 
+import com.google.appengine.repackaged.com.google.type.LatLngProtoInternalDescriptors;
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
@@ -45,8 +46,8 @@ public class ParcelResource {
 	private static final String CURR_USAGE = "current usage";
 	private static final String PREV_USAGE = "previous usage";
 	private static final String AREA = "area";
-    private static final String NPOINTS = "number of points";
-	private static final String POINTS = "parcel point ";
+    private static final String NMARKERS = "number of markers";
+	private static final String MARKER = "parcel marker ";
 
 	//Keys
 	private static final String USER = "User";
@@ -88,11 +89,11 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("Parcel name already exists.").build();
 			}
 			
-			/**
-			if(isOverlapped(data.points)){
-				LOG.warning("Parcel overlaps with another parcel");
+			/*
+			if(isOverlapped(data.allLats, data.allLngs)){
+				LOG.warning("Parcel overlaps with another parcel.");
 				tn.rollback();
-				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel").build();
+				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel.").build();
 			}
 			*/
 			
@@ -104,15 +105,13 @@ public class ParcelResource {
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area);
-                    //Might break because isOverlap() reads it as a String
-					/**
-                    .set(NPOINTS, data.points.length);
+					.set(AREA, data.area)
+                    .set(NMARKERS, String.valueOf(data.allLats.length));
 			
-			for(int i = 0; i< data.points.length; i++) {
-				builder.set(POINTS+i, data.points[i]);
+
+			for(int i = 0; i< data.allLats.length; i++) {
+				builder.set(MARKER+i, LatLng.of(data.allLats[i], data.allLngs[i]));
 			}
-			*/
 
 			parcel = builder.build();
 			
@@ -132,29 +131,31 @@ public class ParcelResource {
 	public Response updateParcel(ParcelData data) {
 		Transaction tn = datastore.newTransaction();
 
-		Key parcelKey = datastore.newKeyFactory().setKind(PARCEL).newKey(data.parcelName);
+		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
 		
 		try {
 			Entity parcel = tn.get(parcelKey);
 			Entity user = tn.get(userKey);
+			Entity token = tn.get(tokenKey);
+			
+			if (user == null) {
+				LOG.warning("User " + data.owner + " does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
+			}
+				
+			if (!ur.isLoggedIn(token, tn)){
+				LOG.warning("User " + data.owner + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
+			}
 
-			if(parcel == null) {
-				LOG.warning("Parcel does not exist");
+			if (parcel == null) {
+				LOG.warning("Parcel doesn't exists.");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
-			}
-			
-			if(user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User does not exist").build();
-			}
-			
-			if(!parcel.getString("owner").equals(user.getString("username"))) {
-				LOG.warning("User does not have the permission");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User does not have the permission").build();
+				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 			
 			parcel = Entity.newBuilder(parcelKey)
@@ -171,7 +172,7 @@ public class ParcelResource {
 			tn.put(parcel);
 			tn.commit();
 		
-			return Response.ok("Parcel changed").build();
+			return Response.ok("Parcel updated.").build();
 		}finally{
 			if (tn.isActive())
 				tn.rollback();
@@ -230,7 +231,7 @@ public class ParcelResource {
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUsers(LogoutData data) {
+	public Response showUserParcel(LogoutData data) {
 		LOG.info("Attempt to list parcels of user: " + data.username);
 		
 		Transaction tn = datastore.newTransaction();
@@ -275,8 +276,19 @@ public class ParcelResource {
 			List<ParcelData> userParcels = new LinkedList<>();
 
 			parcels.forEachRemaining(parcel -> {
+				int n = Integer.parseInt(parcel.getString(NMARKERS));
+
+				double[] lats = new double[n];
+				double[] longs = new double[n];
+
+				for (int i = 0; i < n; i++){
+					LatLng l = parcel.getLatLng(MARKER+i);
+					lats[i] = l.getLatitude();
+					longs[i] = l.getLongitude();
+				}
+
 				userParcels.add(new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]));
+				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), lats, longs));
 			});
 
 		return userParcels;
@@ -284,22 +296,27 @@ public class ParcelResource {
 	
 
     //Run through every parcel and verify that they don't overlap with the given one
-    private boolean isOverlapped(LatLng[] points){
-		Query<Entity> query = Query.newEntityQueryBuilder().setKind("User").build();
+    private boolean isOverlapped(double[] lats, double[] lngs){
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL).build();
 
 		QueryResults<Entity> parcels = datastore.run(query);
 
 		while(parcels.hasNext()){
 			Entity parcel = parcels.next();
-			int nParcels = Integer.parseInt(parcel.getString(NPOINTS));
+			int nParcels = Integer.parseInt(parcel.getString(NMARKERS));
 
-			LatLng[] loc = new LatLng[nParcels];
+			LatLng[] markers1 = new LatLng[nParcels];
+			LatLng[] markers2 = new LatLng[lats.length];
 
             for(int i = 0; i < nParcels; i++){
-                loc[i] = parcel.getLatLng(POINTS + i);
+                markers1[i] = parcel.getLatLng(MARKER + i);
             }
 
-            if (overlaps(points, loc)){
+			for (int i = 0; i < lats.length; i++){
+				markers2[i] = LatLng.of(lats[i], lngs[i]);
+			}
+
+            if (overlaps(markers1, markers2)){
                 return true;
             }
 		}
