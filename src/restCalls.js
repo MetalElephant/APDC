@@ -141,6 +141,8 @@ class restCalls {
         })
     }
 
+    
+
     logout() {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/logout/", {
             method: 'DELETE',
