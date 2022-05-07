@@ -161,6 +161,9 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
+            localStorage.removeItem('user')
+            localStorage.removeItem('token')
+            localStorage.removeItem('username')
             return text;
         }) 
     }
