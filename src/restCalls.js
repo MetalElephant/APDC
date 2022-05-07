@@ -57,14 +57,14 @@ class restCalls {
         }) 
     }
 
-    parcelRegister (owner, parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
+    parcelRegister (parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                owner: owner,
+                owner: localStorage.getItem('username'),
                 parcelName: parcelName,
                 parcelId: parcelId,
                 description: description,
@@ -118,7 +118,7 @@ class restCalls {
     }
 
     userInfo() {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/op9", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/showUserData", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ class restCalls {
         })
     }
 
-    
+
 
     logout() {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/logout/", {
