@@ -319,7 +319,10 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist").build();
 			}
 
-			if(!isLoggedIn(token, tn)) {
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
@@ -382,10 +385,15 @@ public class UserResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if(!user.getString(PASSWORD).equals(DigestUtils.sha512Hex(data.oldPwd))) 
+			if(!user.getString(PASSWORD).equals(DigestUtils.sha512Hex(data.oldPwd))) {
+				LOG.warning("Wrong password for :" + data.username);
+				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Wrong password").build();
+			}
 
-			if(!isLoggedIn(token, tn)) {
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
@@ -452,56 +460,8 @@ public class UserResource {
 				tn.rollback();
 		}
 	}
-
-	//Pretty sure we dont need this because we get the token from login and then we can keep it
-	@GET
-	@Path("/token")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response getToken(LogoutData data) {
-		LOG.info("Attempt to retrieve login token for user: " + data.username);
-		
-		Transaction tn = datastore.newTransaction();
-
-		// Get both users
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);		
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.username);
-		
-		try {
-			Entity user = tn.get(userKey);
-			Entity token = tn.get(tokenKey);
-
-			if (user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-			}
-			if (token == null) {
-				// tn.rollback();
-				return Response.status(Status.FORBIDDEN)
-						.entity("User " + data.username + " not logged in - invalid token.").build();
-			}
-			if(!isLoggedIn(token, tn)) {
-				return Response.status(Status.FORBIDDEN)
-						.entity("User " + data.username + " not logged in - token expired.").build();
-			}
-			
-			AuthToken at = new AuthToken(data.username);
-			
-			return Response.ok(g.toJson(at)).build();
-
-		} catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-
-		} finally {
-			if (tn.isActive())
-				tn.rollback();
-		}
-		
-	}
 	
+	//TODO not working atm
 	@GET
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -524,7 +484,9 @@ public class UserResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if(!isLoggedIn(token, tn)) {
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
@@ -713,40 +675,43 @@ public class UserResource {
 	}
 
 	
-	@POST
-	@Path("/op9")
+	@GET
+	@Path("/showUserData")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showSelf(ShowSelfData data) {
 		LOG.fine("Attempting to show user " + data.username);
 
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
-		Entity user = datastore.get(userKey);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.username);
-		Entity token = datastore.get(tokenKey);
-		
 		Transaction tn = datastore.newTransaction();
 
-		if (user == null) {
-			LOG.warning("User " + data.username + " does not exist.");
+		try{
+			Entity user = datastore.get(userKey);
+			Entity token = datastore.get(tokenKey);
 
-			return Response.status(Status.FORBIDDEN).build();
+			if (user == null) {
+				LOG.warning("User does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+			}
+
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
+
+			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
+			user.getString(LPHONE), user.getString(MPHONE),
+			user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(STATE));
+
+			return Response.ok(g.toJson(u)).build();
+
+		}finally{
+			if (tn.isActive())
+				tn.rollback();
 		}
-
-		if (!isLoggedIn(token, tn)) {
-			LOG.warning("User " + data.username + "  session has expired.");
-
-			return Response.status(Status.FORBIDDEN).build();
-		}
-
-		UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
-				user.getString(LPHONE), user.getString(MPHONE),
-				user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(STATE));
-
-		return Response.ok(g.toJson(u)).build();
-
 	}
-
-
 }

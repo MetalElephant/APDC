@@ -13,7 +13,6 @@ import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
-import pt.unl.fct.di.adc.avindividual.util.UserInfo;
 
 import com.google.cloud.datastore.*;
 
@@ -43,7 +42,6 @@ public class ParcelResource {
     private static final String NPOINTS = "number of points";
 	private static final String POINTS = "parcel point ";
 	
-	public static final String TOKENEXPIRATION = "token expiration";
    
     @POST
 	@Path("/register")
@@ -193,7 +191,7 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-		if (!isLoggedIn(token, tn)) {
+		if (!ur.isLoggedIn(token, tn)) {
 			LOG.warning("User " + data.owner + "  session has expired.");
 
 			return Response.status(Status.FORBIDDEN).build();
@@ -205,23 +203,6 @@ public class ParcelResource {
 		return Response.ok(g.toJson(p)).build();
 	}
 	
-	/**
-	 * Verify if token exists and is valid
-	 * @param token
-	 * @return
-	 */
-	public boolean isLoggedIn(Entity token, Transaction tn) {
-		if (token == null)
-			return false;
-
-		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
-			tn.delete(token.getKey());
-			tn.commit();
-			return false;
-		}
-			
-		return true;
-	}
 
     //Run through every parcel and verify that they don't overlap with the given one
     private boolean isOverlapped(LatLng[] points){
