@@ -6,8 +6,8 @@ import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
-
-    const [owner, setOwner] = react.useState("");
+    const [allLats, setallLats] = react.useState([]);
+    const [allLngs, setallLngs] = react.useState([]);
     const [parcelName, setParcelName] = react.useState("");
     const [parcelId, setParcelId] = react.useState("");
     const [description, setDescription] = react.useState("");
@@ -15,10 +15,6 @@ export default function RegisterParcel() {
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
     const [area, setArea] = react.useState("");
-
-    function ownerHandler(e) {
-        setOwner(e.target.value);
-    }
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -50,7 +46,7 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(owner, parcelId, parcelName, description, groundType, currUsage, prevUsage, area);
+        restCalls.parcelRegister(parcelId, parcelName, description, groundType, currUsage, prevUsage, area, allLats, allLngs);
     }
 
     return (
@@ -72,6 +68,8 @@ export default function RegisterParcel() {
                                     time: new Date(),
                                 },
                             ]);
+                            allLats.push(event.latLng.lat())
+                            allLngs.push( event.latLng.lng())
                             console.log(markers)
                         }}
                     >
@@ -108,16 +106,6 @@ export default function RegisterParcel() {
                             Parcel Registration
                         </Typography>
                         <Box component="form" sx={{mt: 1 }}>
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="owner"
-                                label="Proprietario"
-                                name="owner"
-                                autoFocus
-                                onChange = {ownerHandler}
-                            />
                             <TextField
                                 margin="normal"
                                 required
@@ -182,7 +170,6 @@ export default function RegisterParcel() {
                                 onChange = {areaHandler}
                             />
 
-                            
                             <Button
                                 type="submit"
                                 fullWidth

@@ -147,7 +147,6 @@ export default function LoginRegister() {
                                     label="Email"
                                     type="email"
                                     id="email"
-                                    pattern="/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/"
                                     inputProps={{ pattern: "/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/" }}
                                     onChange = {emailHandler}
                                 />
