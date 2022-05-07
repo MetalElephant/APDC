@@ -508,7 +508,7 @@ public class UserResource {
 
 		if (role.equals(USER)) {
 
-			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind("User")
+			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, USER),
 							PropertyFilter.eq(PROFILE, PUBLIC), 
@@ -680,7 +680,7 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showSelf(ShowSelfData data) {
-		LOG.fine("Attempting to show user " + data.username);
+		LOG.info("Attempting to show user " + data.username);
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);

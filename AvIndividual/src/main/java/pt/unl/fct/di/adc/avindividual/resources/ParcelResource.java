@@ -1,9 +1,12 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -12,9 +15,12 @@ import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
+import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/parcel")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -31,7 +37,7 @@ public class ParcelResource {
 	public static final String ACTIVE = "ACTIVE";
 	public static final String INACTIVE = "INACTIVE";
 	
-	private static final String PARCEL_ID = "parcelId";
+	private static final String PARCEL_REGION = "parcel region";
 	private static final String OWNER = "owner";
 	private static final String PARCEL_NAME = "name";
 	private static final String DESCRIPTION = "description";
@@ -41,31 +47,45 @@ public class ParcelResource {
 	private static final String AREA = "area";
     private static final String NPOINTS = "number of points";
 	private static final String POINTS = "parcel point ";
+
+	//Keys
+	private static final String USER = "User";
+    private static final String TOKEN = "Token";
+	private static final String PARCEL = "Parcel";
 	
    
     @POST
 	@Path("/register")
 	public Response putParcel(ParcelData data) {
+		LOG.info("Attempting to register parcel " + data.parcelName);
+
 		Transaction tn = datastore.newTransaction();
 				
-		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
-		Entity user = tn.get(userKey1);
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
-		Entity parcel = tn.get(parcelKey);
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.owner);
-		Entity token = tn.get(tokenKey);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
+		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
 		
 		try {
-			if(user == null || token == null || parcel != null) {
-				LOG.warning("Something about the request is wrong");
+			Entity user = tn.get(userKey);
+			Entity parcel = tn.get(parcelKey);
+			Entity token = tn.get(tokenKey);
+
+			if (user == null) {
+				LOG.warning("User " + data.owner + " does not exist");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Something about the request is wrong").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if(!ur.isLoggedIn(token, tn)) {
-				LOG.warning("Token has expired");
+			if (!ur.isLoggedIn(token, tn)){
+				LOG.warning("User " + data.owner + " not logged in.");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Token has expired").build();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
+			}
+
+			if (parcel != null) {
+				LOG.warning("Parcel name already exists.");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Parcel name already exists.").build();
 			}
 			
 			/**
@@ -78,7 +98,7 @@ public class ParcelResource {
 			
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
-					.set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_REGION, data.parcelRegion)
 					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
@@ -93,34 +113,32 @@ public class ParcelResource {
 				builder.set(POINTS+i, data.points[i]);
 			}
 			*/
+
 			parcel = builder.build();
 			
 			tn.add(parcel);
 			tn.commit();
 			
 			return Response.ok("Parcel added").build();
-			
-		} catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+
 		} finally {
 			if (tn.isActive())
 				tn.rollback();
 		}
 	}
 	
-	@POST
-	@Path("/modifyParcel")
-	public Response modifyParcel(ParcelData data) {
+	@PUT
+	@Path("/updateParcel")
+	public Response updateParcel(ParcelData data) {
 		Transaction tn = datastore.newTransaction();
 
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
-		Entity parcel = tn.get(parcelKey);
-		Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.owner);
-		Entity user = tn.get(userKey);
+		Key parcelKey = datastore.newKeyFactory().setKind(PARCEL).newKey(data.parcelName);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		
 		try {
+			Entity parcel = tn.get(parcelKey);
+			Entity user = tn.get(userKey);
+
 			if(parcel == null) {
 				LOG.warning("Parcel does not exist");
 				tn.rollback();
@@ -141,7 +159,7 @@ public class ParcelResource {
 			
 			parcel = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
-					.set(PARCEL_ID, data.parcelId)
+					.set(PARCEL_REGION, data.parcelRegion)
 					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
@@ -152,14 +170,12 @@ public class ParcelResource {
 			
 			tn.put(parcel);
 			tn.commit();
-			
-		}catch (Exception e) {
-			tn.rollback();
-			LOG.severe(e.getMessage());
-			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
-		}
 		
-		return Response.ok("Parcel changed").build();
+			return Response.ok("Parcel changed").build();
+		}finally{
+			if (tn.isActive())
+				tn.rollback();
+		}
 	}
 	
 	@POST
@@ -167,40 +183,103 @@ public class ParcelResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response parcelInfo(ParcelData data) {
-		LOG.fine("Attempting to show user " + data.owner);
+		LOG.fine("Attempting to show parcel " + data.parcelName);
+
 		Transaction tn = datastore.newTransaction();
 
-		Key userKey1 = datastore.newKeyFactory().setKind("User").newKey(data.owner);
-		Entity user = tn.get(userKey1);
-		
-		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
-		Entity parcel = tn.get(parcelKey);
-		
-		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.owner);
-		Entity token = tn.get(tokenKey);
-		
-		if(parcel == null) {
-			LOG.warning("Parcel does not exist");
-			tn.rollback();
-			return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
-		}
-		
-		if (user == null) {
-			LOG.warning("User " + data.owner + " does not exist.");
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
+		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
 
-			return Response.status(Status.FORBIDDEN).build();
-		}
 
-		if (!ur.isLoggedIn(token, tn)) {
-			LOG.warning("User " + data.owner + "  session has expired.");
+		try{
+			Entity user = tn.get(userKey);
+			Entity parcel = tn.get(parcelKey);
+			Entity token = tn.get(tokenKey);
 
-			return Response.status(Status.FORBIDDEN).build();
-		}
+			if(parcel == null) {
+				LOG.warning("Parcel does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
+			}
+			
+			if (user == null) {
+				LOG.warning("User " + data.owner + " does not exist.");
+	
+				return Response.status(Status.FORBIDDEN).build();
+			}
+	
+			if (!ur.isLoggedIn(token, tn)) {
+				LOG.warning("User " + data.owner + "  session has expired.");
+	
+				return Response.status(Status.FORBIDDEN).build();
+			}
 
-		ParcelData p = new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_ID), parcel.getString(DESCRIPTION), 
+			ParcelData p = new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
 				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]);
 
-		return Response.ok(g.toJson(p)).build();
+			return Response.ok(g.toJson(p)).build();
+
+		}finally{
+			if (tn.isActive())
+				tn.rollback();
+		}
+	}
+
+	@POST
+	@Path("/list")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response showUsers(LogoutData data) {
+		LOG.info("Attempt to list parcels of user: " + data.username);
+		
+		Transaction tn = datastore.newTransaction();
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		try {
+			Entity user = tn.get(userKey);
+			Entity token = tn.get(tokenKey);
+
+			if (user == null) {
+				LOG.warning("User does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+			}
+
+			if (!ur.isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
+			
+			
+			List<ParcelData> parcelList = getQueries(data.username);
+
+			return Response.ok(g.toJson(parcelList)).build();
+		} finally {
+			if (tn.isActive())
+				tn.rollback();
+		}	
+	}
+
+	private List<ParcelData> getQueries(String owner){
+		Query<Entity> queryParcel = Query.newEntityQueryBuilder().setKind(PARCEL)
+					.setFilter(CompositeFilter.and(
+						PropertyFilter.eq(OWNER, owner)))
+					.build();
+
+			QueryResults<Entity> parcels = datastore.run(queryParcel);
+
+			List<ParcelData> userParcels = new LinkedList<>();
+
+			parcels.forEachRemaining(parcel -> {
+				userParcels.add(new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
+				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]));
+			});
+
+		return userParcels;
 	}
 	
 
