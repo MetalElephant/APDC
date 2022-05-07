@@ -48,7 +48,7 @@ export default function UserInfo() {
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Land Phone: {landphone} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Home Phone: {landphone} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
