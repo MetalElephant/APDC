@@ -29,8 +29,8 @@ export default function LoginRegister() {
     }
 
     function loginManager(e) {
-        restCalls.login(username, password)
-        history.push("/main");
+        e.preventDefault()
+        restCalls.login(username, password).then(() => {restCalls.userInfo().then(() => {history.push("/main")})})
     }
 
     function registerManager(e) {

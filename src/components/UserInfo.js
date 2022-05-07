@@ -1,4 +1,3 @@
-import restCalls from "../restCalls"
 import { Box, Typography, Grid, Paper} from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
@@ -15,9 +14,8 @@ export default function UserInfo() {
     const [nif, setNif] = react.useState("")
 
     useEffect(() => {
-        if(localStorage.getItem('user') === null)
-            restCalls.userInfo()
         var user = JSON.parse(localStorage.getItem('user'))
+
         setUsername(user.username)
         setEmail(user.email)
         setName(user.name)
@@ -33,39 +31,39 @@ export default function UserInfo() {
         <>  
             <Grid item xs={1.5} />
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
-                <Box p={4} textAlign="center" >
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Username: {username} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Username: {username} </Typography>
                     </Paper>
                 </Box>
-                <Box p={4} textAlign="center">
+                <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontSize: 18}}> Email: {email} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Email: {email} </Typography>
                     </Paper>
                 </Box>
-                <Box p={4} textAlign="center">
+                <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontSize: 18}}> Name: {name} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Name: {name} </Typography>
                     </Paper>
                 </Box>
-                <Box p={4} textAlign="center">
+                <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontSize: 18}}> Land Phone: {landphone} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Land Phone: {landphone} </Typography>
                     </Paper>
                 </Box>
-                <Box p={4} textAlign="center">
+                <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontSize: 18}}> Mobile Phone: {mobilephone} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Mobile Phone: {mobilephone} </Typography>
                     </Paper>
                 </Box>
-                <Box p={4} textAlign="center">
+                <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontSize: 18}}> Address: {address} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Address: {address} </Typography>
                     </Paper>
                 </Box>
-                <Box p={4} textAlign="center">
+                <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography sx={{fontFamily: 'Verdana', fontSize: 18}}> NIF: {nif} </Typography>
+                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> NIF: {nif} </Typography>
                     </Paper>
                 </Box>
             </Grid>

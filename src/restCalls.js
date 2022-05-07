@@ -25,7 +25,6 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem('token', text);
-            localStorage.setItem('username', username);
             return text;
         }) 
     }
@@ -125,7 +124,7 @@ class restCalls {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: localStorage.getItem('username')
+                username: JSON.parse(localStorage.getItem('token')).username
             })
         }).then (function (response) {
             if (!response.ok) {
@@ -149,7 +148,7 @@ class restCalls {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: localStorage.getItem('username')
+                username: JSON.parse(localStorage.getItem('token')).username
             })
         }).then (function (response) {
             if (!response.ok) {
@@ -162,8 +161,7 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.removeItem('user')
-            localStorage.removeItem('token')
-            localStorage.removeItem('username')
+            localStorage.removeItem('token')         
             return text;
         }) 
     }

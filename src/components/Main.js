@@ -2,13 +2,20 @@ import react from "react"
 import {Button, Grid, Typography } from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
-import Logout from "./Logout";
+import restCalls from "../restCalls"
 import UserInfo from "./UserInfo"
 import ParcelInfo from "./ParcelInfo";
+import {useHistory} from "react-router-dom";
 
 export default function Main() {
+    let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+
+    function logoutManager(e) {
+        e.preventDefault()
+        restCalls.logout().then(() => {history.push("/")})
+    }
 
     return (
         <Grid container spacing={2} direction="column">
@@ -60,7 +67,7 @@ export default function Main() {
                         fullWidth
                         variant="contained"
                         sx={{ mt: 1, mb: 1, height: "40px" }}
-                        onClick={() => { setDisplay(4) }}
+                        onClick={(e) => { logoutManager(e) }}
                     >
                         Logout
                     </Button>
@@ -69,7 +76,6 @@ export default function Main() {
                 {(display === 1) ? <ParcelInfo />: <></>}
                 {(display === 2) ? <RegisterParcel /> : <></>}
                 {(display === 3) ? <ModifyParcel />: <></>}
-                {(display === 4) ? <Logout />: <></>}
                 
             </Grid>
         </Grid>
