@@ -6,8 +6,8 @@ import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
-    const allLats = react.useState([]);
-    const allLngs = react.useState([]);
+    const [allLats, setAllLats] = react.useState([]);
+    const [allLngs, setAllLngs] = react.useState([]);
     const [parcelName, setParcelName] = react.useState("");
     const [parcelId, setParcelId] = react.useState("");
     const [description, setDescription] = react.useState("");
