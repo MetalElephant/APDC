@@ -4,6 +4,7 @@ import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
 import Logout from "./Logout";
 import UserInfo from "./UserInfo"
+import ParcelInfo from "./ParcelInfo";
 
 export default function Main() {
 
@@ -31,7 +32,7 @@ export default function Main() {
                         sx={{ mt: 1, mb: 1, height: "40px" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        Register Parcel
+                        Parcel Info
                     </Button>
                     <Button
                         type="submit"
@@ -41,7 +42,7 @@ export default function Main() {
                         sx={{ mt: 1, mb: 1, height: "40px" }}
                         onClick={() => { setDisplay(2) }}
                     >
-                        Modify Parcel
+                        Register Parcel
                     </Button>
                     <Button
                         type="submit"
@@ -51,13 +52,24 @@ export default function Main() {
                         sx={{ mt: 1, mb: 1, height: "40px" }}
                         onClick={() => { setDisplay(3) }}
                     >
+                        Modify Parcel
+                    </Button>
+                    <Button
+                        type="submit"
+                        id="5"
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        onClick={() => { setDisplay(4) }}
+                    >
                         Logout
                     </Button>
                 </Grid>
                 {(display === 0) ? <UserInfo />: <></>}
-                {(display === 1) ? <RegisterParcel /> : <></>}
-                {(display === 2) ? <ModifyParcel />: <></>}
-                {(display === 3) ? <Logout />: <></>}
+                {(display === 1) ? <ParcelInfo />: <></>}
+                {(display === 2) ? <RegisterParcel /> : <></>}
+                {(display === 3) ? <ModifyParcel />: <></>}
+                {(display === 4) ? <Logout />: <></>}
                 
             </Grid>
         </Grid>
