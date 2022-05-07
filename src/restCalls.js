@@ -57,16 +57,16 @@ class restCalls {
         }) 
     }
 
-    parcelRegister (parcelName, parcelId, description, groundType, currUsage, prevUsage, area) {
+    parcelRegister (parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area) {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                owner: localStorage.getItem('username'),
+                owner: JSON.parse(localStorage.getItem('token')).username,
                 parcelName: parcelName,
-                parcelId: parcelId,
+                parcelRegion: parcelRegion,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
@@ -88,13 +88,13 @@ class restCalls {
     }
 
     modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage, area) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/modifyParcel", {
-            method: 'POST',
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/updateParcel", {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                owner: localStorage.getItem('username'),
+                owner: JSON.parse(localStorage.getItem('token')).username,
                 parcelId: parcelId,
                 parcelName: parcelName,
                 description: description,
@@ -137,6 +137,30 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem('user', text);
+            return text;
+        })
+    }
+
+    parcelInfo() {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/list", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('parcels', text);
             return text;
         })
     }

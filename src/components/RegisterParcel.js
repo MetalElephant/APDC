@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-import {Box, Container, Typography, TextField, Button, Grid} from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 
@@ -45,7 +45,7 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelId, parcelName, description, groundType, currUsage, prevUsage, area);
+        restCalls.parcelRegister(parcelId, parcelName, description, groundType, currUsage, prevUsage, area).then(() => { restCalls.parcelInfo() });
     }
 
     return (
@@ -55,12 +55,12 @@ export default function RegisterParcel() {
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
                     <GoogleMap
-                        mapContainerStyle={{width: "100%", height: "100%"}}
-                        center={{lat: 39.5532, lng: -7.99846}}
+                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                        center={{ lat: 39.5532, lng: -7.99846 }}
                         zoom={12}
                         onClick={(event) => {
                             setMarkers(current => [
-                                ...current, 
+                                ...current,
                                 {
                                     lat: event.latLng.lat(),
                                     lng: event.latLng.lng(),
@@ -71,9 +71,9 @@ export default function RegisterParcel() {
                         }}
                     >
                         {markers.map(marker => (
-                            <Marker 
-                                key={marker.time.toISOString()} 
-                                position={{ lat: marker.lat, lng: marker.lng}} 
+                            <Marker
+                                key={marker.time.toISOString()}
+                                position={{ lat: marker.lat, lng: marker.lng }}
                             />
 
                         ))}
@@ -81,10 +81,10 @@ export default function RegisterParcel() {
                         <Polygon
                             paths={markers}
                             onClick={() => this.handleClick()}
-                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor:"#191970"}}
+                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                         />
 
-                        { /* Child components, such as markers, info windows, etc. */ }
+                        { /* Child components, such as markers, info windows, etc. */}
                     </GoogleMap>
                 </LoadScript>
             </Grid>
@@ -102,7 +102,7 @@ export default function RegisterParcel() {
                         <Typography component="h1" variant="h5">
                             Parcel Registration
                         </Typography>
-                        <Box component="form" sx={{mt: 1 }}>
+                        <Box component="form" sx={{ mt: 1 }}>
                             <TextField
                                 margin="normal"
                                 required
@@ -110,7 +110,7 @@ export default function RegisterParcel() {
                                 id="freguesiaSeccaoArtigo"
                                 label="Freguesia, Secção e Artigo"
                                 name="freguesiaSeccaoArtigo"
-                                onChange = {parcelIdHandler}
+                                onChange={parcelIdHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -119,7 +119,7 @@ export default function RegisterParcel() {
                                 name="nome"
                                 label="Nome"
                                 id="nome"
-                                onChange = {parcelNameHandler}
+                                onChange={parcelNameHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -128,7 +128,7 @@ export default function RegisterParcel() {
                                 name="descricao"
                                 label="Descrição"
                                 id="descricao"
-                                onChange = {descriptionHandler}
+                                onChange={descriptionHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -137,7 +137,7 @@ export default function RegisterParcel() {
                                 name="tipoCoberturaSolo"
                                 label="Tipo de Cobertura do Solo"
                                 id="tipoCoberturaSolo"
-                                onChange = {groundTypeHandler}
+                                onChange={groundTypeHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -146,7 +146,7 @@ export default function RegisterParcel() {
                                 name="utilizacaoAtual"
                                 label="Utilização Atual"
                                 id="utilizacaoAtual"
-                                onChange = {currUsageHandler}
+                                onChange={currUsageHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -155,7 +155,7 @@ export default function RegisterParcel() {
                                 name="utilizacaoAnterior"
                                 label="Utilização Anterior"
                                 id="utilizacaoAnterior"
-                                onChange = {prevUsageHandler}
+                                onChange={prevUsageHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -164,18 +164,18 @@ export default function RegisterParcel() {
                                 name="area"
                                 label="Área (aproximada)"
                                 id="area"
-                                onChange = {areaHandler}
+                                onChange={areaHandler}
                             />
 
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
-                                sx={{ mt: 3, mb: 2, height:"40px" }}
-                                onClick={(e) => { parcelRegisterManager(e) }} 
+                                sx={{ mt: 3, mb: 2, height: "40px" }}
+                                onClick={(e) => { parcelRegisterManager(e) }}
                             >
                                 submit
-                            </Button>  
+                            </Button>
                         </Box>
                     </Box>
                 </Container>

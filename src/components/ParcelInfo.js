@@ -1,8 +1,10 @@
 import { Box, Typography, Grid, Paper} from "@mui/material";
 import mapsAvatar from "../images/maps-avatar.png";
-import landAvatar from "../images/land-avatar.png";
+import restCalls from "../restCalls";
 
 export default function ParcelInfo () {
+
+
     return(
         <>
             <Grid item xs={1.5} />
