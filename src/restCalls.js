@@ -57,7 +57,7 @@ class restCalls {
         }) 
     }
 
-    parcelRegister (parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
+    parcelRegister (parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
         return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
