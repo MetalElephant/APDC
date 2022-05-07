@@ -6,7 +6,8 @@ import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
-
+    const allLats = react.useState([]);
+    const allLngs = react.useState([]);
     const [parcelName, setParcelName] = react.useState("");
     const [parcelId, setParcelId] = react.useState("");
     const [description, setDescription] = react.useState("");
@@ -45,7 +46,7 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelId, parcelName, description, groundType, currUsage, prevUsage, area).then(() => { restCalls.parcelInfo() });
+        restCalls.parcelRegister(parcelId, parcelName, description, groundType, currUsage, prevUsage, area, allLats, allLngs).then(() => { restCalls.parcelInfo() });
     }
 
     return (
@@ -67,6 +68,8 @@ export default function RegisterParcel() {
                                     time: new Date(),
                                 },
                             ]);
+                            allLats.push(event.latLng.lat())
+                            allLngs.push( event.latLng.lng())
                             console.log(markers)
                         }}
                     >
