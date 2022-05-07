@@ -1,5 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.awt.geom.Line2D;
+import java.awt.Polygon;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -18,7 +20,6 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 
-import com.google.appengine.repackaged.com.google.type.LatLngProtoInternalDescriptors;
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
@@ -86,16 +87,20 @@ public class ParcelResource {
 			if (parcel != null) {
 				LOG.warning("Parcel name already exists.");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Parcel name already exists.").build();
+				return Response.status(Status.CONFLICT).entity("Parcel name already exists.").build();
+			}
+
+			LatLng[] markers = new LatLng[data.allLats.length];
+
+			for(int i = 0; i< data.allLats.length; i++) {
+				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
 			}
 			
-			/*
-			if(isOverlapped(data.allLats, data.allLngs)){
+			if(isOverlapped(markers)){
 				LOG.warning("Parcel overlaps with another parcel.");
 				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel.").build();
 			}
-			*/
 			
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
@@ -110,7 +115,7 @@ public class ParcelResource {
 			
 
 			for(int i = 0; i< data.allLats.length; i++) {
-				builder.set(MARKER+i, LatLng.of(data.allLats[i], data.allLngs[i]));
+				builder.set(MARKER+i, markers[i]);
 			}
 
 			parcel = builder.build();
@@ -157,8 +162,8 @@ public class ParcelResource {
 				tn.rollback();
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
-			
-			parcel = Entity.newBuilder(parcelKey)
+
+			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
 					.set(PARCEL_REGION, data.parcelRegion)
 					.set(PARCEL_NAME, data.parcelName)
@@ -166,8 +171,14 @@ public class ParcelResource {
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.build();
+					.set(AREA, parcel.getString(AREA))
+                    .set(NMARKERS, parcel.getString(NMARKERS));
+			
+			for(int i = 0; i< data.allLats.length; i++) {
+				builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
+			}
+
+			parcel = builder.build();
 			
 			tn.put(parcel);
 			tn.commit();
@@ -296,7 +307,7 @@ public class ParcelResource {
 	
 
     //Run through every parcel and verify that they don't overlap with the given one
-    private boolean isOverlapped(double[] lats, double[] lngs){
+    private boolean isOverlapped(LatLng[] markers){
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL).build();
 
 		QueryResults<Entity> parcels = datastore.run(query);
@@ -305,27 +316,32 @@ public class ParcelResource {
 			Entity parcel = parcels.next();
 			int nParcels = Integer.parseInt(parcel.getString(NMARKERS));
 
-			LatLng[] markers1 = new LatLng[nParcels];
-			LatLng[] markers2 = new LatLng[lats.length];
+			LatLng[] auxMarkers = new LatLng[nParcels];
 
             for(int i = 0; i < nParcels; i++){
-                markers1[i] = parcel.getLatLng(MARKER + i);
+                auxMarkers[i] = parcel.getLatLng(MARKER + i);
             }
 
-			for (int i = 0; i < lats.length; i++){
-				markers2[i] = LatLng.of(lats[i], lngs[i]);
-			}
-
-            if (overlaps(markers1, markers2)){
+            if (overlaps(markers, auxMarkers)){
                 return true;
             }
 		}
 		return false;
 	}
 
-    //Calculates if 2 arrays of LatLng overlap eachother
-    private boolean overlaps(LatLng[] points1, LatLng[] points2){
-		
-        return false;
+    //Checks if 2 parcels overlap eachother
+    private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
+		boolean overlaps = false;
+		//Checks if a parcel marker is inside the other one
+
+		//Checks if any 2 lines between markers intersect
+		for(int i = 0; i < markers.length-1 && !overlaps; i++){
+			for (int j = 0; j < auxMarkers.length; j++){
+				overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[i+1].getLatitude(), markers[i+1].getLongitude(),
+												auxMarkers[j].getLatitude(), auxMarkers[j].getLongitude(), auxMarkers[j+1].getLatitude(), auxMarkers[j+1].getLongitude());
+			}
+		}
+
+        return overlaps;
     }
 }

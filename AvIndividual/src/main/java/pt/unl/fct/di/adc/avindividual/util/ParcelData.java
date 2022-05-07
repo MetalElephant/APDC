@@ -9,7 +9,6 @@ public class ParcelData {
 	public ParcelData() {}
 	
 	public ParcelData(String owner, String parcelName, String parcelRegion, String description, String groundType, String currUsage, String prevUsage, String area, double[] allLats, double[] allLngs) {
-
 		this.owner = owner;
 		this.parcelName = parcelName;
 		this.parcelRegion = parcelRegion;
