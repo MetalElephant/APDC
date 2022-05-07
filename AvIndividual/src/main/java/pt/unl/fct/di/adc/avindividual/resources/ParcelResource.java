@@ -48,7 +48,7 @@ public class ParcelResource {
 		Entity user = tn.get(userKey1);
 		Key parcelKey = datastore.newKeyFactory().setKind("Parcel").newKey(data.parcelName);
 		Entity parcel = tn.get(parcelKey);
-		Key tokenKey = datastore.newKeyFactory().setKind("Tokens").newKey(data.owner);
+		Key tokenKey = datastore.newKeyFactory().setKind("Token").newKey(data.owner);
 		Entity token = tn.get(tokenKey);
 		
 		try {
