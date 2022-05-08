@@ -1,4 +1,4 @@
-# Land It! - Projeto de ADC by The Earth Keepers
+# Land It! - by The Earth Keepers
 
 ![LAND_IT___1_-removebg-preview](https://user-images.githubusercontent.com/72753255/167316311-fe28c8f3-874f-4f73-8d5d-8c9881dbb102.png)
 
