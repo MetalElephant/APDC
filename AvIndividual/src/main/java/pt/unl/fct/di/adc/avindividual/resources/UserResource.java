@@ -335,10 +335,10 @@ public class UserResource {
 					.set(EMAIL, data.email)
 					.set(ROLE, data.role)
 					.set(MPHONE, data.mobilePhone)
-					.set(LPHONE, data.landPhone)
+					.set(LPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
-					.set(NIF, data.NIF)
-					.set(PROFILE, data.profile)
+					.set(NIF, data.nif)
+					.set(PROFILE, data.visibility)
 					.set(STATE, data.state)
 					.set(CTIME, userToUpdate.getTimestamp(CTIME))
 					.build();
@@ -361,7 +361,7 @@ public class UserResource {
 	public Response updatePwd(PasswordUpdateData data) {
 		LOG.info("Attempt to modify password for user: " + data.username);
 		
-		if(!data.validParameters())
+		if(!data.validData())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.verifyPassword())
 			return Response.status(Status.FORBIDDEN).entity("Passwords don't match").build();
@@ -644,17 +644,17 @@ public class UserResource {
 		if (data.mobilePhone == null)
 			data.mobilePhone = userToModify.getString(MPHONE);
 		
-		if (data.landPhone == null)
-			data.landPhone = userToModify.getString(LPHONE);
+		if (data.homePhone == null)
+			data.homePhone = userToModify.getString(LPHONE);
 		
 		if (data.address == null)
 			data.address = userToModify.getString(ADDRESS);
 		
-		if (data.NIF == null)
-			data.NIF = userToModify.getString(NIF);
+		if (data.nif == null)
+			data.nif = userToModify.getString(NIF);
 		
-		if (data.profile == null)
-			data.profile = userToModify.getString(PROFILE);
+		if (data.visibility == null)
+			data.visibility = userToModify.getString(PROFILE);
 		
 		if (data.state == null)
 			data.state = userToModify.getString(STATE);

@@ -14,6 +14,15 @@ public class RemoveData {
 		this.usernameToRemove = usernameToRemove;
 	}
 
-
-
+	public boolean validData(){	
+		//Check missing info
+		if(this.username == null || this.usernameToRemove == null)
+			return false;
+		
+		//Check empty data
+		if(this.username.length() == 0 || this.usernameToRemove.length() == 0)
+			return false;
+		
+		return true;
+	}
 }
