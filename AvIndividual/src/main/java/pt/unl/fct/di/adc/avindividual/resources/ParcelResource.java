@@ -333,14 +333,32 @@ public class ParcelResource {
     private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
 		boolean overlaps = false;
 		//Checks if a parcel marker is inside the other one
-
+		int last = auxMarkers.length-1;
+		
 		//Checks if any 2 lines between markers intersect
 		for(int i = 0; i < markers.length-1 && !overlaps; i++){
-			for (int j = 0; j < auxMarkers.length; j++){
+			for (int j = 0; j < auxMarkers.length-1; j++){
 				overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[i+1].getLatitude(), markers[i+1].getLongitude(),
 												auxMarkers[j].getLatitude(), auxMarkers[j].getLongitude(), auxMarkers[j+1].getLatitude(), auxMarkers[j+1].getLongitude());
 			}
+			overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[i+1].getLatitude(), markers[i+1].getLongitude(),
+					auxMarkers[last].getLatitude(), auxMarkers[last].getLongitude(), auxMarkers[0].getLatitude(), auxMarkers[0].getLongitude());
 		}
+		
+		if (overlaps)
+			return true;
+		
+		int last2 = markers.length-1;
+		for (int i = 0; i < auxMarkers.length-1 && !overlaps; i++) {
+			overlaps = Line2D.linesIntersect(markers[last2].getLatitude(), markers[last2].getLongitude(), markers[0].getLatitude(), markers[0].getLongitude(),
+					auxMarkers[i].getLatitude(), auxMarkers[i].getLongitude(), auxMarkers[i+1].getLatitude(), auxMarkers[i+1].getLongitude());
+		}
+		
+		if (overlaps)
+			return true;
+		
+		overlaps = Line2D.linesIntersect(markers[last2].getLatitude(), markers[last2].getLongitude(), markers[0].getLatitude(), markers[0].getLongitude(),
+				auxMarkers[last].getLatitude(), auxMarkers[last].getLongitude(), auxMarkers[0].getLatitude(), auxMarkers[0].getLongitude());
 
         return overlaps;
     }

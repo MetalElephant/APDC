@@ -675,7 +675,7 @@ public class UserResource {
 	}
 
 	
-	@GET
+	@POST
 	@Path("/showUserData")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
