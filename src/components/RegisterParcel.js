@@ -3,7 +3,6 @@ import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
-
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
     const [allLats, setAllLats] = react.useState([]);
