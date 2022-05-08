@@ -5,7 +5,7 @@ class restCalls {
 
     //depois alterar url
     login (username, password) {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/users/login", {   
+        return fetch ("https://land-it.appspot.com/rest/users/login", {   
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -31,7 +31,7 @@ class restCalls {
     
 
     register (username, password, email, name) {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/users/register/", {
+        return fetch ("https://land-it.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ class restCalls {
     }
 
     parcelRegister (parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/parcel/register", {
+        return fetch ("https://land-it.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -89,8 +89,8 @@ class restCalls {
         }) 
     }
 
-    modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage, area) {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/parcel/updateParcel", {
+    modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage) {
+        return fetch ("https://land-it.appspot.com/rest/parcel/updateParcel", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ class restCalls {
     }
 
     userInfo() {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/users/showUserData", {
+        return fetch ("https://land-it.appspot.com/rest/users/showUserData", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/parcel/list", {
+        return fetch ("https://land-it.appspot.com/rest/parcel/list", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -169,7 +169,7 @@ class restCalls {
 
 
     logout() {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/users/logout/", {
+        return fetch ("https://land-it.appspot.com/rest/users/logout/", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
