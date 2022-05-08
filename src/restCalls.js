@@ -97,13 +97,12 @@ class restCalls {
             },
             body: JSON.stringify({
                 owner: JSON.parse(localStorage.getItem('token')).username,
-                parcelId: parcelId,
                 parcelName: parcelName,
+                parcelRegion: parcelId,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
-                prevUsage: prevUsage,
-                area: area
+                prevUsage: prevUsage
             })
         }).then (function (response) {
             if (!response.ok) {

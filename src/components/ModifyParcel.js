@@ -43,7 +43,7 @@ export default function modifyParcel() {
 
     function modifyParcelManager(e) {
         e.preventDefault();
-        restCalls.modifyParcel(parcelId, parcelName, description, groundType, currUsage, prevUsage, area);
+        restCalls.modifyParcel(parcelId, parcelName, description, groundType, currUsage, prevUsage);
     }
 
     return (
