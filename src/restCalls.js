@@ -30,7 +30,7 @@ class restCalls {
     }
     
 
-    register (username, password, email, name) {
+    register (username, password, email, name, homePhone, mobilePhone, address, nif) {
         return fetch ("https://land-it.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
@@ -41,7 +41,11 @@ class restCalls {
                 password: password,
                 pwdConfirmation: password,
                 email: email,
-                name: name
+                name: name,
+                homePhone: homePhone,
+                mobilePhone: mobilePhone,
+                address: address,
+                nif: nif
             })
         }).then (function (response) {
             if (!response.ok) {

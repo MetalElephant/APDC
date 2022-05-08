@@ -11,6 +11,10 @@ export default function LoginRegister() {
     const [password, setPassword] = react.useState("");
     const [email, setEmail] = react.useState("");
     const [name, setName] = react.useState("");
+    const [homePhone, setHomePhone] = react.useState("");
+    const [mobilePhone, setMobilePhone] = react.useState("");
+    const [address, setAddress] = react.useState("");
+    const [nif, setNif] = react.useState("");
 
     function usernameHandler(e) {
         setUsername(e.target.value);
@@ -28,6 +32,24 @@ export default function LoginRegister() {
         setName(e.target.value);
     }
 
+    function homePhoneHandler(e) {
+        setHomePhone(e.target.value);
+    }
+
+    function mobilePhoneHandler(e) {
+        setMobilePhone(e.target.value);
+    }
+
+    function addressHandler(e) {
+        setAddress(e.target.value);
+    }
+
+    function nifHandler(e) {
+        setNif(e.target.value);
+    }
+
+
+
     function loginManager(e) {
         e.preventDefault()
         restCalls.login(username, password).then(() => {restCalls.userInfo().then(() => {history.push("/main")})})
@@ -36,7 +58,7 @@ export default function LoginRegister() {
     function registerManager(e) {
         e.preventDefault();
         if(username !== "")
-        restCalls.register(username, password, email, name);
+        restCalls.register(username, password, email, name, homePhone, mobilePhone, address, nif);
     }
 
     return (
@@ -159,6 +181,46 @@ export default function LoginRegister() {
                                     type="name"
                                     id="name"
                                     onChange = {nameHandler}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="homePhone"
+                                    label="Home Phone"
+                                    type="homePhone"
+                                    id="homePhone"
+                                    onChange = {homePhoneHandler}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="mobilePhone"
+                                    label="Mobile Phone"
+                                    type="mobilePhone"
+                                    id="mobilePhone"
+                                    onChange = {mobilePhoneHandler}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="address"
+                                    label="Address"
+                                    type="address"
+                                    id="address"
+                                    onChange = {addressHandler}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    name="nif"
+                                    label="NIF"
+                                    type="nif"
+                                    id="nif"
+                                    onChange = {nifHandler}
                                 />
                                 <Button
                                     type="submit"
