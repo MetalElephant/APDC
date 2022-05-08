@@ -18,6 +18,7 @@ import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.LogoutData;
+import pt.unl.fct.di.adc.avindividual.util.ModifyParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 
 import com.google.cloud.datastore.*;
@@ -133,7 +134,7 @@ public class ParcelResource {
 	
 	@PUT
 	@Path("/updateParcel")
-	public Response updateParcel(ParcelData data) {
+	public Response updateParcel(ModifyParcelData data) {
 		Transaction tn = datastore.newTransaction();
 
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
@@ -174,7 +175,7 @@ public class ParcelResource {
 					.set(AREA, parcel.getString(AREA))
                     .set(NMARKERS, parcel.getString(NMARKERS));
 			
-			for(int i = 0; i< data.allLats.length; i++) {
+			for(int i = 0; i < Integer.parseInt(parcel.getString(NMARKERS)); i++) {
 				builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
 			}
 
