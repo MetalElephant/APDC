@@ -152,7 +152,7 @@ public class UserResource {
 			tn.commit(); 
 
 			LOG.fine("Registered user: " + data.username);
-			return Response.ok().build();
+			return Response.ok(g.toJson(null)).build();
 
 		} finally {
 			if (tn.isActive())

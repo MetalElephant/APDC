@@ -24,7 +24,6 @@ public class UserUpdateData {
 		
 		this.username = username;
 		this.usernameToUpdate = usernameToUpdate;
-		
 		this.name = name;
 		this.email = email;
 		this.visibility = visibility;

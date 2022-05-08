@@ -14,14 +14,15 @@ public class RegisterData {
 	
 	public RegisterData() {}
 	
-	public RegisterData(String username, String password, String confirmation, String email, String name, 
-			String homePhone, String mobilePhone, String address, String nif, String visibility) {
+	public RegisterData(String username, String password, String pwdConfirmation, String email, String name, 
+			String visibility, String homePhone, String mobilePhone, String address, String nif) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
-		this.pwdConfirmation = confirmation;
+		this.pwdConfirmation = pwdConfirmation;
 		this.email = email;
 		this.name = name;
+		this.visibility = visibility;
 
 		//Optional information
 		this.homePhone = homePhone;
@@ -31,6 +32,25 @@ public class RegisterData {
 
 		optionalAttributes();
 	}
+
+	//Extra constructor for android purposes
+	public RegisterData(String username, String password, String pwdConfirmation, String email, String name, 
+			String visibility) {
+		//Mandatory information
+		this.username = username;
+		this.password = password;
+		this.pwdConfirmation = pwdConfirmation;
+		this.email = email;
+		this.name = name;
+		this.visibility = visibility;
+
+		this.homePhone = UNDEFINED;
+		this.mobilePhone = UNDEFINED;
+		this.address = UNDEFINED;
+		this.nif = UNDEFINED;
+	}
+
+
 	
 	private void optionalAttributes() {
 		if(this.homePhone == null)
