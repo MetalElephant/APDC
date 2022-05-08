@@ -31,6 +31,7 @@ export default function ParcelInfo() {
         setAllLngs(parcels[i].allLngs);
     }
    
+    /*
     const generateButtons = () => {
         for (var i = 0; i <= parcels.length; i++) {
             return <Button
@@ -45,11 +46,11 @@ export default function ParcelInfo() {
             
        }
     }
+    */
 
     return (
         <>
             <Grid item xs={1.5}>
-                {generateButtons}
             </Grid>
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
