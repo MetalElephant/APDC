@@ -37,6 +37,7 @@ export default function ParcelInfo() {
     
     function generateButtons () {
         const views = [];
+        if(parcels == null) return <h5>No parcels</h5>
         for (var i = 0; i < parcels.length; i++) {
             views.push (
                 <Button
