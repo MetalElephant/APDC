@@ -50,8 +50,8 @@ public class UserResource {
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
 	private static final String ROLE = "role";
-	private static final String MPHONE = "mobilephone";
-	private static final String LPHONE = "landphone";
+	private static final String MPHONE = "mobile phone";
+	private static final String LPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String PROFILE = "profile";
@@ -142,9 +142,9 @@ public class UserResource {
 					.set(EMAIL, data.email)
 					.set(ROLE, USER)		
 					.set(MPHONE, data.mobilePhone)
-					.set(LPHONE,data.landPhone)
+					.set(LPHONE,data.homePhone)
 					.set(ADDRESS,data.address)
-					.set(NIF,data.NIF)
+					.set(NIF,data.nif)
 					.set(PROFILE, PUBLIC)
 					.set(STATE, INACTIVE)
 					.set(CTIME, Timestamp.now())
@@ -154,7 +154,7 @@ public class UserResource {
 			tn.commit(); 
 
 			LOG.fine("User registered: " + data.username);
-			return Response.ok("Registered user "+ data.username).build();
+			return Response.ok(g.toJson(null)).build();
 
 		} finally {
 			if (tn.isActive())
@@ -451,7 +451,7 @@ public class UserResource {
 			tn.delete(tokenKey);
 			tn.commit();
 
-			return Response.ok("User" + data.username + " logged out.").build();
+			return Response.ok(g.toJson(null)).build();
 
 		} finally {
 			if (tn.isActive())

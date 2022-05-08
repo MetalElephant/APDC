@@ -11,13 +11,12 @@ public class RegisterData {
 	public String name;
 	
 	public String profile;
-	public String landPhone;
+	public String homePhone;
 	public String mobilePhone;
 	public String address;
-	public String NIF;
+	public String nif;
 	public String role;
-	public String state;
-	//private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	public String visibility;
 	
 	private static final String UNDEFINED = "UNDEFINED";
 	
@@ -25,33 +24,19 @@ public class RegisterData {
 		
 	}
 	
-	public RegisterData(String username, String password, String confirmation, String email, String name) {
+	public RegisterData(String username, String password, String confirmation, String email, String name, String visibility,
+			String homePhone, String mobilePhone, String address, String nif) {
 		this.username = username;
 		this.password = password;
 		this.pwdConfirmation = confirmation;
 		this.email = email;
 		this.name = name;
-		
-		this.landPhone = UNDEFINED;
-		this.mobilePhone = UNDEFINED;
-		this.address = UNDEFINED;
-		this.NIF = UNDEFINED;
-		
-		
-	}
-	
-	public RegisterData(String username, String password, String confirmation, String email, String name, 
-			String landPhone, String mobilePhone, String address, String NIF) {
-		this.username = username;
-		this.password = password;
-		this.pwdConfirmation = confirmation;
-		this.email = email;
-		this.name = name;
-		
-		this.landPhone = landPhone;
+
+		this.visibility = visibility;	
+		this.homePhone = homePhone;
 		this.mobilePhone = mobilePhone;
 		this.address = address;
-		this.NIF = NIF;
+		this.nif = nif;
 				
 	}
 	
@@ -74,8 +59,8 @@ public class RegisterData {
 	}
 	
 	public void optionalAttributes() {
-		if(this.landPhone == null)
-			this.landPhone = UNDEFINED;
+		if(this.homePhone == null)
+			this.homePhone = UNDEFINED;
 		
 		if(this.mobilePhone == null)
 			this.mobilePhone = UNDEFINED;
@@ -83,8 +68,8 @@ public class RegisterData {
 		if(this.address == null)
 			this.address = UNDEFINED;
 		
-		if(this.NIF == null)
-			this.NIF = UNDEFINED;
+		if(this.nif == null)
+			this.nif = UNDEFINED;
 	}
 	
 	public boolean validPasswordFormat() {
