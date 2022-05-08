@@ -118,12 +118,10 @@ public class UserResource {
 						.set(PROFILE, PRIVATE)
 						.set(STATE, ACTIVE)
 						.set(CTIME, Timestamp.now()).build();
-
 				tn.add(person);
 				tn.commit(); 
 				
 				LOG.info("User registered: " + data.username);
-
 				return Response.ok("User "+ data.username ).build();
 			}
 			*/
@@ -530,35 +528,27 @@ public class UserResource {
 		}
 		/*
 		if (role.equals(GBO)) {
-
 			// Define query
 			Query<Entity> queryGBO = Query.newEntityQueryBuilder().setKind("User")
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, USER)))
 					.build();
-
 			return buildQueryList(queryGBO);
-
 		}
 		if (role.equals(GS)) {
-
 			// Queries don't have an OR operation, apparently, so we have to do 2 separate
 			// ones
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User")
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, USER)))
 					.build();
-
 			Query<Entity> query2 = Query.newEntityQueryBuilder().setKind("User")
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, GBO)))
 					.build();
-
 			List<String> allUsers = buildQueryList(query);
 			List<String> usersGBO = buildQueryList(query2);
-
 			allUsers.addAll(usersGBO);
-
 			return allUsers;
 		}
 		*/
@@ -624,8 +614,6 @@ public class UserResource {
 		String role2 = userToRemove.getString(ROLE);
 		String name1 = user.getString(USERNAME);
 		String name2 = userToRemove.getString(USERNAME);
-
-
 			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
 				return false;
 			}
@@ -675,7 +663,7 @@ public class UserResource {
 	}
 
 	
-	@GET
+	@POST
 	@Path("/showUserData")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")

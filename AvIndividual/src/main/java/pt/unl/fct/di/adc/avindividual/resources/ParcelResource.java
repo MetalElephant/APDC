@@ -336,7 +336,7 @@ public class ParcelResource {
 
 		//Checks if any 2 lines between markers intersect
 		for(int i = 0; i < markers.length-1 && !overlaps; i++){
-			for (int j = 0; j < auxMarkers.length; j++){
+			for (int j = 0; j < auxMarkers.length-1; j++){
 				overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[i+1].getLatitude(), markers[i+1].getLongitude(),
 												auxMarkers[j].getLatitude(), auxMarkers[j].getLongitude(), auxMarkers[j+1].getLatitude(), auxMarkers[j+1].getLongitude());
 			}
