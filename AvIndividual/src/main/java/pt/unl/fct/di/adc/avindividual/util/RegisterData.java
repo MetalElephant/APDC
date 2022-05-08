@@ -59,17 +59,20 @@ public class RegisterData {
 	}
 	
 	public void optionalAttributes() {
-		if(this.homePhone == null)
+		if(this.homePhone == null || this.homePhone.length() == 0)
 			this.homePhone = UNDEFINED;
 		
-		if(this.mobilePhone == null)
+		if(this.mobilePhone == null || this.mobilePhone.length() == 0)
 			this.mobilePhone = UNDEFINED;
 		
-		if(this.address == null)
+		if(this.address == null || this.address.length() == 0)
 			this.address = UNDEFINED;
 		
-		if(this.nif == null)
+		if(this.nif == null || this.nif.length() == 0)
 			this.nif = UNDEFINED;
+		
+		if(this.visibility == null || this.visibility.length() == 0)
+			this.visibility = UNDEFINED;
 	}
 	
 	public boolean validPasswordFormat() {

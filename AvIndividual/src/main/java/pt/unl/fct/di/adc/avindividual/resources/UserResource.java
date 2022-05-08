@@ -1,6 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -15,9 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import com.google.gson.Gson;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.servlet.http.HttpServletRequest;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
@@ -51,16 +48,15 @@ public class UserResource {
 	private static final String EMAIL = "email";
 	private static final String ROLE = "role";
 	private static final String MPHONE = "mobile phone";
-	private static final String LPHONE = "home phone";
+	private static final String HPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String PROFILE = "profile";
 	private static final String STATE = "state";
 	private static final String CTIME = "creation time";
 	private static final String PUBLIC = "Public";
-	public static final String PRIVATE = "Private";
-	public static final String ACTIVE = "ACTIVE";
-	public static final String INACTIVE = "INACTIVE";
+	private static final String ACTIVE = "ACTIVE";
+	private static final String INACTIVE = "INACTIVE";
 
 	private static final String SU = "SU";
 
@@ -142,7 +138,7 @@ public class UserResource {
 					.set(EMAIL, data.email)
 					.set(ROLE, USER)		
 					.set(MPHONE, data.mobilePhone)
-					.set(LPHONE,data.homePhone)
+					.set(HPHONE,data.homePhone)
 					.set(ADDRESS,data.address)
 					.set(NIF,data.nif)
 					.set(PROFILE, PUBLIC)
@@ -166,7 +162,7 @@ public class UserResource {
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response doLogin(LoginData data, @Context HttpServletRequest request, @Context HttpHeaders headers) {	
+	public Response doLogin(LoginData data) {	
 		LOG.info("Attempt to login user: " + data.username);
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -335,7 +331,7 @@ public class UserResource {
 					.set(EMAIL, data.email)
 					.set(ROLE, data.role)
 					.set(MPHONE, data.mobilePhone)
-					.set(LPHONE, data.homePhone)
+					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
 					.set(PROFILE, data.visibility)
@@ -402,7 +398,7 @@ public class UserResource {
 					.set(EMAIL, user.getString(EMAIL))
 					.set(ROLE, user.getString(ROLE))
 					.set(MPHONE, user.getString(MPHONE))
-					.set(LPHONE, user.getString(LPHONE))
+					.set(HPHONE, user.getString(HPHONE))
 					.set(ADDRESS, user.getString(ADDRESS))
 					.set(NIF, user.getString(NIF))
 					.set(PROFILE, user.getString(PROFILE))
@@ -515,7 +511,7 @@ public class UserResource {
 
 			QueryResults<Entity> users = datastore.run(queryUSER);
 
-			List<String> allUsers = new ArrayList<String>();
+			List<String> allUsers = new LinkedList<String>();
 			allUsers.add("List of Active Users: ");
 
 			users.forEachRemaining(userList -> {
@@ -567,7 +563,7 @@ public class UserResource {
 		
 		QueryResults<Entity> users = datastore.run(query);
 		
-		List<String> allUsers = new ArrayList<String>();
+		List<String> allUsers = new LinkedList<String>();
 		allUsers.add("List of Users: ");
 		
 		users.forEachRemaining(userList-> {
@@ -579,7 +575,7 @@ public class UserResource {
 					" -|- State: "+ userList.getString(STATE)+
 					" -|- Password: "+ userList.getString(PASSWORD)+
 					" -|- Address: "+ userList.getString(ADDRESS)+
-					" -|- Landphone: "+ userList.getString(LPHONE)+
+					" -|- Landphone: "+ userList.getString(HPHONE)+
 					" -|- Mobile Phone: "+ userList.getString(MPHONE)+
 					" -|- NIF: "+ userList.getString(NIF)+
 					" -|- Creation Time: "+ userList.getTimestamp(CTIME).toString()
@@ -645,7 +641,7 @@ public class UserResource {
 			data.mobilePhone = userToModify.getString(MPHONE);
 		
 		if (data.homePhone == null)
-			data.homePhone = userToModify.getString(LPHONE);
+			data.homePhone = userToModify.getString(HPHONE);
 		
 		if (data.address == null)
 			data.address = userToModify.getString(ADDRESS);
@@ -692,7 +688,7 @@ public class UserResource {
 			}
 
 			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
-			user.getString(LPHONE), user.getString(MPHONE),
+			user.getString(HPHONE), user.getString(MPHONE),
 			user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(STATE));
 
 			return Response.ok(g.toJson(u)).build();

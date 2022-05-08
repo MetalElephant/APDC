@@ -4,24 +4,14 @@ import java.util.regex.Pattern;
 
 public class UserUpdateData {
 	
-	public String username;
-	public String usernameToUpdate;
+	public String username, usernameToUpdate;
 	
-	public String email;
-	public String name;
-	public String visibility;
-	public String homePhone;
-	public String mobilePhone;
-	public String address;
-	public String nif;
-	public String role;
-	public String state;
+	public String email, name, visibility, homePhone, mobilePhone, address, nif, role, state;
 	
 	public UserUpdateData() {}
 	
 	public UserUpdateData(String username, String usernameToUpdate, String name,  String email, String visibility, String homePhone,
 			String mobilePhone, String nif, String role, String state, String address) {
-		
 		this.username = username;
 		this.usernameToUpdate = usernameToUpdate;
 		this.name = name;

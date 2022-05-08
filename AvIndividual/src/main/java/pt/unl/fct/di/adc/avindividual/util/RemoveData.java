@@ -5,9 +5,7 @@ public class RemoveData {
 	public String username;
 	public String usernameToRemove;
 	
-	public RemoveData() {
-		
-	}
+	public RemoveData() {}
 	
 	public RemoveData(String username, String usernameToRemove) {
 		this.username = username;
