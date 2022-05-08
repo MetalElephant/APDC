@@ -14,4 +14,15 @@ public class LoginData {
 		this.password = password;
 	}
 
+	public boolean validData(){	
+		//Check missing info
+		if(this.username == null || this.password == null)
+			return false;
+		
+		//Check empty data
+		if(this.username.length() == 0 || this.password.length() == 0)
+			return false;
+		
+		return true;
+	}
 }

@@ -20,27 +20,18 @@ public class PasswordUpdateData {
 		this.pwdConfirmation = pwdConfirmation;
 	}
 	
-	public boolean verifyPassword() {
-		return this.newPwd.equals(pwdConfirmation);
-	}
-	
-	public boolean validParameters(){
-		
-		if(this.newPwd == null|| this.oldPwd == null 
-				|| this.pwdConfirmation == null)
+	public boolean validData(){
+		if(this.username == null || this.newPwd == null || this.oldPwd == null|| this.pwdConfirmation == null)
 			return false;
 		
 		if(this.username.length() == 0 || this.oldPwd.length() == 0 || this.newPwd.length() == 0 
 				|| this.pwdConfirmation.length() ==0)
 			return false;
 		
-		return true;
-		
-		
+		return true;	
 	}
 	
 	public boolean validPasswordFormat() {
-		
 		String pwd = this.newPwd;
 		
 		if(pwd.length()>=5) {
@@ -53,7 +44,10 @@ public class PasswordUpdateData {
 	        		return true;
 		}
 	        return false;
-		
+	}
+
+	public boolean verifyPassword() {
+		return this.newPwd.equals(pwdConfirmation);
 	}
 
 }

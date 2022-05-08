@@ -9,37 +9,35 @@ public class UserUpdateData {
 	
 	public String email;
 	public String name;
-	public String profile;
-	public String landPhone;
+	public String visibility;
+	public String homePhone;
 	public String mobilePhone;
 	public String address;
-	public String NIF;
+	public String nif;
 	public String role;
 	public String state;
 	
-	public UserUpdateData() {
-		
-	}
+	public UserUpdateData() {}
 	
-	public UserUpdateData(String username, String usernameToUpdate, String name,  String email, String profile, String landPhone,
-			String mobilePhone, String NIF, String role, String state, String address) {
+	public UserUpdateData(String username, String usernameToUpdate, String name,  String email, String visibility, String homePhone,
+			String mobilePhone, String nif, String role, String state, String address) {
 		
 		this.username = username;
 		this.usernameToUpdate = usernameToUpdate;
 		
 		this.name = name;
 		this.email = email;
-		this.profile = profile;
+		this.visibility = visibility;
 		this.address = address;
-		this.landPhone = landPhone;
+		this.homePhone = homePhone;
 		this.mobilePhone = mobilePhone;
-		this.NIF = NIF;
+		this.nif = nif;
 		this.role = role;
 		this.state = state;
-	
 	}
 	
 	public boolean validRoleFormat() {
+		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
 		String roleF = this.role;
 		if (roleF == null || roleF.equals("SU") || roleF.equals("GS") || roleF.equals("GBO") ||
 				roleF.equals("USER"))
@@ -49,6 +47,7 @@ public class UserUpdateData {
 	}
 	
 	public boolean validStateFormat() {
+		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
 		String stateF = this.state;
 		
 		if(stateF == null || stateF.equals("INACTIVE") || stateF.equals("ACTIVE"))
@@ -67,7 +66,8 @@ public class UserUpdateData {
 	}
 	
 
-	//No roles yet so we always say true for testing
+	//TODO No roles yet so we always say true for testing
+	//and this shouldn't be here it should be a global function for various methods
 	public boolean canUpdateValues(String user_role,String user2_role) {
 		/*
 		//can only modify own account; all attr except email, name and role

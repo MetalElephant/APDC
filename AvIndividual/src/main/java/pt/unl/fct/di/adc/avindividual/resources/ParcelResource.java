@@ -1,7 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.awt.geom.Line2D;
-import java.awt.Polygon;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,11 +34,8 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
-
-	public static final String PRIVATE = "Private";
-	public static final String ACTIVE = "ACTIVE";
-	public static final String INACTIVE = "INACTIVE";
 	
+	//Parcel info
 	private static final String PARCEL_REGION = "parcel region";
 	private static final String OWNER = "owner";
 	private static final String PARCEL_NAME = "name";
@@ -61,6 +57,9 @@ public class ParcelResource {
 	@Path("/register")
 	public Response putParcel(ParcelData data) {
 		LOG.info("Attempting to register parcel " + data.parcelName);
+
+		if (!data.isDataValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
 		Transaction tn = datastore.newTransaction();
 				
@@ -124,7 +123,7 @@ public class ParcelResource {
 			tn.add(parcel);
 			tn.commit();
 			
-			return Response.ok("Parcel added").build();
+			return Response.ok("Parcel sucefully added.").build();
 
 		} finally {
 			if (tn.isActive())
@@ -135,6 +134,11 @@ public class ParcelResource {
 	@PUT
 	@Path("/updateParcel")
 	public Response updateParcel(ModifyParcelData data) {
+		LOG.info("Attempting to register parcel " + data.parcelName);
+
+		if (!data.isDataValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
 		Transaction tn = datastore.newTransaction();
 
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
@@ -196,6 +200,7 @@ public class ParcelResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response parcelInfo(ParcelData data) {
+		//TODO parcel data type with just owner and name, rest is unecessary
 		LOG.fine("Attempting to show parcel " + data.parcelName);
 
 		Transaction tn = datastore.newTransaction();
@@ -228,6 +233,7 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 
+			//TODO Need to make a new parcel data type to show information
 			ParcelData p = new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
 				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]);
 
@@ -299,6 +305,7 @@ public class ParcelResource {
 					longs[i] = l.getLongitude();
 				}
 
+				//Ditto to line 236
 				userParcels.add(new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
 				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), lats, longs));
 			});
@@ -332,6 +339,7 @@ public class ParcelResource {
 
     //Checks if 2 parcels overlap eachother
     private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
+		//TODO make this code better
 		boolean overlaps = false;
 		//Checks if a parcel marker is inside the other one
 		int last = auxMarkers.length-1;
