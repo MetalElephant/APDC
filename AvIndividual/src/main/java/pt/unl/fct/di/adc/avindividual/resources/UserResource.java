@@ -35,6 +35,9 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource {
+	//TODO update order in which errors are handled in code
+    //Passwords should probably also cotain 1 upper case letter
+    //preferably create a data type for just username instead of logout and showUser
 
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 	private final Gson g = new Gson();
@@ -51,12 +54,13 @@ public class UserResource {
 	private static final String HPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
-	private static final String PROFILE = "profile";
+	private static final String VISIBILITY = "visibility";
 	private static final String STATE = "state";
 	private static final String CTIME = "creation time";
-	private static final String PUBLIC = "Public";
+
 	private static final String ACTIVE = "ACTIVE";
 	private static final String INACTIVE = "INACTIVE";
+	private static final String PUBLIC = "Public";
 
 	private static final String SU = "SU";
 
@@ -79,8 +83,8 @@ public class UserResource {
 	public Response registerUser(RegisterData data) {
 		LOG.info("Attempt to register user: " + data.username);
 
-		//Check if data is correctly input
-		if (!data.validRegistration())
+		//Check if data was input correctly
+		if (!data.validData())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
@@ -88,7 +92,6 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character").build();
 		if(!data.confirmedPassword())
 			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
-		data.optionalAttributes();
 
 		Transaction tn = datastore.newTransaction();
 
@@ -130,7 +133,7 @@ public class UserResource {
 				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
 			}
 
-			//Create user and statistics entity
+			//Create User entity
 			user = Entity.newBuilder(userKey)
 					.set(USERNAME, data.username)
 					.set(NAME, data.name)
@@ -138,10 +141,10 @@ public class UserResource {
 					.set(EMAIL, data.email)
 					.set(ROLE, USER)		
 					.set(MPHONE, data.mobilePhone)
-					.set(HPHONE,data.homePhone)
-					.set(ADDRESS,data.address)
-					.set(NIF,data.nif)
-					.set(PROFILE, PUBLIC)
+					.set(HPHONE, data.homePhone)
+					.set(ADDRESS, data.address)
+					.set(NIF, data.nif)
+					.set(VISIBILITY, data.visibility)
 					.set(STATE, INACTIVE)
 					.set(CTIME, Timestamp.now())
                     .build();
@@ -149,7 +152,7 @@ public class UserResource {
 			tn.add(user);
 			tn.commit(); 
 
-			LOG.fine("User registered: " + data.username);
+			LOG.fine("Registered user: " + data.username);
 			return Response.ok(g.toJson(null)).build();
 
 		} finally {
@@ -164,6 +167,10 @@ public class UserResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response doLogin(LoginData data) {	
 		LOG.info("Attempt to login user: " + data.username);
+	
+        //Check if data was input correctly
+        if (!data.validData())
+                return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
@@ -179,11 +186,11 @@ public class UserResource {
 				if(hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {						
 						Entity tokenEntity = tn.get(tokenKey);
 						
-						//Guarantee user is not logging in again
+						//Guarantee user isn't already logged in
 						if (tokenEntity != null) {
-							LOG.warning("User Already logged in:" + data.username);
+							LOG.warning("User " + data.username + " already logged in.");
 							tn.rollback();
-							return Response.status(Status.CONFLICT).entity("User Already Logged In").build();
+							return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
 						}              
 						
 						AuthToken token = new AuthToken(data.username);
@@ -203,12 +210,14 @@ public class UserResource {
 						return Response.ok(g.toJson(token)).build();
 
 					}else {
-						LOG.warning("Wrong password for :" + data.username);
-						return Response.status(Status.FORBIDDEN).entity("Wrong password").build();
+						LOG.warning("Wrong password for user:" + data.username);
+						tn.rollback();
+						return Response.status(Status.FORBIDDEN).entity("Wrong password.").build();
 					}
 			}else{
-				LOG.warning("User " + data.username +" does not exist");
-				return Response.status(Status.NOT_FOUND).entity("User " + data.username +" does not exist").build();
+				LOG.warning("User: " + data.username +" does not exist");
+				tn.rollback();
+				return Response.status(Status.NOT_FOUND).entity("User: " + data.username +" does not exist.").build();
 			}
 		}finally{
 			if (tn.isActive())
@@ -222,6 +231,9 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response removeUser(RemoveData data) {
 		LOG.info("Attempt to remove user: " + data.usernameToRemove);
+		//Check if data was input correctly
+		if (!data.validData())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
 		Transaction tn = datastore.newTransaction();
 
@@ -237,22 +249,22 @@ public class UserResource {
             Entity userToRemove = tn.get(userToRemoveKey);
 
 			if (user == null) {
-				LOG.warning("User " + data.username + " does not exist");
+				LOG.warning("User " + data.username + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (userToRemove == null){
-				LOG.warning("User to be removed" + data.usernameToRemove + " does not exist");
+				LOG.warning("User to be removed" + data.usernameToRemove + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.usernameToRemove + " does not exist").build();
+				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.usernameToRemove + " does not exist.").build();
 			}
 
 			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
+				LOG.warning("User " + data.username + " is not logged in.");
 				tn.rollback();
 
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " is not logged in.").build();
 			}
 
 			if (!canRemove(user, userToRemove)) {
@@ -262,7 +274,7 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove other User").build();
 			}
 			
-			//Remove the token associated with the user if ti exists
+			//Remove the token associated with the user if it exists
 			if(tn.get(tokenToRemoveKey) != null)
 				tn.delete(tokenToRemoveKey);
 			
@@ -283,6 +295,7 @@ public class UserResource {
 	public Response updateUser(UserUpdateData data) {
 		LOG.info("Attempt to update user: " + data.usernameToUpdate);
 		
+		//Check if data was input correctly
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
 		if(!data.validRoleFormat())
@@ -302,15 +315,15 @@ public class UserResource {
 			Entity token = tn.get(tokenKey);
 
 			if (user == null) {
-				LOG.warning("User " + data.username + " does not exist");
+				LOG.warning("User " + data.username + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (userToUpdate == null){
-				LOG.warning("User to be updated" + data.usernameToUpdate + " does not exist");
+				LOG.warning("User to be updated" + data.usernameToUpdate + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist").build();
+				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist.").build();
 			}
 
 			if (!isLoggedIn(token, tn)){
@@ -320,7 +333,7 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
-			// To set what will stay the same value or what will actually be changed
+			//To set what will stay the same value or what will actually be changed
 			if(!canModify(data, user, userToUpdate))
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
 
@@ -334,7 +347,7 @@ public class UserResource {
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
-					.set(PROFILE, data.visibility)
+					.set(VISIBILITY, data.visibility)
 					.set(STATE, data.state)
 					.set(CTIME, userToUpdate.getTimestamp(CTIME))
 					.build();
@@ -359,10 +372,10 @@ public class UserResource {
 		
 		if(!data.validData())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		if(!data.verifyPassword())
-			return Response.status(Status.FORBIDDEN).entity("Passwords don't match").build();
 		if(!data.validPasswordFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character").build();
+			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character.").build();
+		if(!data.verifyPassword())
+			return Response.status(Status.BAD_REQUEST).entity("Password confirmation doesn't match password.").build();
 		
 		Transaction tn = datastore.newTransaction();
 
@@ -374,15 +387,22 @@ public class UserResource {
 			Entity token = tn.get(tokenKey);
 
 			if (user == null) {
-				LOG.warning("User " + data.username + " does not exist");
+				LOG.warning("User " + data.username + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if(!user.getString(PASSWORD).equals(DigestUtils.sha512Hex(data.oldPwd))) {
 				LOG.warning("Wrong password for :" + data.username);
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Wrong password").build();
+				return Response.status(Status.BAD_REQUEST).entity("Original password is incorrect.").build();
+			}
+	
+			String newPwd = DigestUtils.sha512Hex(data.newPwd);
+			if(user.getString(PASSWORD).equals(newPwd)) {
+					LOG.warning("Old password can't be the same as new password.");
+					tn.rollback();
+					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
 			}
 
 			if (!isLoggedIn(token, tn)){
@@ -394,14 +414,14 @@ public class UserResource {
 			user = Entity.newBuilder(userKey)
 					.set(USERNAME, user.getString(USERNAME))
 					.set(NAME, user.getString(NAME))
-					.set(PASSWORD, DigestUtils.sha512Hex(data.newPwd))
+					.set(PASSWORD, newPwd)
 					.set(EMAIL, user.getString(EMAIL))
 					.set(ROLE, user.getString(ROLE))
 					.set(MPHONE, user.getString(MPHONE))
 					.set(HPHONE, user.getString(HPHONE))
 					.set(ADDRESS, user.getString(ADDRESS))
 					.set(NIF, user.getString(NIF))
-					.set(PROFILE, user.getString(PROFILE))
+					.set(VISIBILITY, user.getString(VISIBILITY))
 					.set(STATE, user.getString(STATE))
 					.set(CTIME, user.getTimestamp(CTIME))
 					.build();
@@ -436,10 +456,11 @@ public class UserResource {
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (token == null) {
+				LOG.warning("User " + data.username + " is not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
@@ -462,6 +483,8 @@ public class UserResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showUsers(LogoutData data) {
 		LOG.info("Attempt to list users for user: " + data.username);
+
+		//TODO Once we add the data type verify if the data is valid
 		
 		Transaction tn = datastore.newTransaction();
 
@@ -493,19 +516,128 @@ public class UserResource {
 		} finally {
 			if (tn.isActive())
 				tn.rollback();
+		}	
+	}
+
+	@POST
+	@Path("/showUserData")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response showSelf(ShowSelfData data) {
+		LOG.info("Attempting to show user " + data.username);
+
+		//TODO Once we add the data type verify if the data is valid
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+
+		Transaction tn = datastore.newTransaction();
+
+		try{
+			Entity user = datastore.get(userKey);
+			Entity token = datastore.get(tokenKey);
+
+			if (user == null) {
+				LOG.warning("User does not exist");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+			}
+
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
+
+			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
+			user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
+			user.getString(ROLE), user.getString(STATE));
+
+			return Response.ok(g.toJson(u)).build();
+
+		}finally{
+			if (tn.isActive())
+				tn.rollback();
 		}
-		
 	}
 	
+	//Verify if token exists and is valid
+	public boolean isLoggedIn(Entity token, Transaction tn) {
+		if (token == null)
+			return false;
+
+		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
+			tn.delete(token.getKey());
+			tn.commit();
+			return false;
+		}
+			
+		return true;
+	}
+
+	//TODO No roles so right now we can always do it for the sake of testing
+	private boolean canRemove(Entity user, Entity userToRemove) {
+		/*
+		String role1 = user.getString(ROLE);
+		String role2 = userToRemove.getString(ROLE);
+		String name1 = user.getString(USERNAME);
+		String name2 = userToRemove.getString(USERNAME);
+			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
+				return false;
+			}
+			if (role1.equals(GBO) && !role2.equals(USER)) { // can only remove USER level 
+				return false;
+			}
+			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
+				return false;
+			}
+		*/
+		return true;
+	}
+
+	//TODO we won't need to check for null values if we get the old info so we will only need canUpdateValues
+	private boolean canModify(UserUpdateData data, Entity user, Entity userToModify) {
+		if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
+			return false;
+		
+		//update values so its easier to do transaction.put throught the data from ModifyData
+		if (data.name == null)
+			data.name = userToModify.getString(NAME);
+		
+		if (data.email == null)
+			data.email = userToModify.getString(EMAIL);
+		
+		if (data.role == null)
+			data.role = userToModify.getString(ROLE);
+		
+		if (data.mobilePhone == null)
+			data.mobilePhone = userToModify.getString(MPHONE);
+		
+		if (data.homePhone == null)
+			data.homePhone = userToModify.getString(HPHONE);
+		
+		if (data.address == null)
+			data.address = userToModify.getString(ADDRESS);
+		
+		if (data.nif == null)
+			data.nif = userToModify.getString(NIF);
+		
+		if (data.visibility == null)
+			data.visibility = userToModify.getString(VISIBILITY);
+		
+		if (data.state == null)
+			data.state = userToModify.getString(STATE);
+		
+		return true;
+	}
+
 	private List<String> getQueries(String role) {
-
-
 		if (role.equals(USER)) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, USER),
-							PropertyFilter.eq(PROFILE, PUBLIC), 
+							PropertyFilter.eq(VISIBILITY, PUBLIC), 
 							PropertyFilter.eq(STATE, ACTIVE)))
 					.build();
 
@@ -550,7 +682,7 @@ public class UserResource {
 		*/
 		if (role.equals(SU)) {
 
-			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User").build();
+			Query<Entity> query = Query.newEntityQueryBuilder().setKind(USER).build();
 
 			return buildQueryList(query);
 		}
@@ -559,8 +691,7 @@ public class UserResource {
 
 	}
 	
-	private List<String> buildQueryList(Query<Entity> query) {
-		
+	private List<String> buildQueryList(Query<Entity> query) {	
 		QueryResults<Entity> users = datastore.run(query);
 		
 		List<String> allUsers = new LinkedList<String>();
@@ -571,7 +702,7 @@ public class UserResource {
 					" -|- Name: "+ userList.getString(NAME) +
 					" -|- Email: " + userList.getString(EMAIL) +
 					" -|- Role: "+ userList.getString(ROLE)+
-					" -|- Profile: "+ userList.getString(PROFILE)+
+					" -|- Profile: "+ userList.getString(VISIBILITY)+
 					" -|- State: "+ userList.getString(STATE)+
 					" -|- Password: "+ userList.getString(PASSWORD)+
 					" -|- Address: "+ userList.getString(ADDRESS)+
@@ -583,119 +714,5 @@ public class UserResource {
 		});
 		
 		return allUsers;
-	}
-	
-	/**
-	 * Verify if token exists and is valid
-	 * @param token
-	 * @return
-	 */
-	public boolean isLoggedIn(Entity token, Transaction tn) {
-		if (token == null)
-			return false;
-
-		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
-			tn.delete(token.getKey());
-			tn.commit();
-			return false;
-		}
-			
-		return true;
-	}
-
-	//No roles so right now we can always do it for the sake of testing
-	private boolean canRemove(Entity user, Entity userToRemove) {
-		/*
-		String role1 = user.getString(ROLE);
-		String role2 = userToRemove.getString(ROLE);
-		String name1 = user.getString(USERNAME);
-		String name2 = userToRemove.getString(USERNAME);
-			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
-				return false;
-			}
-			if (role1.equals(GBO) && !role2.equals(USER)) { // can only remove USER level 
-				return false;
-			}
-			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
-				return false;
-			}
-		*/
-		return true;
-	}
-
-	private boolean canModify(UserUpdateData data, Entity user, Entity userToModify) {	
-		if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
-			return false;
-		
-		//update values so its easier to do transaction.put throught the data from ModifyData
-		if (data.name == null)
-			data.name = userToModify.getString(NAME);
-		
-		if (data.email == null)
-			data.email = userToModify.getString(EMAIL);
-		
-		if (data.role == null)
-			data.role = userToModify.getString(ROLE);
-		
-		if (data.mobilePhone == null)
-			data.mobilePhone = userToModify.getString(MPHONE);
-		
-		if (data.homePhone == null)
-			data.homePhone = userToModify.getString(HPHONE);
-		
-		if (data.address == null)
-			data.address = userToModify.getString(ADDRESS);
-		
-		if (data.nif == null)
-			data.nif = userToModify.getString(NIF);
-		
-		if (data.visibility == null)
-			data.visibility = userToModify.getString(PROFILE);
-		
-		if (data.state == null)
-			data.state = userToModify.getString(STATE);
-		
-		return true;
-	}
-
-	
-	@POST
-	@Path("/showUserData")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showSelf(ShowSelfData data) {
-		LOG.info("Attempting to show user " + data.username);
-
-		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-
-		Transaction tn = datastore.newTransaction();
-
-		try{
-			Entity user = datastore.get(userKey);
-			Entity token = datastore.get(tokenKey);
-
-			if (user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-			}
-
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-			}
-
-			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
-			user.getString(HPHONE), user.getString(MPHONE),
-			user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(STATE));
-
-			return Response.ok(g.toJson(u)).build();
-
-		}finally{
-			if (tn.isActive())
-				tn.rollback();
-		}
 	}
 }

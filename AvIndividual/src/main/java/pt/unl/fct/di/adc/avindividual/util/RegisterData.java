@@ -1,64 +1,39 @@
 package pt.unl.fct.di.adc.avindividual.util;
-import java.util.regex.Pattern;
 
+import java.util.regex.Pattern;
 
 public class RegisterData {
 
-	public String username;
-	public String password;
-	public String pwdConfirmation;
-	public String email;
-	public String name;
-	
-	public String profile;
-	public String homePhone;
-	public String mobilePhone;
-	public String address;
-	public String nif;
-	public String role;
-	public String visibility;
+	//Mandatory information
+	public String username, password, pwdConfirmation, email, name;
+
+	//Optional or default information
+	public String profile, homePhone, mobilePhone, address,  nif, role, state, visibility;
 	
 	private static final String UNDEFINED = "UNDEFINED";
 	
-	public RegisterData() {
-		
-	}
+	public RegisterData() {}
 	
 	public RegisterData(String username, String password, String confirmation, String email, String name, String visibility,
 			String homePhone, String mobilePhone, String address, String nif) {
+		//Mandatory information
 		this.username = username;
 		this.password = password;
 		this.pwdConfirmation = confirmation;
 		this.email = email;
 		this.name = name;
 
+		//Optional information
 		this.visibility = visibility;	
 		this.homePhone = homePhone;
 		this.mobilePhone = mobilePhone;
 		this.address = address;
-		this.nif = nif;
-				
+		this.nif = nif;	
+		
+		optionalAttributes();
 	}
-	
-	
-	public boolean validRegistration(){
-		
-		//check missing info
-		if(this.username == null || this.password == null || this.email == null|| this.name == null 
-				|| this.pwdConfirmation == null)
-			return false;
-		
-		//check empty data
-		if(this.username.length() == 0 || this.password.length() == 0 || this.email.length() == 0||
-				this.name.length() == 0	|| this.pwdConfirmation.length() == 0)
-			return false;
-		
-		return true;
-		
-		
-	}
-	
-	public void optionalAttributes() {
+
+	private void optionalAttributes() {
 		if(this.homePhone == null || this.homePhone.length() == 0)
 			this.homePhone = UNDEFINED;
 		
@@ -72,7 +47,24 @@ public class RegisterData {
 			this.nif = UNDEFINED;
 		
 		if(this.visibility == null || this.visibility.length() == 0)
-			this.visibility = UNDEFINED;
+			this.visibility = "default";//TODO set as default for testing
+	}
+	
+	
+	public boolean validData(){
+		//Check missing info
+		if(this.username == null || this.password == null || this.email == null|| this.name == null 
+				|| this.pwdConfirmation == null)
+			return false;
+		
+		//Check empty data
+		if(this.username.length() == 0 || this.password.length() == 0 || this.email.length() == 0||
+				this.name.length() == 0	|| this.pwdConfirmation.length() == 0)
+			return false;
+		
+		return true;
+		
+		
 	}
 	
 	public boolean validPasswordFormat() {

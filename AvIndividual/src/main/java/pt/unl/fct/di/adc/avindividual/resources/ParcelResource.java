@@ -339,7 +339,7 @@ public class ParcelResource {
 
     //Checks if 2 parcels overlap eachother
     private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
-		//TODO make this code better
+		//TODO make this code better and check for parcels inside other parcels
 		boolean overlaps = false;
 		//Checks if a parcel marker is inside the other one
 		int last = auxMarkers.length-1;
