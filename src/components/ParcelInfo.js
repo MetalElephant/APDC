@@ -19,61 +19,46 @@ export default function ParcelInfo() {
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
 
-    function xyz(i) {
-        setParcelName(parcels[i].parcelName);
-        setParcelRegion(parcels[i].parcelRegion);
-        setDescription(parcels[i].description);
-        setGroundType(parcels[i].groundType);
-        setCurrUsage(parcels[i].currUsage);
-        setPrevUsage(parcels[i].prevUsage);
-        setArea(parcels[i].area);
-        setAllLats(parcels[i].allLats);
-        setAllLngs(parcels[i].allLngs);
+    function xyz(i) {        
+        var parcel = parcels[i]
+
+        setParcelName(parcel.parcelName);
+        setParcelRegion(parcel.parcelRegion);
+        setDescription(parcel.description);
+        setGroundType(parcel.groundType);
+        setCurrUsage(parcel.currUsage);
+        setPrevUsage(parcel.prevUsage);
+        setArea(parcel.area);
+        setAllLats(parcel.allLats);
+        setAllLngs(parcel.allLngs);
+        
     }
    
-    //function generateButtons() {
-       // for (var i = 0; i <= parcels.length; i++) {
-          //  <Button
-            //    type="submit"
-            //    fullWidth
-             //   variant="contained"
-             //   sx={{ mt: 3, mb: 2, height: "40px" }}
-             //   onClick={() => { xyz(0) }}
-          //  >
-           //     {parcels[0].parcelName}
-          //  </Button>
-     //  }
-    //}
+    
+    function generateButtons () {
+        const views = [];
+        for (var i = 0; i < parcels.length; i++) {
+            views.push (
+                <Button
+                    key={i}
+                    id={i}
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, height: "40px" }}
+                    onClick={(e) => xyz(e.target.id)}
+                >
+                    {parcels[i].parcelName}
+                </Button>
+            )     
+        }
+        return views
+    }
 
     return (
         <>
             <Grid item xs={1.5}>
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2, height: "40px" }}
-                    onClick={() => { xyz(0) }}
-                >
-                    {parcels[0].parcelName}
-                </Button>
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2, height: "40px" }}
-                    onClick={() => { xyz(1) }}
-                >
-                    {parcels[1].parcelName}
-                </Button><Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2, height: "40px" }}
-                    onClick={() => { xyz(2) }}
-                >
-                    {parcels[2].parcelName}
-                </Button>
+                {generateButtons()}
             </Grid>
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
