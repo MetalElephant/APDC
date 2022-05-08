@@ -93,6 +93,8 @@ public class UserResource {
 		if(!data.confirmedPassword())
 			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
 
+		data.optionalAttributes();
+
 		Transaction tn = datastore.newTransaction();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);

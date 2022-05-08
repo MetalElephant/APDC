@@ -30,10 +30,9 @@ public class RegisterData {
 		this.address = address;
 		this.nif = nif;	
 		
-		optionalAttributes();
 	}
 
-	private void optionalAttributes() {
+	public void optionalAttributes() {
 		if(this.homePhone == null || this.homePhone.length() == 0)
 			this.homePhone = UNDEFINED;
 		
