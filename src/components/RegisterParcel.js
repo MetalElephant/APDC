@@ -46,7 +46,7 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs).then(() => { restCalls.parcelInfo() });
+        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs);
     }
 
     return (
