@@ -31,25 +31,49 @@ export default function ParcelInfo() {
         setAllLngs(parcels[i].allLngs);
     }
    
-    const generateButtons = () => {
-        for (var i = 0; i <= parcels.length; i++) {
-            return <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        sx={{ mt: 3, mb: 2, height: "40px" }}
-                        onClick={() => { xyz(i) }}
-                    >
-                        {parcels[i].parcelName}
-                    </Button>
-            
-       }
-    }
+    //function generateButtons() {
+       // for (var i = 0; i <= parcels.length; i++) {
+          //  <Button
+            //    type="submit"
+            //    fullWidth
+             //   variant="contained"
+             //   sx={{ mt: 3, mb: 2, height: "40px" }}
+             //   onClick={() => { xyz(0) }}
+          //  >
+           //     {parcels[0].parcelName}
+          //  </Button>
+     //  }
+    //}
 
     return (
         <>
             <Grid item xs={1.5}>
-                {generateButtons}
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, height: "40px" }}
+                    onClick={() => { xyz(0) }}
+                >
+                    {parcels[0].parcelName}
+                </Button>
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, height: "40px" }}
+                    onClick={() => { xyz(1) }}
+                >
+                    {parcels[1].parcelName}
+                </Button><Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, height: "40px" }}
+                    onClick={() => { xyz(2) }}
+                >
+                    {parcels[2].parcelName}
+                </Button>
             </Grid>
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
