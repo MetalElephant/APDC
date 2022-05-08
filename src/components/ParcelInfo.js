@@ -16,6 +16,8 @@ export default function ParcelInfo() {
     const [allLats, setAllLats] = react.useState("")
     const [allLngs, setAllLngs] = react.useState("")
 
+    const [loaded, setLoaded] = react.useState(false)
+
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
 
@@ -34,32 +36,37 @@ export default function ParcelInfo() {
         
     }
    
+    useEffect(() => {
+        restCalls.parcelInfo().then(() => {setLoaded(true)})
+    })
     
     function generateButtons () {
         const views = [];
-        if(parcels == null) return <h5>No parcels</h5>
-        for (var i = 0; i < parcels.length; i++) {
-            views.push (
-                <Button
-                    key={i}
-                    id={i}
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2, height: "40px" }}
-                    onClick={(e) => xyz(e.target.id)}
-                >
-                    {parcels[i].parcelName}
-                </Button>
-            )     
-        }
+            if(parcels == null)
+                return <Typography> Não há parcelas registadas</Typography>
+            else 
+                for (var i = 0; i < parcels.length; i++) {
+                    views.push (
+                        <Button
+                            key={i}
+                            id={i}
+                            type="submit"
+                            fullWidth
+                            variant="contained"
+                            sx={{ mt: 3, mb: 2, height: "40px" }}
+                            onClick={(e) => xyz(e.target.id)}
+                        >
+                            {parcels[i].parcelName}
+                        </Button>
+                    )     
+                }
         return views
     }
 
     return (
         <>
             <Grid item xs={1.5}>
-                {generateButtons()}
+                {loaded ? generateButtons() : <></>}
             </Grid>
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
