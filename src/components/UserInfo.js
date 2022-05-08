@@ -23,8 +23,6 @@ export default function UserInfo() {
         setMobilephone(user.mobilephone)
         setAddress(user.address)
         setNif(user.nif)
-
-
     })
 
     return (
@@ -33,37 +31,37 @@ export default function UserInfo() {
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Username: {username} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Username: {username} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Email: {email} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Email: {email} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Name: {name} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Name: {name} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Home Phone: {landphone} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Home Phone: {landphone} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Mobile Phone: {mobilephone} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Mobile Phone: {mobilephone} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> Address: {address} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Address: {address} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{fontFamily: 'Verdana', fontSize: 18}}> NIF: {nif} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> NIF: {nif} </Typography>
                     </Paper>
                 </Box>
             </Grid>
@@ -77,7 +75,5 @@ export default function UserInfo() {
                 <Box component="img" src = {userAvatar} sx={{height: "350px", width: "350px"}}   />
             </Grid>
         </>
-       
-
     )
 }

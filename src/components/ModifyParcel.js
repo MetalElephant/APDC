@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-
+import landAvatar from "../images/land-avatar.png";
 import { Box, Container, Typography, TextField, Button, Grid } from "@mui/material";
 
 export default function modifyParcel() {
@@ -11,7 +11,6 @@ export default function modifyParcel() {
     const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
-    const [area, setArea] = react.useState("");
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -37,10 +36,6 @@ export default function modifyParcel() {
         setPrevUsage(e.target.value);
     }
 
-    function areaHandler(e) {
-        setArea(e.target.value);
-    }
-
     function modifyParcelManager(e) {
         e.preventDefault();
         restCalls.modifyParcel(parcelId, parcelName, description, groundType, currUsage, prevUsage);
@@ -48,8 +43,7 @@ export default function modifyParcel() {
 
     return (
         <>
-            <Grid item xs={2} />
-            <Grid item xs={4}>
+            <Grid item xs={3.5}>
                 <Container component="main" maxWidth="xs">
                     <Box
                         sx={{
@@ -119,17 +113,7 @@ export default function modifyParcel() {
                                 id="utilizacaoAnterior"
                                 onChange={prevUsageHandler}
                             />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="area"
-                                label="Área (aproximada)"
-                                id="area"
-                                onChange={areaHandler}
-                            />
-
-
+                
                             <Button
                                 type="submit"
                                 fullWidth
@@ -142,6 +126,15 @@ export default function modifyParcel() {
                         </Box>
                     </Box>
                 </Container>
+            </Grid>
+            <Grid item xs={6} 
+                    container
+                    spacing={0}
+                    direction="column"
+                    alignItems="center"
+                    justifyContent="center"
+            >       
+                <Box component="img" src = {landAvatar} sx={{height: "300px", width: "400px"}}   />
             </Grid>
         </>
     )

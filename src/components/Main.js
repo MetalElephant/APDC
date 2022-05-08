@@ -1,5 +1,5 @@
 import react from "react"
-import {Button, Grid, Typography } from "@mui/material";
+import {Button, Grid} from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
 import restCalls from "../restCalls"
@@ -20,13 +20,12 @@ export default function Main() {
     return (
         <Grid container spacing={2} direction="column">
             <Grid item xs={12} container>
-                <Grid item xs={2}>
+                <Grid item xs={2} textAlign="center">
                     <Button
                         type="submit"
                         id="1"
-                        fullWidth
                         variant="contained"
-                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        sx={{ mt: 2, width: "240px", height: "40px"}}
                         onClick={() => { setDisplay(0) }}
                     >
                         User Info
@@ -36,7 +35,7 @@ export default function Main() {
                         id="2"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        sx={{ mt: 2, width: "240px", height: "40px" }}
                         onClick={() => { setDisplay(1) }}
                     >
                         Parcel Info
@@ -46,7 +45,7 @@ export default function Main() {
                         id="3"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        sx={{ mt: 2, width: "240px", height: "40px" }}
                         onClick={() => { setDisplay(2) }}
                     >
                         Register Parcel
@@ -56,7 +55,7 @@ export default function Main() {
                         id="4"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        sx={{ mt: 2, width: "240px", height: "40px" }}
                         onClick={() => { setDisplay(3) }}
                     >
                         Modify Parcel
@@ -66,7 +65,7 @@ export default function Main() {
                         id="5"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 1, mb: 1, height: "40px" }}
+                        sx={{ mt: 2, width: "240px", height: "40px" }}
                         onClick={(e) => { logoutManager(e) }}
                     >
                         Logout

@@ -51,9 +51,8 @@ export default function ParcelInfo() {
                             key={i}
                             id={i}
                             type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2, height: "40px" }}
+                            variant="outlined"
+                            sx={{ mt: 2, width: "200px", height: "40px", bgcolor: "#F8F8FF"}}
                             onClick={(e) => xyz(e.target.id)}
                         >
                             {parcels[i].parcelName}
@@ -71,47 +70,47 @@ export default function ParcelInfo() {
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Name: {parcelName} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Name: {parcelName} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Region: {parcelRegion} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Region: {parcelRegion} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 18 }}>  Description: {description} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}>  Description: {description} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Ground Type: {groundType}</Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Ground Type: {groundType}</Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Current Usage: {currUsage}  </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Current Usage: {currUsage}  </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Previous Usage: {prevUsage} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Previous Usage: {prevUsage} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Area: {area} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Area: {area} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 13 }}> Pontos(latitudes): {allLats} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 13 }}> Pontos(latitudes): {allLats} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={2} sx={{ fontFamily: 'Verdana', fontSize: 13 }}> Pontos(Longitudes): {allLngs} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 13 }}> Pontos(Longitudes): {allLngs} </Typography>
                     </Paper>
                 </Box>
             </Grid>
