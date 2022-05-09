@@ -9,6 +9,7 @@ export default function LoginRegister() {
 
     const [username, setUsername] = react.useState("");
     const [password, setPassword] = react.useState("");
+    const [pwdConfirmation, setPwdConfirmation] = react.useState("");
     const [email, setEmail] = react.useState("");
     const [name, setName] = react.useState("");
 
@@ -18,6 +19,10 @@ export default function LoginRegister() {
 
     function passwordHandler(e) {
         setPassword(e.target.value);
+    }
+
+    function pwdConfirmationHandler(e) {
+        setPwdConfirmation(e.target.value);
     }
 
     function emailHandler(e) {
@@ -36,9 +41,9 @@ export default function LoginRegister() {
     function registerManager(e) {
         e.preventDefault();
         if(username !== "")
-        restCalls.register(username, password, email, name);
+        restCalls.register(username, password, pwdConfirmation, email, name);
     }
-
+    
     return (
         <Grid container spacing={2} direction="column">
             <Grid item xs={12} container>
@@ -137,7 +142,7 @@ export default function LoginRegister() {
                                     label="Password Confirmation"
                                     type="password"
                                     id="passwordConfirmation"
-                                    onChange = {passwordHandler}
+                                    onChange = {pwdConfirmationHandler}
                                 />
                                 <TextField
                                     margin="normal"

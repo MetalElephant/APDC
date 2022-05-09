@@ -30,8 +30,8 @@ class restCalls {
     }
     
 
-    register (username, password, email, name) {
-        return fetch ("https://land-it.appspot.com/rest/users/register/", {
+    register (username, password, pwdConfirmation, email, name) {
+        return fetch ("https://land-it.appspot.com/rest/users/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -39,9 +39,10 @@ class restCalls {
             body: JSON.stringify({
                 username: username,
                 password: password,
-                pwdConfirmation: password,
+                pwdConfirmation: pwdConfirmation,
                 email: email,
-                name: name
+                name: name,
+                visibility: "default"
             })
         }).then (function (response) {
             if (!response.ok) {
@@ -169,7 +170,7 @@ class restCalls {
 
 
     logout() {
-        return fetch ("https://land-it.appspot.com/rest/users/logout/", {
+        return fetch ("https://land-it.appspot.com/rest/users/logout", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
