@@ -66,9 +66,9 @@ export default function LoginRegister() {
 
     function registerManager(e) {
         e.preventDefault();
-        //if(username !== "")
         const isValid = formValidation();
-        restCalls.register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif);
+        if(isValid)
+            restCalls.register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif);
     }
 
     const formValidation = () => {
@@ -81,41 +81,64 @@ export default function LoginRegister() {
         if (username.length < 5 || username.length > 40) {
             usernameErr.usernameTooLongOrTooShort = "Username too long or too short.";
             isValid = false;
+            setUsernameErr(usernameErr)
+        }else {
+            setUsernameErr("")
         }
 
         if (password.length < 5) {
             passwordErr.passwordTooShort = "Password must contain at least 5 characters.";
             isValid = false;
+            setPasswordErr(passwordErr)
+        }else {
+            setPasswordErr("")
         }
 
         if (password.match(/[A-Z]/) == null) {
             passwordErr.passwordWithoutCapitalLetter = "Password must contain at least 1 capital letter.";
             isValid = false;
+            setPasswordErr(passwordErr)
+        }else {
+            setPasswordErr("")
         }
 
         if (password.match(/[0-9]/) == null) {
             passwordErr.passwordWithoutNumber = "Password must contain at least 1 number.";
             isValid = false;
+            setPasswordErr(passwordErr)
+        }else {
+            setPasswordErr("")
         }
 
         if (password.match(/[$&+,:;=?@#|'<>.*()%!-]/) == null) {
             passwordErr.passwordWithoutSpecialCharacter = "Password must contain at least 1 special character.";
             isValid = false;
+            setPasswordErr(passwordErr)
+        }else {
+            setPasswordErr("")
         }
 
-        if (!pwdConfirmation.match(password) || !password.match(pwdConfirmation))
+        if (!pwdConfirmation.match(password) || !password.match(pwdConfirmation)) {
             passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Password confimation does not match."
             isValid = false;
+            setPasswordConfirmationErr(passwordConfirmationErr)
+        }else {
+            setPasswordConfirmationErr("")
+        }
 
         if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
             emailErr.emailWithoutValidFormat = "Email must be of a valid format.";
             isValid = false;
+            setEmailErr(emailErr)
+        }else {
+            setEmailErr("")
         }
-
+        /*
         setUsernameErr(usernameErr)
         setEmailErr(emailErr)
         setPasswordConfirmationErr(passwordConfirmationErr)
         setPasswordErr(passwordErr)
+        */
         return isValid;
     }
 
