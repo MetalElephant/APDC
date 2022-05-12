@@ -4,6 +4,7 @@
 
   ![LANDIT-logo](https://user-images.githubusercontent.com/57989060/168095812-918141e8-4b1e-4a69-95fd-6de7d330c3ed.png)
 
+<b>
 
 <h5 align="center">Group 5</h5>
 <h6 align="center">Alexandre Godinho | 57823</h6>
