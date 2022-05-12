@@ -52,7 +52,6 @@ public class ParcelResource {
     private static final String TOKEN = "Token";
 	private static final String PARCEL = "Parcel";
 	
-   
     @POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -124,7 +123,7 @@ public class ParcelResource {
 			tn.add(parcel);
 			tn.commit();
 			
-			return Response.ok("Parcel sucefully added.").build();
+			return Response.ok("Reward sucessfully added.").build();
 
 		} finally {
 			if (tn.isActive())
@@ -136,10 +135,7 @@ public class ParcelResource {
 	@Path("/updateParcel")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateParcel(ModifyParcelData data) {
-		LOG.info("Attempting to register parcel " + data.parcelName);
-
-		if (!data.isDataValid())
-			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		LOG.info("Attempting to modify parcel " + data.parcelName);
 
 		Transaction tn = datastore.newTransaction();
 
@@ -170,9 +166,10 @@ public class ParcelResource {
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
+			data.removeNulls(parcel);
+
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
-					.set(PARCEL_REGION, data.parcelRegion)
 					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
@@ -202,14 +199,13 @@ public class ParcelResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response parcelInfo(RequestData data) {
-		LOG.fine("Attempting to show parcel " + data.parcelName);
+		LOG.fine("Attempting to show parcel " + data.name);
 
 		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.parcelName);
+		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.name);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-
 
 		try{
 			Entity user = tn.get(userKey);
@@ -237,8 +233,8 @@ public class ParcelResource {
 			//TODO Need to make a new parcel data type to show information
 			ParcelData p = new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
 				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]);
-
-			return Response.ok(g.toJson(p)).build();
+			
+				return Response.ok(g.toJson(p)).build();
 
 		}finally{
 			if (tn.isActive())
@@ -341,7 +337,7 @@ public class ParcelResource {
 		return false;
 	}
 
-	private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
+	private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers) {
 		boolean overlaps = false;
 		//Checks if a parcel marker is inside the other one
 		int aux1, aux2;
