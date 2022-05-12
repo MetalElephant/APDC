@@ -16,9 +16,9 @@ import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.ModifyParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
+import pt.unl.fct.di.adc.avindividual.util.RequestData;
 
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
@@ -249,7 +249,7 @@ public class ParcelResource {
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUserParcel(LogoutData data) {
+	public Response showUserParcel(RequestData data) {
 		LOG.info("Attempt to list parcels of user: " + data.username);
 		
 		Transaction tn = datastore.newTransaction();
@@ -330,13 +330,50 @@ public class ParcelResource {
                 auxMarkers[i] = parcel.getLatLng(MARKER + i);
             }
 
-            if (overlaps(markers, auxMarkers)){
+            if (overlaps(markers, auxMarkers))
                 return true;
-            }
+            
+
+			if (contains(markers, auxMarkers))
+				return true;
 		}
 		return false;
 	}
 
+	private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
+		boolean overlaps = false;
+		//Checks if a parcel marker is inside the other one
+		int aux1, aux2;
+		//Checks if any 2 lines between markers intersect
+		for(int i = 0; i < markers.length-1 && !overlaps; i++){
+			//Verify if it's the last line to check with first line
+			if (i < markers.length-1)
+				aux1 = i+1;
+			else
+				aux1 = 0;
+
+			for (int j = 0; j < auxMarkers.length; j++){
+				//Verify if it's the last line to check with first line
+				if (j < auxMarkers.length-1)
+					aux2 = j+1;
+				else
+					aux2 = 0;
+				
+				overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[aux1].getLatitude(), markers[aux1].getLongitude(),
+												auxMarkers[j].getLatitude(), auxMarkers[j].getLongitude(), auxMarkers[aux2].getLatitude(), auxMarkers[aux2].getLongitude());
+			}
+		}
+
+		return overlaps;
+	}
+
+	private boolean contains(LatLng[] markers, LatLng[] auxMarkers){
+		boolean overlaps = false;
+
+		return overlaps;
+	}
+
+	/*
     //Checks if 2 parcels overlap eachother
     private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
 		//TODO make this code better and check for parcels inside other parcels
@@ -370,5 +407,5 @@ public class ParcelResource {
 				auxMarkers[last].getLatitude(), auxMarkers[last].getLongitude(), auxMarkers[0].getLatitude(), auxMarkers[0].getLongitude());
 
         return overlaps;
-    }
+    }*/
 }

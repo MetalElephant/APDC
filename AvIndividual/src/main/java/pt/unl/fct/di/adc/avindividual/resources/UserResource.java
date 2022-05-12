@@ -3,6 +3,7 @@ package pt.unl.fct.di.adc.avindividual.resources;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,12 +19,11 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
-import pt.unl.fct.di.adc.avindividual.util.LogoutData;
 import pt.unl.fct.di.adc.avindividual.util.UserUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
-import pt.unl.fct.di.adc.avindividual.util.ShowSelfData;
+import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.UserInfo;
 
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
@@ -35,10 +35,6 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource {
-	//TODO update order in which errors are handled in code
-    //Passwords should probably also cotain 1 upper case letter
-    //preferably create a data type for just username instead of logout and showUser
-
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 	private final Gson g = new Gson();
 
@@ -56,24 +52,29 @@ public class UserResource {
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
 	private static final String STATE = "state";
+	private static final String POINTS = "points";
 	private static final String CTIME = "creation time";
 
 	private static final String ACTIVE = "ACTIVE";
 	private static final String INACTIVE = "INACTIVE";
 	private static final String PUBLIC = "Public";
 
+	//Roles
 	private static final String SU = "SU";
 
 	//Token information
-	public static final String TOKENID = "token ID";
-	public static final String TOKENUSER = "token user";
-	public static final String TOKENCREATION = "token creation";
-	public static final String TOKENEXPIRATION = "token expiration";
+	private static final String TOKENID = "token ID";
+	private static final String TOKENUSER = "token user";
+	private static final String TOKENCREATION = "token creation";
+	private static final String TOKENEXPIRATION = "token expiration";
 
+	//Code info
+	private static final String EXPTIME = "expiration time";
 
 	//Keys
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
+	private static final String CODE = "Code";
 	
 	public UserResource() {}
 
@@ -89,7 +90,8 @@ public class UserResource {
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
 		if(!data.validPasswordFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 letter and 1 special character").build();
+			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 "+
+			"letter, 1 upper case letter and 1 special character").build();
 		if(!data.confirmedPassword())
 			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
 
@@ -98,6 +100,8 @@ public class UserResource {
 		Transaction tn = datastore.newTransaction();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key redeemCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.getCodeUser())).setKind(CODE).newKey(data.code);
+		Key generatedCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(CODE).newKey(data.generateCode());
 
 		try {
 			Entity user = tn.get(userKey);
@@ -129,13 +133,21 @@ public class UserResource {
             
 			//Check if user already exists
 			if (user != null) {
-				LOG.warning("User Already Exists:" + data.username);
-
+				LOG.warning("User already exists:" + data.username);
 				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
 			}
 
-			//Create User entity
+			Entity redeemCodeEntity = tn.get(redeemCodeKey);
+
+			int points = 0;
+			//TODO Should also verify this in another method for frontend
+			if (redeemCodeEntity != null)
+				points = redeemCode(redeemCodeEntity, user);
+			//call some function to verify code and reward points, extra rewards for the first 3 months
+			//If indeed implements a points system update the other persons points as well
+
+			//Create User and Code entity
 			user = Entity.newBuilder(userKey)
 					.set(USERNAME, data.username)
 					.set(NAME, data.name)
@@ -148,10 +160,19 @@ public class UserResource {
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
 					.set(STATE, INACTIVE)
+					.set(POINTS, String.valueOf(points))
 					.set(CTIME, Timestamp.now())
                     .build();
 
-			tn.add(user);
+			//Date for 3 months from now, when code loses bonus
+			Calendar expDate = Calendar.getInstance();
+			expDate.add(Calendar.MONTH, 3);
+
+			Entity generatedCodeEntity = Entity.newBuilder(generatedCodeKey)
+			.set(EXPTIME, Timestamp.of(expDate.getTime()))
+			.build();
+
+			tn.add(user, generatedCodeEntity);
 			tn.commit(); 
 
 			LOG.fine("Registered user: " + data.username);
@@ -351,6 +372,7 @@ public class UserResource {
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
 					.set(STATE, data.state)
+					.set(POINTS, userToUpdate.getString(POINTS))
 					.set(CTIME, userToUpdate.getTimestamp(CTIME))
 					.build();
 			
@@ -443,7 +465,7 @@ public class UserResource {
 	@DELETE
 	@Path("/logout")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doLogout(LogoutData data) {
+	public Response doLogout(RequestData data) {
 		LOG.info("Attempt to logout user: " + data.username);
 
 		Transaction tn = datastore.newTransaction();
@@ -483,7 +505,7 @@ public class UserResource {
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUsers(LogoutData data) {
+	public Response showUsers(RequestData data) {
 		LOG.info("Attempt to list users for user: " + data.username);
 
 		//TODO Once we add the data type verify if the data is valid
@@ -525,7 +547,7 @@ public class UserResource {
 	@Path("/showUserData")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showSelf(ShowSelfData data) {
+	public Response showSelf(RequestData data) {
 		LOG.info("Attempting to show user " + data.username);
 
 		//TODO Once we add the data type verify if the data is valid
@@ -575,6 +597,19 @@ public class UserResource {
 		}
 			
 		return true;
+	}
+
+	//Add points from code to registered user and new user
+	private int redeemCode(Entity code, Entity newUser){
+		Timestamp expDate = code.getTimestamp(EXPTIME);
+
+		int bonus = 1000;
+		 
+		if (Timestamp.now().compareTo(expDate) < 0)
+			bonus += 500;
+		
+		return bonus;
+
 	}
 
 	//TODO No roles so right now we can always do it for the sake of testing

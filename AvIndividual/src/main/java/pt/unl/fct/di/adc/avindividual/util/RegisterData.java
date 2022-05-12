@@ -8,27 +8,28 @@ public class RegisterData {
 	public String username, password, pwdConfirmation, email, name;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, role, state, visibility;
+	public String profile, homePhone, mobilePhone, address,  nif, role, state, visibility, code;
 	
 	private static final String UNDEFINED = "UNDEFINED";
 	
 	public RegisterData() {}
 	
 	public RegisterData(String username, String password, String confirmation, String email, String name, String visibility,
-			String homePhone, String mobilePhone, String address, String nif) {
+			String homePhone, String mobilePhone, String address, String nif, String code) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
 		this.pwdConfirmation = confirmation;
 		this.email = email;
 		this.name = name;
+		this.visibility = visibility;
 
 		//Optional information
-		this.visibility = visibility;	
 		this.homePhone = homePhone;
 		this.mobilePhone = mobilePhone;
 		this.address = address;
 		this.nif = nif;	
+		this.code = code;
 		
 	}
 
@@ -71,12 +72,13 @@ public class RegisterData {
 		String pwd = this.password;
 		
 		if(pwd.length()>=5) {
-	        Pattern letters = Pattern.compile("[a-zA-z]");
+	        Pattern letters = Pattern.compile("[a-zA-Z]");
+			Pattern upper = Pattern.compile("[A-Z]");
 	        Pattern numbers = Pattern.compile("[0-9]");
 	        Pattern specChars = Pattern.compile ("[!@#$%&*()_+=|<>?{}\\[\\]~-]");
 
 	        if( letters.matcher(pwd).find() && numbers.matcher(pwd).find()
-	        		&& specChars.matcher(pwd).find())
+	        		&& specChars.matcher(pwd).find() && upper.matcher(pwd).find())
 	        		return true;
 		}
 	        return false;
@@ -97,6 +99,14 @@ public class RegisterData {
 				
 	}
 	
-	
+	public String generateCode() {
+		int aux = (int) (Math.random() * 999);
+
+		return (this.username+aux);
+	}
+
+	public String getCodeUser(){
+		return this.code.substring(0, this.code.length()-3);
+	}
 	
 }
