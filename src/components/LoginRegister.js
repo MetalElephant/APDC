@@ -92,26 +92,31 @@ export default function LoginRegister() {
         if (username.length < 5 || username.length > 40) {
             usernameErr.usernameTooLongOrTooShort = "Username too long or too short.";
             isValid = false;
+            setUsernameErr(usernameErr)
         }
 
         if (password.length < 5) {
             passwordErr.passwordTooShort = "Password must contain at least 5 characters.";
             isValid = false;
+            setPasswordErr(passwordErr)
         }
 
         if (password.match(/[A-Z]/) == null) {
             passwordErr.passwordWithoutCapitalLetter = "Password must contain at least 1 capital letter.";
             isValid = false;
+            setPasswordErr(passwordErr)
         }
 
         if (password.match(/[0-9]/) == null) {
             passwordErr.passwordWithoutNumber = "Password must contain at least 1 number.";
             isValid = false;
+            setPasswordErr(passwordErr)
         }
 
         if (password.match(/[$&+,:;=?@#|'<>.*()%!-]/) == null) {
             passwordErr.passwordWithoutSpecialCharacter = "Password must contain at least 1 special character.";
             isValid = false;
+            setPasswordErr(passwordErr)
         }
 
         if (!pwdConfirmation.match(password) || !password.match(pwdConfirmation)) {
@@ -122,8 +127,9 @@ export default function LoginRegister() {
         if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
             emailErr.emailWithoutValidFormat = "Email must be of a valid format.";
             isValid = false;
+            setEmailErr(emailErr)
         }
-
+        
         setUsernameErr(usernameErr)
         setEmailErr(emailErr)
         setPasswordConfirmationErr(passwordConfirmationErr)
