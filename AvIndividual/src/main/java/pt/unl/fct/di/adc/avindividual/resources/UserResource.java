@@ -35,6 +35,7 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource {
+	//TODO have a function create user rather than doing it manually everytime (same for parcel)
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 	private final Gson g = new Gson();
 
@@ -100,6 +101,7 @@ public class UserResource {
 		Transaction tn = datastore.newTransaction();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key codeOwnerKey = datastore.newKeyFactory().setKind(USER).newKey(data.getCodeUser());
 		Key redeemCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.getCodeUser())).setKind(CODE).newKey(data.code);
 		Key generatedCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(CODE).newKey(data.generateCode());
 
@@ -143,7 +145,8 @@ public class UserResource {
 			int points = 0;
 			//TODO Should also verify this in another method for frontend
 			if (redeemCodeEntity != null)
-				points = redeemCode(redeemCodeEntity, user);
+				points = redeemCode(redeemCodeEntity, user, tn.get(codeOwnerKey));
+			
 			//call some function to verify code and reward points, extra rewards for the first 3 months
 			//If indeed implements a points system update the other persons points as well
 
@@ -254,6 +257,7 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response removeUser(RemoveData data) {
 		LOG.info("Attempt to remove user: " + data.usernameToRemove);
+		//TODO Remove user code and rewards
 		//Check if data was input correctly
 		if (!data.validData())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
@@ -301,6 +305,8 @@ public class UserResource {
 			if(tn.get(tokenToRemoveKey) != null)
 				tn.delete(tokenToRemoveKey);
 			
+			removeUserCodes(data.usernameToRemove, tn);
+
 			tn.delete(userToRemoveKey);
 			tn.commit();
 
@@ -600,7 +606,7 @@ public class UserResource {
 	}
 
 	//Add points from code to registered user and new user
-	private int redeemCode(Entity code, Entity newUser){
+	private int redeemCode(Entity code, Entity newUser, Entity codeOwner){
 		Timestamp expDate = code.getTimestamp(EXPTIME);
 
 		int bonus = 1000;
@@ -608,6 +614,8 @@ public class UserResource {
 		if (Timestamp.now().compareTo(expDate) < 0)
 			bonus += 500;
 		
+		//TODO add the bonus to the owner of the code	
+
 		return bonus;
 
 	}
@@ -666,6 +674,19 @@ public class UserResource {
 			data.state = userToModify.getString(STATE);
 		
 		return true;
+	}
+
+	private void removeUserCodes(String user, Transaction tn){
+		Query<Entity> codesQuery = Query.newEntityQueryBuilder().setKind(CODE)
+								.setFilter(PropertyFilter.hasAncestor(
+                				datastore.newKeyFactory().setKind(USER).newKey(user)))
+								.build();
+		
+		QueryResults<Entity> userCodes = datastore.run(codesQuery);
+
+		while(userCodes.hasNext()){
+			tn.delete(userCodes.next().getKey());
+		}
 	}
 
 	private List<String> getQueries(String role) {

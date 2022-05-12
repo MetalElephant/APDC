@@ -55,6 +55,7 @@ public class ParcelResource {
    
     @POST
 	@Path("/register")
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response putParcel(ParcelData data) {
 		LOG.info("Attempting to register parcel " + data.parcelName);
 
@@ -133,6 +134,7 @@ public class ParcelResource {
 	
 	@PUT
 	@Path("/updateParcel")
+	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateParcel(ModifyParcelData data) {
 		LOG.info("Attempting to register parcel " + data.parcelName);
 
@@ -199,15 +201,14 @@ public class ParcelResource {
 	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response parcelInfo(ParcelData data) {
-		//TODO parcel data type with just owner and name, rest is unecessary
+	public Response parcelInfo(RequestData data) {
 		LOG.fine("Attempting to show parcel " + data.parcelName);
 
 		Transaction tn = datastore.newTransaction();
 
-		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
-		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.parcelName);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 
 
 		try{
@@ -222,13 +223,13 @@ public class ParcelResource {
 			}
 			
 			if (user == null) {
-				LOG.warning("User " + data.owner + " does not exist.");
+				LOG.warning("User " + data.username + " does not exist.");
 	
 				return Response.status(Status.FORBIDDEN).build();
 			}
 	
 			if (!ur.isLoggedIn(token, tn)) {
-				LOG.warning("User " + data.owner + "  session has expired.");
+				LOG.warning("User " + data.username + "  session has expired.");
 	
 				return Response.status(Status.FORBIDDEN).build();
 			}
