@@ -3,14 +3,15 @@ import {Button, Grid, Typography} from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
 import restCalls from "../restCalls"
-import UserInfo from "./UserInfo"
+//import UserInfo from "./UserInfo"
 import ParcelInfo from "./ParcelInfo";
+import UserProfile from "./UserProfile";
 import {useHistory} from "react-router-dom";
 
 export default function Main() {
     let history = useHistory();
 
-    const [display, setDisplay] = react.useState(0);
+    const [display, setDisplay] = react.useState(2);
 
     function logoutManager(e) {
         e.preventDefault()
@@ -21,16 +22,6 @@ export default function Main() {
         <Grid container spacing={2} direction="column">
             <Grid item xs={12} container>
                 <Grid item xs={2} textAlign="center">
-                    <Button
-                        type="submit"
-                        id="1"
-                        variant="outlined"
-                        color="success"
-                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)"}}
-                        onClick={() => { setDisplay(0) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> user info </Typography>
-                    </Button>
                     <Button
                         type="submit"
                         id="2"
@@ -86,11 +77,10 @@ export default function Main() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <UserInfo />: <></>}
                 {(display === 1) ? <ParcelInfo />: <></>}
                 {(display === 2) ? <RegisterParcel /> : <></>}
                 {(display === 3) ? <ModifyParcel />: <></>}
-                {(display === 4) ? <>RAFA ÉS BOSS</>: <></>}
+                {(display === 4) ? <UserProfile />: <></>}
             </Grid>
         </Grid>
     )
