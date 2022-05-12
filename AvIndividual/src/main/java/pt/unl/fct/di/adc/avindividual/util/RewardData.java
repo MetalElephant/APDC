@@ -9,10 +9,9 @@ public class RewardData {
     private static final String DESCRIPTION = "description";
     private static final String PRICE = "points";
 
-    public String name, description, owner;
-    public Integer price; // points
+    public String name, description, owner, price;
 
-    public RewardData(String name, String description, String owner, int price) {
+    public RewardData(String name, String description, String owner, String price) {
         this.name = name;
         this.description = description;
         this.owner = owner;
@@ -28,7 +27,7 @@ public class RewardData {
             return false;
         }
 
-        if(price < 1000) {
+        if(Integer.parseInt(price) < 1000) {
             return false;
         }
 
@@ -45,7 +44,7 @@ public class RewardData {
 		}
 		
 		if(this.price == null) {
-			this.price = Integer.parseInt(modified.getString(PRICE));
+			this.price = modified.getString(PRICE);
 		}
 	}
 }
