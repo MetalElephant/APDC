@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ModifyParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelInfo;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 
 import com.google.cloud.datastore.*;
@@ -230,9 +231,16 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).build();
 			}
 
-			//TODO Need to make a new parcel data type to show information
-			ParcelData p = new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), new double[0], new double[0]);
+			int n = Integer.parseInt(parcel.getString(NMARKERS));
+
+			LatLng markers[] = new LatLng[n];
+
+			for (int i = 0; i < n; i++){
+				markers[i] = parcel.getLatLng(MARKER+i);
+			}
+
+			ParcelInfo p = new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
+				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
 			
 				return Response.ok(g.toJson(p)).build();
 
@@ -271,7 +279,7 @@ public class ParcelResource {
 			}
 			
 			
-			List<ParcelData> parcelList = getQueries(data.username);
+			List<ParcelInfo> parcelList = getQueries(data.username);
 
 			return Response.ok(g.toJson(parcelList)).build();
 		} finally {
@@ -280,7 +288,7 @@ public class ParcelResource {
 		}	
 	}
 
-	private List<ParcelData> getQueries(String owner){
+	private List<ParcelInfo> getQueries(String owner){
 		Query<Entity> queryParcel = Query.newEntityQueryBuilder().setKind(PARCEL)
 					.setFilter(CompositeFilter.and(
 						PropertyFilter.eq(OWNER, owner)))
@@ -288,23 +296,20 @@ public class ParcelResource {
 
 			QueryResults<Entity> parcels = datastore.run(queryParcel);
 
-			List<ParcelData> userParcels = new LinkedList<>();
+			List<ParcelInfo> userParcels = new LinkedList<>();
 
 			parcels.forEachRemaining(parcel -> {
 				int n = Integer.parseInt(parcel.getString(NMARKERS));
 
-				double[] lats = new double[n];
-				double[] longs = new double[n];
+				LatLng markers[] = new LatLng[n];
 
 				for (int i = 0; i < n; i++){
-					LatLng l = parcel.getLatLng(MARKER+i);
-					lats[i] = l.getLatitude();
-					longs[i] = l.getLongitude();
+					markers[i] = parcel.getLatLng(MARKER+i);
 				}
 
 				//Ditto to line 236
-				userParcels.add(new ParcelData(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), lats, longs));
+				userParcels.add(new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
+				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 			});
 
 		return userParcels;
