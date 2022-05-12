@@ -66,6 +66,7 @@ export default function modifyParcel() {
                                 id="freguesiaSeccaoArtigo"
                                 label="Freguesia, Secção e Artigo"
                                 name="freguesiaSeccaoArtigo"
+                                color="success"
                                 onChange={parcelIdHandler}
                             />
                             <TextField
@@ -75,6 +76,7 @@ export default function modifyParcel() {
                                 name="nome"
                                 label="Nome"
                                 id="nome"
+                                color="success"
                                 onChange = {parcelNameHandler}
                             />
                             <TextField
@@ -84,6 +86,7 @@ export default function modifyParcel() {
                                 name="descricao"
                                 label="Descrição"
                                 id="descricao"
+                                color="success"
                                 onChange={descriptionHandler}
                             />
                             <TextField
@@ -93,6 +96,7 @@ export default function modifyParcel() {
                                 name="tipoCoberturaSolo"
                                 label="Tipo de Cobertura do Solo"
                                 id="tipoCoberturaSolo"
+                                color="success"
                                 onChange={groundTypeHandler}
                             />
                             <TextField
@@ -102,6 +106,7 @@ export default function modifyParcel() {
                                 name="utilizacaoAtual"
                                 label="Utilização Atual"
                                 id="utilizacaoAtual"
+                                color="success"
                                 onChange={currUsageHandler}
                             />
                             <TextField
@@ -111,17 +116,19 @@ export default function modifyParcel() {
                                 name="utilizacaoAnterior"
                                 label="Utilização Anterior"
                                 id="utilizacaoAnterior"
+                                color="success"
                                 onChange={prevUsageHandler}
                             />
                 
                             <Button
                                 type="submit"
                                 fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2, height: "40px" }}
+                                variant="outlined"
+                                color="success"
+                                sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { modifyParcelManager(e) }} 
                             >
-                                submit
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>
                         </Box>
                     </Box>

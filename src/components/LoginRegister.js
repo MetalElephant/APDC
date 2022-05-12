@@ -1,7 +1,6 @@
 import react from "react"
-import { useState, useEffect } from "react";
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid} from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert } from "@mui/material";
 import { useHistory } from "react-router-dom"
 
 export default function LoginRegister() {
@@ -21,6 +20,11 @@ export default function LoginRegister() {
     const [passwordErr, setPasswordErr] = react.useState({});
     const [passwordConfirmationErr, setPasswordConfirmationErr] = react.useState({});
     const [emailErr, setEmailErr] = react.useState({});
+
+    const [isRegisterSubmit, setIsRegisterSubmit] = react.useState(false);
+    const [isRegisterNotSubmit, setIsRegisterNotSubmit] = react.useState(false);
+    const [isLoginSubmit, setIsLoginSubmit] = react.useState(true);
+    const [displayRegisterMessage, setDisplayRegisterMessage] = react.useState(0);
 
 
     function usernameHandler(e) {
@@ -60,18 +64,25 @@ export default function LoginRegister() {
     }
 
     function loginManager(e) {
-        e.preventDefault()
-        restCalls.login(username, password).then(() => { restCalls.userInfo().then(() => { history.push("/main") }) })
+        e.preventDefault();
+        restCalls.login(username, password).then(
+            () => { restCalls.userInfo().then(() => { history.push("/main") }) }).catch(() => { setIsLoginSubmit(false) })
     }
 
     function registerManager(e) {
         e.preventDefault();
-        //if(username !== "")
-        const isValid = formValidation();
-        restCalls.register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif);
+        const isRegisterFormValid = registerFormValidation();
+        if (isRegisterFormValid) {
+            restCalls.register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif)
+            setIsRegisterSubmit(true)
+            setDisplayRegisterMessage(0)
+        } else {
+            setIsRegisterNotSubmit(true)
+            setDisplayRegisterMessage(1)
+        }
     }
 
-    const formValidation = () => {
+    const registerFormValidation = () => {
         const usernameErr = {};
         const passwordErr = {};
         const passwordConfirmationErr = {};
@@ -103,9 +114,10 @@ export default function LoginRegister() {
             isValid = false;
         }
 
-        if (!pwdConfirmation.match(password) || !password.match(pwdConfirmation))
+        if (!pwdConfirmation.match(password) || !password.match(pwdConfirmation)) {
             passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Password confimation does not match."
             isValid = false;
+        }
 
         if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
             emailErr.emailWithoutValidFormat = "Email must be of a valid format.";
@@ -120,9 +132,14 @@ export default function LoginRegister() {
     }
 
     return (
-        <Grid container spacing={2} direction="column">
-            <Grid item xs={12} container>
-                <Grid item xs={2.5} />
+        <Grid container spacing={2} direction="column" bgcolor="white">
+            <Grid item xs={12} container >
+                <Grid item xs={2.5} align="center">
+                    {!isLoginSubmit ?
+                        <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Login não efetuado. Username ou password incorretos.</Typography>
+                        </Alert> : <></>}
+                </Grid>
                 <Grid item xs={3}>
                     <Container component="main" maxWidth="xs">
                         <Box
@@ -134,7 +151,7 @@ export default function LoginRegister() {
                                 alignItems: 'center',
                             }}
                         >
-                            <Typography component="h1" variant="h5">
+                            <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
                                 Login
                             </Typography>
                             <Box component="form" sx={{ mt: 1 }}>
@@ -145,7 +162,7 @@ export default function LoginRegister() {
                                     id="username"
                                     label="Username"
                                     name="username"
-                                    autoFocus
+                                    color="success"
                                     onChange={usernameHandler}
                                 />
                                 <TextField
@@ -156,17 +173,19 @@ export default function LoginRegister() {
                                     label="Password"
                                     type="password"
                                     id="password"
+                                    color="success"
                                     onChange={passwordHandler}
                                 />
 
                                 <Button
                                     type="submit"
                                     fullWidth
-                                    variant="contained"
-                                    sx={{ mt: 3, mb: 2, height: "40px" }}
+                                    variant="outlined"
+                                    color="success"
+                                    sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                     onClick={(e) => { loginManager(e) }}
                                 >
-                                    submit
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                                 </Button>
                             </Box>
                         </Box>
@@ -184,11 +203,11 @@ export default function LoginRegister() {
                                 alignItems: 'center',
                             }}
                         >
-                            <Typography component="h1" variant="h5">
+                            <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
                                 User Registration
                             </Typography>
                             <Box component="form" sx={{ mt: 1 }}>
-                                
+
                                 <TextField
                                     margin="normal"
                                     required
@@ -197,11 +216,11 @@ export default function LoginRegister() {
                                     label="Username"
                                     name="username"
                                     autoFocus
-                                    value={username}
+                                    color="success"
                                     onChange={usernameHandler}
                                 />
                                 {Object.keys(usernameErr).map((key) => {
-                                        return <Typography sx={{ color: "red", fontSize: 14 }}> {usernameErr[key]}</Typography>
+                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {usernameErr[key]}</Typography>
                                 })}
 
                                 <TextField
@@ -212,13 +231,13 @@ export default function LoginRegister() {
                                     label="Password"
                                     type="password"
                                     id="password"
-                                    value={password}
+                                    color="success"
                                     onChange={passwordHandler}
                                 />
                                 {Object.keys(passwordErr).map((key) => {
                                     return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordErr[key]}</Typography>
                                 })}
-    
+
                                 <TextField
                                     margin="normal"
                                     required
@@ -227,11 +246,12 @@ export default function LoginRegister() {
                                     label="Password Confirmation"
                                     type="password"
                                     id="passwordConfirmation"
+                                    color="success"
                                     value={pwdConfirmation}
                                     onChange={pwdConfirmationHandler}
                                 />
                                 {Object.keys(passwordConfirmationErr).map((key) => {
-                                        return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordConfirmationErr[key]}</Typography>
+                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordConfirmationErr[key]}</Typography>
                                 })}
                                 <TextField
                                     margin="normal"
@@ -241,13 +261,14 @@ export default function LoginRegister() {
                                     label="Email"
                                     type="email"
                                     id="email"
+                                    color="success"
                                     value={email}
                                     onChange={emailHandler}
                                 />
                                 {Object.keys(emailErr).map((key) => {
                                     return <Typography sx={{ color: "red", fontSize: 14 }}> {emailErr[key]}</Typography>
                                 })}
-                               
+
                                 <TextField
                                     margin="normal"
                                     required
@@ -256,8 +277,22 @@ export default function LoginRegister() {
                                     label="Name"
                                     type="name"
                                     id="name"
+                                    color="success"
                                     onChange={nameHandler}
                                 />
+
+                                <FormControl sx={{ mt: "13px" }}>
+                                    <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
+                                    <RadioGroup
+                                        aria-labelledby="demo-radio-buttons-group-label"
+                                        name="radio-buttons-group"
+                                        row
+                                    >
+                                        <FormControlLabel value="public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />
+                                        <FormControlLabel value="private" control={<Radio color="success" />} label="Private" sx={{ color: "black" }} />
+                                    </RadioGroup>
+                                </FormControl>
+
                                 <TextField
                                     margin="normal"
                                     fullWidth
@@ -265,6 +300,7 @@ export default function LoginRegister() {
                                     label="Home Phone"
                                     type="homePhone"
                                     id="homePhone"
+                                    color="success"
                                     onChange={homePhoneHandler}
                                 />
                                 <TextField
@@ -274,6 +310,7 @@ export default function LoginRegister() {
                                     label="Mobile Phone"
                                     type="mobilePhone"
                                     id="mobilePhone"
+                                    color="success"
                                     onChange={mobilePhoneHandler}
                                 />
                                 <TextField
@@ -283,6 +320,7 @@ export default function LoginRegister() {
                                     label="Address"
                                     type="address"
                                     id="address"
+                                    color="success"
                                     onChange={addressHandler}
                                 />
                                 <TextField
@@ -292,22 +330,33 @@ export default function LoginRegister() {
                                     label="NIF"
                                     type="nif"
                                     id="nif"
+                                    color="success"
                                     onChange={nifHandler}
                                 />
+
                                 <Button
                                     type="submit"
                                     fullWidth
-                                    variant="contained"
-                                    sx={{ mt: 3, mb: 2, height: "40px" }}
+                                    variant="outlined"
+                                    color="success"
+                                    sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                     onClick={(e) => { registerManager(e) }}
                                 >
-                                    submit
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                                 </Button>
                             </Box>
                         </Box>
                     </Container>
                 </Grid>
                 <Grid item xs={2.5}>
+                    {isRegisterSubmit && (displayRegisterMessage === 0) ?
+                        (<Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador Registado com sucesso!</Typography>
+                        </Alert>) : <></>}
+                    {isRegisterNotSubmit && (displayRegisterMessage === 1) ?
+                        (<Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de utilizador não efetuado. Por favor, verifique os seus dados.</Typography>
+                        </Alert>) : <></>}
                 </Grid>
             </Grid>
         </Grid>

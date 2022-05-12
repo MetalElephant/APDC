@@ -52,10 +52,11 @@ export default function ParcelInfo() {
                             id={i}
                             type="submit"
                             variant="outlined"
-                            sx={{ mt: 2, width: "200px", height: "40px", bgcolor: "#F8F8FF"}}
+                            color="success"
+                            sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "gainsboro"}}
                             onClick={(e) => xyz(e.target.id)}
                         >
-                            {parcels[i].parcelName}
+                          <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> {parcels[i].parcelName} </Typography>
                         </Button>
                     )     
                 }

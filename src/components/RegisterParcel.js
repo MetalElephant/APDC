@@ -112,6 +112,7 @@ export default function RegisterParcel() {
                                 id="freguesiaSeccaoArtigo"
                                 label="Freguesia, Secção e Artigo"
                                 name="freguesiaSeccaoArtigo"
+                                color="success"
                                 onChange={parcelIdHandler}
                             />
                             <TextField
@@ -121,6 +122,7 @@ export default function RegisterParcel() {
                                 name="nome"
                                 label="Nome"
                                 id="nome"
+                                color="success"
                                 onChange={parcelNameHandler}
                             />
                             <TextField
@@ -130,6 +132,7 @@ export default function RegisterParcel() {
                                 name="descricao"
                                 label="Descrição"
                                 id="descricao"
+                                color="success"
                                 onChange={descriptionHandler}
                             />
                             <TextField
@@ -139,6 +142,7 @@ export default function RegisterParcel() {
                                 name="tipoCoberturaSolo"
                                 label="Tipo de Cobertura do Solo"
                                 id="tipoCoberturaSolo"
+                                color="success"
                                 onChange={groundTypeHandler}
                             />
                             <TextField
@@ -148,6 +152,7 @@ export default function RegisterParcel() {
                                 name="utilizacaoAtual"
                                 label="Utilização Atual"
                                 id="utilizacaoAtual"
+                                color="success"
                                 onChange={currUsageHandler}
                             />
                             <TextField
@@ -157,6 +162,7 @@ export default function RegisterParcel() {
                                 name="utilizacaoAnterior"
                                 label="Utilização Anterior"
                                 id="utilizacaoAnterior"
+                                color="success"
                                 onChange={prevUsageHandler}
                             />
                             <TextField
@@ -166,17 +172,19 @@ export default function RegisterParcel() {
                                 name="area"
                                 label="Área (aproximada)"
                                 id="area"
+                                color="success"
                                 onChange={areaHandler}
                             />
 
                             <Button
                                 type="submit"
                                 fullWidth
-                                variant="contained"
-                                sx={{ mt: 3, mb: 2, height: "40px" }}
+                                variant="outlined"
+                                color="success"
+                                sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { parcelRegisterManager(e) }}
                             >
-                                submit
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>
                         </Box>
                     </Box>

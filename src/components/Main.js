@@ -1,5 +1,5 @@
 import react from "react"
-import {Button, Grid} from "@mui/material";
+import {Button, Grid, Typography} from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
 import restCalls from "../restCalls"
@@ -24,58 +24,73 @@ export default function Main() {
                     <Button
                         type="submit"
                         id="1"
-                        variant="contained"
-                        sx={{ mt: 2, width: "240px", height: "40px"}}
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)"}}
                         onClick={() => { setDisplay(0) }}
                     >
-                        User Info
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> user info </Typography>
                     </Button>
                     <Button
                         type="submit"
                         id="2"
                         fullWidth
-                        variant="contained"
-                        sx={{ mt: 2, width: "240px", height: "40px" }}
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        Parcel Info
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> parcel info </Typography>
                     </Button>
                     <Button
                         type="submit"
                         id="3"
                         fullWidth
-                        variant="contained"
-                        sx={{ mt: 2, width: "240px", height: "40px" }}
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(2) }}
                     >
-                        Register Parcel
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> register parcel </Typography>
                     </Button>
                     <Button
                         type="submit"
                         id="4"
                         fullWidth
-                        variant="contained"
-                        sx={{ mt: 2, width: "240px", height: "40px" }}
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(3) }}
                     >
-                        Modify Parcel
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify parcel </Typography>
+                    </Button>
+                    <Button
+                        type="submit"
+                        id="5"
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)"}}
+                        onClick={() => { setDisplay(4) }}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> profile </Typography>
                     </Button>
                     <Button
                         type="submit"
                         id="5"
                         fullWidth
-                        variant="contained"
-                        sx={{ mt: 2, width: "240px", height: "40px" }}
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={(e) => { logoutManager(e) }}
                     >
-                        Logout
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
                 {(display === 0) ? <UserInfo />: <></>}
                 {(display === 1) ? <ParcelInfo />: <></>}
                 {(display === 2) ? <RegisterParcel /> : <></>}
                 {(display === 3) ? <ModifyParcel />: <></>}
-                
+                {(display === 4) ? <>RAFA ÉS BOSS</>: <></>}
             </Grid>
         </Grid>
     )
