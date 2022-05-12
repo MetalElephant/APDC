@@ -122,6 +122,32 @@ class restCalls {
         }) 
     }
 
+    modifyPassword (oldPassword, newPassword, pwdConfirmation) {
+        return fetch ("https://land-it.appspot.com/rest/users/updatePwd", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                oldPwd: oldPassword,
+                newPwd: newPassword,
+                pwdConfirmation: pwdConfirmation
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        }) 
+    }
+
     userInfo() {
         return fetch ("https://land-it.appspot.com/rest/users/showUserData", {
             method: 'POST',

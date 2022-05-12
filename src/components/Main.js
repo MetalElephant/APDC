@@ -11,7 +11,7 @@ import {useHistory} from "react-router-dom";
 export default function Main() {
     let history = useHistory();
 
-    const [display, setDisplay] = react.useState(2);
+    const [display, setDisplay] = react.useState(0);
 
     function logoutManager(e) {
         e.preventDefault()
@@ -22,6 +22,18 @@ export default function Main() {
         <Grid container spacing={2} direction="column">
             <Grid item xs={12} container align="center">
                 <Grid item xs={2}>
+                    
+                    <Button
+                        type="submit"
+                        id="3"
+                        fullWidth
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        onClick={() => { setDisplay(0) }}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> register parcel </Typography>
+                    </Button>
                     <Button
                         type="submit"
                         id="2"
@@ -35,33 +47,23 @@ export default function Main() {
                     </Button>
                     <Button
                         type="submit"
-                        id="3"
+                        id="4"
                         fullWidth
                         variant="outlined"
                         color="success"
                         sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(2) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> register parcel </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="4"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(3) }}
-                    >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify parcel </Typography>
                     </Button>
+                    
                     <Button
                         type="submit"
                         id="5"
                         variant="outlined"
                         color="success"
                         sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)"}}
-                        onClick={() => { setDisplay(4) }}
+                        onClick={() => { setDisplay(3) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> profile </Typography>
                     </Button>
@@ -77,10 +79,10 @@ export default function Main() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
+                {(display === 0) ? <RegisterParcel /> : <></>}
                 {(display === 1) ? <ParcelInfo />: <></>}
-                {(display === 2) ? <RegisterParcel /> : <></>}
-                {(display === 3) ? <ModifyParcel />: <></>}
-                {(display === 4) ? <UserProfile />: <></>}
+                {(display === 2) ? <ModifyParcel />: <></>}
+                {(display === 3) ? <UserProfile />: <></>}
             </Grid>
         </Grid>
     )

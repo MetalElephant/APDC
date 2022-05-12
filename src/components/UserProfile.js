@@ -1,6 +1,7 @@
 import react from "react"
 import {Button, Grid, Typography} from "@mui/material";
 import UserInfo from "./UserInfo"
+import ModifyPassword from "./ModifyPassword";
 
 export default function Main() {
 
@@ -16,7 +17,7 @@ export default function Main() {
                     variant="outlined"
                     color="success"
                     sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                    onClick={() => { setDisplay(1)}}
+                    onClick={() => {setDisplay(0)}}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> user info </Typography>
                 </Button>
@@ -27,7 +28,7 @@ export default function Main() {
                     variant="outlined"
                     color="success"
                     sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                    onClick={() => { }}
+                    onClick={() => {setDisplay(1)}}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify password </Typography>
                 </Button>
@@ -43,9 +44,9 @@ export default function Main() {
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify attributes </Typography>
                 </Button>
             </Grid>
-            {(display === 1) ? <UserInfo />: <></>}
+            {(display === 0) ? <UserInfo />: <></>}
+            {(display === 1) ? <ModifyPassword />: <></>}
             {(display === 2) ? <></>: <></>}
-            {(display === 3) ? <></>: <></>}
         </>
     )
 }

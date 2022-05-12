@@ -11,8 +11,9 @@ export default function modifyParcel() {
     const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
+
     const [displayMessage, setDisplayMessage] = react.useState(false);
-    const [isModifySubmit, setIsModifySubmit] = react.useState(false);
+    const [isModifySubmit, setIsModifySubmit] = react.useState(true);
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -145,14 +146,14 @@ export default function modifyParcel() {
                     alignItems="center"
                     sx = {{mt:"55px"}}
             >
-                {(isModifySubmit && displayMessage) ? 
+                {isModifySubmit && displayMessage ? 
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela modificada com sucesso.</Typography>
                     </Alert> : <></>
                 }
-                {(!isModifySubmit && displayMessage) ? 
-                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a parcela, verifique o nome da parcela.</Typography>
+                {!isModifySubmit && displayMessage ? 
+                    <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a parcela. Por favor, verifique o nome da parcela.</Typography>
                     </Alert> : <></>
                 }
             </Grid>
