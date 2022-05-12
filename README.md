@@ -1,6 +1,6 @@
-# Land It!
-
 ![LANDIT-logo](https://user-images.githubusercontent.com/57989060/168095812-918141e8-4b1e-4a69-95fd-6de7d330c3ed.png)
+
+# Land It!
 
 Land It! is being made for the course Activity for Curricular Development taught at [NOVA School of Science and Technology](https://www.fct.unl.pt/en).
 
