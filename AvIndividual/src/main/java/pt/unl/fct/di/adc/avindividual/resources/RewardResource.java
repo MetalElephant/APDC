@@ -1,5 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +21,8 @@ import pt.unl.fct.di.adc.avindividual.util.RewardData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/reward")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -46,7 +50,7 @@ public class RewardResource {
 	private static final String REWARD = "Reward";
     
     @POST
-	@Path("/registerReward")
+	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response registerReward(RewardData data) {
 		LOG.info("Attempt to register reward: " + data.name);
@@ -74,9 +78,9 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 
-            if (!ur.isLoggedIn(token, tn)){
+            if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				tn.rollback();
+				ur.doLogout(new RequestData(data.owner));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -115,7 +119,7 @@ public class RewardResource {
 	}
 
     @PUT
-    @Path("/updateReward")
+    @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateReward(RewardData data) {
         LOG.info("Attempting to modify reward " + data.name);
@@ -143,9 +147,9 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				tn.rollback();
+				ur.doLogout(new RequestData(data.owner));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -184,7 +188,7 @@ public class RewardResource {
     }
 
     @DELETE
-    @Path("/removeReward")
+    @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response removeReward(RequestData data) {
         LOG.info("Attempt to remove reward: " + data.name);
@@ -207,9 +211,9 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username+ " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
+				ur.doLogout(new RequestData(data.username));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
@@ -244,20 +248,102 @@ public class RewardResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response rewardInfo(RequestData data) {
-        // TODO
+        LOG.fine("Attempting to show reward " + data.name);
 
-        return Response.ok().build();
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(REWARD).newKey(data.name);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+			
+		Entity user = datastore.get(userKey);
+		Entity reward = datastore.get(rewardKey);
+		Entity token = datastore.get(tokenKey);
+
+        if (user == null) {
+			LOG.warning("User " + data.username + " does not exist.");
+	
+			return Response.status(Status.FORBIDDEN).build();
+		}
+
+        if (ur.isTokenValid(token)){
+            LOG.warning("User " + data.username + " not logged in.");
+            ur.doLogout(new RequestData(data.username));
+
+            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+        }
+
+        if(!isUserValid(user)) {
+            LOG.warning("User " + data.username + " isn't a merchant.");
+            
+            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " isn't a merchant.").build();
+        }
+
+        if (reward == null) {
+            LOG.warning("Reward " + data.username + " doesn't exist.");
+
+            return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
+        }
+
+        RewardData r = new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), reward.getString(PRICE));
+
+        return Response.ok(g.toJson(r)).build();
+    }
+    
+    @POST
+    @Path("/list")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response showUserReward(RequestData data) {
+        LOG.info("Attempt to list rewards of user: " + data.username);
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+        if (user == null) {				
+			LOG.warning("User " + data.username + " does not exist");
+			
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (ur.isTokenValid(token)){
+			LOG.warning("User " + data.username + " not logged in.");
+			ur.doLogout(new RequestData(data.username));
+
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+
+        List<RewardData> rewardList = getQueries(data.username);
+
+        return Response.ok(g.toJson(rewardList)).build();
     }
 
     private boolean isUserValid(Entity user) {
 		
 		String role = user.getString(ROLE);
 		
-        if(!role.equalsIgnoreCase(Roles.MER.name())) {
+        if(!role.equalsIgnoreCase(Roles.MERCHANT.name())) {
             return false;
         }
 
 		return true;
+	}
+
+    private List<RewardData> getQueries(String owner){
+		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD)
+					.setFilter(CompositeFilter.and(PropertyFilter.eq(OWNER, owner)))
+					.build();
+
+		QueryResults<Entity> parcels = datastore.run(queryReward);
+
+		List<RewardData> userRewards = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			userRewards.add(new RewardData(parcel.getString(REWARD_NAME), parcel.getString(DESCRIPTION), parcel.getString(OWNER), parcel.getString(PRICE)));
+		});
+
+		return userRewards;
 	}
 }
     

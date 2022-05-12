@@ -56,7 +56,7 @@ public class ParcelResource {
     @POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putParcel(ParcelData data) {
+	public Response registerParcel(ParcelData data) {
 		LOG.info("Attempting to register parcel " + data.parcelName);
 
 		if (!data.isDataValid())
@@ -79,9 +79,10 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				tn.rollback();
+				ur.doLogout(new RequestData(data.owner));
+
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -133,7 +134,7 @@ public class ParcelResource {
 	}
 	
 	@PUT
-	@Path("/updateParcel")
+	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response updateParcel(ModifyParcelData data) {
 		LOG.info("Attempting to modify parcel " + data.parcelName);
@@ -155,9 +156,10 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				tn.rollback();
+				ur.doLogout(new RequestData(data.owner));
+
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -202,52 +204,45 @@ public class ParcelResource {
 	public Response parcelInfo(RequestData data) {
 		LOG.fine("Attempting to show parcel " + data.name);
 
-		Transaction tn = datastore.newTransaction();
-
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.name);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-
-		try{
-			Entity user = tn.get(userKey);
-			Entity parcel = tn.get(parcelKey);
-			Entity token = tn.get(tokenKey);
-
-			if(parcel == null) {
-				LOG.warning("Parcel does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
-			}
 			
-			if (user == null) {
-				LOG.warning("User " + data.username + " does not exist.");
+		Entity user = datastore.get(userKey);
+		Entity parcel = datastore.get(parcelKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {
+			LOG.warning("User " + data.username + " does not exist.");
 	
-				return Response.status(Status.FORBIDDEN).build();
-			}
-	
-			if (!ur.isLoggedIn(token, tn)) {
-				LOG.warning("User " + data.username + "  session has expired.");
-	
-				return Response.status(Status.FORBIDDEN).build();
-			}
-
-			int n = Integer.parseInt(parcel.getString(NMARKERS));
-
-			LatLng markers[] = new LatLng[n];
-
-			for (int i = 0; i < n; i++){
-				markers[i] = parcel.getLatLng(MARKER+i);
-			}
-
-			ParcelInfo p = new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
-			
-				return Response.ok(g.toJson(p)).build();
-
-		}finally{
-			if (tn.isActive())
-				tn.rollback();
+			return Response.status(Status.FORBIDDEN).build();
 		}
+
+		if(parcel == null) {
+			LOG.warning("Parcel does not exist");
+				
+			return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
+		}
+	
+		if (ur.isTokenValid(token)){
+			LOG.warning("User " + data.username + " not logged in.");
+			ur.doLogout(new RequestData(data.username));
+
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+
+		int n = Integer.parseInt(parcel.getString(NMARKERS));
+
+		LatLng markers[] = new LatLng[n];
+
+		for (int i = 0; i < n; i++){
+			markers[i] = parcel.getLatLng(MARKER+i);
+		}
+
+		ParcelInfo p = new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
+			parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
+			
+		return Response.ok(g.toJson(p)).build();
 	}
 
 	@POST
@@ -262,55 +257,49 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		
-		try {
-			Entity user = tn.get(userKey);
-			Entity token = tn.get(tokenKey);
+		Entity user = tn.get(userKey);
+		Entity token = tn.get(tokenKey);
 
-			if (user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-			}
-
-			if (!ur.isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-			}
+		if (user == null) {				
+			LOG.warning("User does not exist");
 			
-			
-			List<ParcelInfo> parcelList = getQueries(data.username);
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
 
-			return Response.ok(g.toJson(parcelList)).build();
-		} finally {
-			if (tn.isActive())
-				tn.rollback();
-		}	
+		if (ur.isTokenValid(token)){
+			LOG.warning("User " + data.username + " not logged in.");
+			ur.doLogout(new RequestData(data.username));
+
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getQueries(data.username);
+
+		return Response.ok(g.toJson(parcelList)).build();	
 	}
 
 	private List<ParcelInfo> getQueries(String owner){
 		Query<Entity> queryParcel = Query.newEntityQueryBuilder().setKind(PARCEL)
-					.setFilter(CompositeFilter.and(
-						PropertyFilter.eq(OWNER, owner)))
+					.setFilter(CompositeFilter.and(PropertyFilter.eq(OWNER, owner)))
 					.build();
 
-			QueryResults<Entity> parcels = datastore.run(queryParcel);
+		QueryResults<Entity> parcels = datastore.run(queryParcel);
 
-			List<ParcelInfo> userParcels = new LinkedList<>();
+		List<ParcelInfo> userParcels = new LinkedList<>();
 
-			parcels.forEachRemaining(parcel -> {
-				int n = Integer.parseInt(parcel.getString(NMARKERS));
+		parcels.forEachRemaining(parcel -> {
+			int n = Integer.parseInt(parcel.getString(NMARKERS));
 
-				LatLng markers[] = new LatLng[n];
+			LatLng markers[] = new LatLng[n];
 
-				for (int i = 0; i < n; i++){
-					markers[i] = parcel.getLatLng(MARKER+i);
-				}
+			for (int i = 0; i < n; i++){
+				markers[i] = parcel.getLatLng(MARKER+i);
+			}
 
-				//Ditto to line 236
-				userParcels.add(new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-				parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
-			});
+			//Ditto to line 236
+			userParcels.add(new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
+			parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+		});
 
 		return userParcels;
 	}

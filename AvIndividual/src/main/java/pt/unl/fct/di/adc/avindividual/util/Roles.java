@@ -7,5 +7,5 @@ package pt.unl.fct.di.adc.avindividual.util;
 // Merchant
 
 public enum Roles {
-	SU, MOD, USER, REP, MER
+	SU, MODERATOR, USER, REPRESENTATIVE, MERCHANT
 }	
