@@ -67,21 +67,21 @@ export default function modifyParcel() {
                                 required
                                 fullWidth
                                 autoFocus
-                                id="freguesiaSeccaoArtigo"
-                                label="Freguesia, Secção e Artigo"
-                                name="freguesiaSeccaoArtigo"
-                                color="success"
-                                onChange={parcelIdHandler}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
                                 name="nome"
                                 label="Nome"
                                 id="nome"
                                 color="success"
                                 onChange = {parcelNameHandler}
+                            />
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="freguesiaSeccaoArtigo"
+                                label="Freguesia, Secção e Artigo"
+                                name="freguesiaSeccaoArtigo"
+                                color="success"
+                                onChange={parcelIdHandler}
                             />
                             <TextField
                                 margin="normal"

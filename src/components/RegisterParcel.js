@@ -113,21 +113,22 @@ export default function RegisterParcel() {
                                 margin="normal"
                                 required
                                 fullWidth
-                                id="freguesiaSeccaoArtigo"
-                                label="Freguesia, Secção e Artigo"
-                                name="freguesiaSeccaoArtigo"
-                                color="success"
-                                onChange={parcelIdHandler}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
+                                autoFocus
                                 name="nome"
                                 label="Nome"
                                 id="nome"
                                 color="success"
                                 onChange={parcelNameHandler}
+                            />
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                id="freguesiaSeccaoArtigo"
+                                label="Freguesia, Secção e Artigo"
+                                name="freguesiaSeccaoArtigo"
+                                color="success"
+                                onChange={parcelIdHandler}
                             />
                             <TextField
                                 margin="normal"
