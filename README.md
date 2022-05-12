@@ -2,7 +2,7 @@
 
 # Land It!
 
-Land It! is being made for the course Activity for Curricular Development taught at [NOVA School of Science and Technology](https://www.fct.unl.pt/en).
+[Land It!](https://land-it.appspot.com) is being made for the course Activity for Curricular Development taught at [NOVA School of Science and Technology](https://www.fct.unl.pt/en).
 
 It is being accomplished under the guidance of the professors [Carlos Damásio](https://www.di.fct.unl.pt/pessoas/docentes/carlos-augusto-isaac-pilo-viegas-damasio), [Henrique Domingos](https://www.di.fct.unl.pt/pessoas/docentes/henrique-joao-lopes-domingos), [João Leitão](https://www.di.fct.unl.pt/pessoas/docentes/joao-leitao) and [Pedro Medeiros](https://www.di.fct.unl.pt/pessoas/docentes/pedro-abilio-duarte-de-medeiros).
 
