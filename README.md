@@ -6,11 +6,13 @@ Land It! is being made for the course Activity for Curricular Development taught
 
 It is being accomplished under the guidance of the professors [Carlos Damásio](https://www.di.fct.unl.pt/pessoas/docentes/carlos-augusto-isaac-pilo-viegas-damasio), [Henrique Domingos](https://www.di.fct.unl.pt/pessoas/docentes/henrique-joao-lopes-domingos), [João Leitão](https://www.di.fct.unl.pt/pessoas/docentes/joao-leitao) and [Pedro Medeiros](https://www.di.fct.unl.pt/pessoas/docentes/pedro-abilio-duarte-de-medeiros).
 
+## Description
+
 Due to an increase in rural desertification, there have been less people to manage the interior territories (in Portugal), which can lead to an increse in forest fires  & undocumented land. Therefore, our main goal is to help autarchies more easily manage those aspects, leaning on voluntary help from land owners.
 
 Since we know it's hard to get your everyday "Joe" interested in this subject, we are hoping to partner with local merchants (local to each autarchy) to reward our users through a refer-a-friend and point system, where they would be able to redeem products the merchants choose to give out as rewards.
 
-**The team**
+ ## The team
 <h6>(group 5)</h6>
 <h4>Alexandre Godinho | 57823</h4>
 <h4>Guilherme Pereira | 57066</h4>
