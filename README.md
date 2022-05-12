@@ -10,7 +10,7 @@ It is being accomplished under the guidance of the professors [Carlos Damásio](
 
 Due to an increase in rural desertification, there have been less people to manage the interior territories (in Portugal), which can lead to an increse in forest fires  & undocumented land. Therefore, our main goal is to help autarchies more easily manage those aspects, leaning on voluntary help from land owners.
 
-Since we know it's hard to get your everyday "Joe" interested in this subject, we are hoping to partner with local merchants (local to each autarchy) to reward our users through a refer-a-friend and point system, where they would be able to redeem products the merchants choose to give out as rewards.
+Since we know it's hard to get your "everyday Joe" interested in this subject, we are hoping to partner with local merchants (local to each autarchy) to reward our users through a refer-a-friend and point system, where they would be able to redeem products the merchants choose to give out as rewards.
 
  ## The team
 <h6>(group 5)</h6>
