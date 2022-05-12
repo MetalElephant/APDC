@@ -1,7 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.util;
 
 public class ParcelData {
-	
 
 	public String owner, parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area;
 	public double[] allLats, allLngs;
