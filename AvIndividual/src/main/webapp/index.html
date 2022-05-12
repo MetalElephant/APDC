@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+    <title>Register</title>  
+    <script src="registerScript.js"></script>
+
+  </head>
+    
+ <form method="post">
+  <div style="text-align:center;" class="container">
+      <h1 style="text-align:center;">You can register in this page</h1>
+
+	<br>
+	<h2>Fill the Blanks, please</h2>
+	<hr />
+
+
+	<label for="username"><b>Username</b></label>
+    <input type="text" placeholder="Enter username" name="username" id="username" required>
+	
+	<br>
+
+    <label for="password"><b>Password</b></label>
+    <input type="password" placeholder="Enter password" name="password" id="password" required>
+    
+    <br>
+        
+    <label for="pwdConfirmation"><b>Confirm Password</b></label>
+    <input type="password" placeholder="Confirm password" name="pwdConfirmation" id="pwdConfirmation" required>
+    
+   	<br>
+    
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="eg: email@domain.com" name="email" id="email" required>
+    
+	<br>
+    
+    <label for="name"><b>Name</b></label>
+    <input type="text" placeholder="Enter your name" name="name" id="name" required>
+    
+    <br>
+	<h2>Optional Attributes</h2>
+	<hr />
+	
+	<label for="address"><b>Address Street</b></label>
+    <input type="text" placeholder="Enter your street" name="address" id="address">
+
+	<br>
+    
+    <label for="mobilePhone"><b>Mobile Phone</b></label>
+    <input type="text" placeholder="Enter phone no." name="mobilePhone" id="mobilePhone">
+    
+    <br>
+    
+    <label for="landPhone"><b>Home Phone</b></label>
+    <input type="text" placeholder="Enter home phone no." name="landPhone" id="landPhone">
+    
+    <br>
+    
+    <label for="nif"><b>NIF</b></label>
+    <input type="text" placeholder="Enter nif" name="nif" id="nif">    
+    
+    <br>
+    
+    <label for="profile"><b>Profile Visibility</b></label>
+    <input type="text" placeholder="Public or Private" name="profile" id="profile">
+    
+    <br>
+
+    <p><button style="text-align:center;" onclick= "registerForm()" type="submit" class="registerbtn">Register</button></p>
+    <input type="button" value="Have An Account? Log In!" id="loginB" onclick="location.href='loginPage.html';">
+    
+  </div>
+</form>
+
+</html>
