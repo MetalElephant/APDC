@@ -1,7 +1,7 @@
 import react from 'react'
 import restCalls from "../restCalls"
 import landAvatar from "../images/land-avatar.png";
-import { Box, Container, Typography, TextField, Button, Grid } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert} from "@mui/material";
 
 export default function modifyParcel() {
 
@@ -11,6 +11,8 @@ export default function modifyParcel() {
     const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
+    const [displayMessage, setDisplayMessage] = react.useState(false);
+    const [isModifySubmit, setIsModifySubmit] = react.useState(false);
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -38,7 +40,9 @@ export default function modifyParcel() {
 
     function modifyParcelManager(e) {
         e.preventDefault();
-        restCalls.modifyParcel(parcelId, parcelName, description, groundType, currUsage, prevUsage);
+        restCalls.modifyParcel(parcelId, parcelName, description, groundType, currUsage, prevUsage)
+        .then(() => {setIsModifySubmit(true)}).catch(() => {setIsModifySubmit(false)});
+        setDisplayMessage(true);
     }
 
     return (
@@ -134,7 +138,25 @@ export default function modifyParcel() {
                     </Box>
                 </Container>
             </Grid>
-            <Grid item xs={6} 
+            <Grid item xs={2} 
+                    container
+                    spacing={0}
+                    direction="column"
+                    alignItems="center"
+                    sx = {{mt:"55px"}}
+            >
+                {(isModifySubmit && displayMessage) ? 
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela modificada com sucesso.</Typography>
+                    </Alert> : <></>
+                }
+                {(!isModifySubmit && displayMessage) ? 
+                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a parcela, verifique o nome da parcela.</Typography>
+                    </Alert> : <></>
+                }
+            </Grid>
+            <Grid item xs={4} 
                     container
                     spacing={0}
                     direction="column"
