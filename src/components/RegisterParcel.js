@@ -45,11 +45,32 @@ export default function RegisterParcel() {
         setArea(e.target.value);
     }
 
+    function getLastLat() {
+        if(markers.length === 0) return 39.5532;
+        return markers[0].lat;
+    }
+
+    function getLastLng() {
+        if(markers.length === 0) return -7.99846;
+        return markers[0].lng;
+    }
+
+    function resetValues() {
+        setMarkers([]);
+        setParcelName("");
+        setParcelId("");
+        setDescription("");
+        setGroundType("");
+        setCurrUsage("");
+        setPrevUsage("");
+        setArea("");
+    }
+
     function parcelRegisterManager(e) {
         e.preventDefault();
-        setDisplayParcelMessage(true);
         restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
-        .then(() => {setIsParcelSubmit(true)}).catch(() => {setIsParcelSubmit(false)});
+        .then(() => {setIsParcelSubmit(true); resetValues()}).catch(() => {setIsParcelSubmit(false); setMarkers([])});
+        setDisplayParcelMessage(true);
     }
 
     return (
@@ -60,7 +81,7 @@ export default function RegisterParcel() {
                 >
                     <GoogleMap
                         mapContainerStyle={{ width: "100%", height: "100%" }}
-                        center={{ lat: 39.5532, lng: -7.99846 }}
+                        center={{ lat: getLastLat(), lng: getLastLng() }}
                         zoom={12}
                         onClick={(event) => {
                             setMarkers(current => [
@@ -118,6 +139,7 @@ export default function RegisterParcel() {
                                 label="Nome"
                                 id="nome"
                                 color="success"
+                                value={parcelName}
                                 onChange={parcelNameHandler}
                             />
                             <TextField
@@ -128,6 +150,7 @@ export default function RegisterParcel() {
                                 label="Freguesia, Secção e Artigo"
                                 name="freguesiaSeccaoArtigo"
                                 color="success"
+                                value={parcelId}
                                 onChange={parcelIdHandler}
                             />
                             <TextField
@@ -138,6 +161,7 @@ export default function RegisterParcel() {
                                 label="Descrição"
                                 id="descricao"
                                 color="success"
+                                value={description}
                                 onChange={descriptionHandler}
                             />
                             <TextField
@@ -148,6 +172,7 @@ export default function RegisterParcel() {
                                 label="Tipo de Cobertura do Solo"
                                 id="tipoCoberturaSolo"
                                 color="success"
+                                value={groundType}
                                 onChange={groundTypeHandler}
                             />
                             <TextField
@@ -158,6 +183,7 @@ export default function RegisterParcel() {
                                 label="Utilização Atual"
                                 id="utilizacaoAtual"
                                 color="success"
+                                value={currUsage}
                                 onChange={currUsageHandler}
                             />
                             <TextField
@@ -168,6 +194,7 @@ export default function RegisterParcel() {
                                 label="Utilização Anterior"
                                 id="utilizacaoAnterior"
                                 color="success"
+                                value={prevUsage}
                                 onChange={prevUsageHandler}
                             />
                             <TextField
@@ -178,6 +205,7 @@ export default function RegisterParcel() {
                                 label="Área (aproximada)"
                                 id="area"
                                 color="success"
+                                value={area}
                                 onChange={areaHandler}
                             />
 
