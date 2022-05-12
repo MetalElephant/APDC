@@ -8,14 +8,14 @@ export default function Main() {
 
     return (
         <>
-            <Grid item xs={1.5}>
+            <Grid item xs={1.5} align="center">
                 <Button
                     type="submit"
                     id="1"
                     fullWidth
                     variant="outlined"
                     color="success"
-                    sx={{ mt: 2, width: "100%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                    sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { setDisplay(1)}}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> user info </Typography>
@@ -26,7 +26,7 @@ export default function Main() {
                     fullWidth
                     variant="outlined"
                     color="success"
-                    sx={{ mt: 2, width: "100%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                    sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { }}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify password </Typography>
@@ -37,7 +37,7 @@ export default function Main() {
                     fullWidth
                     variant="outlined"
                     color="success"
-                    sx={{ mt: 2, width: "100%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                    sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { }}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify attributes </Typography>

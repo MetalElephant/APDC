@@ -20,8 +20,8 @@ export default function Main() {
 
     return (
         <Grid container spacing={2} direction="column">
-            <Grid item xs={12} container>
-                <Grid item xs={2} textAlign="center">
+            <Grid item xs={12} container align="center">
+                <Grid item xs={2}>
                     <Button
                         type="submit"
                         id="2"
