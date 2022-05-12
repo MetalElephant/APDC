@@ -14,7 +14,8 @@ export default function RegisterParcel() {
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
     const [area, setArea] = react.useState("");
-    const [validRegister, setValidRegister] = react.useState(true);
+    const [isParcelSubmit, setIsParcelSubmit] = react.useState(true);
+    const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -46,8 +47,9 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs).then(() => {setValidRegister(true)}).catch(() => {setValidRegister(false)});
-        console.log(validRegister)
+        setDisplayParcelMessage(true);
+        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
+        .then(() => {setIsParcelSubmit(true)}).catch(() => {setIsParcelSubmit(false)});
     }
 
     return (
@@ -188,13 +190,16 @@ export default function RegisterParcel() {
                             >
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>
-                            {validRegister ? 
-                            <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo válido</Typography>
-                            </Alert> : 
-                            <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo inválido</Typography>
-                            </Alert>}
+                            {(isParcelSubmit && displayParcelMessage) ? 
+                                <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de parcela válido</Typography>
+                                </Alert> : <></>
+                            }
+                            {(!isParcelSubmit && displayParcelMessage) ? 
+                                <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de parcela inválido. Por favor, verifique se tem pontos selecionados ou se já tem uma parcela com o nome: {parcelName}</Typography>
+                                </Alert> : <></>
+                            }
                         </Box>
                     </Box>
                 </Container>
