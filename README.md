@@ -1,4 +1,6 @@
-# Land It! - by Earth Keepers
+# Land It! 
+##by Earth Keepers 
+####(Group 5)
 
 ![LANDIT-logo](https://user-images.githubusercontent.com/57989060/168095812-918141e8-4b1e-4a69-95fd-6de7d330c3ed.png)
 
