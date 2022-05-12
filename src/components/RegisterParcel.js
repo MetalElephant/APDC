@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function RegisterParcel() {
@@ -14,6 +14,7 @@ export default function RegisterParcel() {
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
     const [area, setArea] = react.useState("");
+    const [validRegister, setValidRegister] = react.useState(true);
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -45,7 +46,8 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs);
+        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs).then(() => {setValidRegister(true)}).catch(() => {setValidRegister(false)});
+        console.log(validRegister)
     }
 
     return (
@@ -186,6 +188,13 @@ export default function RegisterParcel() {
                             >
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>
+                            {validRegister ? 
+                            <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo válido</Typography>
+                            </Alert> : 
+                            <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo inválido</Typography>
+                            </Alert>}
                         </Box>
                     </Box>
                 </Container>

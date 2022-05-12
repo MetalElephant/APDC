@@ -42,24 +42,24 @@ export default function ParcelInfo() {
     
     function generateButtons () {
         const views = [];
-            if(parcels == null)
-                return <Typography> Não há parcelas registadas</Typography>
-            else 
-                for (var i = 0; i < parcels.length; i++) {
-                    views.push (
-                        <Button
-                            key={i}
-                            id={i}
-                            type="submit"
-                            variant="outlined"
-                            color="success"
-                            sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "gainsboro"}}
-                            onClick={(e) => xyz(e.target.id)}
-                        >
-                          <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> {parcels[i].parcelName} </Typography>
-                        </Button>
-                    )     
-                }
+        if(parcels.length === 0)
+            return <Typography> Não há parcelas registadas</Typography>
+        else 
+            for (var i = 0; i < parcels.length; i++) {
+                views.push (
+                    <Button
+                        key={i}
+                        id={i}
+                        type="submit"
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "gainsboro"}}
+                        onClick={(e) => xyz(e.target.id)}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> {parcels[i].parcelName} </Typography>
+                    </Button>
+                )     
+            }
         return views
     }
 
