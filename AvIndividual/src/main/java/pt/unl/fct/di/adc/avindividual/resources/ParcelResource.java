@@ -255,8 +255,13 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		
+<<<<<<< HEAD
 		Entity user = datastore.get(userKey);
 		Entity token = datastore.get(tokenKey);
+=======
+		Entity user = tn.get(userKey);
+		Entity token = tn.get(tokenKey);
+>>>>>>> main
 
 		if (user == null) {				
 			LOG.warning("User does not exist");
