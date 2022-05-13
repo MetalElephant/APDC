@@ -1,7 +1,7 @@
 import React, { useState } from "react"
-import Navbar from "./components/Navbar"
-import LoginRegister from "./components/LoginRegister"
-import Main from "./components/Main"
+import Navbar from "./mainFixedComponents/Navbar"
+import LoginRegister from "./userComponents/LoginRegister"
+import Main from "./mainFixedComponents/Main"
 
 
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";

@@ -1,11 +1,10 @@
 import react from "react"
 import {Button, Grid, Typography} from "@mui/material";
-import RegisterParcel from "./RegisterParcel";
-import ModifyParcel from "./ModifyParcel";
+import RegisterParcel from "../parcelComponents/RegisterParcel";
+import ModifyParcel from "../parcelComponents/ModifyParcel";
 import restCalls from "../restCalls"
-//import UserInfo from "./UserInfo"
-import ParcelInfo from "./ParcelInfo";
-import UserProfile from "./UserProfile";
+import ParcelInfo from "../parcelComponents/ParcelInfo";
+import UserProfile from "../userProfileComponents/UserProfile";
 import {useHistory} from "react-router-dom";
 
 export default function Main() {
