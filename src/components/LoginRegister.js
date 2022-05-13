@@ -2,12 +2,16 @@ import react from "react"
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert } from "@mui/material";
 import { useHistory } from "react-router-dom"
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 export default function LoginRegister() {
     let history = useHistory();
 
     const [username, setUsername] = react.useState("");
-    const [password, setPassword] = react.useState("");
+    //const [password, setPassword] = react.useState("");
+    const [passwordLogin, setPasswordLogin] = react.useState("");
+    const [passwordRegister, setPasswordRegister] = react.useState("");
     const [pwdConfirmation, setPwdConfirmation] = react.useState("");
     const [email, setEmail] = react.useState("");
     const [name, setName] = react.useState("");
@@ -26,13 +30,25 @@ export default function LoginRegister() {
     const [isLoginSubmit, setIsLoginSubmit] = react.useState(true);
     const [displayRegisterMessage, setDisplayRegisterMessage] = react.useState(0);
 
+    const [showPasswordLogin, setShowPasswordLogin] = react.useState(false);
+    const [showPasswordRegister, setShowPasswordRegister] = react.useState(false);
+
 
     function usernameHandler(e) {
         setUsername(e.target.value);
     }
 
+    /*
     function passwordHandler(e) {
         setPassword(e.target.value);
+    }*/
+
+    function passwordLoginHandler(e) {
+        setPasswordLogin(e.target.value);
+    }
+
+    function passwordRegisterHandler(e) {
+        setPasswordRegister(e.target.value);
     }
 
     function pwdConfirmationHandler(e) {
@@ -65,7 +81,7 @@ export default function LoginRegister() {
 
     function loginManager(e) {
         e.preventDefault();
-        restCalls.login(username, password).then(
+        restCalls.login(username, passwordLogin).then(
             () => { restCalls.userInfo().then(() => { history.push("/main") }) }).catch(() => { setIsLoginSubmit(false) })
     }
 
@@ -73,7 +89,7 @@ export default function LoginRegister() {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif)
+            restCalls.register(username, passwordRegister, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif)
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
         } else {
@@ -95,31 +111,31 @@ export default function LoginRegister() {
             setUsernameErr(usernameErr)
         }
 
-        if (password.length < 5) {
+        if (passwordRegister.length < 5) {
             passwordErr.passwordTooShort = "Password must contain at least 5 characters.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
-        if (password.match(/[A-Z]/) == null) {
+        if (passwordRegister.match(/[A-Z]/) == null) {
             passwordErr.passwordWithoutCapitalLetter = "Password must contain at least 1 capital letter.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
-        if (password.match(/[0-9]/) == null) {
+        if (passwordRegister.match(/[0-9]/) == null) {
             passwordErr.passwordWithoutNumber = "Password must contain at least 1 number.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
-        if (password.match(/[$&+,:;=?@#|'<>.*()%!-]/) == null) {
+        if (passwordRegister.match(/[$&+,:;=?@#|'<>.*()%!-]/) == null) {
             passwordErr.passwordWithoutSpecialCharacter = "Password must contain at least 1 special character.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
-        if (!pwdConfirmation.match(password) || !password.match(pwdConfirmation)) {
+        if (!pwdConfirmation.match(passwordRegister) || !passwordRegister.match(pwdConfirmation)) {
             passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Password confimation does not match."
             isValid = false;
         }
@@ -135,6 +151,14 @@ export default function LoginRegister() {
         setPasswordConfirmationErr(passwordConfirmationErr)
         setPasswordErr(passwordErr)
         return isValid;
+    }
+
+    const toggleVisibilityLoginIcon = () => {
+        setShowPasswordLogin(!showPasswordLogin)
+    }
+
+    const toggleVisibilityRegisterIcon = () => {
+        setShowPasswordRegister(!showPasswordRegister)
     }
 
     return (
@@ -177,10 +201,19 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="password"
                                     label="Password"
-                                    type="password"
+                                    type={showPasswordLogin ? "text" : "password"}
                                     id="password"
                                     color="success"
-                                    onChange={passwordHandler}
+                                    InputProps={showPasswordLogin ? {
+                                        endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
+                                            <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        </Button>
+                                    } : {
+                                        endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
+                                            <VisibilityOffIcon sx={{color: "black"}}/>
+                                        </Button>
+                                    }}
+                                    onChange={passwordLoginHandler}
                                 />
 
                                 <Button
@@ -235,10 +268,19 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="password"
                                     label="Password"
-                                    type="password"
+                                    type={showPasswordRegister ? "text" : "password"}
                                     id="password"
                                     color="success"
-                                    onChange={passwordHandler}
+                                    InputProps={showPasswordRegister ? {
+                                        endAdornment: <Button onClick={toggleVisibilityRegisterIcon}>
+                                            <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        </Button>
+                                    } : {
+                                        endAdornment: <Button onClick={toggleVisibilityRegisterIcon}>
+                                            <VisibilityOffIcon sx={{color: "black"}}/>
+                                        </Button>
+                                    }}
+                                    onChange={passwordRegisterHandler}
                                 />
                                 {Object.keys(passwordErr).map((key) => {
                                     return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordErr[key]}</Typography>

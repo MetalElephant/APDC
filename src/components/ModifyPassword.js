@@ -1,4 +1,4 @@
-import react, { Component, useEffect } from 'react'
+import react from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -84,11 +84,11 @@ export default function ModifyPassword() {
                                 color="success"
                                 InputProps={showOldPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilityFirstIcon}>
-                                        <VisibilityOffIcon sx={{color: "black"}}/>
+                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
                                     </Button>
                                 } : {
                                     endAdornment: <Button onClick={toggleVisibilityFirstIcon}>
-                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        <VisibilityOffIcon sx={{color: "black"}}/>
                                     </Button>
                                 }}
                                 onChange={oldPasswordHandler}
@@ -106,11 +106,11 @@ export default function ModifyPassword() {
                                 color="success"
                                 InputProps={showNewPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilitySecondIcon}>
-                                        <VisibilityOffIcon sx={{color: "black"}}/>
+                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
                                     </Button>
                                 } : {
                                     endAdornment: <Button onClick={toggleVisibilitySecondIcon}>
-                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        <VisibilityOffIcon sx={{color: "black"}}/>
                                     </Button>
                                 }}
                                 onChange={newPasswordHandler}
@@ -127,11 +127,11 @@ export default function ModifyPassword() {
                                 color="success"
                                 InputProps={showConfirmNewPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilityThirdIcon}>
-                                        <VisibilityOffIcon sx={{color: "black"}}/>
+                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
                                     </Button>
                                 } : {
                                     endAdornment: <Button onClick={toggleVisibilityThirdIcon}>
-                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        <VisibilityOffIcon sx={{color: "black"}}/>
                                     </Button>
                                 }}
                                 onChange={confirmNewPasswordHandler}
