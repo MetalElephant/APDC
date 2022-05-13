@@ -560,6 +560,7 @@ public class UserResource {
 			if (user == null) {
 				LOG.warning("User does not exist");
 				tn.rollback();
+
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
@@ -572,11 +573,18 @@ public class UserResource {
 			user.getString(ROLE), user.getString(STATE));
 
 			return Response.ok(g.toJson(u)).build();
-
-		}finally{
+		} finally {
 			if (tn.isActive())
 				tn.rollback();
 		}
+	}
+
+	// TODO: we need a new data that has the user redeeming the reward, the owner and the name
+	@PUT
+	@Path("/redeemReward")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response redeemReward() {
+		return null;
 	}
 	
 	//Verify if token exists and is valid

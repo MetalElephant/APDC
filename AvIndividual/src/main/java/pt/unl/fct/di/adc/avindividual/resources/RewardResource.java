@@ -40,6 +40,7 @@ public class RewardResource {
     private static final String REWARD_NAME = "name";
     private static final String DESCRIPTION = "description";
     private static final String PRICE = "points";
+    private static final String NREDEEMED = "times redeemed";
 
     // Useful user info
     private static final String ROLE = "role";
@@ -103,7 +104,8 @@ public class RewardResource {
                     .set(OWNER, data.owner)
                     .set(REWARD_NAME, data.name)
                     .set(DESCRIPTION, data.description)
-                    .set(PRICE, data.price);
+                    .set(PRICE, data.price)
+                    .set(NREDEEMED, "0");
 
             reward = builder.build();
 
@@ -271,19 +273,22 @@ public class RewardResource {
             return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
         }
 
+        /*
+         * It may not make sense for a user to be a merchant to see the rewards since normal users have access to them.
         if(!isUserValid(user)) {
             LOG.warning("User " + data.username + " isn't a merchant.");
             
             return Response.status(Status.FORBIDDEN).entity("User " + data.username + " isn't a merchant.").build();
         }
+        */
 
         if (reward == null) {
-            LOG.warning("Reward " + data.username + " doesn't exist.");
+            LOG.warning("Reward " + data.name + " doesn't exist.");
 
             return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
         }
 
-        RewardData r = new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), reward.getString(PRICE));
+        RewardData r = new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), reward.getString(PRICE), reward.getString(NREDEEMED));
 
         return Response.ok(g.toJson(r)).build();
     }
@@ -335,12 +340,12 @@ public class RewardResource {
 					.setFilter(CompositeFilter.and(PropertyFilter.eq(OWNER, owner)))
 					.build();
 
-		QueryResults<Entity> parcels = datastore.run(queryReward);
+		QueryResults<Entity> rewards = datastore.run(queryReward);
 
 		List<RewardData> userRewards = new LinkedList<>();
 
-		parcels.forEachRemaining(parcel -> {
-			userRewards.add(new RewardData(parcel.getString(REWARD_NAME), parcel.getString(DESCRIPTION), parcel.getString(OWNER), parcel.getString(PRICE)));
+		rewards.forEachRemaining(reward -> {
+			userRewards.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), reward.getString(PRICE), reward.getString(NREDEEMED)));
 		});
 
 		return userRewards;

@@ -9,13 +9,14 @@ public class RewardData {
     private static final String DESCRIPTION = "description";
     private static final String PRICE = "points";
 
-    public String name, description, owner, price;
+    public String name, description, owner, price, timesRedeemed;
 
-    public RewardData(String name, String description, String owner, String price) {
+    public RewardData(String name, String description, String owner, String price, String timesRedeemed) {
         this.name = name;
         this.description = description;
         this.owner = owner;
         this.price = price; // the minimum price is 1000 points
+        this.timesRedeemed = timesRedeemed;
     }
 
     public boolean isDataValid() {
