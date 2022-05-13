@@ -1,4 +1,4 @@
-import react from 'react'
+import react, { Component, useEffect } from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -30,9 +30,15 @@ export default function ModifyPassword() {
         setConfirmNewPassword(e.target.value);
     }
 
+    function resetPasswords() {
+        setConfirmNewPassword("");
+        setNewPassword("");
+        setOldPassword("");
+    }
+
     function modifyPasswordManager(e) {
         e.preventDefault();
-        restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword).then(() => { setIsModifyPwdSubmit(true) }).catch(() => { setIsModifyPwdSubmit(false) });
+        restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword).then(() => { setIsModifyPwdSubmit(true); resetPasswords() }).catch(() => { setIsModifyPwdSubmit(false) });
         setDisplayMessage(true)
     }
 
@@ -74,6 +80,7 @@ export default function ModifyPassword() {
                                 label="Old Password"
                                 id="oldPassword"
                                 type={showOldPassword ? "text" : "password"}
+                                value={oldPassword}
                                 color="success"
                                 InputProps={showOldPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilityFirstIcon}>
@@ -95,6 +102,7 @@ export default function ModifyPassword() {
                                 label="New Password"
                                 name="newPassword"
                                 type={showNewPassword ? "text" : "password"}
+                                value={newPassword}
                                 color="success"
                                 InputProps={showNewPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilitySecondIcon}>
@@ -115,6 +123,7 @@ export default function ModifyPassword() {
                                 label="Confirm New Password"
                                 id="confirmNewPassword"
                                 type={showConfirmNewPassword ? "text" : "password"}
+                                value={confirmNewPassword}
                                 color="success"
                                 InputProps={showConfirmNewPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilityThirdIcon}>
