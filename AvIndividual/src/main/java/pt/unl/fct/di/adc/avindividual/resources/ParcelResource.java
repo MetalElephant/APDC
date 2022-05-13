@@ -251,14 +251,12 @@ public class ParcelResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showUserParcel(RequestData data) {
 		LOG.info("Attempt to list parcels of user: " + data.username);
-		
-		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		
-		Entity user = tn.get(userKey);
-		Entity token = tn.get(tokenKey);
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
 
 		if (user == null) {				
 			LOG.warning("User does not exist");
@@ -343,7 +341,7 @@ public class ParcelResource {
 			else
 				aux1 = 0;
 
-			for (int j = 0; j < auxMarkers.length; j++){
+			for (int j = 0; j < auxMarkers.length; j++) {
 				//Verify if it's the last line to check with first line
 				if (j < auxMarkers.length-1)
 					aux2 = j+1;
