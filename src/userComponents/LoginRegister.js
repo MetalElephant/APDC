@@ -9,7 +9,6 @@ export default function LoginRegister() {
     let history = useHistory();
 
     const [username, setUsername] = react.useState("");
-    //const [password, setPassword] = react.useState("");
     const [passwordLogin, setPasswordLogin] = react.useState("");
     const [passwordRegister, setPasswordRegister] = react.useState("");
     const [pwdConfirmation, setPwdConfirmation] = react.useState("");
@@ -32,16 +31,12 @@ export default function LoginRegister() {
 
     const [showPasswordLogin, setShowPasswordLogin] = react.useState(false);
     const [showPasswordRegister, setShowPasswordRegister] = react.useState(false);
+    const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
 
 
     function usernameHandler(e) {
         setUsername(e.target.value);
     }
-
-    /*
-    function passwordHandler(e) {
-        setPassword(e.target.value);
-    }*/
 
     function passwordLoginHandler(e) {
         setPasswordLogin(e.target.value);
@@ -157,8 +152,12 @@ export default function LoginRegister() {
         setShowPasswordLogin(!showPasswordLogin)
     }
 
-    const toggleVisibilityRegisterIcon = () => {
+    const toggleVisibilityFirstRegisterIcon = () => {
         setShowPasswordRegister(!showPasswordRegister)
+    }
+
+    const toggleVisibilitySecondRegisterIcon = () => {
+        setShowPasswordConfirmation(!showPasswordConfirmation)
     }
 
     return (
@@ -272,11 +271,11 @@ export default function LoginRegister() {
                                     id="password"
                                     color="success"
                                     InputProps={showPasswordRegister ? {
-                                        endAdornment: <Button onClick={toggleVisibilityRegisterIcon}>
+                                        endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
                                             <RemoveRedEyeIcon sx={{color: "black"}}/>
                                         </Button>
                                     } : {
-                                        endAdornment: <Button onClick={toggleVisibilityRegisterIcon}>
+                                        endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
                                             <VisibilityOffIcon sx={{color: "black"}}/>
                                         </Button>
                                     }}
@@ -292,10 +291,19 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="passwordConfirmation"
                                     label="Password Confirmation"
-                                    type="password"
+                                    type={showPasswordConfirmation ? "text" : "password"}
                                     id="passwordConfirmation"
                                     color="success"
                                     value={pwdConfirmation}
+                                    InputProps={showPasswordConfirmation ? {
+                                        endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
+                                            <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        </Button>
+                                    } : {
+                                        endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
+                                            <VisibilityOffIcon sx={{color: "black"}}/>
+                                        </Button>
+                                    }}
                                     onChange={pwdConfirmationHandler}
                                 />
                                 {Object.keys(passwordConfirmationErr).map((key) => {
