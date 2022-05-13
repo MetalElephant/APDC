@@ -145,7 +145,7 @@ public class UserResource {
 			int points = 0;
 			//TODO Should also verify this in another method for frontend
 			if (redeemCodeEntity != null)
-				points = redeemUserCode(redeemCodeEntity, user, tn.get(codeOwnerKey));
+				points = redeemCode(redeemCodeEntity, user, tn.get(codeOwnerKey));
 			
 			//call some function to verify code and reward points, extra rewards for the first 3 months
 			//If indeed implements a points system update the other persons points as well
@@ -287,11 +287,8 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.usernameToRemove + " does not exist.").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " is not logged in.");
-				tn.rollback();
-
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " is not logged in.").build();
+			if (isTokenValid(token)){
+				doLogout(new RequestData(data.username));
 			}
 
 			if (!canRemove(user, userToRemove)) {
@@ -355,11 +352,8 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist.").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			if (isTokenValid(token)){
+				doLogout(new RequestData(data.username));
 			}
 			
 			//To set what will stay the same value or what will actually be changed
@@ -435,10 +429,8 @@ public class UserResource {
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			if (isTokenValid(token)){
+				doLogout(new RequestData(data.username));
 			}
 
 			user = Entity.newBuilder(userKey)
@@ -531,10 +523,8 @@ public class UserResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			if (isTokenValid(token)){
+				doLogout(new RequestData(data.username));
 			}
 			
 			String userRole = user.getString(ROLE);
@@ -550,7 +540,7 @@ public class UserResource {
 	}
 
 	@POST
-	@Path("/showUserData")
+	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showSelf(RequestData data) {
@@ -573,10 +563,8 @@ public class UserResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			if (isTokenValid(token)){
+				doLogout(new RequestData(data.username));
 			}
 
 			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
@@ -592,21 +580,18 @@ public class UserResource {
 	}
 	
 	//Verify if token exists and is valid
-	public boolean isLoggedIn(Entity token, Transaction tn) {
-		if (token == null)
-			return false;
+	public boolean isTokenValid(Entity token) {
+		long currentTime = System.currentTimeMillis();
 
-		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
-			tn.delete(token.getKey());
-			tn.commit();
+		if (token.getLong("validTo") < currentTime) {
 			return false;
 		}
-			
+
 		return true;
 	}
 
 	//Add points from code to registered user and new user
-	private int redeemUserCode(Entity code, Entity newUser, Entity codeOwner){
+	private int redeemCode(Entity code, Entity newUser, Entity codeOwner){
 		Timestamp expDate = code.getTimestamp(EXPTIME);
 
 		int bonus = 1000;
