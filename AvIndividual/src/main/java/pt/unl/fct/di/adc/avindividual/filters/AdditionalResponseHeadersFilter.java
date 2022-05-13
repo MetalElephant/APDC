@@ -1,6 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.filters;
 
 import java.io.IOException;
+
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -9,7 +10,7 @@ import javax.ws.rs.ext.Provider;
 /**
  * For circumventing a security measure on most browsers that messes with REST
  * It adds 3 optional headers to every HTTP reply
- * 
+ *
  */
 @Provider
 public class AdditionalResponseHeadersFilter implements ContainerResponseFilter {
