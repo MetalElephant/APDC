@@ -407,7 +407,6 @@ public class ParcelResource {
 		
 		overlaps = Line2D.linesIntersect(markers[last2].getLatitude(), markers[last2].getLongitude(), markers[0].getLatitude(), markers[0].getLongitude(),
 				auxMarkers[last].getLatitude(), auxMarkers[last].getLongitude(), auxMarkers[0].getLatitude(), auxMarkers[0].getLongitude());
-
         return overlaps;
     }*/
 }

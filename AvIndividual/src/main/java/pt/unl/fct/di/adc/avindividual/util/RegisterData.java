@@ -108,5 +108,4 @@ public class RegisterData {
 	public String getCodeUser(){
 		return this.code.substring(0, this.code.length()-3);
 	}
-	
 }

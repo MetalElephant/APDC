@@ -145,7 +145,7 @@ public class UserResource {
 			int points = 0;
 			//TODO Should also verify this in another method for frontend
 			if (redeemCodeEntity != null)
-				points = redeemCode(redeemCodeEntity, user, tn.get(codeOwnerKey));
+				points = redeemUserCode(redeemCodeEntity, user, tn.get(codeOwnerKey));
 			
 			//call some function to verify code and reward points, extra rewards for the first 3 months
 			//If indeed implements a points system update the other persons points as well
@@ -606,7 +606,7 @@ public class UserResource {
 	}
 
 	//Add points from code to registered user and new user
-	private int redeemCode(Entity code, Entity newUser, Entity codeOwner){
+	private int redeemUserCode(Entity code, Entity newUser, Entity codeOwner){
 		Timestamp expDate = code.getTimestamp(EXPTIME);
 
 		int bonus = 1000;
