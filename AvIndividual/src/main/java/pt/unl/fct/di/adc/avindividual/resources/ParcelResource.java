@@ -52,16 +52,18 @@ public class ParcelResource {
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
 	private static final String PARCEL = "Parcel";
+
+	public ParcelResource() { }
 	
     @POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response registerParcel(ParcelData data) {
 		LOG.info("Attempting to register parcel " + data.parcelName);
-
+		
 		if (!data.isDataValid())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-
+		
 		Transaction tn = datastore.newTransaction();
 				
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);

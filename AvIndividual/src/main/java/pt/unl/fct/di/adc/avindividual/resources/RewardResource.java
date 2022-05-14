@@ -50,6 +50,8 @@ public class RewardResource {
     private static final String TOKEN = "Token";
 	private static final String REWARD = "Reward";
     
+    public RewardResource() { }
+
     @POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)

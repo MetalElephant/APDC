@@ -30,6 +30,16 @@ public class RegisterData {
 		this.address = address;
 		this.nif = nif;	
 		this.code = code;
+	}
+
+	public RegisterData(String username, String password, String confirmation, String email, String name, String code) {
+		//Mandatory information
+		this.username = username;
+		this.password = password;
+		this.pwdConfirmation = confirmation;
+		this.email = email;
+		this.name = name;
+		this.code = code;
 		
 	}
 
@@ -47,9 +57,9 @@ public class RegisterData {
 			this.nif = UNDEFINED;
 		
 		if(this.visibility == null || this.visibility.length() == 0)
-			this.visibility = "default";//TODO set as default for testing
+			this.visibility = UNDEFINED;
 		
-		if(this.code == null || this.code.length() == 0)
+		if(this.code == null || this.code.length() == 0) 
 			this.code = "null";
 	}
 	
