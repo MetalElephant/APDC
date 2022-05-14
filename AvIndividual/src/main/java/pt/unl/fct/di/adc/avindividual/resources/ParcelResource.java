@@ -125,7 +125,7 @@ public class ParcelResource {
 			tn.add(parcel);
 			tn.commit();
 			
-			return Response.ok("Reward sucessfully added.").build();
+			return Response.ok("Parcel sucessfully added.").build();
 
 		} finally {
 			if (tn.isActive())
