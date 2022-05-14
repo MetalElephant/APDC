@@ -26,6 +26,8 @@ public class UserUpdateData {
 	}
 	
 	public boolean validRoleFormat() {
+		if (this.role == null)
+			return true;
 		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
 		String roleF = this.role;
 		if (roleF == null || roleF.equals("SU") || roleF.equals("GS") || roleF.equals("GBO") ||
@@ -37,9 +39,10 @@ public class UserUpdateData {
 	
 	public boolean validStateFormat() {
 		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
-		String stateF = this.state;
-		
-		if(stateF == null || stateF.equals("INACTIVE") || stateF.equals("ACTIVE"))
+		if (this.state == null)
+			return true;
+
+		if(this.state.equals("INACTIVE") || this.state.equals("ACTIVE"))
 			return true;
 		
 		return false;
@@ -47,11 +50,14 @@ public class UserUpdateData {
 	}
 	
 	public boolean validEmailFormat() {
+		if (this.email == null)
+			return true;
+
 		String email = this.email;
 		String pattern = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@" 
 		        + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
 		
-		return (email == null ||Pattern.compile(pattern).matcher(email).matches());
+		return Pattern.compile(pattern).matcher(email).matches();
 	}
 	
 
