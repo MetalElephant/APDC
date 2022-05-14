@@ -23,7 +23,8 @@ import pt.unl.fct.di.adc.avindividual.util.UserUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
-import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.RequestUData;
+import pt.unl.fct.di.adc.avindividual.util.Roles;
 import pt.unl.fct.di.adc.avindividual.util.UserInfo;
 
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
@@ -156,7 +157,7 @@ public class UserResource {
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
-					.set(ROLE, USER)		
+					.set(ROLE, Roles.USER.name())		
 					.set(MPHONE, data.mobilePhone)
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
@@ -288,7 +289,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+				doLogout(new RequestUData(data.username));
 			}
 
 			if (!canRemove(user, userToRemove)) {
@@ -353,7 +354,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+				doLogout(new RequestUData(data.username));
 			}
 			
 			//To set what will stay the same value or what will actually be changed
@@ -430,7 +431,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+				doLogout(new RequestUData(data.username));
 			}
 
 			user = Entity.newBuilder(userKey)
@@ -463,7 +464,7 @@ public class UserResource {
 	@DELETE
 	@Path("/logout")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doLogout(RequestData data) {
+	public Response doLogout(RequestUData data) {
 		LOG.info("Attempt to logout user: " + data.username);
 
 		Transaction tn = datastore.newTransaction();
@@ -503,7 +504,7 @@ public class UserResource {
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUsers(RequestData data) {
+	public Response showUsers(RequestUData data) {
 		LOG.info("Attempt to list users for user: " + data.username);
 
 		//TODO Once we add the data type verify if the data is valid
@@ -524,7 +525,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+				doLogout(new RequestUData(data.username));
 			}
 			
 			String userRole = user.getString(ROLE);
@@ -543,7 +544,7 @@ public class UserResource {
 	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showSelf(RequestData data) {
+	public Response showSelf(RequestUData data) {
 		LOG.info("Attempting to show user " + data.username);
 
 		//TODO Once we add the data type verify if the data is valid
@@ -565,7 +566,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+				doLogout(new RequestUData(data.username));
 			}
 
 			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
