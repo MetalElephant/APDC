@@ -50,7 +50,7 @@ public class UserUpdateData {
 	}
 	
 	public boolean validEmailFormat() {
-		if (this.email == null && this.email.length() == 0)
+		if (this.email == null || this.email.length() == 0)
 			return true;
 
 		String email = this.email;
