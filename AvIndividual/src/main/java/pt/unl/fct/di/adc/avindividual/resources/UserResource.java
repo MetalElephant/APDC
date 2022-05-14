@@ -244,7 +244,7 @@ public class UserResource {
 			}else{
 				LOG.warning("User: " + data.username +" does not exist");
 				tn.rollback();
-				return Response.status(Status.NOT_FOUND).entity("User: " + data.username +" does not exist.").build();
+				return Response.status(Status.FORBIDDEN).entity("User: " + data.username +" does not exist.").build();
 			}
 		}finally{
 			if (tn.isActive())
@@ -288,8 +288,10 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.usernameToRemove + " does not exist.").build();
 			}
 
-			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if (!canRemove(user, userToRemove)) {
@@ -353,8 +355,10 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist.").build();
 			}
 
-			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
 			//To set what will stay the same value or what will actually be changed
@@ -430,8 +434,10 @@ public class UserResource {
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
 			}
 
-			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			user = Entity.newBuilder(userKey)
@@ -524,8 +530,10 @@ public class UserResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
 			String userRole = user.getString(ROLE);
@@ -565,8 +573,10 @@ public class UserResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if (isTokenValid(token)){
-				doLogout(new RequestData(data.username));
+			if (!isLoggedIn(token, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
@@ -587,15 +597,18 @@ public class UserResource {
 	public Response redeemReward() {
 		return null;
 	}
-	
-	//Verify if token exists and is valid
-	public boolean isTokenValid(Entity token) {
-		long currentTime = System.currentTimeMillis();
 
-		if (token.getLong("validTo") < currentTime) {
+	//Verify if token exists and is valid
+	public boolean isLoggedIn(Entity token, Transaction tn) {
+		if (token == null)
+			return false;
+	
+		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
+			tn.delete(token.getKey());
+			tn.commit();
 			return false;
 		}
-
+				
 		return true;
 	}
 
