@@ -48,6 +48,9 @@ public class RegisterData {
 		
 		if(this.visibility == null || this.visibility.length() == 0)
 			this.visibility = "default";//TODO set as default for testing
+		
+		if(this.code == null || this.code.length() == 0)
+			this.code = "null";
 	}
 	
 	
@@ -62,9 +65,7 @@ public class RegisterData {
 				this.name.length() == 0	|| this.pwdConfirmation.length() == 0)
 			return false;
 		
-		return true;
-		
-		
+		return true;	
 	}
 	
 	public boolean validPasswordFormat() {
