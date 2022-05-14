@@ -202,6 +202,10 @@ public class ParcelResource {
 	public Response parcelInfo(RequestData data) {
 		LOG.fine("Attempting to show parcel " + data.name);
 
+		if(!data.isUsernameValid() || !data.isNameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.name);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
@@ -247,6 +251,10 @@ public class ParcelResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showUserParcel(RequestData data) {
 		LOG.info("Attempt to list parcels of user: " + data.username);
+
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
 		
 		Transaction tn = datastore.newTransaction();
 

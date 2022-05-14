@@ -195,6 +195,10 @@ public class RewardResource {
     public Response removeReward(RequestData data) {
         LOG.info("Attempt to remove reward: " + data.name);
 
+		if(!data.isUsernameValid() || !data.isNameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
         Transaction tn = datastore.newTransaction();
 
         Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -251,6 +255,10 @@ public class RewardResource {
     public Response rewardInfo(RequestData data) {
         LOG.fine("Attempting to show reward " + data.name);
 
+		if(!data.isUsernameValid() || !data.isNameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(REWARD).newKey(data.name);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
@@ -296,6 +304,10 @@ public class RewardResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response showUserReward(RequestData data) {
         LOG.info("Attempt to list rewards of user: " + data.username);
+
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);

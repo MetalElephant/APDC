@@ -473,6 +473,10 @@ public class UserResource {
 	public Response doLogout(RequestData data) {
 		LOG.info("Attempt to logout user: " + data.username);
 
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
 		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -505,47 +509,38 @@ public class UserResource {
 		}
 	}
 	
-	//TODO not working atm
-	@GET
+	@POST
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showUsers(RequestData data) {
 		LOG.info("Attempt to list users for user: " + data.username);
 
-		//TODO Once we add the data type verify if the data is valid
-		
-		Transaction tn = datastore.newTransaction();
-
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+	
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);		
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		
-		try {
-			Entity user = tn.get(userKey);
-			Entity token = tn.get(tokenKey);
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
 
-			if (user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-			}
+		if (user == null) {
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
 
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-			}
+		if (!isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
 			
-			String userRole = user.getString(ROLE);
+		String userRole = user.getString(ROLE);
 			
-			List<String> userList = getQueries(userRole);
+		List<String> userList = getQueries(userRole);
 
-			return Response.ok(g.toJson(userList)).build();
-
-		} finally {
-			if (tn.isActive())
-				tn.rollback();
-		}	
+		return Response.ok(g.toJson(userList)).build();
 	}
 
 	@POST
@@ -555,39 +550,32 @@ public class UserResource {
 	public Response showSelf(RequestData data) {
 		LOG.info("Attempting to show user " + data.username);
 
-		//TODO Once we add the data type verify if the data is valid
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 
-		Transaction tn = datastore.newTransaction();
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
 
-		try{
-			Entity user = datastore.get(userKey);
-			Entity token = datastore.get(tokenKey);
+		if (user == null) {
+			LOG.warning("User does not exist");
 
-			if (user == null) {
-				LOG.warning("User does not exist");
-				tn.rollback();
-
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-			}
-
-			if (!isLoggedIn(token, tn)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-			}
-
-			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
-			user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-			user.getString(ROLE), user.getString(VISIBILITY));
-
-			return Response.ok(g.toJson(u)).build();
-		} finally {
-			if (tn.isActive())
-				tn.rollback();
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
+
+		if (!isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+
+		UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
+		user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
+		user.getString(ROLE), user.getString(VISIBILITY));
+
+		return Response.ok(g.toJson(u)).build();
 	}
 
 	// TODO: we need a new data that has the user redeeming the reward, the owner and the name
@@ -712,10 +700,10 @@ public class UserResource {
 		if (role.equals(USER)) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
-					.setFilter(CompositeFilter.and(
+					/*.setFilter(CompositeFilter.and(
 							PropertyFilter.eq(ROLE, USER),
 							PropertyFilter.eq(VISIBILITY, PUBLIC), 
-							PropertyFilter.eq(STATE, ACTIVE)))
+							PropertyFilter.eq(STATE, ACTIVE)))*/
 					.build();
 
 			QueryResults<Entity> users = datastore.run(queryUSER);
@@ -731,32 +719,7 @@ public class UserResource {
 			return allUsers;
 
 		}
-		/*
-		if (role.equals(GBO)) {
-			// Define query
-			Query<Entity> queryGBO = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, USER)))
-					.build();
-			return buildQueryList(queryGBO);
-		}
-		if (role.equals(GS)) {
-			// Queries don't have an OR operation, apparently, so we have to do 2 separate
-			// ones
-			Query<Entity> query = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, USER)))
-					.build();
-			Query<Entity> query2 = Query.newEntityQueryBuilder().setKind("User")
-					.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, GBO)))
-					.build();
-			List<String> allUsers = buildQueryList(query);
-			List<String> usersGBO = buildQueryList(query2);
-			allUsers.addAll(usersGBO);
-			return allUsers;
-		}
-		*/
+
 		if (role.equals(SU)) {
 
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind(USER).build();
