@@ -81,10 +81,8 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (ur.isTokenValid(token)){
+			if (!ur.isLoggedIn(token, tn)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestData(data.owner));
-
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -158,10 +156,8 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (ur.isTokenValid(token)){
+			if (!ur.isLoggedIn(token, tn)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestData(data.owner));
-
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -226,10 +222,8 @@ public class ParcelResource {
 			return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
 		}
 	
-		if (ur.isTokenValid(token)){
+		if (!ur.isLoggedIn(token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
-			ur.doLogout(new RequestData(data.username));
-
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
@@ -268,10 +262,8 @@ public class ParcelResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (ur.isTokenValid(token)){
+		if (!ur.isLoggedIn(token, tn)){
 			LOG.warning("User " + data.username + " not logged in.");
-			ur.doLogout(new RequestData(data.username));
-
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			

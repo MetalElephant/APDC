@@ -81,10 +81,9 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 
-            if (ur.isTokenValid(token)){
+            if (!ur.isLoggedIn(token, tn)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestData(data.owner));
-
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -151,10 +150,9 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (ur.isTokenValid(token)){
+			if (!ur.isLoggedIn(token, tn)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestData(data.owner));
-
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -215,10 +213,9 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username+ " does not exist").build();
 			}
 				
-			if (ur.isTokenValid(token)){
+			if (!ur.isLoggedIn(token, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				ur.doLogout(new RequestData(data.username));
-
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
@@ -268,10 +265,8 @@ public class RewardResource {
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-        if (ur.isTokenValid(token)){
+        if (!ur.isLoggedIn(token, data.username)){
             LOG.warning("User " + data.username + " not logged in.");
-            ur.doLogout(new RequestData(data.username));
-
             return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
         }
 
@@ -314,12 +309,10 @@ public class RewardResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (ur.isTokenValid(token)){
-			LOG.warning("User " + data.username + " not logged in.");
-			ur.doLogout(new RequestData(data.username));
-
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-		}
+		if (!ur.isLoggedIn(token, data.username)){
+            LOG.warning("User " + data.username + " not logged in.");
+            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+        }
 
         List<RewardData> rewardList = getQueries(data.username);
 

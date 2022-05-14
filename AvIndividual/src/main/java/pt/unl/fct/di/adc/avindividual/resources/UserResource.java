@@ -612,6 +612,18 @@ public class UserResource {
 		return true;
 	}
 
+	public boolean isLoggedIn(Entity token, String username){
+		if (token == null)
+			return false;
+	
+		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
+			doLogout(new RequestData(username));
+			return false;
+		}
+				
+		return true;
+	}
+
 	//Add points from code to registered user and new user
 	private int redeemCode(Entity code, Entity newUser, Entity codeOwner){
 		Timestamp expDate = code.getTimestamp(EXPTIME);
