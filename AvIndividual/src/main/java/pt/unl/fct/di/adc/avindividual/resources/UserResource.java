@@ -571,7 +571,7 @@ public class UserResource {
 
 			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
 			user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-			user.getString(ROLE), user.getString(STATE));
+			user.getString(ROLE), user.getString(VISIBILITY));
 
 			return Response.ok(g.toJson(u)).build();
 		} finally {

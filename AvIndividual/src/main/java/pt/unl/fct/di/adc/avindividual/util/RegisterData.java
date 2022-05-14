@@ -56,9 +56,6 @@ public class RegisterData {
 		if(this.nif == null || this.nif.length() == 0)
 			this.nif = UNDEFINED;
 		
-		if(this.visibility == null || this.visibility.length() == 0)
-			this.visibility = UNDEFINED;
-		
 		if(this.code == null || this.code.length() == 0) 
 			this.code = "null";
 	}
@@ -67,12 +64,12 @@ public class RegisterData {
 	public boolean validData(){
 		//Check missing info
 		if(this.username == null || this.password == null || this.email == null|| this.name == null 
-				|| this.pwdConfirmation == null)
+				|| this.pwdConfirmation == null || this.visibility == null)
 			return false;
 		
 		//Check empty data
 		if(this.username.length() == 0 || this.password.length() == 0 || this.email.length() == 0||
-				this.name.length() == 0	|| this.pwdConfirmation.length() == 0)
+				this.name.length() == 0	|| this.pwdConfirmation.length() == 0 || this.visibility.length() == 0)
 			return false;
 		
 		return true;	
