@@ -19,8 +19,7 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.ModifyParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelInfo;
-import pt.unl.fct.di.adc.avindividual.util.RequestUData;
-import pt.unl.fct.di.adc.avindividual.util.RequestPRData;
+import pt.unl.fct.di.adc.avindividual.util.RequestData;
 
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
@@ -84,7 +83,7 @@ public class ParcelResource {
 				
 			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestUData(data.owner));
+				ur.doLogout(new RequestData(data.owner));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -161,7 +160,7 @@ public class ParcelResource {
 				
 			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestUData(data.owner));
+				ur.doLogout(new RequestData(data.owner));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -204,7 +203,7 @@ public class ParcelResource {
 	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response parcelInfo(RequestPRData data) {
+	public Response parcelInfo(RequestData data) {
 		LOG.fine("Attempting to show parcel " + data.name);
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -229,7 +228,7 @@ public class ParcelResource {
 	
 		if (ur.isTokenValid(token)){
 			LOG.warning("User " + data.username + " not logged in.");
-			ur.doLogout(new RequestUData(data.username));
+			ur.doLogout(new RequestData(data.username));
 
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -252,7 +251,7 @@ public class ParcelResource {
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUserParcel(RequestPRData data) {
+	public Response showUserParcel(RequestData data) {
 		LOG.info("Attempt to list parcels of user: " + data.username);
 		
 		Transaction tn = datastore.newTransaction();
@@ -271,7 +270,7 @@ public class ParcelResource {
 
 		if (ur.isTokenValid(token)){
 			LOG.warning("User " + data.username + " not logged in.");
-			ur.doLogout(new RequestUData(data.username));
+			ur.doLogout(new RequestData(data.username));
 
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}

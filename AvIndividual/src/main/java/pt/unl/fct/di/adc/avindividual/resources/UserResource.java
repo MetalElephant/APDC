@@ -23,7 +23,7 @@ import pt.unl.fct.di.adc.avindividual.util.UserUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
-import pt.unl.fct.di.adc.avindividual.util.RequestUData;
+import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 import pt.unl.fct.di.adc.avindividual.util.UserInfo;
 
@@ -289,7 +289,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestUData(data.username));
+				doLogout(new RequestData(data.username));
 			}
 
 			if (!canRemove(user, userToRemove)) {
@@ -354,7 +354,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestUData(data.username));
+				doLogout(new RequestData(data.username));
 			}
 			
 			//To set what will stay the same value or what will actually be changed
@@ -431,7 +431,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestUData(data.username));
+				doLogout(new RequestData(data.username));
 			}
 
 			user = Entity.newBuilder(userKey)
@@ -464,7 +464,7 @@ public class UserResource {
 	@DELETE
 	@Path("/logout")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response doLogout(RequestUData data) {
+	public Response doLogout(RequestData data) {
 		LOG.info("Attempt to logout user: " + data.username);
 
 		Transaction tn = datastore.newTransaction();
@@ -504,7 +504,7 @@ public class UserResource {
 	@Path("/list")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUsers(RequestUData data) {
+	public Response showUsers(RequestData data) {
 		LOG.info("Attempt to list users for user: " + data.username);
 
 		//TODO Once we add the data type verify if the data is valid
@@ -525,7 +525,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestUData(data.username));
+				doLogout(new RequestData(data.username));
 			}
 			
 			String userRole = user.getString(ROLE);
@@ -544,7 +544,7 @@ public class UserResource {
 	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showSelf(RequestUData data) {
+	public Response showSelf(RequestData data) {
 		LOG.info("Attempting to show user " + data.username);
 
 		//TODO Once we add the data type verify if the data is valid
@@ -566,7 +566,7 @@ public class UserResource {
 			}
 
 			if (isTokenValid(token)){
-				doLogout(new RequestUData(data.username));
+				doLogout(new RequestData(data.username));
 			}
 
 			UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),

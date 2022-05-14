@@ -16,8 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.adc.avindividual.util.RequestUData;
-import pt.unl.fct.di.adc.avindividual.util.RequestPRData;
+import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.RewardData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
@@ -84,7 +83,7 @@ public class RewardResource {
 
             if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestUData(data.owner));
+				ur.doLogout(new RequestData(data.owner));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -154,7 +153,7 @@ public class RewardResource {
 				
 			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				ur.doLogout(new RequestUData(data.owner));
+				ur.doLogout(new RequestData(data.owner));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -195,7 +194,7 @@ public class RewardResource {
     @DELETE
     @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removeReward(RequestPRData data) {
+    public Response removeReward(RequestData data) {
         LOG.info("Attempt to remove reward: " + data.name);
 
         Transaction tn = datastore.newTransaction();
@@ -218,7 +217,7 @@ public class RewardResource {
 				
 			if (ur.isTokenValid(token)){
 				LOG.warning("User " + data.username + " not logged in.");
-				ur.doLogout(new RequestUData(data.username));
+				ur.doLogout(new RequestData(data.username));
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
@@ -252,7 +251,7 @@ public class RewardResource {
     @Path("/info")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response rewardInfo(RequestPRData data) {
+    public Response rewardInfo(RequestData data) {
         LOG.fine("Attempting to show reward " + data.name);
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -271,7 +270,7 @@ public class RewardResource {
 
         if (ur.isTokenValid(token)){
             LOG.warning("User " + data.username + " not logged in.");
-            ur.doLogout(new RequestUData(data.username));
+            ur.doLogout(new RequestData(data.username));
 
             return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
         }
@@ -300,7 +299,7 @@ public class RewardResource {
     @Path("/list")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response showUserReward(RequestPRData data) {
+    public Response showUserReward(RequestData data) {
         LOG.info("Attempt to list rewards of user: " + data.username);
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -317,7 +316,7 @@ public class RewardResource {
 
 		if (ur.isTokenValid(token)){
 			LOG.warning("User " + data.username + " not logged in.");
-			ur.doLogout(new RequestUData(data.username));
+			ur.doLogout(new RequestData(data.username));
 
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
