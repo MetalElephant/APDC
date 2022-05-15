@@ -7,7 +7,6 @@ import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -653,31 +652,31 @@ public class UserResource {
 			return false;
 		
 		//update values so its easier to do transaction.put throught the data from ModifyData
-		if (data.name == null)
+		if (data.name == null || data.name.length() == 0)
 			data.name = userToModify.getString(NAME);
 		
-		if (data.email == null)
+		if (data.email == null || data.email.length() == 0)
 			data.email = userToModify.getString(EMAIL);
 		
-		if (data.role == null)
+		if (data.role == null || data.role.length() == 0)
 			data.role = userToModify.getString(ROLE);
 		
-		if (data.mobilePhone == null)
+		if (data.mobilePhone == null || data.mobilePhone.length() == 0)
 			data.mobilePhone = userToModify.getString(MPHONE);
 		
-		if (data.homePhone == null)
+		if (data.homePhone == null || data.homePhone.length() == 0)
 			data.homePhone = userToModify.getString(HPHONE);
 		
-		if (data.address == null)
+		if (data.address == null || data.address.length() == 0)
 			data.address = userToModify.getString(ADDRESS);
 		
-		if (data.nif == null)
+		if (data.nif == null || data.nif.length() == 0)
 			data.nif = userToModify.getString(NIF);
 		
-		if (data.visibility == null)
+		if (data.visibility == null || data.visibility.length() == 0)
 			data.visibility = userToModify.getString(VISIBILITY);
 		
-		if (data.state == null)
+		if (data.state == null || data.state.length() == 0)
 			data.state = userToModify.getString(STATE);
 		
 		return true;

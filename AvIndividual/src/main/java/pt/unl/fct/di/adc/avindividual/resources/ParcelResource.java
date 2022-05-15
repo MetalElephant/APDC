@@ -167,7 +167,7 @@ public class ParcelResource {
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
-			data.removeNulls(parcel);
+			verifyChanges(data, parcel);
 
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
@@ -401,4 +401,26 @@ public class ParcelResource {
 
         return overlaps;
     }*/
+
+	public void verifyChanges(ModifyParcelData data, Entity modified) {
+		if(data.parcelName == null) {
+			data.parcelName = modified.getString(PARCEL_NAME);
+		}
+		
+		if(data.description == null) {
+			data.description = modified.getString(DESCRIPTION);
+		}
+		
+		if(data.groundType == null) {
+			data.groundType = modified.getString(GROUND_COVER_TYPE);
+		}
+		
+		if(data.currUsage == null) {
+			data.currUsage = modified.getString(CURR_USAGE);
+		}
+		
+		if(data.prevUsage == null) {
+			data.prevUsage = modified.getString(PREV_USAGE);
+		}
+	}
 }
