@@ -95,7 +95,7 @@ class restCalls {
     }
 
     modifyParcel (parcelName, description, groundType, currUsage, prevUsage) {
-        return fetch ("https://totemic-courage-344200.appspot.com/rest/parcel/updateParcel", {
+        return fetch ("https://totemic-courage-344200.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

@@ -12,7 +12,8 @@ export default function modifyParcel() {
     const [prevUsage, setPrevUsage] = react.useState("");
 
     const [displayMessage, setDisplayMessage] = react.useState(false);
-    const [isModifySubmit, setIsModifySubmit] = react.useState(true);
+    const [isModifySubmit, setIsModifySubmit] = react.useState(false);
+    const [isModifyNotSubmit, setIsModifyNotSubmit] = react.useState(false);
 
     function parcelNameHandler(e) {
         setParcelName(e.target.value);
@@ -37,7 +38,7 @@ export default function modifyParcel() {
     function modifyParcelManager(e) {
         e.preventDefault();
         restCalls.modifyParcel(parcelName, description, groundType, currUsage, prevUsage)
-        .then(() => {setIsModifySubmit(true)}).catch(() => {setIsModifySubmit(false)});
+        .then(() => {setIsModifySubmit(true); setIsModifyNotSubmit(false)}).catch(() => {setIsModifySubmit(false); setIsModifyNotSubmit(true)});
         setDisplayMessage(true);
     }
 
@@ -132,7 +133,7 @@ export default function modifyParcel() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela modificada com sucesso.</Typography>
                     </Alert> : <></>
                 }
-                {!isModifySubmit && displayMessage ? 
+                {isModifyNotSubmit && displayMessage ? 
                     <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a parcela. Por favor, verifique o nome da parcela.</Typography>
                     </Alert> : <></>
