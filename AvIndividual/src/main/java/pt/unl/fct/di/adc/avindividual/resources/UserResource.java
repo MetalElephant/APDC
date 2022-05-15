@@ -213,7 +213,7 @@ public class UserResource {
 						Entity tokenEntity = tn.get(tokenKey);
 						
 						//Guarantee user isn't already logged in
-						if (tokenEntity != null) {
+						if (isLoggedIn(tokenEntity, tn)) {
 							LOG.warning("User " + data.username + " already logged in.");
 							tn.rollback();
 							return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();

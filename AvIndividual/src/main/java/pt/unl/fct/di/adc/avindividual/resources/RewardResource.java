@@ -101,14 +101,14 @@ public class RewardResource {
 				return Response.status(Status.CONFLICT).entity("Reward name already exists.").build();
             }
 
-            Builder builder = Entity.newBuilder(rewardKey)
+            reward = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
                     .set(REWARD_NAME, data.name)
                     .set(DESCRIPTION, data.description)
                     .set(PRICE, data.price)
-                    .set(NREDEEMED, "0");
+                    .set(NREDEEMED, "0")
+                    .build();
 
-            reward = builder.build();
 
             tn.add(reward);
             tn.commit();

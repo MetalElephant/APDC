@@ -26,7 +26,7 @@ public class UserUpdateData {
 	}
 	
 	public boolean validRoleFormat() {
-		if (this.role == null)
+		if (this.role == null || this.role.length() == 0)
 			return true;
 		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
 		String roleF = this.role;
@@ -39,7 +39,7 @@ public class UserUpdateData {
 	
 	public boolean validStateFormat() {
 		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
-		if (this.state == null)
+		if (this.state == null || this.state.length() == 0)
 			return true;
 
 		if(this.state.equals("INACTIVE") || this.state.equals("ACTIVE"))
