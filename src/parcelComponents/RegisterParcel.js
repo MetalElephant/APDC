@@ -14,7 +14,8 @@ export default function RegisterParcel() {
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
     const [area, setArea] = react.useState("");
-    const [isParcelSubmit, setIsParcelSubmit] = react.useState(true);
+    const [isParcelSubmit, setIsParcelSubmit] = react.useState(false);
+    const [isParcelNotSubmit, setIsParcelNotSubmit] = react.useState(false);
     const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
 
     function parcelIdHandler(e) {
@@ -69,7 +70,7 @@ export default function RegisterParcel() {
     function parcelRegisterManager(e) {
         e.preventDefault();
         restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
-        .then(() => {setIsParcelSubmit(true); resetValues()}).catch(() => {setIsParcelSubmit(false); setMarkers([])});
+        .then(() => {setIsParcelSubmit(true); setIsParcelNotSubmit(false) ;resetValues()}).catch(() => {setIsParcelSubmit(false); setIsParcelNotSubmit(true) ;setMarkers([])});
         setDisplayParcelMessage(true);
     }
 
@@ -224,7 +225,7 @@ export default function RegisterParcel() {
                                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de parcela válido</Typography>
                                 </Alert> : <></>
                             }
-                            {(!isParcelSubmit && displayParcelMessage) ? 
+                            {(isParcelNotSubmit && displayParcelMessage) ? 
                                 <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
                                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de parcela inválido. Por favor, verifique se tem pontos selecionados ou se já tem uma parcela com o nome: {parcelName}</Typography>
                                 </Alert> : <></>

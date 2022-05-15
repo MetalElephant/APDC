@@ -5,7 +5,6 @@ import { Box, Container, Typography, TextField, Button, Grid, Alert} from "@mui/
 
 export default function modifyParcel() {
 
-    const [parcelId, setParcelId] = react.useState("");
     const [parcelName, setParcelName] = react.useState("");
     const [description, setDescription] = react.useState("");
     const [groundType, setGroundType] = react.useState("");
@@ -14,10 +13,6 @@ export default function modifyParcel() {
 
     const [displayMessage, setDisplayMessage] = react.useState(false);
     const [isModifySubmit, setIsModifySubmit] = react.useState(true);
-
-    function parcelIdHandler(e) {
-        setParcelId(e.target.value);
-    }
 
     function parcelNameHandler(e) {
         setParcelName(e.target.value);
@@ -41,7 +36,7 @@ export default function modifyParcel() {
 
     function modifyParcelManager(e) {
         e.preventDefault();
-        restCalls.modifyParcel(parcelId, parcelName, description, groundType, currUsage, prevUsage)
+        restCalls.modifyParcel(parcelName, description, groundType, currUsage, prevUsage)
         .then(() => {setIsModifySubmit(true)}).catch(() => {setIsModifySubmit(false)});
         setDisplayMessage(true);
     }
@@ -69,24 +64,13 @@ export default function modifyParcel() {
                                 fullWidth
                                 autoFocus
                                 name="nome"
-                                label="Nome"
+                                label="Nome da parcela que deseja alterar"
                                 id="nome"
                                 color="success"
                                 onChange = {parcelNameHandler}
                             />
                             <TextField
                                 margin="normal"
-                                required
-                                fullWidth
-                                id="freguesiaSeccaoArtigo"
-                                label="Freguesia, Secção e Artigo"
-                                name="freguesiaSeccaoArtigo"
-                                color="success"
-                                onChange={parcelIdHandler}
-                            />
-                            <TextField
-                                margin="normal"
-                                required
                                 fullWidth
                                 name="descricao"
                                 label="Descrição"
@@ -96,7 +80,6 @@ export default function modifyParcel() {
                             />
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 name="tipoCoberturaSolo"
                                 label="Tipo de Cobertura do Solo"
@@ -106,7 +89,6 @@ export default function modifyParcel() {
                             />
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 name="utilizacaoAtual"
                                 label="Utilização Atual"
@@ -116,7 +98,6 @@ export default function modifyParcel() {
                             />
                             <TextField
                                 margin="normal"
-                                required
                                 fullWidth
                                 name="utilizacaoAnterior"
                                 label="Utilização Anterior"

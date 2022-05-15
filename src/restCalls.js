@@ -94,7 +94,7 @@ class restCalls {
         }) 
     }
 
-    modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage) {
+    modifyParcel (parcelName, description, groundType, currUsage, prevUsage) {
         return fetch ("https://totemic-courage-344200.appspot.com/rest/parcel/updateParcel", {
             method: 'PUT',
             headers: {
@@ -103,7 +103,6 @@ class restCalls {
             body: JSON.stringify({
                 owner: JSON.parse(localStorage.getItem('token')).username,
                 parcelName: parcelName,
-                parcelRegion: parcelId,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,

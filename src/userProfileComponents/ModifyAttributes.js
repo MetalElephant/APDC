@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert } from "@mui/material";
 
 export default function ModifyAttributes() {
 
@@ -11,6 +11,9 @@ export default function ModifyAttributes() {
     const [mobilePhone, setMobilePhone] = react.useState("");
     const [address, setAddress] = react.useState("");
     const [nif, setNif] = react.useState("");
+    const [displayMessage, setDisplayMessage] = react.useState(false);
+    const [userModified, setUserModified] = react.useState(false);
+    const [userNotModified, setUserNotModified] = react.useState(false);
 
     function nameHandler(e) {
         setName(e.target.value);
@@ -42,7 +45,7 @@ export default function ModifyAttributes() {
 
     function modifyAttributesManager(e) {
         e.preventDefault()
-        restCalls.modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif).then(() => { restCalls.userInfo()})
+        restCalls.modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif).then(() => { restCalls.userInfo(); setUserModified(true); setUserNotModified(false)}).catch(() => { setUserModified(false); setUserNotModified(true)})
     }
 
     return (
@@ -61,7 +64,7 @@ export default function ModifyAttributes() {
                         <Typography component="h1" variant="h5">
                             User Attributes Modification
                         </Typography>
-                        <Box component="form" sx={{mt: 1 }}>
+                        <Box component="form" sx={{ mt: 1 }}>
                             <TextField
                                 margin="normal"
                                 fullWidth
@@ -101,7 +104,7 @@ export default function ModifyAttributes() {
                                 label="Home Phone"
                                 id="homePhone"
                                 color="success"
-                                onChange = {homePhoneHandler} 
+                                onChange={homePhoneHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -110,7 +113,7 @@ export default function ModifyAttributes() {
                                 label="Mobile Phone"
                                 id="mobilePhone"
                                 color="success"
-                                onChange = {mobilePhoneHandler}
+                                onChange={mobilePhoneHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -119,7 +122,7 @@ export default function ModifyAttributes() {
                                 label="Address"
                                 id="address"
                                 color="success"
-                                onChange = {addressHandler}
+                                onChange={addressHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -128,7 +131,7 @@ export default function ModifyAttributes() {
                                 label="NIF"
                                 id="nif"
                                 color="success"
-                                onChange = {nifHandler}
+                                onChange={nifHandler}
                             />
 
                             <Button
@@ -137,13 +140,31 @@ export default function ModifyAttributes() {
                                 variant="outlined"
                                 color="success"
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
-                                onClick={(e) => { modifyAttributesManager(e)}}
+                                onClick={(e) => { modifyAttributesManager(e); setDisplayMessage(true) }}
                             >
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>
                         </Box>
                     </Box>
                 </Container>
+            </Grid>
+            <Grid item xs={2} 
+                    container
+                    spacing={0}
+                    direction="column"
+                    alignItems="center"
+                    sx = {{mt:"55px"}}
+            >
+                {userModified && displayMessage ? 
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela modificada com sucesso.</Typography>
+                    </Alert> : <></>
+                }
+                {userNotModified && displayMessage ? 
+                    <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a parcela. Por favor, verifique o nome da parcela.</Typography>
+                    </Alert> : <></>
+                }
             </Grid>
         </>
     )
