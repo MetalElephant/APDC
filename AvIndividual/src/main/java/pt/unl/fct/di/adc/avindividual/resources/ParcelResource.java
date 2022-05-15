@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
-import pt.unl.fct.di.adc.avindividual.util.ModifyParcelData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelInfo;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
@@ -136,8 +136,11 @@ public class ParcelResource {
 	@PUT
 	@Path("/update")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateParcel(ModifyParcelData data) {
+	public Response updateParcel(ParcelUpdateData data) {
 		LOG.info("Attempting to modify parcel " + data.parcelName);
+
+		if (!data.isDataValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
 		Transaction tn = datastore.newTransaction();
 
@@ -171,7 +174,8 @@ public class ParcelResource {
 
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(OWNER, data.owner)
-					.set(PARCEL_NAME, data.parcelName)
+					.set(PARCEL_NAME, data.parcelName)//TODO name shouldn't be changed because we couldn't track it anymore because of the key
+					.set(PARCEL_REGION, parcel.getString(PARCEL_REGION))
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -402,24 +406,24 @@ public class ParcelResource {
         return overlaps;
     }*/
 
-	public void verifyChanges(ModifyParcelData data, Entity modified) {
-		if(data.parcelName == null) {
+	public void verifyChanges(ParcelUpdateData data, Entity modified) {
+		if(data.parcelName == null || data.parcelName.length() == 0) {
 			data.parcelName = modified.getString(PARCEL_NAME);
 		}
 		
-		if(data.description == null) {
+		if(data.description == null || data.description.length() == 0) {
 			data.description = modified.getString(DESCRIPTION);
 		}
 		
-		if(data.groundType == null) {
+		if(data.groundType == null || data.groundType.length() == 0) {
 			data.groundType = modified.getString(GROUND_COVER_TYPE);
 		}
 		
-		if(data.currUsage == null) {
+		if(data.currUsage == null || data.currUsage.length() == 0) {
 			data.currUsage = modified.getString(CURR_USAGE);
 		}
 		
-		if(data.prevUsage == null) {
+		if(data.prevUsage == null || data.prevUsage.length() == 0) {
 			data.prevUsage = modified.getString(PREV_USAGE);
 		}
 	}
