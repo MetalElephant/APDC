@@ -8,6 +8,7 @@ export default function UserInfo() {
     const [username, setUsername] = react.useState("")
     const [email, setEmail] = react.useState("")
     const [name, setName] = react.useState("")
+    const [visibility, setVisibility] = react.useState("")
     const [landphone, setLandphone] = react.useState("")
     const [mobilephone, setMobilephone] = react.useState("")
     const [address, setAddress] = react.useState("")
@@ -19,6 +20,7 @@ export default function UserInfo() {
         setUsername(user.username)
         setEmail(user.email)
         setName(user.name)
+        setVisibility(user.visibility)
         setLandphone(user.landphone)
         setMobilephone(user.mobilephone)
         setAddress(user.address)
@@ -41,6 +43,11 @@ export default function UserInfo() {
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Name: {name} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Visibility: {visibility} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">

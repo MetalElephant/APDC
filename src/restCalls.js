@@ -5,7 +5,7 @@ class restCalls {
 
     //depois alterar url
     login (username, password) {
-        return fetch ("https://land-it.appspot.com/rest/users/login", {   
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/login", {   
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -30,8 +30,8 @@ class restCalls {
     }
     
 
-    register (username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif) {
-        return fetch ("https://land-it.appspot.com/rest/users/register/", {
+    register (username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif) {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -42,6 +42,7 @@ class restCalls {
                 pwdConfirmation: pwdConfirmation,
                 email: email,
                 name: name,
+                visibility: visibility,
                 homePhone: homePhone,
                 mobilePhone: mobilePhone,
                 address: address,
@@ -62,7 +63,7 @@ class restCalls {
     }
 
     parcelRegister (parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
-        return fetch ("https://land-it.appspot.com/rest/parcel/register", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -94,7 +95,7 @@ class restCalls {
     }
 
     modifyParcel (parcelId, parcelName, description, groundType, currUsage, prevUsage) {
-        return fetch ("https://land-it.appspot.com/rest/parcel/updateParcel", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/updateParcel", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -123,7 +124,7 @@ class restCalls {
     }
 
     modifyPassword (oldPassword, newPassword, pwdConfirmation) {
-        return fetch ("https://land-it.appspot.com/rest/users/updatePwd", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/updatePwd", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -148,8 +149,39 @@ class restCalls {
         }) 
     }
 
+    modifyUserAttributes (name, email, visibility, address, homePhone, mobilePhone, nif) {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/update", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                usernameToUpdate: JSON.parse(localStorage.getItem('token')).username,
+                name: name,
+                email: email,
+                visibility: visibility,
+                address: address,
+                homePhone: homePhone,
+                mobilePhone: mobilePhone,
+                nif: nif
+            })
+        }).then (function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        }) 
+    }
+
     userInfo() {
-        return fetch ("https://land-it.appspot.com/rest/users/showUserData", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/info", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -173,7 +205,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch ("https://land-it.appspot.com/rest/parcel/list", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/list", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -199,7 +231,7 @@ class restCalls {
 
 
     logout() {
-        return fetch ("https://land-it.appspot.com/rest/users/logout", {
+        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/logout", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

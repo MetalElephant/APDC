@@ -1,7 +1,9 @@
 import React, { useState } from "react"
-import Navbar from "./mainFixedComponents/Navbar"
+import NavbarLR from "./mainFixedComponents/NavbarLR"
+import NavbarOps from "./mainFixedComponents/NavbarOps";
 import LoginRegister from "./userComponents/LoginRegister"
-import Main from "./mainFixedComponents/Main"
+import ParcelsPage from "./mainFixedComponents/ParcelsPage"
+import DrawerMessingAround from "./mainFixedComponents/DrawerMessingAround"
 
 
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -13,18 +15,18 @@ export default function App() {
 
     return (
         <Router>
-            <div className="App">
-                <Navbar />
-                <div className="content">
-                    <Switch>
-                        <Route exact path="/">
-                            <LoginRegister />
-                        </Route>
-                        <Route exact path="/main">
-                            <Main />
-                        </Route>
-                    </Switch>
-                </div>
+            <div className="content">
+                <Switch>
+                    <Route exact path="/">
+                        <NavbarLR />
+                        <LoginRegister />
+                    </Route>
+                    <Route exact path="/main">
+                        <NavbarOps />
+                        {/*<Main />*/}
+                        {/*<Tabs />*/}
+                    </Route>
+                </Switch>
             </div>
         </Router>
     )

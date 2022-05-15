@@ -55,7 +55,7 @@ export default function Main() {
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify parcel </Typography>
                     </Button>
-                    
+                    {/*
                     <Button
                         type="submit"
                         id="5"
@@ -66,6 +66,7 @@ export default function Main() {
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> profile </Typography>
                     </Button>
+                    */}
                     <Button
                         type="submit"
                         id="5"

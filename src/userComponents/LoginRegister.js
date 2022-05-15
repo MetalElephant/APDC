@@ -13,6 +13,7 @@ export default function LoginRegister() {
     const [passwordRegister, setPasswordRegister] = react.useState("");
     const [pwdConfirmation, setPwdConfirmation] = react.useState("");
     const [email, setEmail] = react.useState("");
+    const [visibility, setVisibility] = react.useState("");
     const [name, setName] = react.useState("");
     const [homePhone, setHomePhone] = react.useState("");
     const [mobilePhone, setMobilePhone] = react.useState("");
@@ -54,6 +55,10 @@ export default function LoginRegister() {
         setEmail(e.target.value);
     }
 
+    function visibilityHandler(e) {
+        setVisibility(e.target.value);
+    }
+
     function nameHandler(e) {
         setName(e.target.value);
     }
@@ -84,7 +89,7 @@ export default function LoginRegister() {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(username, passwordRegister, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif)
+            restCalls.register(username, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif)
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
         } else {
@@ -140,7 +145,7 @@ export default function LoginRegister() {
             isValid = false;
             setEmailErr(emailErr)
         }
-        
+
         setUsernameErr(usernameErr)
         setEmailErr(emailErr)
         setPasswordConfirmationErr(passwordConfirmationErr)
@@ -205,11 +210,11 @@ export default function LoginRegister() {
                                     color="success"
                                     InputProps={showPasswordLogin ? {
                                         endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
-                                            <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                            <RemoveRedEyeIcon sx={{ color: "black" }} />
                                         </Button>
                                     } : {
                                         endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
-                                            <VisibilityOffIcon sx={{color: "black"}}/>
+                                            <VisibilityOffIcon sx={{ color: "black" }} />
                                         </Button>
                                     }}
                                     onChange={passwordLoginHandler}
@@ -272,11 +277,11 @@ export default function LoginRegister() {
                                     color="success"
                                     InputProps={showPasswordRegister ? {
                                         endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
-                                            <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                            <RemoveRedEyeIcon sx={{ color: "black" }} />
                                         </Button>
                                     } : {
                                         endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
-                                            <VisibilityOffIcon sx={{color: "black"}}/>
+                                            <VisibilityOffIcon sx={{ color: "black" }} />
                                         </Button>
                                     }}
                                     onChange={passwordRegisterHandler}
@@ -297,11 +302,11 @@ export default function LoginRegister() {
                                     value={pwdConfirmation}
                                     InputProps={showPasswordConfirmation ? {
                                         endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
-                                            <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                            <RemoveRedEyeIcon sx={{ color: "black" }} />
                                         </Button>
                                     } : {
                                         endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
-                                            <VisibilityOffIcon sx={{color: "black"}}/>
+                                            <VisibilityOffIcon sx={{ color: "black" }} />
                                         </Button>
                                     }}
                                     onChange={pwdConfirmationHandler}
@@ -343,22 +348,14 @@ export default function LoginRegister() {
                                         aria-labelledby="demo-radio-buttons-group-label"
                                         name="radio-buttons-group"
                                         row
+                                        defaultValue="Public"
+                                        onChange={visibilityHandler}
                                     >
-                                        <FormControlLabel value="public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />
-                                        <FormControlLabel value="private" control={<Radio color="success" />} label="Private" sx={{ color: "black" }} />
+                                        <FormControlLabel value="Public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />
+                                        <FormControlLabel value="Private" control={<Radio color="success" />} label="Private" sx={{ color: "black" }} />
                                     </RadioGroup>
                                 </FormControl>
 
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="homePhone"
-                                    label="Home Phone"
-                                    type="homePhone"
-                                    id="homePhone"
-                                    color="success"
-                                    onChange={homePhoneHandler}
-                                />
                                 <TextField
                                     margin="normal"
                                     fullWidth
@@ -368,6 +365,16 @@ export default function LoginRegister() {
                                     id="mobilePhone"
                                     color="success"
                                     onChange={mobilePhoneHandler}
+                                />
+                                <TextField
+                                    margin="normal"
+                                    fullWidth
+                                    name="homePhone"
+                                    label="Home Phone"
+                                    type="homePhone"
+                                    id="homePhone"
+                                    color="success"
+                                    onChange={homePhoneHandler}
                                 />
                                 <TextField
                                     margin="normal"
