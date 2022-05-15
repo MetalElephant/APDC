@@ -4,6 +4,9 @@ import UserInfo from "./UserInfo"
 import ModifyPassword from "./ModifyPassword";
 import DrawerMessingAround from "../mainFixedComponents/DrawerMessingAround"
 import ModifyAttributes from "./ModifyAttributes";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 export default function Main() {
 
@@ -19,6 +22,7 @@ export default function Main() {
                     fullWidth
                     variant="outlined"
                     color="success"
+                    startIcon={<AccountBoxIcon sx={{color:"black"}}/>}
                     sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => {setDisplay(0)}}
                 >
@@ -30,6 +34,7 @@ export default function Main() {
                     fullWidth
                     variant="outlined"
                     color="success"
+                    startIcon={<LockResetIcon sx={{color:"black"}}/>}
                     sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => {setDisplay(1)}}
                 >
@@ -41,6 +46,7 @@ export default function Main() {
                     fullWidth
                     variant="outlined"
                     color="success"
+                    startIcon={<ChangeCircleIcon sx={{color:"black"}}/>}
                     sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => {setDisplay(2)}}
                 >
