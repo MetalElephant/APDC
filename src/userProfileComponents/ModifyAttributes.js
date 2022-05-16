@@ -83,8 +83,14 @@ export default function ModifyAttributes() {
             setEmailErr(emailErr)
         }
 
-        if((homePhone.length > 0) && (homePhone.length !== 9))  {
+        if((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone.match(/[a-zA-Z]/) != null))  {
             homePhoneErr.not9Digits = "Home phone is not composed of nine digits."
+            isValid = false;
+            setHomePhoneErr(homePhoneErr)
+        }
+
+        if((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null))  {
+            homePhoneErr.onlyNumbers = "Home phone must not contain any letters or special characters."
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
@@ -95,8 +101,20 @@ export default function ModifyAttributes() {
             setMobilePhoneErr(mobilePhoneErr)
         }
 
+        if((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null))  {
+            mobilePhoneErr.onlyNumbers = "Mobile phone must not contain any letters or special characters."
+            isValid = false;
+            setMobilePhoneErr(mobilePhoneErr)
+        }
+
         if((nif.length > 0) && (nif.length !== 9)) {
             nifErr.not9Digits = "NIF is not composed of nine digits."
+            isValid = false;
+            setNifErr(nifErr)
+        }
+
+        if((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null))  {
+            nifErr.onlyNumbers = "NIF must not contain any letters or special characters."
             isValid = false;
             setNifErr(nifErr)
         }
