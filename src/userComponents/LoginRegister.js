@@ -24,6 +24,9 @@ export default function LoginRegister() {
     const [passwordErr, setPasswordErr] = react.useState({});
     const [passwordConfirmationErr, setPasswordConfirmationErr] = react.useState({});
     const [emailErr, setEmailErr] = react.useState({});
+    const [homePhoneErr, setHomePhoneErr] = react.useState({});
+    const [mobilePhoneErr, setMobilePhoneErr] = react.useState({});
+    const [nifErr, setNifErr] = react.useState({});
 
     const [isRegisterSubmit, setIsRegisterSubmit] = react.useState(false);
     const [isRegisterNotSubmit, setIsRegisterNotSubmit] = react.useState(false);
@@ -103,6 +106,9 @@ export default function LoginRegister() {
         const passwordErr = {};
         const passwordConfirmationErr = {};
         const emailErr = {};
+        const homePhoneErr = {};
+        const mobilePhoneErr = {};
+        const nifErr = {};
         let isValid = true;
 
         if (username.length < 5 || username.length > 40) {
@@ -138,6 +144,7 @@ export default function LoginRegister() {
         if (!pwdConfirmation.match(passwordRegister) || !passwordRegister.match(pwdConfirmation)) {
             passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Password confimation does not match."
             isValid = false;
+            setPasswordConfirmationErr(passwordConfirmationErr)
         }
 
         if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
@@ -146,10 +153,49 @@ export default function LoginRegister() {
             setEmailErr(emailErr)
         }
 
+        if ((homePhone.length > 0) && (homePhone.length !== 9)) {
+            homePhoneErr.not9Digits = "Home phone is not composed of nine digits."
+            isValid = false;
+            setHomePhoneErr(homePhoneErr)
+        }
+
+        if ((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) {
+            homePhoneErr.onlyNumbers = "Home phone must not contain any letters or special characters."
+            isValid = false;
+            setHomePhoneErr(homePhoneErr)
+        }
+
+        if ((mobilePhone.length > 0) && (mobilePhone.length !== 9)) {
+            mobilePhoneErr.not9Digits = "Mobile phone is not composed of nine digits."
+            isValid = false;
+            setMobilePhoneErr(mobilePhoneErr)
+        }
+
+        if ((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) {
+            mobilePhoneErr.onlyNumbers = "Mobile phone must not contain any letters or special characters."
+            isValid = false;
+            setMobilePhoneErr(mobilePhoneErr)
+        }
+
+        if ((nif.length > 0) && (nif.length !== 9)) {
+            nifErr.not9Digits = "NIF is not composed of nine digits."
+            isValid = false;
+            setNifErr(nifErr)
+        }
+
+        if ((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) {
+            nifErr.onlyNumbers = "NIF must not contain any letters or special characters."
+            isValid = false;
+            setNifErr(nifErr)
+        }
+
         setUsernameErr(usernameErr)
         setEmailErr(emailErr)
         setPasswordConfirmationErr(passwordConfirmationErr)
         setPasswordErr(passwordErr)
+        setHomePhoneErr(homePhoneErr)
+        setMobilePhoneErr(mobilePhoneErr)
+        setNifErr(nifErr)
         return isValid;
     }
 
@@ -366,6 +412,9 @@ export default function LoginRegister() {
                                     color="success"
                                     onChange={mobilePhoneHandler}
                                 />
+                                {Object.keys(mobilePhoneErr).map((key) => {
+                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {mobilePhoneErr[key]}</Typography>
+                                })}
                                 <TextField
                                     margin="normal"
                                     fullWidth
@@ -376,6 +425,9 @@ export default function LoginRegister() {
                                     color="success"
                                     onChange={homePhoneHandler}
                                 />
+                                {Object.keys(homePhoneErr).map((key) => {
+                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {homePhoneErr[key]}</Typography>
+                                })}
                                 <TextField
                                     margin="normal"
                                     fullWidth
@@ -396,6 +448,9 @@ export default function LoginRegister() {
                                     color="success"
                                     onChange={nifHandler}
                                 />
+                                {Object.keys(nifErr).map((key) => {
+                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {nifErr[key]}</Typography>
+                                })}
 
                                 <Button
                                     type="submit"

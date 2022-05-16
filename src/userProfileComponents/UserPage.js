@@ -1,13 +1,14 @@
 import react from "react"
-import {Button, Grid, Typography} from "@mui/material";
-import RegisterParcel from "../parcelComponents/RegisterParcel";
-import ModifyParcel from "../parcelComponents/ModifyParcel";
+import { Button, Grid, Typography } from "@mui/material";
+import UserInfo from "./UserInfo"
+import ModifyPassword from "./ModifyPassword";
 import restCalls from "../restCalls"
-import ParcelInfo from "../parcelComponents/ParcelInfo";
+import DrawerMessingAround from "../mainFixedComponents/DrawerMessingAround"
 import {useHistory} from "react-router-dom";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import FeedIcon from '@mui/icons-material/Feed';
+import ModifyAttributes from "./ModifyAttributes";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 export default function Main() {
@@ -17,7 +18,7 @@ export default function Main() {
 
     function logoutManager(e) {
         e.preventDefault()
-        restCalls.logout().then(() => {history.push("/")})
+        restCalls.logout().then(() => { history.push("/") })
     }
 
     return (
@@ -26,15 +27,15 @@ export default function Main() {
                 <Grid item xs={2}>
                     <Button
                         type="submit"
-                        id="3"
+                        id="1"
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<AddCircleIcon sx={{color:"black"}}/>}
-                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        startIcon={<AccountBoxIcon sx={{ color: "black" }} />}
+                        sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> register parcel </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> user info </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -42,23 +43,23 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<FeedIcon sx={{color:"black"}}/>}
-                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        startIcon={<LockResetIcon sx={{ color: "black" }} />}
+                        sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> parcel info </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify password </Typography>
                     </Button>
                     <Button
                         type="submit"
-                        id="4"
+                        id="3"
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<ChangeCircleIcon sx={{color:"black"}}/>}
-                        sx={{ mt: 2, width: "240px", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
+                        sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(2) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify parcel </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modify attributes </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -73,10 +74,9 @@ export default function Main() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <RegisterParcel /> : <></>}
-                {(display === 1) ? <ParcelInfo />: <></>}
-                {(display === 2) ? <ModifyParcel />: <></>}
-
+                {(display === 0) ? <UserInfo /> : <></>}
+                {(display === 1) ? <ModifyPassword /> : <></>}
+                {(display === 2) ? <ModifyAttributes /> : <></>}
             </Grid>
         </Grid>
     )
