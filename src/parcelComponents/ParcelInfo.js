@@ -1,8 +1,9 @@
-import { Box, Typography, Grid, Paper, Button, Select, MenuItem } from "@mui/material";
+import { Box, Typography, Grid, Paper, Button, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import mapsAvatar from "../images/maps-avatar.png";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
+import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function ParcelInfo() {
 
@@ -16,11 +17,26 @@ export default function ParcelInfo() {
     const [allLats, setAllLats] = react.useState("")
     const [allLngs, setAllLngs] = react.useState("")
     const [chosenParcel, setChosenParcel] = react.useState("")
-
+    const [markers, setMarkers] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
+    function setLats(parcel, size) {
+        const tempLats = []
+        for (var i = 0; i < size; i++) {
+            tempLats.push(parcel.markers[i].latitude)
+        }
+        return tempLats;
+    }
+
+    function setLngs(parcel, size) {
+        const tempLngs = []
+        for (var i = 0; i < size; i++) {
+            tempLngs.push(parcel.markers[i].longitude)
+        }
+        return tempLngs;
+    }
 
     function setAttributes(event) {
         var parcel = parcels[event.target.value]
@@ -33,8 +49,8 @@ export default function ParcelInfo() {
         setCurrUsage(parcel.currUsage);
         setPrevUsage(parcel.prevUsage);
         setArea(parcel.area);
-        setAllLats(parcel.allLats);
-        setAllLngs(parcel.allLngs);
+        setAllLats(setLats(parcel, parcel.markers.length));
+        setAllLngs(setLngs(parcel, parcel.markers.length));
 
     }
 
@@ -69,7 +85,7 @@ export default function ParcelInfo() {
 
     function generateSelects() {
         const views = []
-        if (parcels.length === 0)
+        if (parcels.length == null || parcels.length === 0)
             return <Typography> Não há parcelas registadas</Typography>
         else
             for (var i = 0; i < parcels.length; i++) {
@@ -87,13 +103,15 @@ export default function ParcelInfo() {
 
     return (
         <>
-            <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
-                <Grid align="left" p={2.5}>
-                    <Typography variant="h6">Parcels: </Typography>
-                    <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "200px" }}>
+            <Grid item xs={1.5} >
+                <FormControl variant="standard">
+                    <InputLabel id="id">Parcels</InputLabel>
+                    <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "150px" }}>
                         {loaded && generateSelects()}
                     </Select>
-                </Grid>
+                </FormControl>
+            </Grid>
+            <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Name: {parcelName} </Typography>
@@ -140,14 +158,46 @@ export default function ParcelInfo() {
                     </Paper>
                 </Box>
             </Grid>
-            <Grid item xs={3.5}
-                container
-                spacing={0}
-                direction="column"
-                alignItems="center"
-                justifyContent="center"
-            >
-                <Box component="img" src={mapsAvatar} sx={{ height: "350px", width: "350px" }} />
+            <Grid item xs={4}>
+                <LoadScript
+                    googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
+                >
+                    {(parcels != null && parcels[chosenParcel] != null) && 
+                    <GoogleMap
+                        mapContainerStyle={{ width: "100%", height: "70%" }}
+                        center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
+                        zoom={13}
+                        onClick={(event) => {
+                            setMarkers(current => [
+                                ...current,
+                                {
+                                    lat: event.latLng.lat(),
+                                    lng: event.latLng.lng(),
+                                    time: new Date(),
+                                },
+                            ]);
+                            allLats.push(event.latLng.lat())
+                            allLngs.push(event.latLng.lng())
+                        }}
+                    >
+                        {parcels[chosenParcel].markers.map(marker => (
+                            <Marker
+                                key={chosenParcel}
+                                position={{ lat: marker.latitude, lng: marker.longitude }}
+                            />
+
+                        ))}
+
+                        <Polygon
+                            paths={parcels[chosenParcel].markers}
+                            onClick={() => this.handleClick()}
+                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
+                        />
+
+                        { /* Child components, such as markers, info windows, etc. */}
+                    </GoogleMap>
+                    }
+                </LoadScript>
             </Grid>
         </>
     )

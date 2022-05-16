@@ -44,7 +44,7 @@ export default function Main() {
                         color="success"
                         startIcon={<FeedIcon sx={{color:"black"}}/>}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(1) }}
+                        onClick={() => { setDisplay(1); restCalls.parcelInfo() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> parcel info </Typography>
                     </Button>
