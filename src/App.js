@@ -2,7 +2,7 @@ import React, { useState } from "react"
 import NavbarLR from "./mainFixedComponents/NavbarLR"
 import NavbarOps from "./mainFixedComponents/NavbarOps";
 import LoginRegister from "./userComponents/LoginRegister"
-import ParcelsPage from "./mainFixedComponents/ParcelsPage"
+import ParcelsPage from "./parcelComponents/ParcelsPage"
 import DrawerMessingAround from "./mainFixedComponents/DrawerMessingAround"
 
 

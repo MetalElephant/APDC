@@ -1,9 +1,9 @@
 import react from "react"
 import {Button, Grid, Typography} from "@mui/material";
-import RegisterParcel from "../parcelComponents/RegisterParcel";
-import ModifyParcel from "../parcelComponents/ModifyParcel";
+import RegisterParcel from "./RegisterParcel";
+import ModifyParcel from "./ModifyParcel";
 import restCalls from "../restCalls"
-import ParcelInfo from "../parcelComponents/ParcelInfo";
+import ParcelInfo from "./ParcelInfo";
 import {useHistory} from "react-router-dom";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FeedIcon from '@mui/icons-material/Feed';
@@ -44,7 +44,7 @@ export default function Main() {
                         color="success"
                         startIcon={<FeedIcon sx={{color:"black"}}/>}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(1); restCalls.parcelInfo() }}
+                        onClick={() => { setDisplay(1) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> parcel info </Typography>
                     </Button>
