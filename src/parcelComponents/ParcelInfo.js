@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Paper, Button } from "@mui/material";
+import { Box, Typography, Grid, Paper, Button, Select, MenuItem } from "@mui/material";
 import mapsAvatar from "../images/maps-avatar.png";
 import react from 'react';
 import { useEffect } from "react";
@@ -15,14 +15,16 @@ export default function ParcelInfo() {
     const [area, setArea] = react.useState("")
     const [allLats, setAllLats] = react.useState("")
     const [allLngs, setAllLngs] = react.useState("")
+    const [chosenParcel, setChosenParcel] = react.useState("")
 
     const [loaded, setLoaded] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
 
-    function xyz(i) {        
-        var parcel = parcels[i]
+    function setAttributes(event) {
+        var parcel = parcels[event.target.value]
+        setChosenParcel(event.target.value)
 
         setParcelName(parcel.parcelName);
         setParcelRegion(parcel.parcelRegion);
@@ -33,42 +35,65 @@ export default function ParcelInfo() {
         setArea(parcel.area);
         setAllLats(parcel.allLats);
         setAllLngs(parcel.allLngs);
-        
+
     }
-   
+
     useEffect(() => {
-        restCalls.parcelInfo().then(() => {setLoaded(true)})
+        restCalls.parcelInfo().then(() => { setLoaded(true) })
     })
-    
-    function generateButtons () {
+
+    /*
+    function generateButtons() {
         const views = [];
-            if(parcels.length === 0)
-                return <Typography> Não há parcelas registadas</Typography>
-            else 
-                for (var i = 0; i < parcels.length; i++) {
-                    views.push (
-                        <Button
-                            key={i}
-                            id={i}
-                            type="submit"
-                            variant="outlined"
-                            color="success"
-                            sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "gainsboro"}}
-                            onClick={(e) => xyz(e.target.id)}
-                        >
-                            {parcels[i].parcelName}
-                        </Button>
-                    )     
-                }
+        if (parcels.length === 0)
+            return <Typography> Não há parcelas registadas</Typography>
+        else
+            for (var i = 0; i < parcels.length; i++) {
+                views.push(
+                    <Button
+                        key={i}
+                        id={i}
+                        type="submit"
+                        variant="outlined"
+                        color="success"
+                        sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "gainsboro" }}
+                        onClick={(e) => xyz(e.target.id)}
+                    >
+                        {parcels[i].parcelName}
+                    </Button>
+                )
+            }
         return views
+    }
+    */
+
+    function generateSelects() {
+        const views = []
+        if (parcels.length === 0)
+            return <Typography> Não há parcelas registadas</Typography>
+        else
+            for (var i = 0; i < parcels.length; i++) {
+                views.push(
+                    <MenuItem
+                        key={i}
+                        value={i}
+                    >
+                        {parcels[i].parcelName}
+                    </MenuItem>
+                )
+            }
+        return views;
     }
 
     return (
         <>
-            <Grid item xs={1.5}>
-                {loaded ? generateButtons() : <></>}
-            </Grid>
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
+                <Grid align="left" p={2.5}>
+                    <Typography variant="h6">Parcels: </Typography>
+                    <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "200px" }}>
+                        {loaded && generateSelects()}
+                    </Select>
+                </Grid>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Name: {parcelName} </Typography>
