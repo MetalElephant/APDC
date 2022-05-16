@@ -11,8 +11,9 @@ export default function ModifyPassword() {
     const [newPassword, setNewPassword] = react.useState("");
     const [confirmNewPassword, setConfirmNewPassword] = react.useState("");
 
-    const [displayMessage, setDisplayMessage] = react.useState(false);
-    const [isModifyPwdSubmit, setIsModifyPwdSubmit] = react.useState(true);
+    const [displayMessage, setDisplayMessage] = react.useState(0);
+    const [isModifyPwdSubmit, setIsModifyPwdSubmit] = react.useState(false);
+    const [isModifyPwdNotSubmit, setIsModifyPwdNotSubmit] = react.useState(false);
 
     const [showOldPassword, setShowOldPassword] = react.useState(false);
     const [showNewPassword, setShowNewPassword] = react.useState(false);
@@ -38,8 +39,7 @@ export default function ModifyPassword() {
 
     function modifyPasswordManager(e) {
         e.preventDefault();
-        restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword).then(() => { setIsModifyPwdSubmit(true); resetPasswords() }).catch(() => { setIsModifyPwdSubmit(false) });
-        setDisplayMessage(true)
+        restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword).then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords() }).catch(() => { setIsModifyPwdNotSubmit(true); setDisplayMessage(1) });
     }
 
     const toggleVisibilityFirstIcon = () => {
@@ -84,11 +84,11 @@ export default function ModifyPassword() {
                                 color="success"
                                 InputProps={showOldPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilityFirstIcon}>
-                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        <RemoveRedEyeIcon sx={{ color: "black" }} />
                                     </Button>
                                 } : {
                                     endAdornment: <Button onClick={toggleVisibilityFirstIcon}>
-                                        <VisibilityOffIcon sx={{color: "black"}}/>
+                                        <VisibilityOffIcon sx={{ color: "black" }} />
                                     </Button>
                                 }}
                                 onChange={oldPasswordHandler}
@@ -106,11 +106,11 @@ export default function ModifyPassword() {
                                 color="success"
                                 InputProps={showNewPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilitySecondIcon}>
-                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        <RemoveRedEyeIcon sx={{ color: "black" }} />
                                     </Button>
                                 } : {
                                     endAdornment: <Button onClick={toggleVisibilitySecondIcon}>
-                                        <VisibilityOffIcon sx={{color: "black"}}/>
+                                        <VisibilityOffIcon sx={{ color: "black" }} />
                                     </Button>
                                 }}
                                 onChange={newPasswordHandler}
@@ -127,11 +127,11 @@ export default function ModifyPassword() {
                                 color="success"
                                 InputProps={showConfirmNewPassword ? {
                                     endAdornment: <Button onClick={toggleVisibilityThirdIcon}>
-                                        <RemoveRedEyeIcon sx={{color: "black"}}/>
+                                        <RemoveRedEyeIcon sx={{ color: "black" }} />
                                     </Button>
                                 } : {
                                     endAdornment: <Button onClick={toggleVisibilityThirdIcon}>
-                                        <VisibilityOffIcon sx={{color: "black"}}/>
+                                        <VisibilityOffIcon sx={{ color: "black" }} />
                                     </Button>
                                 }}
                                 onChange={confirmNewPasswordHandler}
@@ -157,11 +157,11 @@ export default function ModifyPassword() {
                 alignItems="center"
                 sx={{ mt: "52px" }}
             >
-                {isModifyPwdSubmit && displayMessage ?
+                {isModifyPwdSubmit && (displayMessage === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Password modificada com sucesso.</Typography>
                     </Alert> : <></>}
-                {!isModifyPwdSubmit && displayMessage ?
+                {isModifyPwdNotSubmit && (displayMessage === 1) ?
                     <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a password. Por favor, verifique os seus dados.</Typography>
                     </Alert> : <></>}

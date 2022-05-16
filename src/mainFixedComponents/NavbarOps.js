@@ -30,7 +30,7 @@ export default function NavbarOps() {
                     <Tabs textColor='inherit'
                         TabIndicatorProps={{ style: { background: "black" } }}
                         value={selectedTab} onChange={handleChange}
-                        sx={{ bgcolor: "whitesmoke", mt: "37%", width: "90%" }}
+                        sx={{ bgcolor: "whitesmoke", mt: "37%", width: "100%" }}
                         centered
                     >
                         <Tab sx={{ color: "darkgreen" }} label="User" />
