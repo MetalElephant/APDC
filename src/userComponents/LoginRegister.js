@@ -13,7 +13,7 @@ export default function LoginRegister() {
     const [passwordRegister, setPasswordRegister] = react.useState("");
     const [pwdConfirmation, setPwdConfirmation] = react.useState("");
     const [email, setEmail] = react.useState("");
-    const [visibility, setVisibility] = react.useState("");
+    const [visibility, setVisibility] = react.useState("Public");
     const [name, setName] = react.useState("");
     const [homePhone, setHomePhone] = react.useState("");
     const [mobilePhone, setMobilePhone] = react.useState("");
