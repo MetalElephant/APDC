@@ -58,31 +58,6 @@ export default function ParcelInfo() {
         restCalls.parcelInfo().then(() => { setLoaded(true) })
     })
 
-    /*
-    function generateButtons() {
-        const views = [];
-        if (parcels.length === 0)
-            return <Typography> Não há parcelas registadas</Typography>
-        else
-            for (var i = 0; i < parcels.length; i++) {
-                views.push(
-                    <Button
-                        key={i}
-                        id={i}
-                        type="submit"
-                        variant="outlined"
-                        color="success"
-                        sx={{ mt: 2, width: "75%", height: "40px", bgcolor: "gainsboro" }}
-                        onClick={(e) => xyz(e.target.id)}
-                    >
-                        {parcels[i].parcelName}
-                    </Button>
-                )
-            }
-        return views
-    }
-    */
-
     function generateSelects() {
         const views = []
         if (parcels.length == null || parcels.length === 0)
@@ -162,40 +137,39 @@ export default function ParcelInfo() {
                 <LoadScript
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
-                    {(parcels != null && parcels[chosenParcel] != null) && 
-                    <GoogleMap
-                        mapContainerStyle={{ width: "100%", height: "70%" }}
-                        center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
-                        zoom={13}
-                        onClick={(event) => {
-                            setMarkers(current => [
-                                ...current,
-                                {
-                                    lat: event.latLng.lat(),
-                                    lng: event.latLng.lng(),
-                                    time: new Date(),
-                                },
-                            ]);
-                            allLats.push(event.latLng.lat())
-                            allLngs.push(event.latLng.lng())
-                        }}
-                    >
-                        {parcels[chosenParcel].markers.map(marker => (
-                            <Marker
-                                key={chosenParcel}
-                                position={{ lat: marker.latitude, lng: marker.longitude }}
+                    {(parcels != null && parcels[chosenParcel] != null) &&
+                        <GoogleMap
+                            mapContainerStyle={{ width: "100%", height: "70%" }}
+                            center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
+                            zoom={13}
+                            onClick={(event) => {
+                                setMarkers(current => [
+                                    ...current,
+                                    {
+                                        lat: event.latLng.lat(),
+                                        lng: event.latLng.lng(),
+                                        time: new Date(),
+                                    },
+                                ]);
+                                allLats.push(event.latLng.lat())
+                                allLngs.push(event.latLng.lng())
+                            }}
+                        >
+                            {parcels[chosenParcel].markers.map(marker => (
+                                <Marker
+                                    key={chosenParcel}
+                                    position={{ lat: marker.latitude, lng: marker.longitude }}
+                                />
+
+                            ))}
+                            <Polygon
+                                paths={parcels[chosenParcel].markers}
+                                onClick={() => this.handleClick()}
+                                options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                             />
 
-                        ))}
-
-                        <Polygon
-                            paths={parcels[chosenParcel].markers}
-                            onClick={() => this.handleClick()}
-                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
-                        />
-
-                        { /* Child components, such as markers, info windows, etc. */}
-                    </GoogleMap>
+                            { /* Child components, such as markers, info windows, etc. */}
+                        </GoogleMap>
                     }
                 </LoadScript>
             </Grid>

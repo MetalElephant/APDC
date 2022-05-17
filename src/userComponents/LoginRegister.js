@@ -8,7 +8,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 export default function LoginRegister() {
     let history = useHistory();
 
-    const [username, setUsername] = react.useState("");
+    const [usernameLogin, setUsernameLogin] = react.useState("");
+    const [usernameRegister, setUsernameRegister] = react.useState("");
     const [passwordLogin, setPasswordLogin] = react.useState("");
     const [passwordRegister, setPasswordRegister] = react.useState("");
     const [pwdConfirmation, setPwdConfirmation] = react.useState("");
@@ -38,8 +39,12 @@ export default function LoginRegister() {
     const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
 
 
-    function usernameHandler(e) {
-        setUsername(e.target.value);
+    function usernameLoginHandler(e) {
+        setUsernameLogin(e.target.value);
+    }
+
+    function usernameRegisterHandler(e) {
+        setUsernameRegister(e.target.value);
     }
 
     function passwordLoginHandler(e) {
@@ -84,7 +89,7 @@ export default function LoginRegister() {
 
     function loginManager(e) {
         e.preventDefault();
-        restCalls.login(username, passwordLogin).then(
+        restCalls.login(usernameLogin, passwordLogin).then(
             () => { restCalls.userInfo().then(() => { history.push("/main") }) }).catch(() => { setIsLoginSubmit(false) })
     }
 
@@ -92,13 +97,27 @@ export default function LoginRegister() {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(username, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif)
+            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif)
+            .then(() => resetRegisterValues())
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
         } else {
             setIsRegisterNotSubmit(true)
             setDisplayRegisterMessage(1)
         }
+    }
+
+    function resetRegisterValues() {
+        setUsernameRegister("");
+        setPasswordRegister("");
+        setPwdConfirmation("");
+        setEmail("");
+        setName("");
+        setVisibility("Public");
+        setHomePhone("");
+        setMobilePhone("");
+        setAddress("");
+        setNif("");
     }
 
     const registerFormValidation = () => {
@@ -111,7 +130,7 @@ export default function LoginRegister() {
         const nifErr = {};
         let isValid = true;
 
-        if (username.length < 5 || username.length > 40) {
+        if (usernameRegister.length < 5 || usernameRegister.length > 40) {
             usernameErr.usernameTooLongOrTooShort = "Username too long or too short.";
             isValid = false;
             setUsernameErr(usernameErr)
@@ -243,7 +262,7 @@ export default function LoginRegister() {
                                     label="Username"
                                     name="username"
                                     color="success"
-                                    onChange={usernameHandler}
+                                    onChange={usernameLoginHandler}
                                 />
                                 <TextField
                                     margin="normal"
@@ -304,9 +323,10 @@ export default function LoginRegister() {
                                     id="username"
                                     label="Username"
                                     name="username"
+                                    value={usernameRegister}
                                     autoFocus
                                     color="success"
-                                    onChange={usernameHandler}
+                                    onChange={usernameRegisterHandler}
                                 />
                                 {Object.keys(usernameErr).map((key) => {
                                     return <Typography sx={{ color: "red", fontSize: 14 }}> {usernameErr[key]}</Typography>
@@ -318,6 +338,7 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="password"
                                     label="Password"
+                                    value={passwordRegister}
                                     type={showPasswordRegister ? "text" : "password"}
                                     id="password"
                                     color="success"
@@ -342,10 +363,10 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="passwordConfirmation"
                                     label="Password Confirmation"
+                                    value={pwdConfirmation}
                                     type={showPasswordConfirmation ? "text" : "password"}
                                     id="passwordConfirmation"
                                     color="success"
-                                    value={pwdConfirmation}
                                     InputProps={showPasswordConfirmation ? {
                                         endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
                                             <RemoveRedEyeIcon sx={{ color: "black" }} />
@@ -367,9 +388,9 @@ export default function LoginRegister() {
                                     name="email"
                                     label="Email"
                                     type="email"
+                                    value={email}
                                     id="email"
                                     color="success"
-                                    value={email}
                                     onChange={emailHandler}
                                 />
                                 {Object.keys(emailErr).map((key) => {
@@ -382,6 +403,7 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="name"
                                     label="Name"
+                                    value={name}
                                     type="name"
                                     id="name"
                                     color="success"
@@ -408,6 +430,7 @@ export default function LoginRegister() {
                                     name="mobilePhone"
                                     label="Mobile Phone"
                                     type="mobilePhone"
+                                    value={mobilePhone}
                                     id="mobilePhone"
                                     color="success"
                                     onChange={mobilePhoneHandler}
@@ -420,6 +443,7 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="homePhone"
                                     label="Home Phone"
+                                    value={homePhone}
                                     type="homePhone"
                                     id="homePhone"
                                     color="success"
@@ -434,6 +458,7 @@ export default function LoginRegister() {
                                     name="address"
                                     label="Address"
                                     type="address"
+                                    value={address}
                                     id="address"
                                     color="success"
                                     onChange={addressHandler}
@@ -443,6 +468,7 @@ export default function LoginRegister() {
                                     fullWidth
                                     name="nif"
                                     label="NIF"
+                                    value={nif}
                                     type="nif"
                                     id="nif"
                                     color="success"
