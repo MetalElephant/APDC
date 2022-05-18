@@ -26,12 +26,12 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class ForumResource {
     private static final Logger LOG = Logger.getLogger(ForumResource.class.getName());
+	
+	private final Gson g = new Gson();
 
-    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	private UserResource ur = new UserResource();
 
-    private final Gson g = new Gson();
-
-    UserResource ur = new UserResource();
+	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     //Forum information
     private static final String TOPIC = "Topic";
@@ -44,6 +44,7 @@ public class ForumResource {
     private static final String MESSAGE = "Message";
     private static final String OWNER = "Owner";
 
+    public ForumResource() {}
 
     @POST
     @Path("/register")
@@ -318,6 +319,19 @@ public class ForumResource {
 		});
 
 		return forumMsg;
+    }
+
+    public void deleteUserForums(String username, Transaction tn){
+        Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
+								  .setFilter(PropertyFilter.hasAncestor(
+                				  datastore.newKeyFactory().setKind(USER).newKey(username)))
+								  .build();
+
+		QueryResults<Entity> forumResult = datastore.run(forumQuery);
+
+        while(forumResult.hasNext()){
+            tn.delete(forumResult.next().getKey());
+        }
     }
     
 }

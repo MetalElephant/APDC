@@ -36,7 +36,10 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 public class UserResource {
 	//TODO have a function create user rather than doing it manually everytime (same for parcel)
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+
 	private final Gson g = new Gson();
+
+	//private ForumResource fr = new ForumResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
