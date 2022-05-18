@@ -194,10 +194,12 @@ public class ForumResource {
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
             }
 
+            deleteForumMessages(data.name, tn);
+
             tn.delete(forumKey);
             tn.commit();
 
-            return Response.ok("Message successfully posted.").build();
+            return Response.ok("Forum successfully deleted.").build();
         }finally{
             if(tn.isActive())
                 tn.rollback();
@@ -262,13 +264,26 @@ public class ForumResource {
 		}
 
         if (forum == null){
-            LOG.warning("Forum " + forum + " doesn't exists.");
-            return Response.status(Status.NOT_FOUND).entity("Forum " + forum + " doesn't exists.").build();
+            LOG.warning("Forum " + data.name + " doesn't exists.");
+            return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
         }
 
-        List<MessageInfo> parcelList = getMessageQueries(data.name, data.username);
+        List<MessageInfo> parcelList = getMessageQueries(data.name);
 
 		return Response.ok(g.toJson(parcelList)).build();
+    }
+
+    private void deleteForumMessages(String forumName, Transaction tn){
+        Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
+								  .setFilter(PropertyFilter.hasAncestor(
+                				  datastore.newKeyFactory().setKind(FORUM).newKey(forumName)))
+								  .build();
+        
+        QueryResults<Entity> messages = datastore.run(msgQuery);
+
+        while(messages.hasNext()){
+            tn.delete(messages.next().getKey());
+        }
     }
 
     private List<ForumRegisterData> getForumQueries(String username){
@@ -288,7 +303,7 @@ public class ForumResource {
 		return forums;
     }
 
-    private List<MessageInfo> getMessageQueries(String forum, String username){
+    private List<MessageInfo> getMessageQueries(String forum){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
 								  .setFilter(PropertyFilter.hasAncestor(
                 				  datastore.newKeyFactory().setKind(FORUM).newKey(forum)))
