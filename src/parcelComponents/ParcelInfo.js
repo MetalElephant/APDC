@@ -16,37 +16,40 @@ export default function ParcelInfo() {
     const [area, setArea] = react.useState("")
     const [allLats, setAllLats] = react.useState("")
     const [allLngs, setAllLngs] = react.useState("")
-    const [chosenParcel, setChosenParcel] = react.useState(0)
+    const [chosenParcel, setChosenParcel] = react.useState("")
     const [markers, setMarkers] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
-    let index = 0;
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
     useEffect(() => {
         const temp = []
-        if(parcels[chosenParcel] != null) {
-            parcels[chosenParcel].markers.map(marker => {
-                temp.push({
-                    lat: marker.latitude,
-                    lng: marker.longitude,
-                    time: new Date()
+        if(parcels != null) {
+            if(parcels[chosenParcel] != null) {
+                parcels[chosenParcel].markers.map(marker => {
+                    temp.push({
+                        lat: marker.latitude,
+                        lng: marker.longitude,
+                        time: new Date()
+                    })
                 })
-            })
-            setMarkers(temp)
-        }    
-        var parcel = parcels[chosenParcel]
-        if(parcel != null) {
-            setParcelName(parcel.parcelName);
-            setParcelRegion(parcel.parcelRegion);
-            setDescription(parcel.description);
-            setGroundType(parcel.groundType);
-            setCurrUsage(parcel.currUsage);
-            setPrevUsage(parcel.prevUsage);
-            setArea(parcel.area);
+                setMarkers(temp)
+            }
+           
+            var parcel = parcels[chosenParcel]
+            if(parcel != null) {
+                setParcelName(parcel.parcelName);
+                setParcelRegion(parcel.parcelRegion);
+                setDescription(parcel.description);
+                setGroundType(parcel.groundType);
+                setCurrUsage(parcel.currUsage);
+                setPrevUsage(parcel.prevUsage);
+                setArea(parcel.area);
+            }
         }
 
     }, [chosenParcel])
+    
 
     function setLats(parcel, size) {
         const tempLats = []
@@ -78,7 +81,7 @@ export default function ParcelInfo() {
         */
         setAllLats(setLats(parcel, parcel.markers.length));
         setAllLngs(setLngs(parcel, parcel.markers.length));
-        setMarkers([])
+        //setMarkers([])
     }
 
     useEffect(() => {
@@ -87,7 +90,7 @@ export default function ParcelInfo() {
 
     function generateSelects() {
         const views = []
-        if (parcels.length == null || parcels.length === 0)
+        if (parcels == null || parcels.length === 0)
             return <Typography> Não há parcelas registadas</Typography>
         else
             for (var i = 0; i < parcels.length; i++) {
@@ -147,16 +150,6 @@ export default function ParcelInfo() {
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Area: {area} </Typography>
-                    </Paper>
-                </Box>
-                <Box p={2.5} textAlign="center">
-                    <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 13 }}> Pontos(latitudes): {allLats} </Typography>
-                    </Paper>
-                </Box>
-                <Box p={2.5} textAlign="center">
-                    <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 13 }}> Pontos(Longitudes): {allLngs} </Typography>
                     </Paper>
                 </Box>
             </Grid>
