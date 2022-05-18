@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Paper, Button, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+import { Box, Typography, Grid, Paper, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 import mapsAvatar from "../images/maps-avatar.png";
 import react from 'react';
 import { useEffect } from "react";
@@ -21,6 +21,11 @@ export default function ParcelInfo() {
     const [loaded, setLoaded] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
+
+    useEffect(() => {
+        setMarkers([])
+
+    }, parcels)
 
     function setLats(parcel, size) {
         const tempLats = []
@@ -142,18 +147,6 @@ export default function ParcelInfo() {
                             mapContainerStyle={{ width: "100%", height: "70%" }}
                             center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
                             zoom={13}
-                            onClick={(event) => {
-                                setMarkers(current => [
-                                    ...current,
-                                    {
-                                        lat: event.latLng.lat(),
-                                        lng: event.latLng.lng(),
-                                        time: new Date(),
-                                    },
-                                ]);
-                                allLats.push(event.latLng.lat())
-                                allLngs.push(event.latLng.lng())
-                            }}
                         >
                             {parcels[chosenParcel].markers.map(marker => (
                                 <Marker
