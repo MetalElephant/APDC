@@ -9,6 +9,7 @@ import UserPage from "../userProfileComponents/UserPage";
 import Logout from "../userComponents/Logout";
 import AboutUs from "./AboutUs"
 import RewardsPage from "../rewardComponents/RewardsPage"
+import { maxWidth } from "@mui/system";
 
 
 export default function NavbarOps() {
@@ -25,17 +26,20 @@ export default function NavbarOps() {
                 <Grid item xs={2}  >
                     <Box component="img" src={logoProduto} width="300px" sx={{ mt: "5px" }} />
                 </Grid>
-                <Grid item xs={2.5}>
+                <Grid item xs={2.5} container direction="row" alignItems="flex-end" justify="center">
                     <Tabs textColor='inherit'
-                        TabIndicatorProps={{ style: { background: "black" } }}
-                        value={selectedLeftTab} onChange={handleChangeLeft}
-                        sx={{ bgcolor: "whitesmoke", mt: "29%", width: "100%" }}
+                        TabIndicatorProps={{ sx: {background: "black"}}}
+                        value={selectedLeftTab} 
+                        onChange={handleChangeLeft}
+                        variant="scrollable"
+                        scrollButtons="auto"
                         centered
                     >
-                        <Tab sx={{ color: "darkgreen" }} label="User" />
-                        <Tab sx={{ color: "darkgreen" }} label="Parcels" />
-                        <Tab sx={{ color: "darkgreen" }} label="Rewards" />
-                        <Tab sx={{ color: "darkgreen" }} label="About Us" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="User" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcels" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Rewards" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
+                        
                     </Tabs>
                 </Grid>
                 <Grid item xs={3} align="center">
@@ -44,7 +48,7 @@ export default function NavbarOps() {
                 <Grid item xs={2.5}>
                 </Grid>
                 <Grid item xs={2}>
-                    <Box component="img" src={logoEquipa} width="310px" sx={{ ml: "auto", mb: "20px", display: "flex" }} />
+                    <Box component="img" src={logoEquipa} width="310px" sx={{ ml: "auto", display: "flex" }} />
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}

@@ -16,8 +16,7 @@ export default function Main() {
 
     const [display, setDisplay] = react.useState(0);
 
-    function logoutManager(e) {
-        e.preventDefault()
+    function logoutManager() {
         restCalls.logout().then(() => { history.push("/") })
     }
 
@@ -69,7 +68,7 @@ export default function Main() {
                         color="success"
                         startIcon={<LogoutIcon sx={{color:"black"}}/>}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={(e) => { logoutManager(e) }}
+                        onClick={() => { logoutManager()}}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
