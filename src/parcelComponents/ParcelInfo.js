@@ -34,16 +34,17 @@ export default function ParcelInfo() {
                 })
             })
             setMarkers(temp)
-        }
+        }    
         var parcel = parcels[chosenParcel]
-
-        setParcelName(parcel.parcelName);
-        setParcelRegion(parcel.parcelRegion);
-        setDescription(parcel.description);
-        setGroundType(parcel.groundType);
-        setCurrUsage(parcel.currUsage);
-        setPrevUsage(parcel.prevUsage);
-        setArea(parcel.area);
+        if(parcel != null) {
+            setParcelName(parcel.parcelName);
+            setParcelRegion(parcel.parcelRegion);
+            setDescription(parcel.description);
+            setGroundType(parcel.groundType);
+            setCurrUsage(parcel.currUsage);
+            setPrevUsage(parcel.prevUsage);
+            setArea(parcel.area);
+        }
 
     }, [chosenParcel])
 
