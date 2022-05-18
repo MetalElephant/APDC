@@ -33,7 +33,6 @@ export default function NavbarOps() {
                         onChange={handleChangeLeft}
                         variant="scrollable"
                         scrollButtons="auto"
-                        centered
                     >
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="User" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcels" />

@@ -3,7 +3,7 @@ import mapsAvatar from "../images/maps-avatar.png";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
-import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function ParcelInfo() {
 
@@ -16,16 +16,36 @@ export default function ParcelInfo() {
     const [area, setArea] = react.useState("")
     const [allLats, setAllLats] = react.useState("")
     const [allLngs, setAllLngs] = react.useState("")
-    const [chosenParcel, setChosenParcel] = react.useState("")
+    const [chosenParcel, setChosenParcel] = react.useState(0)
     const [markers, setMarkers] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
+    let index = 0;
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
     useEffect(() => {
-        setMarkers([])
+        const temp = []
+        if(parcels[chosenParcel] != null) {
+            parcels[chosenParcel].markers.map(marker => {
+                temp.push({
+                    lat: marker.latitude,
+                    lng: marker.longitude,
+                    time: new Date()
+                })
+            })
+            setMarkers(temp)
+        }
+        var parcel = parcels[chosenParcel]
 
-    }, parcels)
+        setParcelName(parcel.parcelName);
+        setParcelRegion(parcel.parcelRegion);
+        setDescription(parcel.description);
+        setGroundType(parcel.groundType);
+        setCurrUsage(parcel.currUsage);
+        setPrevUsage(parcel.prevUsage);
+        setArea(parcel.area);
+
+    }, [chosenParcel])
 
     function setLats(parcel, size) {
         const tempLats = []
@@ -46,7 +66,7 @@ export default function ParcelInfo() {
     function setAttributes(event) {
         var parcel = parcels[event.target.value]
         setChosenParcel(event.target.value)
-
+        /*
         setParcelName(parcel.parcelName);
         setParcelRegion(parcel.parcelRegion);
         setDescription(parcel.description);
@@ -54,9 +74,10 @@ export default function ParcelInfo() {
         setCurrUsage(parcel.currUsage);
         setPrevUsage(parcel.prevUsage);
         setArea(parcel.area);
+        */
         setAllLats(setLats(parcel, parcel.markers.length));
         setAllLngs(setLngs(parcel, parcel.markers.length));
-
+        setMarkers([])
     }
 
     useEffect(() => {
@@ -150,13 +171,12 @@ export default function ParcelInfo() {
                         >
                             {parcels[chosenParcel].markers.map(marker => (
                                 <Marker
-                                    key={chosenParcel}
                                     position={{ lat: marker.latitude, lng: marker.longitude }}
                                 />
 
                             ))}
                             <Polygon
-                                paths={parcels[chosenParcel].markers}
+                                paths={markers}
                                 onClick={() => this.handleClick()}
                                 options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                             />
