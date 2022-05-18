@@ -6,10 +6,9 @@ import { Box, Grid, Tabs, Tab, Typography } from "@mui/material";
 import ParcelsPage from "../parcelComponents/ParcelsPage";
 import DrawerMessingAround from "./DrawerMessingAround";
 import UserPage from "../userProfileComponents/UserPage";
-import Logout from "../userComponents/Logout";
 import AboutUs from "./AboutUs"
 import RewardsPage from "../rewardComponents/RewardsPage"
-import { maxWidth } from "@mui/system";
+
 
 
 export default function NavbarOps() {
@@ -32,7 +31,7 @@ export default function NavbarOps() {
                         value={selectedLeftTab} 
                         onChange={handleChangeLeft}
                         variant="scrollable"
-                        scrollButtons="auto"
+                        scrollButtons
                     >
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="User" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcels" />
