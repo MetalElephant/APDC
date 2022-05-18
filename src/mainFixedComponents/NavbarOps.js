@@ -8,7 +8,7 @@ import DrawerMessingAround from "./DrawerMessingAround";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import RewardsPage from "../rewardComponents/RewardsPage"
-        
+
 
 
 export default function NavbarOps() {
