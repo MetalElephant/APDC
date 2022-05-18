@@ -19,12 +19,12 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
 import pt.unl.fct.di.adc.avindividual.util.UserUpdateData;
+import pt.unl.fct.di.adc.avindividual.util.Info.UserInfo;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
-import pt.unl.fct.di.adc.avindividual.util.UserInfo;
 
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
@@ -561,7 +561,6 @@ public class UserResource {
 
 		if (user == null) {
 			LOG.warning("User does not exist");
-
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
@@ -699,10 +698,6 @@ public class UserResource {
 		if (role.equals(USER)) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
-					/*.setFilter(CompositeFilter.and(
-							PropertyFilter.eq(ROLE, USER),
-							PropertyFilter.eq(VISIBILITY, PUBLIC), 
-							PropertyFilter.eq(STATE, ACTIVE)))*/
 					.build();
 
 			QueryResults<Entity> users = datastore.run(queryUSER);

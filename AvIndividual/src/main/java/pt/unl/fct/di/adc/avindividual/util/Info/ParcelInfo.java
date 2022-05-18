@@ -1,4 +1,4 @@
-package pt.unl.fct.di.adc.avindividual.util;
+package pt.unl.fct.di.adc.avindividual.util.Info;
 
 import com.google.cloud.datastore.LatLng;
 

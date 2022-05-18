@@ -18,8 +18,8 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
-import pt.unl.fct.di.adc.avindividual.util.ParcelInfo;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
@@ -259,22 +259,19 @@ public class ParcelResource {
 		if(!data.isUsernameValid()){
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
-		
-		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		
-		Entity user = tn.get(userKey);
-		Entity token = tn.get(tokenKey);
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
 
 		if (user == null) {				
 			LOG.warning("User does not exist");
-			
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, tn)){
+		if (!ur.isLoggedIn(token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -302,7 +299,6 @@ public class ParcelResource {
 				markers[i] = parcel.getLatLng(MARKER+i);
 			}
 
-			//Ditto to line 236
 			userParcels.add(new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
 			parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 		});
@@ -369,42 +365,6 @@ public class ParcelResource {
 
 		return overlaps;
 	}
-
-	/*
-    //Checks if 2 parcels overlap eachother
-    private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers){
-		//TODO make this code better and check for parcels inside other parcels
-		boolean overlaps = false;
-		//Checks if a parcel marker is inside the other one
-		int last = auxMarkers.length-1;
-		
-		//Checks if any 2 lines between markers intersect
-		for(int i = 0; i < markers.length-1 && !overlaps; i++){
-			for (int j = 0; j < auxMarkers.length-1; j++){
-				overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[i+1].getLatitude(), markers[i+1].getLongitude(),
-												auxMarkers[j].getLatitude(), auxMarkers[j].getLongitude(), auxMarkers[j+1].getLatitude(), auxMarkers[j+1].getLongitude());
-			}
-			overlaps = Line2D.linesIntersect(markers[i].getLatitude(), markers[i].getLongitude(), markers[i+1].getLatitude(), markers[i+1].getLongitude(),
-					auxMarkers[last].getLatitude(), auxMarkers[last].getLongitude(), auxMarkers[0].getLatitude(), auxMarkers[0].getLongitude());
-		}
-		
-		if (overlaps)
-			return true;
-		
-		int last2 = markers.length-1;
-		for (int i = 0; i < auxMarkers.length-1 && !overlaps; i++) {
-			overlaps = Line2D.linesIntersect(markers[last2].getLatitude(), markers[last2].getLongitude(), markers[0].getLatitude(), markers[0].getLongitude(),
-					auxMarkers[i].getLatitude(), auxMarkers[i].getLongitude(), auxMarkers[i+1].getLatitude(), auxMarkers[i+1].getLongitude());
-		}
-		
-		if (overlaps)
-			return true;
-		
-		overlaps = Line2D.linesIntersect(markers[last2].getLatitude(), markers[last2].getLongitude(), markers[0].getLatitude(), markers[0].getLongitude(),
-				auxMarkers[last].getLatitude(), auxMarkers[last].getLongitude(), auxMarkers[0].getLatitude(), auxMarkers[0].getLongitude());
-
-        return overlaps;
-    }*/
 
 	public void verifyChanges(ParcelUpdateData data, Entity modified) {
 		if(data.parcelName == null || data.parcelName.length() == 0) {
