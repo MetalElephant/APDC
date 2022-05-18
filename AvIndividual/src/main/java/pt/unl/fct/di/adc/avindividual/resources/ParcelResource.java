@@ -206,7 +206,7 @@ public class ParcelResource {
 	public Response parcelInfo(RequestData data) {
 		LOG.fine("Attempting to show parcel " + data.name);
 
-		if(!data.isUsernameValid() || !data.isNameValid()){
+		if(!data.isDataValid()){
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
 

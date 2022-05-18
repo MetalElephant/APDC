@@ -29,7 +29,6 @@ import pt.unl.fct.di.adc.avindividual.util.Roles;
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/users")
@@ -56,9 +55,7 @@ public class UserResource {
 	private static final String POINTS = "points";
 	private static final String CTIME = "creation time";
 
-	private static final String ACTIVE = "ACTIVE";
 	private static final String INACTIVE = "INACTIVE";
-	private static final String PUBLIC = "Public";
 
 	//Roles
 	private static final String SU = "SU";

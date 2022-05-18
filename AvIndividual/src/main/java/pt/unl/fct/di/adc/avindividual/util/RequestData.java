@@ -22,10 +22,10 @@ public class RequestData {
         return this.username.length() != 0;
     }
 
-    public boolean isNameValid() {
-        if (this.name == null)
+    public boolean isDataValid() {
+        if (this.name == null || this.username == null)
             return false;
         
-        return this.name.length() != 0;
+        return this.name.length() != 0 && this.username.length() != 0;
     }
 }

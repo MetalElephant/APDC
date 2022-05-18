@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -21,7 +20,6 @@ import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/forum")
@@ -139,7 +137,7 @@ public class ForumResource {
             if (forum == null){
                 LOG.warning("Forum " + data.forum + " doesn't exists.");
                 tn.rollback();
-                return Response.status(Status.CONFLICT).entity("Forum " + data.forum + " doesn't exists.").build();
+                return Response.status(Status.NOT_FOUND).entity("Forum " + data.forum + " doesn't exists.").build();
             }
 
             Entity message = Entity.newBuilder(messageKey)
@@ -149,6 +147,54 @@ public class ForumResource {
             .build();
 
             tn.add(message);
+            tn.commit();
+
+            return Response.ok("Message successfully posted.").build();
+        }finally{
+            if(tn.isActive())
+                tn.rollback();
+        }
+    }
+
+    @DELETE
+    @Path("/remove")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removeForum(RequestData data){
+        LOG.info("Attempt to delete forum: " + data.name);
+
+        if (!data.isDataValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+        Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(FORUM).newKey(data.name);
+
+        Transaction tn = datastore.newTransaction();
+
+        try{
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
+            Entity forum = tn.get(forumKey);
+
+            if (user == null) {
+                LOG.warning("User does not exist");
+                tn.rollback();
+                return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+            }
+    
+            if (!ur.isLoggedIn(token, tn)){
+                LOG.warning("User " + data.username + " not logged in.");
+                tn.rollback();
+                return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+            }
+
+            if (forum == null){
+                LOG.warning("Forum " + data.name + " doesn't exists.");
+                tn.rollback();
+                return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
+            }
+
+            tn.delete(forumKey);
             tn.commit();
 
             return Response.ok("Message successfully posted.").build();
@@ -194,7 +240,7 @@ public class ForumResource {
     public Response listForumMessage(RequestData data){
         LOG.info("Attempt to list messages of forum: " + data.name);
 
-        if (!data.isNameValid() || !data.isUsernameValid())
+        if (!data.isDataValid())
         return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -217,7 +263,7 @@ public class ForumResource {
 
         if (forum == null){
             LOG.warning("Forum " + forum + " doesn't exists.");
-            return Response.status(Status.CONFLICT).entity("Forum " + forum + " doesn't exists.").build();
+            return Response.status(Status.NOT_FOUND).entity("Forum " + forum + " doesn't exists.").build();
         }
 
         List<MessageInfo> parcelList = getMessageQueries(data.name, data.username);

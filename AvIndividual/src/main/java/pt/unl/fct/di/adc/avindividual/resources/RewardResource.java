@@ -195,7 +195,7 @@ public class RewardResource {
     public Response removeReward(RequestData data) {
         LOG.info("Attempt to remove reward: " + data.name);
 
-		if(!data.isUsernameValid() || !data.isNameValid()){
+		if(!data.isDataValid()){
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
 
@@ -255,7 +255,7 @@ public class RewardResource {
     public Response rewardInfo(RequestData data) {
         LOG.fine("Attempting to show reward " + data.name);
 
-		if(!data.isUsernameValid() || !data.isNameValid()){
+		if(!data.isDataValid()){
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
 
