@@ -1,4 +1,4 @@
-import react from 'react'
+import react, { useRef, useCallback } from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
@@ -17,6 +17,7 @@ export default function RegisterParcel() {
     const [isParcelSubmit, setIsParcelSubmit] = react.useState(false);
     const [isParcelNotSubmit, setIsParcelNotSubmit] = react.useState(false);
     const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
+    let index = 0;
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -47,16 +48,18 @@ export default function RegisterParcel() {
     }
 
     function getLastLat() {
-        if(markers.length === 0) return 39.5532;
+        if (markers.length === 0) return 39.5532;
         return markers[0].lat;
     }
 
     function getLastLng() {
-        if(markers.length === 0) return -7.99846;
+        if (markers.length === 0) return -7.99846;
         return markers[0].lng;
     }
 
     function resetValues() {
+        setAllLats([]);
+        setAllLngs([]);
         setMarkers([]);
         setParcelName("");
         setParcelId("");
@@ -67,10 +70,51 @@ export default function RegisterParcel() {
         setArea("");
     }
 
+    function resetValuesFail() {
+        setAllLats([]);
+        setAllLngs([]);
+        setMarkers([]);
+    }
+
+    /*
+    function updateMarkers(lat, lng, indexTemp) {
+        console.log("index: " + indexTemp)
+        console.log("latitude: " + lat)
+        //console.log(lng)
+        let temp = {
+            lat: lat,
+            lng: lng,
+            time: new Date()
+        }
+        markers[indexTemp] = temp;
+    }
+    */
+
+    function updateMarkers(event) {
+        console.log("hello world")
+    }
+
+
+    /*
+    const polygonRef = useRef(null);
+
+    const onEdit = useCallback(() => {
+        if (polygonRef.current) {
+            const nextPath = polygonRef.current
+                .getPath()
+                .getArray()
+                .map(latLng => {
+                    return { lat: latLng.lat(), lng: latLng.lng() };
+                });
+            setMarkers(nextPath);
+        }
+    }, [setMarkers]);
+    */
+
     function parcelRegisterManager(e) {
         e.preventDefault();
         restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
-        .then(() => {setIsParcelSubmit(true); setIsParcelNotSubmit(false) ;resetValues()}).catch(() => {setIsParcelSubmit(false); setIsParcelNotSubmit(true) ;setMarkers([])});
+            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); resetValuesFail(); });
         setDisplayParcelMessage(true);
     }
 
@@ -94,21 +138,31 @@ export default function RegisterParcel() {
                                 },
                             ]);
                             allLats.push(event.latLng.lat())
-                            allLngs.push( event.latLng.lng())
-                            console.log(markers)
+                            allLngs.push(event.latLng.lng())
                         }}
                     >
                         {markers.map(marker => (
                             <Marker
-                                key={marker.time.toISOString()}
+                                draggable={true}
+                                key={index}
+                                id={index}
+                                onDrag={(e) => {
+                                    var temp = {
+                                        lat: e.latLng.lat(),
+                                        lng: e.latLng.lng(),
+                                        time: new Date()
+                                    }
+                                    markers[index-1] = temp
+                                    allLats[index-1] = e.latLng.lat()
+                                    allLngs[index-1] = e.latLng.lng()
+                                }}
+                                value={index++}
                                 position={{ lat: marker.lat, lng: marker.lng }}
                             />
-
                         ))}
 
                         <Polygon
-                            paths={markers}
-                            onClick={() => this.handleClick()}
+                            path={markers}
                             options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                         />
 
@@ -216,16 +270,16 @@ export default function RegisterParcel() {
                                 variant="outlined"
                                 color="success"
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
-                                onClick={(e) => { parcelRegisterManager(e) }}
+                                onClick={(e) => {parcelRegisterManager(e) }}
                             >
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>
-                            {(isParcelSubmit && displayParcelMessage) ? 
+                            {(isParcelSubmit && displayParcelMessage) ?
                                 <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de parcela válido</Typography>
                                 </Alert> : <></>
                             }
-                            {(isParcelNotSubmit && displayParcelMessage) ? 
+                            {(isParcelNotSubmit && displayParcelMessage) ?
                                 <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
                                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de parcela inválido. Por favor, verifique se tem pontos selecionados ou se já tem uma parcela com o nome: {parcelName}</Typography>
                                 </Alert> : <></>
