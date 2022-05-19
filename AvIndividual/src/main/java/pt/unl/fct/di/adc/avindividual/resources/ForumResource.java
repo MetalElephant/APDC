@@ -1,5 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -16,9 +17,9 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.ForumMessageData;
 import pt.unl.fct.di.adc.avindividual.util.ForumRegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
@@ -86,7 +87,7 @@ public class ForumResource {
 
             forum = Entity.newBuilder(forumKey)
                     .set(TOPIC, data.topic)
-                    .set(CRT_DATE, Timestamp.now())
+                    .set(CRT_DATE, Calendar.getInstance().getTime().toString())
                     .build();
 
             tn.add(forum);
@@ -144,7 +145,7 @@ public class ForumResource {
             Entity message = Entity.newBuilder(messageKey)
             .set(MESSAGE, data.message)
             .set(OWNER, data.username)
-            .set(CRT_DATE, Timestamp.now())
+            .set(CRT_DATE, Calendar.getInstance().getTime().toString())
             .build();
 
             tn.add(message);
@@ -232,7 +233,7 @@ public class ForumResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-        List<ForumRegisterData> forumList = getForumQueries(data.username);
+        List<ForumInfo> forumList = getForumQueries(data.username);
 
 		return Response.ok(g.toJson(forumList)).build();
     }
@@ -287,7 +288,7 @@ public class ForumResource {
         }
     }
 
-    private List<ForumRegisterData> getForumQueries(String username){
+    private List<ForumInfo> getForumQueries(String username){
         Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
 								  .setFilter(PropertyFilter.hasAncestor(
                 				  datastore.newKeyFactory().setKind(USER).newKey(username)))
@@ -295,10 +296,10 @@ public class ForumResource {
 
 		QueryResults<Entity> forumResult = datastore.run(forumQuery);
 
-		List<ForumRegisterData> forums = new LinkedList<>();
+		List<ForumInfo> forums = new LinkedList<>();
 
 		forumResult.forEachRemaining(f -> {
-			forums.add(new ForumRegisterData(username, f.getKey().getName(), f.getString(TOPIC)));
+			forums.add(new ForumInfo(username, f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
 		});
 
 		return forums;
@@ -315,7 +316,7 @@ public class ForumResource {
 		List<MessageInfo> forumMsg = new LinkedList<>();
 
 		messages.forEachRemaining(msg -> {
-			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getTimestamp(CRT_DATE)));
+			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
 		});
 
 		return forumMsg;
