@@ -213,7 +213,7 @@ public class UserResource {
 						Entity tokenEntity = tn.get(tokenKey);
 						
 						//Guarantee user isn't already logged in
-						if (isLoggedIn(tokenEntity, tn)) {
+						if (!canLogin(tokenEntity, tn)) {
 							LOG.warning("User " + data.username + " already logged in.");
 							tn.rollback();
 							return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
@@ -287,7 +287,7 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.usernameToRemove + " does not exist.").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
+			if (!isLoggedIn(token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
@@ -354,7 +354,7 @@ public class UserResource {
 				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist.").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
+			if (!isLoggedIn(token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
@@ -433,7 +433,7 @@ public class UserResource {
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
 			}
 
-			if (!isLoggedIn(token, tn)){
+			if (!isLoggedIn(token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
@@ -585,17 +585,16 @@ public class UserResource {
 	}
 
 	//Verify if token exists and is valid
-	public boolean isLoggedIn(Entity token, Transaction tn) {
+	private boolean canLogin(Entity token, Transaction tn){
 		if (token == null)
-			return false;
-	
-		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
+			return true;
+
+		if (token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()){
 			tn.delete(token.getKey());
-			tn.commit();
-			return false;
+			return true;
 		}
-				
-		return true;
+
+		return false;	
 	}
 
 	public boolean isLoggedIn(Entity token, String username){

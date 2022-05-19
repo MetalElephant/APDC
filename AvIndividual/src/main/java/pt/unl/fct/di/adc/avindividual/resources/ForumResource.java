@@ -73,7 +73,7 @@ public class ForumResource {
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, tn)){
+            if (!ur.isLoggedIn(token, data.username)){
                 LOG.warning("User " + data.username + " not logged in.");
                 tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
@@ -130,7 +130,7 @@ public class ForumResource {
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, tn)){
+            if (!ur.isLoggedIn(token, data.username)){
                 LOG.warning("User " + data.username + " not logged in.");
                 tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
@@ -184,7 +184,7 @@ public class ForumResource {
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, tn)){
+            if (!ur.isLoggedIn(token, data.username)){
                 LOG.warning("User " + data.username + " not logged in.");
                 tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();

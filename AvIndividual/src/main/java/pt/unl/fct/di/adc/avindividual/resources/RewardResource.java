@@ -81,7 +81,7 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 
-            if (!ur.isLoggedIn(token, tn)){
+            if (!ur.isLoggedIn(token, data.owner)){
 				LOG.warning("User " + data.owner + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
@@ -150,7 +150,7 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (!ur.isLoggedIn(token, data.owner)){
 				LOG.warning("User " + data.owner + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
@@ -217,7 +217,7 @@ public class RewardResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username+ " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (!ur.isLoggedIn(token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();

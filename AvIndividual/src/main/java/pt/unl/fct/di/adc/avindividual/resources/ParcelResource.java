@@ -81,7 +81,7 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (!ur.isLoggedIn(token, data.owner)){
 				LOG.warning("User " + data.owner + " not logged in.");
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
@@ -159,7 +159,7 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, tn)){
+			if (!ur.isLoggedIn(token, data.owner)){
 				LOG.warning("User " + data.owner + " not logged in.");
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
