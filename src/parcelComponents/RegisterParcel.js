@@ -152,9 +152,11 @@ export default function RegisterParcel() {
                                         lng: e.latLng.lng(),
                                         time: new Date()
                                     }
-                                    markers[index-1] = temp
-                                    allLats[index-1] = e.latLng.lat()
-                                    allLngs[index-1] = e.latLng.lng()
+                                    markers[index - 1] = temp
+                                    allLats[index - 1] = e.latLng.lat()
+                                    allLngs[index - 1] = e.latLng.lng()
+
+
                                 }}
                                 value={index++}
                                 position={{ lat: marker.lat, lng: marker.lng }}
@@ -270,7 +272,7 @@ export default function RegisterParcel() {
                                 variant="outlined"
                                 color="success"
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
-                                onClick={(e) => {parcelRegisterManager(e) }}
+                                onClick={(e) => { parcelRegisterManager(e) }}
                             >
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                             </Button>

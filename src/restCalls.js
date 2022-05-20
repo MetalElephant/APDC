@@ -5,8 +5,8 @@ class restCalls {
     //https://upbeat-polygon-344116.appspot.com/
 
     //depois alterar url
-    login (username, password) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/login", {   
+    login(username, password) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/login", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -15,7 +15,7 @@ class restCalls {
                 username: username,
                 password: password
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -27,12 +27,12 @@ class restCalls {
         }).then(function (text) {
             localStorage.setItem('token', text);
             return text;
-        }) 
+        })
     }
-    
 
-    register (username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
+
+    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ class restCalls {
                 address: address,
                 nif: nif
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -60,11 +60,11 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             return text;
-        }) 
+        })
     }
 
-    parcelRegister (parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
+    parcelRegister(parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ class restCalls {
                 allLats: allLats,
                 allLngs: allLngs
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -92,11 +92,11 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             return text;
-        }) 
+        })
     }
 
-    modifyParcel (parcelName, description, groundType, currUsage, prevUsage) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/update", {
+    modifyParcel(parcelName, description, groundType, currUsage, prevUsage) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ class restCalls {
                 currUsage: currUsage,
                 prevUsage: prevUsage
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -120,11 +120,11 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             return text;
-        }) 
+        })
     }
 
-    modifyPassword (oldPassword, newPassword, pwdConfirmation) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/updatePwd", {
+    modifyPassword(oldPassword, newPassword, pwdConfirmation) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/updatePwd", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ class restCalls {
                 newPwd: newPassword,
                 pwdConfirmation: pwdConfirmation
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -146,11 +146,11 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             return text;
-        }) 
+        })
     }
 
-    modifyUserAttributes (name, email, visibility, address, homePhone, mobilePhone, nif) {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/update", {
+    modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ class restCalls {
                 mobilePhone: mobilePhone,
                 nif: nif
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -177,11 +177,11 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             return text;
-        }) 
+        })
     }
 
     userInfo() {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/info", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/info", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -189,7 +189,7 @@ class restCalls {
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -205,7 +205,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/parcel/list", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/parcel/list", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ class restCalls {
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -228,10 +228,59 @@ class restCalls {
         })
     }
 
+    createForum(forumName, topic) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/register", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                forumName: forumName,
+                topic: topic
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
+    forumsList() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/list", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('forums', text);
+            return text;
+        })
+    }
+
 
 
     logout() {
-        return fetch ("https://upbeat-polygon-344116.appspot.com/rest/users/logout", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/logout", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -239,7 +288,7 @@ class restCalls {
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username
             })
-        }).then (function (response) {
+        }).then(function (response) {
             if (!response.ok) {
                 return response.text().then((text) => {
                     const error = new Error(text)
@@ -250,10 +299,10 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.removeItem('user')
-            localStorage.removeItem('token')   
-            localStorage.removeItem('parcels')      
+            localStorage.removeItem('token')
+            localStorage.removeItem('parcels')
             return text;
-        }) 
+        })
     }
 
 }

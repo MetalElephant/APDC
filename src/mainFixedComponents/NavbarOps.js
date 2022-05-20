@@ -2,12 +2,13 @@ import react from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
 import logoWelcome from "../images/logo-welcome.png";
-import { Box, Grid, Tabs, Tab, Typography } from "@mui/material";
+import { Box, Grid, Tabs, Tab} from "@mui/material";
 import ParcelsPage from "../parcelComponents/ParcelsPage";
 import DrawerMessingAround from "./DrawerMessingAround";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import RewardsPage from "../rewardComponents/RewardsPage"
+import ForumPage from "../forumComponents/ForumPage"
 
 
 
@@ -36,6 +37,7 @@ export default function NavbarOps() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="User" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcels" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Rewards" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Forum" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
                         
                     </Tabs>
@@ -52,7 +54,9 @@ export default function NavbarOps() {
             {selectedLeftTab === 0 && <UserPage />}
             {selectedLeftTab === 1 && <ParcelsPage />}
             {selectedLeftTab === 2 && <RewardsPage/>}
-            {selectedLeftTab === 3 && <AboutUs />}
+            {selectedLeftTab === 3 && <ForumPage />}
+            {selectedLeftTab === 4 && <AboutUs />}
+            
         </>
     )
 }
