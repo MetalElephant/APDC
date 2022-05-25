@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -208,10 +209,29 @@ public class ForumResource {
         }
     }
 
-    @POST
+    @GET
     @Path("/list")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response listForums(RequestData data){
+    public Response listForums(){
+        LOG.info("Attempt to list all forums");
+
+        List<ForumInfo> forumList = new LinkedList<>();
+
+        Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM).build();
+
+		QueryResults<Entity> forumResult = datastore.run(forumQuery);
+
+		forumResult.forEachRemaining(f -> {
+			forumList.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
+		});
+
+		return Response.ok(g.toJson(forumList)).build();
+    }
+
+    @POST
+    @Path("/listUser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response listUserForums(RequestData data){
         LOG.info("Attempt to list forums of user: " + data.username);
 
         if (!data.isUsernameValid())
@@ -233,7 +253,7 @@ public class ForumResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-        List<ForumInfo> forumList = getForumQueries(data.username);
+        List<ForumInfo> forumList = getUserForumQueries(data.username);
 
 		return Response.ok(g.toJson(forumList)).build();
     }
@@ -288,7 +308,7 @@ public class ForumResource {
         }
     }
 
-    private List<ForumInfo> getForumQueries(String username){
+    private List<ForumInfo> getUserForumQueries(String username){
         Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
 								  .setFilter(PropertyFilter.hasAncestor(
                 				  datastore.newKeyFactory().setKind(USER).newKey(username)))

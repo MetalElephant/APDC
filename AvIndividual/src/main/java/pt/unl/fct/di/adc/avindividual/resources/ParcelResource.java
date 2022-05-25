@@ -52,6 +52,7 @@ public class ParcelResource {
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
 	private static final String PARCEL = "Parcel";
+	private static final String STAT = "Statistics";
 
 	public ParcelResource() { }
 	

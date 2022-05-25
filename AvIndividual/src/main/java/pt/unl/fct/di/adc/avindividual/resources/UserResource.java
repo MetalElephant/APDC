@@ -76,6 +76,7 @@ public class UserResource {
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
 	private static final String CODE = "Code";
+	private static final String STAT = "Statistics";
 	
 	public UserResource() {}
 
