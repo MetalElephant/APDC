@@ -40,7 +40,7 @@ public class StatisticsResource {
 
 
 
-		return Response.ok(" :) ").build();
+		return Response.ok(":)").build();
 	}
 
     @GET
