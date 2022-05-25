@@ -253,8 +253,29 @@ class restCalls {
         })
     }
 
-    forumsList() {
+    listAllForums() {
         return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/list", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('forumsAll', text);
+            return text;
+        })
+    }
+
+    listUserForums() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/listUser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -272,7 +293,7 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
-            localStorage.setItem('forums', text);
+            localStorage.setItem('forumsUser', text);
             return text;
         })
     }
@@ -301,6 +322,8 @@ class restCalls {
             localStorage.removeItem('user')
             localStorage.removeItem('token')
             localStorage.removeItem('parcels')
+            localStorage.removeItem('forumsUser')
+            localStorage.removeItem('forumsAll')
             return text;
         })
     }

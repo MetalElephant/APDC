@@ -3,9 +3,13 @@ import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
 
 export default function CreateForum() {
-    
+
     const [forumName, setForumName] = react.useState("");
     const [topic, setTopic] = react.useState("");
+
+    const [displayMessage, setDisplayMessage] = react.useState();
+    const [isForumCreated, setIsForumCreated] = react.useState(false);
+    const [isForumNotCreated, setIsForumNotCreated] = react.useState(false);
 
     function forumNameHandler(e) {
         setForumName(e.target.value);
@@ -17,7 +21,7 @@ export default function CreateForum() {
 
     function createForumManager(e) {
         e.preventDefault();
-        restCalls.createForum(forumName, topic)
+        restCalls.createForum(forumName, topic).then(() => { setIsForumCreated(true); setDisplayMessage(0)}).catch(() => { setIsForumNotCreated(true); setDisplayMessage(1) })
     }
 
     return (
@@ -76,6 +80,22 @@ export default function CreateForum() {
                         </Box>
                     </Box>
                 </Container>
+            </Grid>
+            <Grid item xs={2.5}
+                container
+                spacing={0}
+                direction="column"
+                alignItems="center"
+                sx={{ mt: "52px" }}
+            >
+                {isForumCreated && (displayMessage === 0) ?
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Forum criado com sucesso.</Typography>
+                    </Alert> : <></>}
+                {isForumNotCreated && (displayMessage === 1) ?
+                    <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na criação do forum. Por favor, verifique os seus dados.</Typography>
+                    </Alert> : <></>}
             </Grid>
         </>
     )

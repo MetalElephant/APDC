@@ -2,14 +2,14 @@ import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardAction
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
-export default function ForumsList() {
+export default function UserForums() {
 
     const [loaded, setLoaded] = react.useState(false)
 
-    var forums = JSON.parse(localStorage.getItem('forumsAll'))
+    var forums = JSON.parse(localStorage.getItem('forumsUser'))
 
     useEffect(() => {
-        restCalls.listAllForums().then(() => { setLoaded(true) })
+        restCalls.listUserForums().then(() => { setLoaded(true) })
     })
 
 
@@ -22,7 +22,7 @@ export default function ForumsList() {
                 forumCards.push(
                     <>
                         <Box sx={{ p: 1 }}>
-                            <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
+                            <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p:1 }}>
                                 <CardContent >
                                     <Typography gutterBottom align="left" variant="h5" component="div">
                                         {forums[i].name} (criado por: {forums[i].owner})
@@ -30,7 +30,7 @@ export default function ForumsList() {
                                     <Typography variant="body2" color="text.secondary">
                                         - {forums[i].topic}
                                     </Typography>
-                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
+                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt:2 }}>
                                         <Button variant="outlined" color="success" size="small">Aceder</Button>
                                     </CardActions>
                                 </CardContent>

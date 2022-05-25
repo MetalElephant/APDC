@@ -11,7 +11,7 @@ export default function ModifyPassword() {
     const [newPassword, setNewPassword] = react.useState("");
     const [confirmNewPassword, setConfirmNewPassword] = react.useState("");
 
-    const [displayMessage, setDisplayMessage] = react.useState(0);
+    const [displayMessage, setDisplayMessage] = react.useState();
     const [isModifyPwdSubmit, setIsModifyPwdSubmit] = react.useState(false);
     const [isModifyPwdNotSubmit, setIsModifyPwdNotSubmit] = react.useState(false);
 
