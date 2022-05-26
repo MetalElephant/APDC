@@ -4,7 +4,6 @@ import ForumIcon from '@mui/icons-material/Forum';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import CreateForum from "./CreateForum";
 import UserForums from "./UserForums";
-import restCalls from "../restCalls";
 import ForumsList from "./ForumsList";
 
 export default function ForumPage() {
