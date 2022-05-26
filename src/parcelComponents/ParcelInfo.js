@@ -70,18 +70,8 @@ export default function ParcelInfo() {
     function setAttributes(event) {
         var parcel = parcels[event.target.value]
         setChosenParcel(event.target.value)
-        /*
-        setParcelName(parcel.parcelName);
-        setParcelRegion(parcel.parcelRegion);
-        setDescription(parcel.description);
-        setGroundType(parcel.groundType);
-        setCurrUsage(parcel.currUsage);
-        setPrevUsage(parcel.prevUsage);
-        setArea(parcel.area);
-        */
         setAllLats(setLats(parcel, parcel.markers.length));
         setAllLngs(setLngs(parcel, parcel.markers.length));
-        //setMarkers([])
     }
 
     useEffect(() => {
@@ -159,7 +149,7 @@ export default function ParcelInfo() {
                 >
                     {(parcels != null && parcels[chosenParcel] != null) &&
                         <GoogleMap
-                            mapContainerStyle={{ width: "100%", height: "70%" }}
+                            mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
                             zoom={13}
                         >

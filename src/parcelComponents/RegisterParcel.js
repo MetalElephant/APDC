@@ -76,41 +76,6 @@ export default function RegisterParcel() {
         setMarkers([]);
     }
 
-    /*
-    function updateMarkers(lat, lng, indexTemp) {
-        console.log("index: " + indexTemp)
-        console.log("latitude: " + lat)
-        //console.log(lng)
-        let temp = {
-            lat: lat,
-            lng: lng,
-            time: new Date()
-        }
-        markers[indexTemp] = temp;
-    }
-    */
-
-    function updateMarkers(event) {
-        console.log("hello world")
-    }
-
-
-    /*
-    const polygonRef = useRef(null);
-
-    const onEdit = useCallback(() => {
-        if (polygonRef.current) {
-            const nextPath = polygonRef.current
-                .getPath()
-                .getArray()
-                .map(latLng => {
-                    return { lat: latLng.lat(), lng: latLng.lng() };
-                });
-            setMarkers(nextPath);
-        }
-    }, [setMarkers]);
-    */
-
     function parcelRegisterManager(e) {
         e.preventDefault();
         restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
@@ -143,21 +108,8 @@ export default function RegisterParcel() {
                     >
                         {markers.map(marker => (
                             <Marker
-                                draggable={true}
                                 key={index}
                                 id={index}
-                                onDrag={(e) => {
-                                    var temp = {
-                                        lat: e.latLng.lat(),
-                                        lng: e.latLng.lng(),
-                                        time: new Date()
-                                    }
-                                    markers[index - 1] = temp
-                                    allLats[index - 1] = e.latLng.lat()
-                                    allLngs[index - 1] = e.latLng.lng()
-
-
-                                }}
                                 value={index++}
                                 position={{ lat: marker.lat, lng: marker.lng }}
                             />
@@ -171,6 +123,7 @@ export default function RegisterParcel() {
                         { /* Child components, such as markers, info windows, etc. */}
                     </GoogleMap>
                 </LoadScript>
+                <Button color="error" onClick={resetValuesFail}>Delete Markers</Button>
             </Grid>
             <Grid item xs={4}>
                 <Container component="main" maxWidth="xs">
