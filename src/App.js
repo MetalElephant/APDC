@@ -23,8 +23,10 @@ export default function App() {
                     </Route>
                     <Route exact path="/main">
                         <NavbarOps />
-                        {/*<Main />*/}
-                        {/*<Tabs />*/}
+                    </Route>
+                    <Route exact path="/main/forumDiscussion">
+                        <NavbarLR />
+                        
                     </Route>
                 </Switch>
             </div>
