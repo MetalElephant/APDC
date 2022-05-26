@@ -126,6 +126,8 @@ export default function ModifyParcel() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a parcela. Por favor, verifique o nome da parcela.</Typography>
                     </Alert> : <></>
                 }
+
+                <Button color="error" variant="contained" sx={{mt: "10px"}}> Eliminate parcel </Button>
             </Grid>
             <Grid item xs={3.5}>
                 <Container component="main" maxWidth="xs">
@@ -205,13 +207,12 @@ export default function ModifyParcel() {
                         >
                             {parcels[chosenParcel].markers.map(marker => (
                                 <Marker
-                                    draggable
                                     position={{ lat: marker.latitude, lng: marker.longitude }}
                                 />
                             ))}
 
                             <Polygon
-                                path={markers}
+                                paths={markers}
                                 onClick={() => this.handleClick()}
                                 options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                             />
