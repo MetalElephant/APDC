@@ -306,10 +306,9 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                owner: "",
-                forum: "",
+                owner: JSON.parse(localStorage.getItem('forum')).owner,
+                forum: JSON.parse(localStorage.getItem('forum')).name,
                 message: message
-
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -332,8 +331,8 @@ class restCalls {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: "",
-                name: ""
+                username: JSON.parse(localStorage.getItem('token')).username,
+                name: JSON.parse(localStorage.getItem('forum')).name
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -345,6 +344,7 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
+            localStorage.setItem("messages", text)
             return text;
         })
     }
@@ -374,6 +374,8 @@ class restCalls {
             localStorage.removeItem('parcels')
             localStorage.removeItem('forumsUser')
             localStorage.removeItem('forumsAll')
+            localStorage.removeItem('forum')
+            localStorage.removeItem('messages')
             return text;
         })
     }

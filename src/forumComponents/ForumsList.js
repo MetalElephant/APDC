@@ -2,6 +2,7 @@ import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardAction
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import { useHistory } from "react-router-dom"
+import ForumCard from "./ForumCard"
 
 export default function ForumsList() {
     let history = useHistory();
@@ -9,16 +10,10 @@ export default function ForumsList() {
     const [loaded, setLoaded] = react.useState(false)
 
     var forums = JSON.parse(localStorage.getItem('forumsAll'))
-    
 
     useEffect(() => {
         restCalls.listAllForums().then(() => { setLoaded(true) })
     })
-
-    function forumDiscussion(x) {
-        history.push("/main/forumDiscussion")
-        localStorage.setItem('forum', JSON.stringify(x))
-    }
 
     function generateForums() {
         const forumCards = []
@@ -27,23 +22,15 @@ export default function ForumsList() {
             return <Typography> Não há forums criados.</Typography>
         else
             for (var i = 0; i < forums.length; i++) {
-                var forum = forums[i]
                 forumCards.push(
                     <>
-                        <Box sx={{ p: 1 }}>
-                            <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
-                                <CardContent >
-                                    <Typography gutterBottom align="left" variant="h5" component="div" sx={{fontSize: 21}}>
-                                        {forums[i].name} ({forums[i].owner})
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        - {forums[i].topic}
-                                    </Typography>
-                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
-                                        <Button onClick={() => forumDiscussion(forum)} variant="outlined" color="success" size="small">Aceder</Button>
-                                    </CardActions>
-                                </CardContent>
-                            </Card>
+                        <Box sx={{ p: 1, width: "100%" }} >
+                            <ForumCard
+                                number={i}
+                                name={forums[i].name}
+                                owner={forums[i].owner}
+                                topic={forums[i].topic}
+                            />
                         </Box>
                     </>
                 )
