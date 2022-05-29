@@ -268,24 +268,12 @@ public class ForumResource {
         return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(FORUM).newKey(data.name);
 
         Entity user = datastore.get(userKey);
-        Entity token = datastore.get(tokenKey);
         Entity forum = datastore.get(forumKey);
 
-        if (user == null) {				
-			LOG.warning("User does not exist");
-			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-		}
-
-		if (!ur.isLoggedIn(token, data.username)){
-			LOG.warning("User " + data.username + " not logged in.");
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-		}
-
-        if (forum == null){
+        if (user == null || forum == null){
             LOG.warning("Forum " + data.name + " doesn't exists.");
             return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
         }
