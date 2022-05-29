@@ -6,7 +6,7 @@ class restCalls {
 
     //depois alterar url
     login(username, password) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/users/login", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/login", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -32,7 +32,7 @@ class restCalls {
 
 
     register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/users/register/", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ class restCalls {
     }
 
     parcelRegister(parcelName, parcelRegion, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/parcel/register", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ class restCalls {
     }
 
     modifyParcel(parcelName, description, groundType, currUsage, prevUsage) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/parcel/update", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ class restCalls {
     }
 
     modifyPassword(oldPassword, newPassword, pwdConfirmation) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/users/updatePwd", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/updatePwd", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ class restCalls {
     }
 
     modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/users/update", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -181,7 +181,7 @@ class restCalls {
     }
 
     userInfo() {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/users/info", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/info", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -205,7 +205,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/parcel/list", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/parcel/list", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -229,7 +229,7 @@ class restCalls {
     }
 
     createForum(forumName, topic) {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/forum/register", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ class restCalls {
     }
 
     listAllForums() {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/forum/list", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/list", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -275,7 +275,7 @@ class restCalls {
     }
 
     listUserForums() {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/forum/listUser", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/listUser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -298,10 +298,60 @@ class restCalls {
         })
     }
 
+    postMessage(message) {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/message", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                owner: "",
+                forum: "",
+                message: message
+
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
+    listForumMessages() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/forum/listMessages", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: "",
+                name: ""
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
 
 
     logout() {
-        return fetch("https://totemic-courage-344200.appspot.com/rest/users/logout", {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/logout", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
