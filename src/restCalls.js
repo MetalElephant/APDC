@@ -331,7 +331,7 @@ class restCalls {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                username: JSON.parse(localStorage.getItem('token')).username,
+                username: JSON.parse(localStorage.getItem('forum')).owner,
                 name: JSON.parse(localStorage.getItem('forum')).name
             })
         }).then(function (response) {

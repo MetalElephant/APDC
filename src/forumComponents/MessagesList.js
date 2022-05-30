@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions } from "@mui/material";
+import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions, TextField } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
@@ -6,7 +6,21 @@ export default function MessagesList() {
 
     const [loaded, setLoaded] = react.useState(false)
 
+    const [message, setMessage] = react.useState("");
+
     var messages = JSON.parse(localStorage.getItem('messages'))
+
+    function messageHandler(e) {
+        setMessage(e.target.value);
+    }
+
+    function resetMessage() {
+        setMessage("");
+    }
+
+    function postMessageManager() {
+        restCalls.postMessage(message).then(() => {resetMessage()})
+    }
 
     useEffect(() => {
         restCalls.listForumMessages().then(() => { setLoaded(true) })
@@ -29,7 +43,7 @@ export default function MessagesList() {
                                     <Typography variant="body1" >
                                         - {messages[i].message}
                                     </Typography>
-                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt:2 }}>
+                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
                                         <Typography variant="h5" component="div" sx={{ fontSize: 14 }}> {messages[i].crtTime}</Typography>
                                     </CardActions>
                                 </CardContent>
@@ -42,8 +56,30 @@ export default function MessagesList() {
     }
 
     return (
-        <Grid container direction="column" justifyContent="flex-start" alignItems="center">
-            {loaded && generateMessages()}
-        </Grid>
+        <>
+            <Grid item xs={8} container direction="column" justifyContent="flex-start" alignItems="center">
+                {loaded && generateMessages()}
+            </Grid>
+            <Grid item xs={2}>
+                <TextField
+                    sx={{ width: "90%", pt: 1 }}
+                    color="success"
+                    variant="outlined"
+                    placeholder="Escreva aqui a sua mensagem..."
+                    multiline
+                    rows={5} 
+                    onChange={messageHandler}
+                />
+                <Button
+                    type="submit"
+                    variant="outlined"
+                    color="success"
+                    sx={{ mt: 2, mb: 2, width: "90%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                    onClick={(e) => { postMessageManager(e) }}
+                >
+                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> post </Typography>
+                </Button>
+            </Grid>
+        </>
     )
 }
