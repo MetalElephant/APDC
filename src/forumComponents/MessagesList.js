@@ -14,12 +14,8 @@ export default function MessagesList() {
         setMessage(e.target.value);
     }
 
-    function resetMessage() {
-        setMessage("");
-    }
-
     function postMessageManager() {
-        restCalls.postMessage(message).then(() => {resetMessage()})
+        restCalls.postMessage(message).then(() => {window.location.reload()})
     }
 
     useEffect(() => {
