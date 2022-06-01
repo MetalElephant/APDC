@@ -10,7 +10,8 @@ export default function MessagesList() {
 
     const [messageErr, setMessageErr] = react.useState({});
 
-    const forbiddenWords = ["alex", "godinho"]
+    const forbiddenWords = ["puta", "caralho", "cona", "obesa", "obeso", "merda", "cabrão", "cabrao", "rabo", "pila",
+        "porra", "foda", "fodido", "larapio", "rego", "peido"];
 
     var messages = JSON.parse(localStorage.getItem('messages'))
 
@@ -31,11 +32,15 @@ export default function MessagesList() {
     const messageErrorValidation = () => {
         const messageErr = {};
         let isValid = true;
+        let i = 0;
 
-        if (message.match(forbiddenWords) != null) {
-            messageErr.wordsNotAllowed = "A mensagem que está a tentar enviar contém uma ou mais palavras não permitidas. Por favor, verifique o seu texto."
-            isValid = false;
-            setMessageErr(messageErr)
+        while (isValid && i < forbiddenWords.length) {
+            if (message.toLowerCase().match(forbiddenWords[i]) != null) {
+                messageErr.wordsNotAllowed = "A mensagem que está a tentar enviar contém uma ou mais palavras não permitidas. Por favor, verifique o seu texto."
+                isValid = false;
+                setMessageErr(messageErr)
+            }
+            i++;
         }
 
         return isValid;
