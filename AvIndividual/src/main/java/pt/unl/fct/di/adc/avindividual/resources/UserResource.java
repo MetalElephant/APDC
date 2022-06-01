@@ -44,7 +44,6 @@ public class UserResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
 	//User information
-	private static final String USERNAME = "username";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -54,14 +53,8 @@ public class UserResource {
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
-	private static final String STATE = "state";
 	private static final String POINTS = "points";
 	private static final String CTIME = "creation time";
-
-	private static final String INACTIVE = "INACTIVE";
-
-	//Roles
-	private static final String SU = "SU";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -77,6 +70,7 @@ public class UserResource {
     private static final String TOKEN = "Token";
 	private static final String CODE = "Code";
 	private static final String STAT = "Statistics";
+	private static final String VALUE = "Value";
 	
 	public UserResource() {}
 
@@ -105,34 +99,10 @@ public class UserResource {
 		Key codeOwnerKey = datastore.newKeyFactory().setKind(USER).newKey(data.getCodeUser());
 		Key redeemCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.getCodeUser())).setKind(CODE).newKey(data.code);
 		Key generatedCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(CODE).newKey(data.generateCode());
+		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
 
 		try {
 			Entity user = tn.get(userKey);
-			
-			//We could possibly create super user elsewhere with a admin only page, see: secret from pp
-            /*
-			//SUPERUSER creation
-			if(data.name.equals("SUPERUSER") && person==null) {
-				person = Entity.newBuilder(userKey)
-						.set(USERNAME, data.username)
-						.set(NAME, data.name)
-						.set(PASSWORD, DigestUtils.sha512Hex(data.password))
-						.set(EMAIL, data.email)
-						.set(ROLE, SU)
-						.set(MPHONE, data.mobilePhone)
-						.set(LPHONE,data.landPhone)
-						.set(ADDRESS,data.address)
-						.set(NIF,data.NIF)
-						.set(PROFILE, PRIVATE)
-						.set(STATE, ACTIVE)
-						.set(CTIME, Timestamp.now()).build();
-				tn.add(person);
-				tn.commit(); 
-				
-				LOG.info("User registered: " + data.username);
-				return Response.ok("User "+ data.username ).build();
-			}
-			*/
             
 			//Check if user already exists
 			if (user != null) {
@@ -153,17 +123,15 @@ public class UserResource {
 
 			//Create User and Code entity
 			user = Entity.newBuilder(userKey)
-					.set(USERNAME, data.username)
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
-					.set(ROLE, Roles.USER.name())		
+					.set(ROLE, Roles.USER.getRole())
 					.set(MPHONE, data.mobilePhone)
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
-					.set(STATE, INACTIVE)
 					.set(POINTS, String.valueOf(points))
 					.set(CTIME, Timestamp.now())
                     .build();
@@ -176,7 +144,19 @@ public class UserResource {
 			.set(EXPTIME, Timestamp.of(expDate.getTime()))
 			.build();
 
+			//Update statistics
+			Entity stats = tn.get(statsKey);
+
+			if (stats != null){
+				stats = Entity.newBuilder(statsKey)
+						.set(VALUE, 1L + stats.getLong(VALUE))
+						.build();
+					
+				tn.put(stats);
+			}
+
 			tn.add(user, generatedCodeEntity);
+
 			tn.commit(); 
 
 			LOG.fine("Registered user: " + data.username);
@@ -271,6 +251,8 @@ public class UserResource {
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameToRemove);
 
+		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+
 		try {
             Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
@@ -307,6 +289,17 @@ public class UserResource {
 			
 			removeUserCodes(data.usernameToRemove, tn);
 
+			//Update statistics
+			Entity stats = tn.get(statsKey);
+
+			if (stats != null){
+				stats = Entity.newBuilder(statsKey)
+						.set(VALUE, stats.getLong(VALUE)-1L)
+						.build();
+					
+				tn.put(stats);
+			}
+
 			tn.delete(userToRemoveKey);
 			tn.commit();
 
@@ -329,8 +322,6 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
 		if(!data.validRoleFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong type of role: try 'USER', 'GBO', 'GS' or 'SU'").build();
-		if(!data.validStateFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Wrong type of state: try 'ACTIVE' or 'INACTIVE'").build();
 	
 		Transaction tn = datastore.newTransaction();
 
@@ -366,7 +357,6 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
 
 				userToUpdate = Entity.newBuilder(userUpdateKey)
-					.set(USERNAME, data.usernameToUpdate)
 					.set(NAME, data.name)
 					.set(PASSWORD, userToUpdate.getString(PASSWORD))
 					.set(EMAIL, data.email)
@@ -376,7 +366,6 @@ public class UserResource {
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
-					.set(STATE, data.state)
 					.set(POINTS, userToUpdate.getString(POINTS))
 					.set(CTIME, userToUpdate.getTimestamp(CTIME))
 					.build();
@@ -441,7 +430,6 @@ public class UserResource {
 			}
 
 			user = Entity.newBuilder(userKey)
-					.set(USERNAME, user.getString(USERNAME))
 					.set(NAME, user.getString(NAME))
 					.set(PASSWORD, newPwd)
 					.set(EMAIL, user.getString(EMAIL))
@@ -451,7 +439,6 @@ public class UserResource {
 					.set(ADDRESS, user.getString(ADDRESS))
 					.set(NIF, user.getString(NIF))
 					.set(VISIBILITY, user.getString(VISIBILITY))
-					.set(STATE, user.getString(STATE))
 					.set(CTIME, user.getTimestamp(CTIME))
 					.build();
 			
@@ -570,7 +557,7 @@ public class UserResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-		UserInfo u = new UserInfo(user.getString(USERNAME), user.getString(EMAIL), user.getString(NAME),
+		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME),
 		user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
 		user.getString(ROLE), user.getString(VISIBILITY));
 
@@ -647,8 +634,8 @@ public class UserResource {
 
 	//TODO we won't need to check for null values if we get the old info so we will only need canUpdateValues
 	private boolean canModify(UserUpdateData data, Entity user, Entity userToModify) {
-		if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
-			return false;
+		//if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
+			//return false;
 		
 		//update values so its easier to do transaction.put throught the data from ModifyData
 		if (data.name == null || data.name.length() == 0)
@@ -674,10 +661,6 @@ public class UserResource {
 		
 		if (data.visibility == null || data.visibility.length() == 0)
 			data.visibility = userToModify.getString(VISIBILITY);
-		
-		if (data.state == null || data.state.length() == 0)
-			data.state = userToModify.getString(STATE);
-		
 		return true;
 	}
 
@@ -695,7 +678,7 @@ public class UserResource {
 	}
 
 	private List<String> getQueries(String role) {
-		if (role.equals(USER)) {
+		if (role.equals(Roles.USER.getRole())) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.build();
@@ -706,7 +689,7 @@ public class UserResource {
 			allUsers.add("List of Active Users: ");
 
 			users.forEachRemaining(userList -> {
-				allUsers.add("Username: " + userList.getString(USERNAME) + " -|- Name: " + userList.getString(NAME)
+				allUsers.add("Username: " + userList.getKey().getName() + " -|- Name: " + userList.getString(NAME)
 						+ " -|- Email: " + userList.getString(EMAIL));
 			});
 
@@ -714,7 +697,7 @@ public class UserResource {
 
 		}
 
-		if (role.equals(SU)) {
+		if (role.equals(Roles.SU.getRole())) {
 
 			Query<Entity> query = Query.newEntityQueryBuilder().setKind(USER).build();
 
@@ -732,12 +715,11 @@ public class UserResource {
 		allUsers.add("List of Users: ");
 		
 		users.forEachRemaining(userList-> {
-			allUsers.add("Username: "+ userList.getString(USERNAME) +
+			allUsers.add("Username: "+ userList.getKey().getName() +
 					" -|- Name: "+ userList.getString(NAME) +
 					" -|- Email: " + userList.getString(EMAIL) +
 					" -|- Role: "+ userList.getString(ROLE)+
 					" -|- Profile: "+ userList.getString(VISIBILITY)+
-					" -|- State: "+ userList.getString(STATE)+
 					" -|- Password: "+ userList.getString(PASSWORD)+
 					" -|- Address: "+ userList.getString(ADDRESS)+
 					" -|- Landphone: "+ userList.getString(HPHONE)+

@@ -23,6 +23,8 @@ import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.StructuredQuery.OrderBy;
+
 
 @Path("/forum")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -211,7 +213,7 @@ public class ForumResource {
 
     @GET
     @Path("/list")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response listForums(){
         LOG.info("Attempt to list all forums");
 
@@ -231,6 +233,7 @@ public class ForumResource {
     @POST
     @Path("/listUser")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response listUserForums(RequestData data){
         LOG.info("Attempt to list forums of user: " + data.username);
 
@@ -261,6 +264,7 @@ public class ForumResource {
     @POST
     @Path("/listMessages")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response listForumMessage(RequestData data){
         LOG.info("Attempt to list messages of forum: " + data.name);
 

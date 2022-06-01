@@ -8,7 +8,7 @@ public class RegisterData {
 	public String username, password, pwdConfirmation, email, name;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, role, state, visibility, code;
+	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code;
 	
 	private static final String UNDEFINED = "UNDEFINED";
 	

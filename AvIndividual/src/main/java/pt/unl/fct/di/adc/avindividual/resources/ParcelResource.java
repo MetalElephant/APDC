@@ -53,6 +53,7 @@ public class ParcelResource {
     private static final String TOKEN = "Token";
 	private static final String PARCEL = "Parcel";
 	private static final String STAT = "Statistics";
+	private static final String VALUE = "Value";
 
 	public ParcelResource() { }
 	
@@ -70,6 +71,7 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
+		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 		
 		try {
 			Entity user = tn.get(userKey);
@@ -122,6 +124,17 @@ public class ParcelResource {
 			}
 
 			parcel = builder.build();
+
+			//Update statistics
+			Entity stats = tn.get(statsKey);
+
+			if (stats != null){
+				stats = Entity.newBuilder(statsKey)
+						.set(VALUE, 1L + stats.getLong(VALUE))
+						.build();
+					
+				tn.put(stats);
+			}
 			
 			tn.add(parcel);
 			tn.commit();
