@@ -87,9 +87,12 @@ public class ForumResource {
                 return Response.status(Status.CONFLICT).entity("Forum " + data.forumName + " already exists.").build();
             }
 
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR, 1);
+
             forum = Entity.newBuilder(forumKey)
                     .set(TOPIC, data.topic)
-                    .set(CRT_DATE, Calendar.getInstance().getTime().toString())
+                    .set(CRT_DATE, cal.getTime().toString())
                     .build();
 
             tn.add(forum);
@@ -144,10 +147,13 @@ public class ForumResource {
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.forum + " doesn't exists.").build();
             }
 
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR, 1);
+
             Entity message = Entity.newBuilder(messageKey)
             .set(MESSAGE, data.message)
             .set(OWNER, data.username)
-            .set(CRT_DATE, Calendar.getInstance().getTime().toString())
+            .set(CRT_DATE, cal.getTime().toString())
             .build();
 
             tn.add(message);

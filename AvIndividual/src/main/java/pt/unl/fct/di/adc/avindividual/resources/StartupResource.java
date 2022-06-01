@@ -108,7 +108,6 @@ public class StartupResource {
         Key userStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
         Key parcelStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
-
         try {
             Entity uStats = tn.get(userStatsKey);
             Entity pStats = tn.get(parcelStatsKey);
