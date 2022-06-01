@@ -22,7 +22,6 @@ import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
 import com.google.cloud.datastore.*;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/parcel")
@@ -38,8 +37,6 @@ public class ParcelResource {
 	
 	//Parcel info
 	private static final String PARCEL_REGION = "parcel region";
-	private static final String OWNER = "owner";
-	private static final String PARCEL_NAME = "name";
 	private static final String DESCRIPTION = "description";
 	private static final String GROUND_COVER_TYPE = "ground cover type";
 	private static final String CURR_USAGE = "current usage";
@@ -108,9 +105,7 @@ public class ParcelResource {
 			}
 			
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(OWNER, data.owner)
 					.set(PARCEL_REGION, data.parcelRegion)
-					.set(PARCEL_NAME, data.parcelName)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -187,8 +182,6 @@ public class ParcelResource {
 			verifyChanges(data, parcel);
 
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(OWNER, data.owner)
-					.set(PARCEL_NAME, data.parcelName)//TODO name shouldn't be changed because we couldn't track it anymore because of the key
 					.set(PARCEL_REGION, parcel.getString(PARCEL_REGION))
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
@@ -257,8 +250,8 @@ public class ParcelResource {
 			markers[i] = parcel.getLatLng(MARKER+i);
 		}
 
-		ParcelInfo p = new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-			parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
+		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(PARCEL_REGION), 
+		parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
 			
 		return Response.ok(g.toJson(p)).build();
 	}
@@ -296,11 +289,12 @@ public class ParcelResource {
 	}
 
 	private List<ParcelInfo> getQueries(String owner){
-		Query<Entity> queryParcel = Query.newEntityQueryBuilder().setKind(PARCEL)
-					.setFilter(CompositeFilter.and(PropertyFilter.eq(OWNER, owner)))
-					.build();
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								  .setFilter(PropertyFilter.hasAncestor(
+                				  datastore.newKeyFactory().setKind(USER).newKey(owner)))
+								  .build();
 
-		QueryResults<Entity> parcels = datastore.run(queryParcel);
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
 
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
@@ -313,8 +307,8 @@ public class ParcelResource {
 				markers[i] = parcel.getLatLng(MARKER+i);
 			}
 
-			userParcels.add(new ParcelInfo(parcel.getString(OWNER), parcel.getString(PARCEL_NAME), parcel.getString(PARCEL_REGION), parcel.getString(DESCRIPTION), 
-			parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(PARCEL_REGION), 
+			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 		});
 
 		return userParcels;
@@ -382,7 +376,7 @@ public class ParcelResource {
 
 	public void verifyChanges(ParcelUpdateData data, Entity modified) {
 		if(data.parcelName == null || data.parcelName.length() == 0) {
-			data.parcelName = modified.getString(PARCEL_NAME);
+			data.parcelName = modified.getKey().getName();
 		}
 		
 		if(data.description == null || data.description.length() == 0) {

@@ -1,11 +1,9 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
-import java.util.Calendar;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -15,7 +13,6 @@ import javax.ws.rs.core.Response.Status;
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
-import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
@@ -31,7 +28,6 @@ public class AdministrativeResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
 	//User information
-	private static final String USERNAME = "username";
 	private static final String NAME = "name";
 	private static final String PASSWORD = "password";
 	private static final String EMAIL = "email";
@@ -41,11 +37,9 @@ public class AdministrativeResource {
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
-	private static final String STATE = "state";
 	private static final String CTIME = "creation time";
 
-	private static final String ACTIVE = "ACTIVE";
-	private static final String INACTIVE = "INACTIVE";
+
 	private static final String PUBLIC = "Public";
 
 	//Roles
@@ -101,7 +95,6 @@ public class AdministrativeResource {
 
 			//Create User
 			user = Entity.newBuilder(userKey)
-					.set(USERNAME, data.username)
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
@@ -111,7 +104,6 @@ public class AdministrativeResource {
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
-					.set(STATE, INACTIVE)
 					.set(CTIME, Timestamp.now())
                     .build();
 

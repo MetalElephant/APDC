@@ -23,7 +23,6 @@ import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
 
 
 @Path("/forum")

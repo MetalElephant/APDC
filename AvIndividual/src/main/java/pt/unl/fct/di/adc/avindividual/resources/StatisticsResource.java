@@ -10,7 +10,6 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 
@@ -21,8 +20,6 @@ import com.google.cloud.datastore.*;
 public class StatisticsResource {
 
 	private static final Logger LOG = Logger.getLogger(StatisticsResource.class.getName());
-
-	private final Gson g = new Gson();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
