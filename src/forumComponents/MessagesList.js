@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions, TextField } from "@mui/material";
+import { Button, Box, Typography, Grid, Card, CardContent, CardActions, TextField } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
@@ -8,19 +8,38 @@ export default function MessagesList() {
 
     const [message, setMessage] = react.useState("");
 
+    const [messageErr, setMessageErr] = react.useState({});
+
+    const forbiddenWords = ["alex", "godinho"]
+
     var messages = JSON.parse(localStorage.getItem('messages'))
 
     function messageHandler(e) {
         setMessage(e.target.value);
     }
 
-    function postMessageManager() {
-        restCalls.postMessage(message).then(() => {window.location.reload()})
-    }
-
     useEffect(() => {
         restCalls.listForumMessages().then(() => { setLoaded(true) })
     })
+
+    function postMessageManager() {
+        const isMessageValid = messageErrorValidation();
+        if (isMessageValid)
+            restCalls.postMessage(message).then(() => { window.location.reload() })
+    }
+
+    const messageErrorValidation = () => {
+        const messageErr = {};
+        let isValid = true;
+
+        if (message.match(forbiddenWords) != null) {
+            messageErr.wordsNotAllowed = "A mensagem que está a tentar enviar contém uma ou mais palavras não permitidas. Por favor, verifique o seu texto."
+            isValid = false;
+            setMessageErr(messageErr)
+        }
+
+        return isValid;
+    }
 
     function generateMessages() {
         const messageCards = []
@@ -63,9 +82,12 @@ export default function MessagesList() {
                     variant="outlined"
                     placeholder="Escreva aqui a sua mensagem..."
                     multiline
-                    rows={5} 
+                    rows={5}
                     onChange={messageHandler}
                 />
+                {Object.keys(messageErr).map((key) => {
+                    return <Typography sx={{ color: "red", fontSize: 14 }}> {messageErr[key]}</Typography>
+                })}
                 <Button
                     type="submit"
                     variant="outlined"

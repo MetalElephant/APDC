@@ -2,7 +2,7 @@ import react from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
 import logoWelcome from "../images/logo-welcome.png";
-import { Box, Grid, Tabs, Tab} from "@mui/material";
+import { Box, Grid, Tabs, Tab } from "@mui/material";
 import ParcelsPage from "../parcelComponents/ParcelsPage";
 import DrawerMessingAround from "./DrawerMessingAround";
 import UserPage from "../userProfileComponents/UserPage";
@@ -28,8 +28,8 @@ export default function NavbarOps() {
                 </Grid>
                 <Grid item xs={2.5} container direction="row" alignItems="flex-end" justify="center">
                     <Tabs textColor='inherit'
-                        TabIndicatorProps={{ sx: {background: "black"}}}
-                        value={selectedLeftTab} 
+                        TabIndicatorProps={{ sx: { background: "black" } }}
+                        value={selectedLeftTab}
                         onChange={handleChangeLeft}
                         variant="scrollable"
                         scrollButtons
@@ -39,7 +39,7 @@ export default function NavbarOps() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Rewards" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Forum" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
-                        
+
                     </Tabs>
                 </Grid>
                 <Grid item xs={3} align="center">
@@ -53,10 +53,10 @@ export default function NavbarOps() {
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
             {selectedLeftTab === 1 && <ParcelsPage />}
-            {selectedLeftTab === 2 && <RewardsPage/>}
+            {selectedLeftTab === 2 && <RewardsPage />}
             {selectedLeftTab === 3 && <ForumPage />}
             {selectedLeftTab === 4 && <AboutUs />}
-            
+
         </>
     )
 }
