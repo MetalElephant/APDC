@@ -349,6 +349,45 @@ class restCalls {
         })
     }
 
+    createSuperUser() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/startup/superuser", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
+    createStatistics() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/startup/statistics", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
 
     logout() {
         return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/logout", {

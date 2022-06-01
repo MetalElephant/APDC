@@ -1,6 +1,7 @@
 import React from "react"
 import NavbarLR from "./mainFixedComponents/NavbarLR"
 import NavbarOps from "./mainFixedComponents/NavbarOps";
+import AdministrationPage from "./mainFixedComponents/AdministrationPage";
 import LoginRegister from "./userComponents/LoginRegister"
 import ForumMessagesPage from "./forumComponents/ForumMessagesPage";
 import NavbarMessages from "./mainFixedComponents/NavbarMessages";
@@ -25,6 +26,9 @@ export default function App() {
                     <Route exact path="/main/forumDiscussion">
                         <NavbarMessages />
                         <ForumMessagesPage />
+                    </Route>
+                    <Route exact path="/administration">
+                        <AdministrationPage />
                     </Route>
                 </Switch>
             </div>

@@ -1,6 +1,7 @@
 import fotoDias from "../images/fotoDias.PNG";
 import fotoGui from "../images/fotoGui.PNG";
 import fotoRafa from "../images/fotoRafa.PNG";
+import fotoAlex from "../images/fotoAlex.jpeg";
 
 import { Grid, Typography, Card, CardActions, CardContent, CardMedia, Button } from "@mui/material";
 
@@ -59,7 +60,7 @@ export default function AboutUs() {
                     <CardMedia
                         component="img"
                         height="500"
-                        image={fotoGui}
+                        image={fotoAlex}
                         alt="green iguana"
                     />
                     <CardContent>
