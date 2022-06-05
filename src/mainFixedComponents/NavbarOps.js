@@ -9,6 +9,7 @@ import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import RewardsPage from "../rewardComponents/RewardsPage"
 import ForumPage from "../forumComponents/ForumPage"
+import StatisticsPage from "../statisticsComponents/StatisticsPage";
 
 
 
@@ -39,6 +40,7 @@ export default function NavbarOps() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Rewards" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Forum" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Statistics" />
 
                     </Tabs>
                 </Grid>
@@ -56,6 +58,7 @@ export default function NavbarOps() {
             {selectedLeftTab === 2 && <RewardsPage />}
             {selectedLeftTab === 3 && <ForumPage />}
             {selectedLeftTab === 4 && <AboutUs />}
+            {selectedLeftTab === 5 && <StatisticsPage />}
 
         </>
     )

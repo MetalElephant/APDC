@@ -3,7 +3,7 @@ import fotoGui from "../images/fotoGui.PNG";
 import fotoRafa from "../images/fotoRafa.PNG";
 import fotoAlex from "../images/fotoAlex.jpeg";
 
-import { Grid, Typography, Card, CardActions, CardContent, CardMedia, Button } from "@mui/material";
+import { Grid, Typography, Card, CardContent, CardMedia } from "@mui/material";
 
 export default function AboutUs() {
     return (
@@ -27,10 +27,6 @@ export default function AboutUs() {
                             - Porta-voz da apresentação da Fase Alfa
                         </Typography>
                     </CardContent>
-                    <CardActions>
-                        <Button size="small">Este gajo é bom</Button>
-                        <Button size="small">Foda-se que flop</Button>
-                    </CardActions>
                 </Card>
             </Grid>
             <Grid>
@@ -49,10 +45,6 @@ export default function AboutUs() {
                             - Responsável pela parte de Frontend
                         </Typography>
                     </CardContent>
-                    <CardActions>
-                        <Button size="small">Este gajo é bom</Button>
-                        <Button size="small">Foda-se que flop</Button>
-                    </CardActions>
                 </Card>
             </Grid>
             <Grid>
@@ -71,10 +63,6 @@ export default function AboutUs() {
                             - Responsável pela parte de Backend
                         </Typography>
                     </CardContent>
-                    <CardActions>
-                        <Button size="small">Este gajo é bom</Button>
-                        <Button size="small">Foda-se que flop</Button>
-                    </CardActions>
                 </Card>
             </Grid>
             <Grid>
@@ -93,10 +81,6 @@ export default function AboutUs() {
                             - Responsável pela parte de Android/Backend
                         </Typography>
                     </CardContent>
-                    <CardActions>
-                        <Button size="small">Este gajo é bom</Button>
-                        <Button size="small">Foda-se que flop</Button>
-                    </CardActions>
                 </Card>
             </Grid>
             <Grid>
@@ -115,10 +99,6 @@ export default function AboutUs() {
                             - Responsável pela parte de Android
                         </Typography>
                     </CardContent>
-                    <CardActions>
-                        <Button size="small">Este gajo é bom</Button>
-                        <Button size="small">Foda-se que flop</Button>
-                    </CardActions>
                 </Card>
             </Grid>
         </Grid>
