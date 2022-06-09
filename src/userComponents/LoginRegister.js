@@ -42,6 +42,7 @@ export default function LoginRegister() {
 
     const [image, setImage] = react.useState();
     const [preview, setPreview] = react.useState();
+    const [imageArray, setImageArray] = react.useState();
     const fileInputRef = react.useRef();
 
     useEffect(() => {
@@ -114,13 +115,31 @@ export default function LoginRegister() {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, image)
+            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, imageArray)
                 .then(() => resetRegisterValues())
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
         } else {
             setIsRegisterNotSubmit(true)
             setDisplayRegisterMessage(1)
+        }
+
+    }
+
+    function loadPhoto(f) {
+        const reader = new FileReader();
+        const fileByteArray = [];
+
+        reader.readAsArrayBuffer(f);
+        reader.onloadend = (evt) => {
+            if (evt.target.readyState === FileReader.DONE) {
+                const arrayBuffer = evt.target.result,
+                    array = new Uint8Array(arrayBuffer);
+                for (const a of array) {
+                    fileByteArray.push(a);
+                }
+                setImageArray(fileByteArray)
+            }
         }
     }
 
@@ -472,6 +491,7 @@ export default function LoginRegister() {
                                                 const file = e.target.files[0];
                                                 if (file && file.type.substring(0, 5) === "image") {
                                                     setImage(file);
+                                                    loadPhoto(file);
                                                 } else {
                                                     setImage(null);
                                                 }

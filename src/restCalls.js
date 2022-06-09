@@ -31,11 +31,12 @@ class restCalls {
     }
 
 
-    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, image) {
+    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo) {
         return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json; charset=UTF-8',
+
             },
             body: JSON.stringify({
                 username: username,
@@ -48,7 +49,7 @@ class restCalls {
                 mobilePhone: mobilePhone,
                 address: address,
                 nif: nif,
-                photo: ""
+                photo: photo
             })
         }).then(function (response) {
             if (!response.ok) {
