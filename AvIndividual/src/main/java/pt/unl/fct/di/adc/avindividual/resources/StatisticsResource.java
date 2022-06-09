@@ -13,6 +13,9 @@ import javax.ws.rs.core.Response;
 
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+
 import com.google.cloud.datastore.*;
 
 @Path("/stats")
@@ -38,7 +41,7 @@ public class StatisticsResource {
 
 	@GET
 	@Path("/users")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response userStatistics() {
 		LOG.info("Attempt to read users related statistics.");
 
@@ -51,7 +54,7 @@ public class StatisticsResource {
 
     @GET
 	@Path("/parcels")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response parcelStatistics() {
 		LOG.info("Attempt to read parcels related statistics.");
 
@@ -65,16 +68,26 @@ public class StatisticsResource {
 	@POST
 	@Path("/parcelsByRegion")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response parcelRegionStatistics(RequestData data) {
 		LOG.info("Attempt to read parcels related statistics.");
 
 		if (!data.isUsernameValid())
-		return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
-		Key parcelKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(STAT)
+								   .setFilter(CompositeFilter.and(PropertyFilter.eq("REGION", data.username)))//TODO not finished
+								   .build();
 
-		Entity parcels = datastore.get(parcelKey);
+		QueryResults<Entity> statsResult = datastore.run(statsQuery);
 
-		return Response.ok(parcels.getString(VALUE)).build();
+		long counter = 0;
+
+		while(statsResult.hasNext()){
+			Entity stat = statsResult.next();
+			counter += stat.getLong(VALUE);
+		}
+
+		return Response.ok(counter).build();
 	}
 }

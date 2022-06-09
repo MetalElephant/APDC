@@ -22,6 +22,8 @@ import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 
@@ -38,6 +40,7 @@ public class ForumResource {
 
     //Forum information
     private static final String TOPIC = "Topic";
+    private static final String POINTS = "Points";
     private static final String CRT_DATE = "Creation date";
 
     //Keys
@@ -92,6 +95,7 @@ public class ForumResource {
 
             forum = Entity.newBuilder(forumKey)
                     .set(TOPIC, data.topic)
+                    .set(POINTS, 0L)
                     .set(CRT_DATE, cal.getTime().toString())
                     .build();
 
@@ -153,6 +157,7 @@ public class ForumResource {
             Entity message = Entity.newBuilder(messageKey)
             .set(MESSAGE, data.message)
             .set(OWNER, data.username)
+            .set(POINTS, 0L)
             .set(CRT_DATE, cal.getTime().toString())
             .build();
 
@@ -229,10 +234,41 @@ public class ForumResource {
 		QueryResults<Entity> forumResult = datastore.run(forumQuery);
 
 		forumResult.forEachRemaining(f -> {
-			forumList.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
+			forumList.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(),
+                                        f.getString(TOPIC), String.valueOf(f.getLong(POINTS)), f.getString(CRT_DATE)));
 		});
 
 		return Response.ok(g.toJson(forumList)).build();
+    }
+
+    @POST
+    @Path("/search")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response searchForums(RequestData data){
+        LOG.info("Attempt to search forums.");
+
+        if (!data.isDataValid())
+            return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+
+        Entity user = datastore.get(userKey);
+        Entity token = datastore.get(tokenKey);
+
+        if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+
+        List<ForumInfo> results = forumSearchQuery(data.name);
+
+        return Response.ok(g.toJson(results)).build();
     }
 
     @POST
@@ -305,6 +341,42 @@ public class ForumResource {
         }
     }
 
+    private List<ForumInfo> forumSearchQuery(String query){
+        Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
+								  .build();
+
+		QueryResults<Entity> forumResult = datastore.run(forumQuery);
+
+		List<ForumInfo> forums = new LinkedList<>();
+
+		forumResult.forEachRemaining(f -> {
+            if (isQueryOk(f.getKey().getName(), query))
+			    forums.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(), f.getString(TOPIC), 
+                                         String.valueOf(f.getLong(POINTS)), f.getString(CRT_DATE)));
+		});
+
+		return forums;
+    }
+
+    private static boolean isQueryOk(String name, String query){
+        name = name.toLowerCase();
+        query = query.toLowerCase();
+
+        if (query.equals(name))
+            return true;
+
+        String[] sections = query.split(" ");
+        String aux;
+
+        for (int i = 0; i < sections.length; i ++){
+            aux = sections[i];
+            if (aux.length() > 2 && name.contains(aux))
+                return true;
+        }
+
+        return false;
+    }
+
     private List<ForumInfo> getUserForumQueries(String username){
         Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
 								  .setFilter(PropertyFilter.hasAncestor(
@@ -316,7 +388,7 @@ public class ForumResource {
 		List<ForumInfo> forums = new LinkedList<>();
 
 		forumResult.forEachRemaining(f -> {
-			forums.add(new ForumInfo(username, f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
+			forums.add(new ForumInfo(username, f.getKey().getName(), f.getString(TOPIC), String.valueOf(f.getLong(POINTS)), f.getString(CRT_DATE)));
 		});
 
 		return forums;
@@ -333,7 +405,7 @@ public class ForumResource {
 		List<MessageInfo> forumMsg = new LinkedList<>();
 
 		messages.forEachRemaining(msg -> {
-			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
+			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), String.valueOf(msg.getLong(POINTS)), msg.getString(CRT_DATE)));
 		});
 
 		return forumMsg;

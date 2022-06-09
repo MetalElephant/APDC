@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -17,6 +18,7 @@ import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
+import pt.unl.fct.di.adc.avindividual.util.RemoveParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
@@ -205,17 +207,86 @@ public class ParcelResource {
 				tn.rollback();
 		}
 	}
+
+	@DELETE
+	@Path("/remove")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response deleteParcel(RemoveParcelData data){
+		LOG.info("Attempting to remove parcel: " + data.parcelName);
+
+		if (!data.isDataValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
+		Transaction tn = datastore.newTransaction();
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
+		Key parcelKey = datastore.newKeyFactory().setKind(PARCEL).newKey(data.parcelName);
+
+		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+
+		try {
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
+            Entity parcel = tn.get(parcelKey);
+
+			if (user == null) {
+				LOG.warning("User " + data.username + " does not exist.");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
+			}
+
+			if (parcel == null){
+				LOG.warning("Parcel to be removed " + data.parcelName + " does not exist.");
+				tn.rollback();
+				return Response.status(Status.NOT_FOUND).entity("Parcel to be removed " + data.parcelName + " does not exist.").build();
+			}
+
+			if (!ur.isLoggedIn(token, data.username)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
+
+			if (!canRemove(data.username)) {
+				LOG.warning("User " + data.username + " unathourized to remove parcel.");
+				tn.rollback();
+
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove parcel.").build();
+			}
+
+			//Update statistics
+			Entity stats = tn.get(statsKey);
+
+			if (stats != null){
+				stats = Entity.newBuilder(statsKey)
+						.set(VALUE, stats.getLong(VALUE)-1L)
+						.build();
+					
+				tn.put(stats);
+			}
+
+			tn.delete(parcelKey);
+			tn.commit();
+
+			return Response.ok("User " + data.username + " deleted the parcel " + data.parcelName).build();
+
+		} finally {
+			if (tn.isActive())
+				tn.rollback();
+		}
+	}
 	
 	@POST
 	@Path("/info")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response parcelInfo(RequestData data) {
-		LOG.fine("Attempting to show parcel " + data.name);
+		LOG.info("Attempting to show parcel " + data.name);
 
-		if(!data.isDataValid()){
+		if(!data.isDataValid())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		}
+		
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.name);
@@ -372,6 +443,11 @@ public class ParcelResource {
 		boolean overlaps = false;
 
 		return overlaps;
+	}
+
+	private boolean canRemove(String username){
+		//TODO
+		return true;
 	}
 
 	public void verifyChanges(ParcelUpdateData data, Entity modified) {
