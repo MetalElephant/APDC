@@ -5,10 +5,10 @@ import java.util.regex.Pattern;
 public class RegisterData {
 
 	//Mandatory information
-	public String username, password, pwdConfirmation, email, name;
+	public String username, password, pwdConfirmation, email, name, role;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code;
+	public String profile, homePhone, mobilePhone, address,  nif, visibility, code;
 
 	public byte[] photo;
 	
@@ -17,7 +17,7 @@ public class RegisterData {
 	public RegisterData() {}
 	
 	public RegisterData(String username, String password, String confirmation, String email, String name, String visibility,
-			String homePhone, String mobilePhone, String address, String nif, String code, byte[] photo) {
+			String homePhone, String mobilePhone, String address, String nif, String code, byte[] photo, String role) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
@@ -25,6 +25,7 @@ public class RegisterData {
 		this.email = email;
 		this.name = name;
 		this.visibility = visibility;
+		this.role = role;
 
 		//Optional information
 		this.homePhone = homePhone;
@@ -35,7 +36,7 @@ public class RegisterData {
 		this.photo = photo;
 	}
 
-	public RegisterData(String username, String password, String confirmation, String email, String name, String code) {
+	public RegisterData(String username, String password, String confirmation, String email, String name, String code, String role) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
@@ -43,7 +44,7 @@ public class RegisterData {
 		this.email = email;
 		this.name = name;
 		this.code = code;
-		
+		this.role = role;
 	}
 
 	public void optionalAttributes() {
@@ -67,12 +68,13 @@ public class RegisterData {
 	public boolean validData(){
 		//Check missing info
 		if(this.username == null || this.password == null || this.email == null|| this.name == null 
-				|| this.pwdConfirmation == null || this.visibility == null)
+				|| this.pwdConfirmation == null || this.visibility == null || this.role == null)
 			return false;
 		
 		//Check empty data
 		if(this.username.length() == 0 || this.password.length() == 0 || this.email.length() == 0||
-				this.name.length() == 0	|| this.pwdConfirmation.length() == 0 || this.visibility.length() == 0)
+			this.name.length() == 0	|| this.pwdConfirmation.length() == 0 || this.visibility.length() == 0 ||
+			this.role.length() == 0)
 			return false;
 		
 		return true;	

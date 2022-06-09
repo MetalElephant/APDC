@@ -143,7 +143,7 @@ public class UserResource {
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
-					.set(ROLE, Roles.USER.getRole())
+					.set(ROLE, data.role)
 					.set(MPHONE, data.mobilePhone)
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
@@ -708,7 +708,7 @@ public class UserResource {
 	}
 
 	private List<String> getQueries(String role) {
-		if (role.equals(Roles.USER.getRole())) {
+		if (role.equals(Roles.OWNER.getRole())) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.build();
