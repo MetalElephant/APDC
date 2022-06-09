@@ -3,6 +3,9 @@ package pt.unl.fct.di.adc.avindividual.resources;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
@@ -14,6 +17,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.checkerframework.checker.units.qual.C;
+
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
@@ -26,10 +32,14 @@ import pt.unl.fct.di.adc.avindividual.util.RemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.storage.StorageOptions;
 
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -53,8 +63,15 @@ public class UserResource {
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
+	private static final String PHOTO = "photo";
 	private static final String POINTS = "points";
 	private static final String CTIME = "creation time";
+
+	private static final String UNDEFINED = "UNDEFINED";
+
+	//Bucket information
+	private static final String PROJECT_ID = "Land It";
+	private static final String BUCKET_NAME = "our-hull-344121.appspot.com";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -120,7 +137,7 @@ public class UserResource {
 			
 			//call some function to verify code and reward points, extra rewards for the first 3 months
 			//If indeed implements a points system update the other persons points as well
-
+			
 			//Create User and Code entity
 			user = Entity.newBuilder(userKey)
 					.set(NAME, data.name)
@@ -132,6 +149,7 @@ public class UserResource {
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
+					.set(PHOTO, uploadPhoto(data.username, data.photo))
 					.set(POINTS, String.valueOf(points))
 					.set(CTIME, Timestamp.now())
                     .build();
@@ -595,6 +613,18 @@ public class UserResource {
 		}
 				
 		return true;
+	}
+
+	private String uploadPhoto(String name, byte[] data){
+		String url;
+
+		Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+		BlobId blobId = BlobId.of(BUCKET_NAME, name);
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+		
+		url = storage.create(blobInfo, data).getSelfLink();
+
+		return url;
 	}
 
 	//Add points from code to registered user and new user

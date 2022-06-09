@@ -9,13 +9,15 @@ public class RegisterData {
 
 	//Optional or default information
 	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code;
+
+	public byte[] photo;
 	
 	private static final String UNDEFINED = "UNDEFINED";
 	
 	public RegisterData() {}
 	
 	public RegisterData(String username, String password, String confirmation, String email, String name, String visibility,
-			String homePhone, String mobilePhone, String address, String nif, String code) {
+			String homePhone, String mobilePhone, String address, String nif, String code, byte[] photo) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
@@ -30,6 +32,7 @@ public class RegisterData {
 		this.address = address;
 		this.nif = nif;	
 		this.code = code;
+		this.photo = photo;
 	}
 
 	public RegisterData(String username, String password, String confirmation, String email, String name, String code) {
