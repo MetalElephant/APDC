@@ -574,7 +574,7 @@ public class UserResource {
 
 		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME),
 		user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-		user.getString(ROLE), user.getString(VISIBILITY));
+		user.getString(ROLE), user.getString(VISIBILITY), user.getString(URL));
 
 		return Response.ok(g.toJson(u)).build();
 	}
@@ -613,7 +613,6 @@ public class UserResource {
 	}
 
 	private String uploadPhoto(String name, byte[] data){
-
 		if (data == null || data.length == 0)
 			return UNDEFINED;
 
