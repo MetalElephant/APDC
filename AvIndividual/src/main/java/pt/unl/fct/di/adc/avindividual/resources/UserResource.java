@@ -3,9 +3,6 @@ package pt.unl.fct.di.adc.avindividual.resources;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
@@ -17,8 +14,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.checkerframework.checker.units.qual.C;
 
 import com.google.gson.Gson;
 
@@ -34,6 +29,7 @@ import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Storage;
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
@@ -72,6 +68,7 @@ public class UserResource {
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
 	private static final String BUCKET_NAME = "our-hull-344121.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/our-hull-344121.appspot.com/";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -616,15 +613,17 @@ public class UserResource {
 	}
 
 	private String uploadPhoto(String name, byte[] data){
-		String url;
+
+		if (data == null || data.length == 0)
+			return UNDEFINED;
 
 		Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
 		BlobId blobId = BlobId.of(BUCKET_NAME, name);
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-		
-		url = storage.create(blobInfo, data).getSelfLink();
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/jpeg").build();
+		storage.create(blobInfo, data);
+		storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
-		return url;
+		return URL + name;
 	}
 
 	//Add points from code to registered user and new user
