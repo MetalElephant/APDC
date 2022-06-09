@@ -616,15 +616,15 @@ public class UserResource {
 	}
 
 	private String uploadPhoto(String name, byte[] data){
-		String url;
+
+		if (data == null || data.length == 0)
+			return UNDEFINED;
 
 		Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
 		BlobId blobId = BlobId.of(BUCKET_NAME, name);
 		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
-		
-		url = storage.create(blobInfo, data).getSelfLink();
 
-		return url;
+		return storage.create(blobInfo, data).getSelfLink();
 	}
 
 	//Add points from code to registered user and new user
