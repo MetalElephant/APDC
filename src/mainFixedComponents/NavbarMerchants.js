@@ -3,16 +3,15 @@ import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
 import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
-import ParcelsPage from "../parcelComponents/ParcelsPage";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
-import RewardsPage from "../rewardComponents/RewardsPage"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
+import RewardsMerchantPage from "../rewardComponents/RewardsMerchantPage";
 
 
 
-export default function NavbarOps() {
+export default function NavbarMerchants() {
 
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
 
@@ -35,7 +34,6 @@ export default function NavbarOps() {
                         scrollButtons
                     >
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="User" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcels" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Rewards" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Forum" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
@@ -53,11 +51,10 @@ export default function NavbarOps() {
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
-            {selectedLeftTab === 1 && <ParcelsPage />}
-            {selectedLeftTab === 2 && <RewardsPage />}
-            {selectedLeftTab === 3 && <ForumPage />}
-            {selectedLeftTab === 4 && <AboutUs />}
-            {selectedLeftTab === 5 && <StatisticsPage />}
+            {selectedLeftTab === 1 && <RewardsMerchantPage />}
+            {selectedLeftTab === 2 && <ForumPage />}
+            {selectedLeftTab === 3 && <AboutUs />}
+            {selectedLeftTab === 4 && <StatisticsPage />}
 
         </>
     )

@@ -7,6 +7,7 @@ import ForumMessagesPage from "./forumComponents/ForumMessagesPage";
 import NavbarMessages from "./mainFixedComponents/NavbarMessages";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import './style.css';
+import NavbarMerchants from "./mainFixedComponents/NavbarMerchants";
 
 
 
@@ -29,6 +30,9 @@ export default function App() {
                     </Route>
                     <Route exact path="/administration">
                         <AdministrationPage />
+                    </Route>
+                    <Route exact path="/merchants">
+                        <NavbarMerchants />
                     </Route>
                 </Switch>
             </div>

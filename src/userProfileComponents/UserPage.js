@@ -3,7 +3,6 @@ import { Button, Grid, Typography } from "@mui/material";
 import UserInfo from "./UserInfo"
 import ModifyPassword from "./ModifyPassword";
 import restCalls from "../restCalls"
-import DrawerMessingAround from "../mainFixedComponents/DrawerMessingAround"
 import {useHistory} from "react-router-dom";
 import ModifyAttributes from "./ModifyAttributes";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
