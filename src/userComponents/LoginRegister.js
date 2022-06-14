@@ -1,9 +1,10 @@
 import react from "react"
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, inputAdornmentClasses } from "@mui/material";
 import { useHistory } from "react-router-dom"
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useEffect } from "react";
 
 export default function LoginRegister() {
     let history = useHistory();
@@ -38,6 +39,23 @@ export default function LoginRegister() {
     const [showPasswordRegister, setShowPasswordRegister] = react.useState(false);
     const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
 
+
+    const [image, setImage] = react.useState();
+    const [preview, setPreview] = react.useState();
+    const [imageArray, setImageArray] = react.useState();
+    const fileInputRef = react.useRef();
+
+    useEffect(() => {
+        if (image) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            }
+            reader.readAsDataURL(image);
+        } else {
+            setPreview(null);
+        }
+    }, [image]);
 
     function usernameLoginHandler(e) {
         setUsernameLogin(e.target.value);
@@ -97,13 +115,31 @@ export default function LoginRegister() {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif)
-            .then(() => resetRegisterValues())
+            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, imageArray)
+                .then(() => resetRegisterValues())
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
         } else {
             setIsRegisterNotSubmit(true)
             setDisplayRegisterMessage(1)
+        }
+
+    }
+
+    function loadPhoto(f) {
+        const reader = new FileReader();
+        const fileByteArray = [];
+
+        reader.readAsArrayBuffer(f);
+        reader.onloadend = (evt) => {
+            if (evt.target.readyState === FileReader.DONE) {
+                const arrayBuffer = evt.target.result,
+                    array = new Uint8Array(arrayBuffer);
+                for (const a of array) {
+                    fileByteArray.push(a);
+                }
+                setImageArray(fileByteArray)
+            }
         }
     }
 
@@ -410,7 +446,7 @@ export default function LoginRegister() {
                                     onChange={nameHandler}
                                 />
 
-                                <FormControl sx={{ mt: "13px" }}>
+                                <FormControl sx={{ mt: "13px", pb: 1 }}>
                                     <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
                                     <RadioGroup
                                         aria-labelledby="demo-radio-buttons-group-label"
@@ -424,6 +460,62 @@ export default function LoginRegister() {
                                     </RadioGroup>
                                 </FormControl>
 
+
+                                <div>
+                                    <form>
+                                        {preview ? (
+                                            <img
+                                                src={preview}
+                                                style={{ objectFit: "cover", width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                                onClick={() => {
+                                                    setImage(null);
+                                                }}
+                                            />
+                                        ) : (
+                                            <button
+                                                style={{ width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    fileInputRef.current.click();
+                                                }}
+                                            >
+                                                Add Profile Picture
+                                            </button>
+                                        )}
+                                        <input
+                                            type="file"
+                                            style={{ display: "none" }}
+                                            ref={fileInputRef}
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file && file.type.substring(0, 5) === "image") {
+                                                    setImage(file);
+                                                    loadPhoto(file);
+                                                } else {
+                                                    setImage(null);
+                                                }
+                                            }}
+                                        />
+
+                                    </form>
+                                </div>
+                                {/*                
+                                <FormControl sx={{ mt: "13px", pb: 1 }}>
+                                    <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">User Role</Typography></FormLabel>
+                                    <RadioGroup
+                                        aria-labelledby="demo-radio-buttons-group-label"
+                                        name="radio-buttons-group"
+                                        row
+                                        defaultValue="Proprietario"
+                                        //onChange={visibilityHandler}
+                                    >
+                                        <FormControlLabel value="Proprietario" control={<Radio color="success" />} label="Proprietario" sx={{ color: "black" }} />
+                                        <FormControlLabel value="Comerciante" control={<Radio color="success" />} label="Comerciante" sx={{ color: "black" }} />
+                                        <FormControlLabel value="Moderador" control={<Radio color="success" />} label="Moderador" sx={{ color: "black" }} />
+                                    </RadioGroup>
+                                </FormControl>
+                                */}
                                 <TextField
                                     margin="normal"
                                     fullWidth

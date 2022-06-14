@@ -13,6 +13,7 @@ export default function UserInfo() {
     const [mobilephone, setMobilephone] = react.useState("")
     const [address, setAddress] = react.useState("")
     const [nif, setNif] = react.useState("")
+    const [image, setImage] = react.useState("")
 
     useEffect(() => {
         var user = JSON.parse(localStorage.getItem('user'))
@@ -25,6 +26,7 @@ export default function UserInfo() {
         setMobilephone(user.mobilephone)
         setAddress(user.address)
         setNif(user.nif)
+        setImage(user.photo)
     })
 
     return (
@@ -78,7 +80,7 @@ export default function UserInfo() {
                     alignItems="center"
                     justifyContent="center"
             >       
-                <Box component="img" src = {userAvatar} sx={{height: "350px", width: "350px"}}   />
+                <Box component="img" src = {image} sx={{height: "500px", width: "500px", objectFit: "contain"}}   />
             </Grid>
         </>
     )

@@ -31,11 +31,12 @@ class restCalls {
     }
 
 
-    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif) {
+    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo) {
         return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json; charset=UTF-8',
+
             },
             body: JSON.stringify({
                 username: username,
@@ -47,7 +48,8 @@ class restCalls {
                 homePhone: homePhone,
                 mobilePhone: mobilePhone,
                 address: address,
-                nif: nif
+                nif: nif,
+                photo: photo
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -349,6 +351,45 @@ class restCalls {
         })
     }
 
+    createSuperUser() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/startup/superuser", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
+    createStatistics() {
+        return fetch("https://upbeat-polygon-344116.appspot.com/rest/startup/statistics", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
 
     logout() {
         return fetch("https://upbeat-polygon-344116.appspot.com/rest/users/logout", {
