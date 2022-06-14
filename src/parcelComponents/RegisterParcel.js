@@ -1,7 +1,9 @@
-import react, { useRef, useCallback } from 'react'
+import react, { useRef, useCallback, useEffect } from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import * as XLSX from "xlsx";
+import freguesiasExcel from "../freguesias/freguesias.xlsx"
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
@@ -18,6 +20,39 @@ export default function RegisterParcel() {
     const [isParcelNotSubmit, setIsParcelNotSubmit] = react.useState(false);
     const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
     let index = 0;
+
+    /*
+    useEffect(() => {
+        const file = freguesiasExcel;
+        const reader = new FileReader();
+
+        reader.onload = (evt) => {
+            const bstr = evt.target.result;
+            const wb = XLSX.read(bstr, { type: "binary" });
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
+            console.log(data);
+        };
+        reader.readAsBinaryString(file);
+    })
+    */
+
+    
+    const onChange = (e) => {
+        const [file] = e.target.files;
+        const reader = new FileReader();
+
+        reader.onload = (evt) => {
+            const bstr = evt.target.result;
+            const wb = XLSX.read(bstr, { type: "binary" });
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
+            console.log(data);
+        };
+        reader.readAsBinaryString(file);
+    };
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
