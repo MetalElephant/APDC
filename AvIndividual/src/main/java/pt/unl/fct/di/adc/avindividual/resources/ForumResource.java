@@ -22,8 +22,6 @@ import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
 import com.google.cloud.datastore.*;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
-import com.google.cloud.datastore.StructuredQuery.OrderBy;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 
@@ -71,7 +69,6 @@ public class ForumResource {
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(FORUM).newKey(data.forumName);
         Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
-
         Transaction tn = datastore.newTransaction();
 
         try{
@@ -132,8 +129,9 @@ public class ForumResource {
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.forum);
 
         IncompleteKey msgIncKey = datastore.newKeyFactory().addAncestors(PathElement.of(FORUM, data.forum)).setKind(MESSAGE).newKey();
-
         Key messageKey = datastore.allocateId(msgIncKey);
+
+        Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
 
         Transaction tn = datastore.newTransaction();
 
@@ -169,6 +167,8 @@ public class ForumResource {
             .set(POINTS, 0L)
             .set(CRT_DATE, cal.getTime().toString())
             .build();
+
+            sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
             tn.add(message);
             tn.commit();

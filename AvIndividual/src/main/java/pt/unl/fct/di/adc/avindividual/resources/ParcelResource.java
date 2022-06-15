@@ -20,10 +20,12 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelSearchData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/parcel")
@@ -39,7 +41,7 @@ public class ParcelResource {
 	private StatisticsResource sr = new StatisticsResource();
 	
 	//Parcel info
-	private static final String PARCEL_REGION = "parcel region";
+	private static final String REGION = "parcel region";
 	private static final String DESCRIPTION = "description";
 	private static final String GROUND_COVER_TYPE = "ground cover type";
 	private static final String CURR_USAGE = "current usage";
@@ -109,7 +111,7 @@ public class ParcelResource {
 			}
 			
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(PARCEL_REGION, data.parcelRegion)
+					.set(REGION, data.parcelRegion)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -178,7 +180,7 @@ public class ParcelResource {
 			verifyChanges(data, parcel);
 
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(PARCEL_REGION, parcel.getString(PARCEL_REGION))
+					.set(REGION, parcel.getString(REGION))
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -307,7 +309,7 @@ public class ParcelResource {
 			markers[i] = parcel.getLatLng(MARKER+i);
 		}
 
-		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(PARCEL_REGION), 
+		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
 		parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
 			
 		return Response.ok(g.toJson(p)).build();
@@ -345,6 +347,129 @@ public class ParcelResource {
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
 
+	@POST
+	@Path("/searchByRegion")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response searchParcelRegion(RequestData data){
+		LOG.info("Attempt to list specific parcels");
+
+		if(!data.isDataValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getParcelByRegion(data.name);
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	@POST
+	@Path("/searchByPosition")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response searchParcelPosition(ParcelSearchData data){
+		LOG.info("Attempt to list specific parcels");
+
+		if(!data.isDataValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		data.validatePosition();
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getParcelByPosition(data.latMax, data.latMin, data.longMax, data.longMin);
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								    .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			int n = Integer.parseInt(parcel.getString(NMARKERS));
+
+			LatLng markers[] = new LatLng[n];
+			boolean outside = false;
+
+			for (int i = 0; i < n; i++){
+				markers[i] = parcel.getLatLng(MARKER+i);
+
+				if (markers[i].getLatitude() > latMax || markers[i].getLatitude() < latMin || markers[i].getLongitude() > longMax || markers[i].getLongitude() < longMin){
+					outside = true;
+					break;
+				}
+			}
+			
+			if (!outside){
+				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
+				parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+			}
+		});
+
+		return userParcels;
+	}
+
+	private List<ParcelInfo> getParcelByRegion(String region){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								    .setFilter(CompositeFilter.and(PropertyFilter.eq(REGION, region)))
+								    .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			int n = Integer.parseInt(parcel.getString(NMARKERS));
+
+			LatLng markers[] = new LatLng[n];
+
+			for (int i = 0; i < n; i++){
+				markers[i] = parcel.getLatLng(MARKER+i);
+			}
+
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
+			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+		});
+
+		return userParcels;
+	}
+
 	private List<ParcelInfo> getQueries(String owner){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(PropertyFilter.hasAncestor(
@@ -364,7 +489,7 @@ public class ParcelResource {
 				markers[i] = parcel.getLatLng(MARKER+i);
 			}
 
-			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(PARCEL_REGION), 
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
 			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 		});
 
