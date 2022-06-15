@@ -1,6 +1,6 @@
 import react from "react"
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, inputAdornmentClasses } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, inputAdornmentClasses, Card, Select, InputLabel, MenuItem } from "@mui/material";
 import { useHistory } from "react-router-dom"
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -21,6 +21,7 @@ export default function LoginRegister() {
     const [mobilePhone, setMobilePhone] = react.useState("");
     const [address, setAddress] = react.useState("");
     const [nif, setNif] = react.useState("");
+    const [role, setRole] = react.useState("");
 
     const [usernameErr, setUsernameErr] = react.useState({});
     const [passwordErr, setPasswordErr] = react.useState({});
@@ -105,17 +106,37 @@ export default function LoginRegister() {
         setNif(e.target.value);
     }
 
+    function roleHandler(e) {
+        setRole(e.target.value);
+    }
+
+    function switchForRole() {
+        var roleType = JSON.parse(localStorage.getItem('user')).role
+        switch (roleType) {
+            case "Proprietário":
+                history.push("/main")
+                break;
+            case "Comerciante":
+                history.push("/merchants")
+                break;
+            case "Autarca":
+                history.push("/mayors")
+                break;
+            default:
+                break;
+        }
+    }
+
     function loginManager(e) {
         e.preventDefault();
-        restCalls.login(usernameLogin, passwordLogin).then(
-            () => { restCalls.userInfo().then(() => { history.push("/main") }) }).catch(() => { setIsLoginSubmit(false) })
+        restCalls.login(usernameLogin, passwordLogin).then(() => { restCalls.userInfo().then(() => { switchForRole() }) }).catch(() => { setIsLoginSubmit(false) })
     }
 
     function registerManager(e) {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, imageArray)
+            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, imageArray, role)
                 .then(() => resetRegisterValues())
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
@@ -270,10 +291,20 @@ export default function LoginRegister() {
         <Grid container spacing={2} direction="column" bgcolor="white">
             <Grid item xs={12} container >
                 <Grid item xs={2.5} align="center">
-                    {!isLoginSubmit ?
-                        <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Login não efetuado. Username ou password incorretos.</Typography>
-                        </Alert> : <></>}
+                    <Box sx={{ p: 4 }}>
+                        <Card raised sx={{ p: 1 }}>
+                            <Typography variant="h5" sx={{ fontSize: 12 }}>
+                                Número de utilizadores registados no sistema: 25
+                            </Typography>
+                        </Card>
+                    </Box>
+                    <Box sx={{ p: 4 }}>
+                        <Card raised sx={{ p: 1 }} >
+                            <Typography variant="h5" sx={{ fontSize: 12 }}>
+                                Número de parcelas registadas no sistema: 83
+                            </Typography>
+                        </Card>
+                    </Box>
                 </Grid>
                 <Grid item xs={3}>
                     <Container component="main" maxWidth="xs">
@@ -332,6 +363,10 @@ export default function LoginRegister() {
                                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
                                 </Button>
                             </Box>
+                            {!isLoginSubmit ?
+                                <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Login não efetuado. Username ou password incorretos.</Typography>
+                                </Alert> : <></>}
                         </Box>
                     </Container>
                 </Grid>
@@ -446,6 +481,21 @@ export default function LoginRegister() {
                                     onChange={nameHandler}
                                 />
 
+                                <FormControl variant="standard">
+                                    <InputLabel id="id" sx={{ color: "green" }} >Role</InputLabel>
+                                    <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
+                                        <MenuItem value="Proprietário" label="Proprietário">
+                                            Proprietário
+                                        </MenuItem >
+                                        <MenuItem value="Comerciante" label="Comerciante">
+                                            Comerciante
+                                        </MenuItem>
+                                        <MenuItem value="Autarca" label="Autarca">
+                                            Autarca
+                                        </MenuItem>
+                                    </Select>
+                                </FormControl>
+
                                 <FormControl sx={{ mt: "13px", pb: 1 }}>
                                     <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
                                     <RadioGroup
@@ -459,6 +509,7 @@ export default function LoginRegister() {
                                         <FormControlLabel value="Private" control={<Radio color="success" />} label="Private" sx={{ color: "black" }} />
                                     </RadioGroup>
                                 </FormControl>
+
 
 
                                 <div>
@@ -500,22 +551,7 @@ export default function LoginRegister() {
 
                                     </form>
                                 </div>
-                                {/*                
-                                <FormControl sx={{ mt: "13px", pb: 1 }}>
-                                    <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">User Role</Typography></FormLabel>
-                                    <RadioGroup
-                                        aria-labelledby="demo-radio-buttons-group-label"
-                                        name="radio-buttons-group"
-                                        row
-                                        defaultValue="Proprietario"
-                                        //onChange={visibilityHandler}
-                                    >
-                                        <FormControlLabel value="Proprietario" control={<Radio color="success" />} label="Proprietario" sx={{ color: "black" }} />
-                                        <FormControlLabel value="Comerciante" control={<Radio color="success" />} label="Comerciante" sx={{ color: "black" }} />
-                                        <FormControlLabel value="Moderador" control={<Radio color="success" />} label="Moderador" sx={{ color: "black" }} />
-                                    </RadioGroup>
-                                </FormControl>
-                                */}
+
                                 <TextField
                                     margin="normal"
                                     fullWidth

@@ -29,8 +29,8 @@ class restCalls {
     }
 
 
-    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo) {
-        return fetch("https://land--it.appspot.com/rest/users/register", {
+    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo, role) {
+        return fetch("https://land--it.appspot.com/rest/users/register/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -47,7 +47,8 @@ class restCalls {
                 mobilePhone: mobilePhone,
                 address: address,
                 nif: nif,
-                photo: photo
+                photo: photo,
+                role: role
             })
         }).then(function (response) {
             if (!response.ok) {
