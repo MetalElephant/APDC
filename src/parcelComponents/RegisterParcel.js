@@ -1,9 +1,8 @@
 import react, { useRef, useCallback, useEffect } from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
-import * as XLSX from "xlsx";
-import freguesiasExcel from "../freguesias/freguesias.xlsx"
+import locais from "../locais/distritos.txt"
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
@@ -11,6 +10,8 @@ export default function RegisterParcel() {
     const [allLngs, setAllLngs] = react.useState([]);
     const [parcelName, setParcelName] = react.useState("");
     const [parcelId, setParcelId] = react.useState("");
+    //const [existingParcels2, setExistingParcels2] = react.useState([]);
+    //const [currMarkers2, setCurrMarkers2] = react.useState([]);
     const [description, setDescription] = react.useState("");
     const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
@@ -19,40 +20,46 @@ export default function RegisterParcel() {
     const [isParcelSubmit, setIsParcelSubmit] = react.useState(false);
     const [isParcelNotSubmit, setIsParcelNotSubmit] = react.useState(false);
     const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
+    const [freg, setFreg] = react.useState([]);
+    const [conc, setConc] = react.useState([]);
+    const [dist, setDist] = react.useState([]);
+
     let index = 0;
+    let existingParcels = []
 
-    /*
+    var parcels = JSON.parse(localStorage.getItem('parcels'))
+
     useEffect(() => {
-        const file = freguesiasExcel;
-        const reader = new FileReader();
+        restCalls.parcelInfo();
 
-        reader.onload = (evt) => {
-            const bstr = evt.target.result;
-            const wb = XLSX.read(bstr, { type: "binary" });
-            const wsname = wb.SheetNames[0];
-            const ws = wb.Sheets[wsname];
-            const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
-            console.log(data);
-        };
-        reader.readAsBinaryString(file);
-    })
-    */
+        if (parcels != null) {
+            parcels.map(parcel => {
+                existingParcels.push({
+                    parcelName: parcel.parcelName,
+                    markers: parcel.markers
+                })
+            })
+        }
 
-    
-    const onChange = (e) => {
-        const [file] = e.target.files;
-        const reader = new FileReader();
+        let split = [];
+        let distritos = [];
+        let concelhos = [];
+        let freguesias = [];
+        fetch(locais)
+            .then(r => r.text())
+            .then(text => {
+                split = text.split(";")
 
-        reader.onload = (evt) => {
-            const bstr = evt.target.result;
-            const wb = XLSX.read(bstr, { type: "binary" });
-            const wsname = wb.SheetNames[0];
-            const ws = wb.Sheets[wsname];
-            const data = XLSX.utils.sheet_to_csv(ws, { header: 1 });
-            console.log(data);
-        };
-        reader.readAsBinaryString(file);
-    };
+                for(let i=0; i<split.length; i++) {
+                    if(i%3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
+                    else if(i%3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
+                    else if(freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
+                }
+                setDist(distritos)
+                setConc(concelhos)
+                setFreg(freguesias)
+            });
+    }, [])
 
     function parcelIdHandler(e) {
         setParcelId(e.target.value);
@@ -90,6 +97,32 @@ export default function RegisterParcel() {
     function getLastLng() {
         if (markers.length === 0) return -7.99846;
         return markers[0].lng;
+    }
+
+    function showParcels() {
+        let polygons = []
+        let currMarkers = []
+        //console.log(existingParcels)
+        //console.log(existingParcels[0])
+
+        existingParcels.map(parcel => (
+            console.log("hi"),
+            currMarkers = parcel.markers,
+            currMarkers.map(marker => (
+                <Marker
+                    key={marker.area}
+                    id={marker.area}
+                    position={{ lat: marker.lat, lng: marker.lng }}
+                />
+            )),
+            polygons.push(
+                < Polygon
+                    path={currMarkers}
+                    options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
+                />
+            )
+        ))
+        return polygons
     }
 
     function resetValues() {
@@ -141,6 +174,8 @@ export default function RegisterParcel() {
                             allLngs.push(event.latLng.lng())
                         }}
                     >
+                        {showParcels()}
+
                         {markers.map(marker => (
                             <Marker
                                 key={index}
@@ -187,6 +222,29 @@ export default function RegisterParcel() {
                                 value={parcelName}
                                 onChange={parcelNameHandler}
                             />
+
+                            <Autocomplete
+                                selectOnFocus
+                                id="distritos"
+                                options={dist}
+                                sx={{ width: 400, mt:1 }}
+                                renderInput={(params) => <TextField {...params} label="Distrito" />}
+                            />
+                            <Autocomplete
+                                selectOnFocus
+                                id="concelhos"
+                                options={conc}
+                                sx={{ width: 400, mt:2  }}
+                                renderInput={(params) => <TextField {...params} label="Concelho" />}
+                            />
+                            <Autocomplete
+                                selectOnFocus
+                                id="freguesias"
+                                options={freg}
+                                sx={{ width: 400, mt:2  }}
+                                renderInput={(params) => <TextField {...params} label="Freguesia" />}
+                            />
+
                             <TextField
                                 margin="normal"
                                 required
