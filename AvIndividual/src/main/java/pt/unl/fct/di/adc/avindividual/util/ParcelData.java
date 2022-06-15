@@ -24,7 +24,7 @@ public class ParcelData {
 	}
 
 	public boolean isDataValid() {
-		if (this.owner == null || this.parcelName == null || this.parcelRegion == null || this.description == null || this.groundType == null || 
+		if (this.owner == null || this.owners == null || this.parcelName == null || this.parcelRegion == null || this.description == null || this.groundType == null || 
 			this.currUsage == null || this.prevUsage == null || this.area == null || this.allLats == null || this.allLngs == null)
 			return false;
 
