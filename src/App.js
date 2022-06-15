@@ -34,6 +34,9 @@ export default function App() {
                     <Route exact path="/merchants">
                         <NavbarMerchants />
                     </Route>
+                    <Route exact path="/mayors">
+                        <div>boas</div>
+                    </Route>
                 </Switch>
             </div>
         </Router>
