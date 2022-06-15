@@ -29,6 +29,8 @@ public class StartupResource {
 	//Keys
 	private static final String USER = "User";
     private static final String PARCEL = "Parcel";
+    private static final String FORUM = "Forum";
+    private static final String MESSAGE = "Message";
     private static final String STAT = "Statistics";
     private static final String VALUE = "Value";
 
@@ -99,18 +101,20 @@ public class StartupResource {
 	}
 
     @POST
-	@Path("/statistics")
-	public Response createStatistics() {
-		LOG.info("Attempt to create statistics.");
+    @Path("/statistics")
+    public Response createStatistics(){
+        LOG.info("Attempt to create statistics.");
 
         Transaction tn = datastore.newTransaction();
 
         Key userStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
         Key parcelStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+        Key forumStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
 
         try {
             Entity uStats = tn.get(userStatsKey);
             Entity pStats = tn.get(parcelStatsKey);
+            Entity fStats = tn.get(forumStatsKey);
 
             if (uStats != null){
                 return Response.status(Status.CONFLICT).entity("Statistics already exist.").build();
@@ -123,8 +127,12 @@ public class StartupResource {
             pStats = Entity.newBuilder(parcelStatsKey)
                     .set(VALUE, 0L)
                     .build();
+
+            fStats = Entity.newBuilder(forumStatsKey)
+                    .set(VALUE, 0L)
+                    .build();
             
-            tn.add(uStats, pStats);
+            tn.add(uStats, pStats, fStats);
             tn.commit();
 
             return Response.ok("Statistics created.").build();
@@ -132,5 +140,5 @@ public class StartupResource {
             if (tn.isActive())
             tn.rollback();
         }
-	}
+    }
 }

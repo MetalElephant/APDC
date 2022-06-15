@@ -3,9 +3,6 @@ package pt.unl.fct.di.adc.avindividual.resources;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
@@ -17,8 +14,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.checkerframework.checker.units.qual.C;
 
 import com.google.gson.Gson;
 
@@ -34,6 +29,7 @@ import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Storage;
 import com.google.appengine.repackaged.org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.Timestamp;
@@ -50,6 +46,7 @@ public class UserResource {
 	private final Gson g = new Gson();
 
 	//private ForumResource fr = new ForumResource();
+	private StatisticsResource sr = new StatisticsResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
@@ -71,7 +68,8 @@ public class UserResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull-344121.appspot.com";
+	private static final String BUCKET_NAME = "our-hull.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -85,9 +83,10 @@ public class UserResource {
 	//Keys
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
-	private static final String CODE = "Code";
 	private static final String STAT = "Statistics";
-	private static final String VALUE = "Value";
+	private static final String CODE = "Code";
+
+	private static final boolean ADD = true;
 	
 	public UserResource() {}
 
@@ -116,7 +115,7 @@ public class UserResource {
 		Key codeOwnerKey = datastore.newKeyFactory().setKind(USER).newKey(data.getCodeUser());
 		Key redeemCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.getCodeUser())).setKind(CODE).newKey(data.code);
 		Key generatedCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(CODE).newKey(data.generateCode());
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
 
 		try {
 			Entity user = tn.get(userKey);
@@ -163,15 +162,7 @@ public class UserResource {
 			.build();
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, 1L + stats.getLong(VALUE))
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
 			tn.add(user, generatedCodeEntity);
 
@@ -269,7 +260,7 @@ public class UserResource {
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameToRemove);
 
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
 
 		try {
             Entity user = tn.get(userKey);
@@ -308,15 +299,7 @@ public class UserResource {
 			removeUserCodes(data.usernameToRemove, tn);
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, stats.getLong(VALUE)-1L)
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
 
 			tn.delete(userToRemoveKey);
 			tn.commit();
@@ -577,7 +560,7 @@ public class UserResource {
 
 		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME),
 		user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-		user.getString(ROLE), user.getString(VISIBILITY));
+		user.getString(ROLE), user.getString(VISIBILITY), user.getString(URL));
 
 		return Response.ok(g.toJson(u)).build();
 	}
@@ -616,15 +599,16 @@ public class UserResource {
 	}
 
 	private String uploadPhoto(String name, byte[] data){
-
 		if (data == null || data.length == 0)
 			return UNDEFINED;
 
 		Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
 		BlobId blobId = BlobId.of(BUCKET_NAME, name);
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("image/jpeg").build();
+		storage.create(blobInfo, data);
+		storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
-		return storage.create(blobInfo, data).getSelfLink();
+		return URL + name;
 	}
 
 	//Add points from code to registered user and new user

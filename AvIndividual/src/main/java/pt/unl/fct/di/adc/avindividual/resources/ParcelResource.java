@@ -36,6 +36,7 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
+	private StatisticsResource sr = new StatisticsResource();
 	
 	//Parcel info
 	private static final String PARCEL_REGION = "parcel region";
@@ -52,7 +53,8 @@ public class ParcelResource {
     private static final String TOKEN = "Token";
 	private static final String PARCEL = "Parcel";
 	private static final String STAT = "Statistics";
-	private static final String VALUE = "Value";
+
+	private static final boolean ADD = true;
 
 	public ParcelResource() { }
 	
@@ -70,7 +72,7 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 		
 		try {
 			Entity user = tn.get(userKey);
@@ -123,15 +125,7 @@ public class ParcelResource {
 			parcel = builder.build();
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, 1L + stats.getLong(VALUE))
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 			
 			tn.add(parcel);
 			tn.commit();
@@ -223,7 +217,7 @@ public class ParcelResource {
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key parcelKey = datastore.newKeyFactory().setKind(PARCEL).newKey(data.parcelName);
 
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
 		try {
             Entity user = tn.get(userKey);
@@ -256,15 +250,7 @@ public class ParcelResource {
 			}
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, stats.getLong(VALUE)-1L)
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
 			tn.delete(parcelKey);
 			tn.commit();

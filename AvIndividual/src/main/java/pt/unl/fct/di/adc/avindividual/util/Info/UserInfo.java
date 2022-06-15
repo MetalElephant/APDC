@@ -2,11 +2,9 @@ package pt.unl.fct.di.adc.avindividual.util.Info;
 
 public class UserInfo {
 
-	public String username, email, name, landphone, mobilephone, address, nif, role, visibility;
-
-	public UserInfo() { }
+	public String username, email, name, landphone, mobilephone, address, nif, role, visibility, photo;
 	
-	public UserInfo(String username, String email, String name, String landphone, String mobilephone, String address, String nif, String role, String visibility) {
+	public UserInfo(String username, String email, String name, String landphone, String mobilephone, String address, String nif, String role, String visibility, String photo) {
 		this.username = username;
 		this.email = email;
 		this.name = name;
@@ -16,5 +14,6 @@ public class UserInfo {
 		this.nif = nif;
 		this.role = role;
 		this.visibility = visibility;
+		this.photo = photo;
 	}
 }
