@@ -3,11 +3,13 @@ package pt.unl.fct.di.adc.avindividual.util;
 public class ParcelUpdateData {
 
 	public String owner, parcelName, parcelRegion, description, groundType, currUsage, prevUsage;
+	public String[] owners;
 	
 	public ParcelUpdateData() {}
 	
-	public ParcelUpdateData(String owner, String parcelName, String description, String groundType, String currUsage, String prevUsage) {
+	public ParcelUpdateData(String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage) {
 		this.owner = owner;
+		this.owners = owners;
 		this.parcelName = parcelName;
 		this.description = description;
 		this.groundType = groundType;

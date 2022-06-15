@@ -41,6 +41,8 @@ public class ParcelResource {
 	private StatisticsResource sr = new StatisticsResource();
 	
 	//Parcel info
+	private static final String OWNER = "Owner";
+	private static final String NOWNERS = "number of owners";
 	private static final String REGION = "parcel region";
 	private static final String DESCRIPTION = "description";
 	private static final String GROUND_COVER_TYPE = "ground cover type";
@@ -117,10 +119,14 @@ public class ParcelResource {
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, data.area)
-                    .set(NMARKERS, String.valueOf(data.allLats.length));
+                    .set(NMARKERS, String.valueOf(data.allLats.length))
+					.set(NOWNERS, String.valueOf(data.owners.length));
 			
-
-			for(int i = 0; i< data.allLats.length; i++) {
+			for(int i = 0; i < data.owners.length; i++){
+				builder.set(OWNER+i, data.owners[i]);
+			}
+			
+			for(int i = 0; i< markers.length; i++) {
 				builder.set(MARKER+i, markers[i]);
 			}
 
@@ -187,6 +193,10 @@ public class ParcelResource {
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, parcel.getString(AREA))
                     .set(NMARKERS, parcel.getString(NMARKERS));
+
+			for(int i = 0; i < Integer.parseInt(parcel.getString(NOWNERS)); i++){
+				builder.set(OWNER+i, parcel.getString(OWNER+i));
+			}
 			
 			for(int i = 0; i < Integer.parseInt(parcel.getString(NMARKERS)); i++) {
 				builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
@@ -301,15 +311,21 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-		int n = Integer.parseInt(parcel.getString(NMARKERS));
+		int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+		int n2 = Integer.parseInt(parcel.getString(NMARKERS));
 
-		LatLng markers[] = new LatLng[n];
+		String[] owners = new String[n1];
+		LatLng markers[] = new LatLng[n2];
 
-		for (int i = 0; i < n; i++){
+		for(int i = 0; i < n1; i ++){
+			owners[i] = parcel.getString(OWNER+i);
+		}
+
+		for (int i = 0; i < n2; i++){
 			markers[i] = parcel.getLatLng(MARKER+i);
 		}
 
-		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
+		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
 		parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
 			
 		return Response.ok(g.toJson(p)).build();
@@ -422,12 +438,14 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n = Integer.parseInt(parcel.getString(NMARKERS));
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
 
-			LatLng markers[] = new LatLng[n];
+			String[] owners = new String[n1];
+			LatLng[] markers = new LatLng[n2];
 			boolean outside = false;
 
-			for (int i = 0; i < n; i++){
+			for (int i = 0; i < n2; i++){
 				markers[i] = parcel.getLatLng(MARKER+i);
 
 				if (markers[i].getLatitude() > latMax || markers[i].getLatitude() < latMin || markers[i].getLongitude() > longMax || markers[i].getLongitude() < longMin){
@@ -435,9 +453,13 @@ public class ParcelResource {
 					break;
 				}
 			}
+
+			for(int i = 0; i < n1; i ++){
+				owners[i] = parcel.getString(OWNER+i);
+			}
 			
 			if (!outside){
-				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
+				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
 				parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 			}
 		});
@@ -455,15 +477,21 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n = Integer.parseInt(parcel.getString(NMARKERS));
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
 
-			LatLng markers[] = new LatLng[n];
+			String[] owners = new String[n1];
+			LatLng[] markers = new LatLng[n2];
 
-			for (int i = 0; i < n; i++){
+			for(int i = 0; i < n1; i ++){
+				owners[i] = parcel.getString(OWNER+i);
+			}
+
+			for (int i = 0; i < n1; i++){
 				markers[i] = parcel.getLatLng(MARKER+i);
 			}
 
-			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
 			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 		});
 
@@ -481,15 +509,21 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n = Integer.parseInt(parcel.getString(NMARKERS));
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
 
-			LatLng markers[] = new LatLng[n];
+			String[] owners = new String[n1];
+			LatLng[] markers = new LatLng[n2];
 
-			for (int i = 0; i < n; i++){
+			for(int i = 0; i < n1; i ++){
+				owners[i] = parcel.getString(OWNER+i);
+			}
+
+			for (int i = 0; i < n1; i++){
 				markers[i] = parcel.getLatLng(MARKER+i);
 			}
 
-			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(REGION), 
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
 			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 		});
 

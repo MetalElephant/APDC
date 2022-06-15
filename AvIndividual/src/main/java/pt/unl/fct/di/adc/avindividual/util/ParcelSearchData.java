@@ -21,7 +21,7 @@ public class ParcelSearchData {
     }
     
     public boolean isDataValid(){
-        return this.username == null;
+        return this.username != null;
     }
 
     public void validatePosition(){
