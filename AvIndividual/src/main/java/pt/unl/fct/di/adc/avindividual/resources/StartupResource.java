@@ -110,11 +110,10 @@ public class StartupResource {
         Key userStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
         Key parcelStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
         Key forumStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+        Key messageKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
 
         try {
             Entity uStats = tn.get(userStatsKey);
-            Entity pStats = tn.get(parcelStatsKey);
-            Entity fStats = tn.get(forumStatsKey);
 
             if (uStats != null){
                 return Response.status(Status.CONFLICT).entity("Statistics already exist.").build();
@@ -124,15 +123,19 @@ public class StartupResource {
                     .set(VALUE, 0L)
                     .build();
 
-            pStats = Entity.newBuilder(parcelStatsKey)
+            Entity pStats = Entity.newBuilder(parcelStatsKey)
                     .set(VALUE, 0L)
                     .build();
 
-            fStats = Entity.newBuilder(forumStatsKey)
+            Entity fStats = Entity.newBuilder(forumStatsKey)
+                    .set(VALUE, 0L)
+                    .build();
+
+            Entity mStats = Entity.newBuilder(messageKey)
                     .set(VALUE, 0L)
                     .build();
             
-            tn.add(uStats, pStats, fStats);
+            tn.add(uStats, pStats, fStats, mStats);
             tn.commit();
 
             return Response.ok("Statistics created.").build();

@@ -37,15 +37,19 @@ public class StatisticsResource {
 	public StatisticsResource() {}
 
 	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd){
+		long val = 1L;
+		if (!isAdd)
+			val = -1L;
+		
 		if (stat != null){
 			stat = Entity.newBuilder(statKey)
-					.set(VALUE, 1L + stat.getLong(VALUE))
+					.set(VALUE, val + stat.getLong(VALUE))
 					.build();
 				
 			tn.put(stat);
 		}
 	}
-	
+
 	@GET
 	@Path("/users")
 	@Produces(MediaType.APPLICATION_JSON)
