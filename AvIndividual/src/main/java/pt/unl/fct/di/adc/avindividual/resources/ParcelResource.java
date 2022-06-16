@@ -43,14 +43,16 @@ public class ParcelResource {
 	//Parcel info
 	private static final String OWNER = "Owner";
 	private static final String NOWNERS = "number of owners";
-	private static final String REGION = "parcel region";
+	private static final String COUNTY = "County";
+	private static final String DISTRICT = "District";
+	private static final String FREGUESIA = "Freguesia";
 	private static final String DESCRIPTION = "description";
 	private static final String GROUND_COVER_TYPE = "ground cover type";
 	private static final String CURR_USAGE = "current usage";
 	private static final String PREV_USAGE = "previous usage";
 	private static final String AREA = "area";
     private static final String NMARKERS = "number of markers";
-	private static final String MARKER = "parcel marker ";
+	private static final String MARKER = "marker";
 
 	//Keys
 	private static final String USER = "User";
@@ -113,7 +115,9 @@ public class ParcelResource {
 			}
 			
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(REGION, data.parcelRegion)
+					.set(COUNTY, data.county)
+					.set(DISTRICT, data.district)
+					.set(FREGUESIA, data.freguesia)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -186,7 +190,9 @@ public class ParcelResource {
 			verifyChanges(data, parcel);
 
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(REGION, parcel.getString(REGION))
+					.set(COUNTY, parcel.getString(COUNTY))
+					.set(DISTRICT, parcel.getString(DISTRICT))
+					.set(FREGUESIA, parcel.getString(FREGUESIA))
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -325,8 +331,7 @@ public class ParcelResource {
 			markers[i] = parcel.getLatLng(MARKER+i);
 		}
 
-		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
-		parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
+		ParcelInfo p = parcelInfoBuilder(parcel);
 			
 		return Response.ok(g.toJson(p)).build();
 	}
@@ -390,7 +395,7 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		List<ParcelInfo> parcelList = getParcelByRegion(data.name);
+		List<ParcelInfo> parcelList = getParcelByRegion(data.name, data.name);//TODO fix
 
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
@@ -459,17 +464,18 @@ public class ParcelResource {
 			}
 			
 			if (!outside){
-				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
-				parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(COUNTY), 
+											   parcel.getString(DISTRICT), parcel.getString(FREGUESIA), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
+											   parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 			}
 		});
 
 		return userParcels;
 	}
 
-	private List<ParcelInfo> getParcelByRegion(String region){
+	private List<ParcelInfo> getParcelByRegion(String region, String search){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-								    .setFilter(CompositeFilter.and(PropertyFilter.eq(REGION, region)))
+								    .setFilter(CompositeFilter.and(PropertyFilter.eq(search, region)))
 								    .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
@@ -477,22 +483,7 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
-			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
-
-			String[] owners = new String[n1];
-			LatLng[] markers = new LatLng[n2];
-
-			for(int i = 0; i < n1; i ++){
-				owners[i] = parcel.getString(OWNER+i);
-			}
-
-			for (int i = 0; i < n1; i++){
-				markers[i] = parcel.getLatLng(MARKER+i);
-			}
-
-			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
-			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+			userParcels.add(parcelInfoBuilder(parcel));
 		});
 
 		return userParcels;
@@ -509,22 +500,7 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
-			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
-
-			String[] owners = new String[n1];
-			LatLng[] markers = new LatLng[n2];
-
-			for(int i = 0; i < n1; i ++){
-				owners[i] = parcel.getString(OWNER+i);
-			}
-
-			for (int i = 0; i < n1; i++){
-				markers[i] = parcel.getLatLng(MARKER+i);
-			}
-
-			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
-			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+			userParcels.add(parcelInfoBuilder(parcel));
 		});
 
 		return userParcels;
@@ -582,6 +558,28 @@ public class ParcelResource {
 		}
 
 		return overlaps;
+	}
+
+	private ParcelInfo parcelInfoBuilder(Entity parcel){
+		int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+		int n2 = Integer.parseInt(parcel.getString(NMARKERS));
+
+		String[] owners = new String[n1];
+		LatLng markers[] = new LatLng[n2];
+
+		for(int i = 0; i < n1; i ++){
+			owners[i] = parcel.getString(OWNER+i);
+		}
+
+		for (int i = 0; i < n2; i++){
+			markers[i] = parcel.getLatLng(MARKER+i);
+		}
+
+		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(COUNTY), 
+		parcel.getString(DISTRICT), parcel.getString(FREGUESIA), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
+		parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
+
+		return p;
 	}
 
 	private boolean contains(LatLng[] markers, LatLng[] auxMarkers){
