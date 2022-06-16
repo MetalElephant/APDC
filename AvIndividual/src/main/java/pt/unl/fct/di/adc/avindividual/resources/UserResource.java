@@ -67,8 +67,8 @@ public class UserResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull-344121.appspot.com";
-	private static final String URL =  "https://storage.googleapis.com/our-hull-344121.appspot.com/";
+	private static final String BUCKET_NAME = "land--it.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/land--it.appspot.com/";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -140,7 +140,7 @@ public class UserResource {
 					.set(NAME, data.name)
 					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
 					.set(EMAIL, data.email)
-					.set(ROLE, Roles.USER.getRole())
+					.set(ROLE, data.role)
 					.set(MPHONE, data.mobilePhone)
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
@@ -574,7 +574,7 @@ public class UserResource {
 
 		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME),
 		user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-		user.getString(ROLE), user.getString(VISIBILITY), user.getString(URL));
+		user.getString(ROLE), user.getString(VISIBILITY), user.getString(PHOTO));
 
 		return Response.ok(g.toJson(u)).build();
 	}
