@@ -26,9 +26,6 @@ public class StatisticsResource {
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
-    //Create a stats entity with the key being the number of users/parcels in total
-    //Add 1 to the count when a user/parcel is created and minus 1 when removed
-
 	//Keys
 	private static final String USER = "User";
 	private static final String PARCEL = "Parcel";
@@ -38,6 +35,20 @@ public class StatisticsResource {
 	private static final String VALUE = "Value";
 
 	public StatisticsResource() {}
+
+	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd){
+		long val = 1L;
+		if (!isAdd)
+			val = -1L;
+		
+		if (stat != null){
+			stat = Entity.newBuilder(statKey)
+					.set(VALUE, val + stat.getLong(VALUE))
+					.build();
+				
+			tn.put(stat);
+		}
+	}
 
 	@GET
 	@Path("/users")
@@ -65,6 +76,19 @@ public class StatisticsResource {
 		return Response.ok(parcels.getString(VALUE)).build();
 	}
 
+	@GET
+	@Path("/forums")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response forumStatistics() {
+		LOG.info("Attempt to read forum related statistics.");
+
+		Key forumKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+
+		Entity forums = datastore.get(forumKey);
+
+		return Response.ok(forums.getString(VALUE)).build();
+	}
+
 	@POST
 	@Path("/parcelsByRegion")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -74,6 +98,29 @@ public class StatisticsResource {
 
 		if (!data.isUsernameValid())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(STAT)
+								   .setFilter(CompositeFilter.and(PropertyFilter.eq("REGION", data.username)))//TODO not finished
+								   .build();
+
+		QueryResults<Entity> statsResult = datastore.run(statsQuery);
+
+		long counter = 0;
+
+		while(statsResult.hasNext()){
+			Entity stat = statsResult.next();
+			counter += stat.getLong(VALUE);
+		}
+
+		return Response.ok(counter).build();
+	}
+
+	@GET
+	@Path("/userForum")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response userForumStatistics(RequestData data) {
+		LOG.info("Attempt to read parcels related statistics.");
 
 		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(STAT)
 								   .setFilter(CompositeFilter.and(PropertyFilter.eq("REGION", data.username)))//TODO not finished

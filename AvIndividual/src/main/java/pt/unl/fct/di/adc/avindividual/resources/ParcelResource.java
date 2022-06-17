@@ -20,10 +20,12 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelSearchData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 @Path("/parcel")
@@ -36,9 +38,12 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
+	private StatisticsResource sr = new StatisticsResource();
 	
 	//Parcel info
-	private static final String PARCEL_REGION = "parcel region";
+	private static final String OWNER = "Owner";
+	private static final String NOWNERS = "number of owners";
+	private static final String REGION = "parcel region";
 	private static final String DESCRIPTION = "description";
 	private static final String GROUND_COVER_TYPE = "ground cover type";
 	private static final String CURR_USAGE = "current usage";
@@ -52,7 +57,8 @@ public class ParcelResource {
     private static final String TOKEN = "Token";
 	private static final String PARCEL = "Parcel";
 	private static final String STAT = "Statistics";
-	private static final String VALUE = "Value";
+
+	private static final boolean ADD = true;
 
 	public ParcelResource() { }
 	
@@ -70,7 +76,7 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 		
 		try {
 			Entity user = tn.get(userKey);
@@ -107,31 +113,27 @@ public class ParcelResource {
 			}
 			
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(PARCEL_REGION, data.parcelRegion)
+					.set(REGION, data.parcelRegion)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, data.area)
-                    .set(NMARKERS, String.valueOf(data.allLats.length));
+                    .set(NMARKERS, String.valueOf(data.allLats.length))
+					.set(NOWNERS, String.valueOf(data.owners.length));
 			
-
-			for(int i = 0; i< data.allLats.length; i++) {
+			for(int i = 0; i < data.owners.length; i++){
+				builder.set(OWNER+i, data.owners[i]);
+			}
+			
+			for(int i = 0; i< markers.length; i++) {
 				builder.set(MARKER+i, markers[i]);
 			}
 
 			parcel = builder.build();
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, 1L + stats.getLong(VALUE))
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 			
 			tn.add(parcel);
 			tn.commit();
@@ -184,13 +186,17 @@ public class ParcelResource {
 			verifyChanges(data, parcel);
 
 			Builder builder = Entity.newBuilder(parcelKey)
-					.set(PARCEL_REGION, parcel.getString(PARCEL_REGION))
+					.set(REGION, parcel.getString(REGION))
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, parcel.getString(AREA))
                     .set(NMARKERS, parcel.getString(NMARKERS));
+
+			for(int i = 0; i < Integer.parseInt(parcel.getString(NOWNERS)); i++){
+				builder.set(OWNER+i, parcel.getString(OWNER+i));
+			}
 			
 			for(int i = 0; i < Integer.parseInt(parcel.getString(NMARKERS)); i++) {
 				builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
@@ -223,7 +229,7 @@ public class ParcelResource {
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key parcelKey = datastore.newKeyFactory().setKind(PARCEL).newKey(data.parcelName);
 
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
 		try {
             Entity user = tn.get(userKey);
@@ -256,15 +262,7 @@ public class ParcelResource {
 			}
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, stats.getLong(VALUE)-1L)
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
 			tn.delete(parcelKey);
 			tn.commit();
@@ -313,15 +311,21 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-		int n = Integer.parseInt(parcel.getString(NMARKERS));
+		int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+		int n2 = Integer.parseInt(parcel.getString(NMARKERS));
 
-		LatLng markers[] = new LatLng[n];
+		String[] owners = new String[n1];
+		LatLng markers[] = new LatLng[n2];
 
-		for (int i = 0; i < n; i++){
+		for(int i = 0; i < n1; i ++){
+			owners[i] = parcel.getString(OWNER+i);
+		}
+
+		for (int i = 0; i < n2; i++){
 			markers[i] = parcel.getLatLng(MARKER+i);
 		}
 
-		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(PARCEL_REGION), 
+		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
 		parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
 			
 		return Response.ok(g.toJson(p)).build();
@@ -359,6 +363,141 @@ public class ParcelResource {
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
 
+	@POST
+	@Path("/searchByRegion")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response searchParcelRegion(RequestData data){
+		LOG.info("Attempt to list specific parcels");
+
+		if(!data.isDataValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getParcelByRegion(data.name);
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	@POST
+	@Path("/searchByPosition")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response searchParcelPosition(ParcelSearchData data){
+		LOG.info("Attempt to list specific parcels");
+
+		if(!data.isDataValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		data.validatePosition();
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getParcelByPosition(data.latMax, data.latMin, data.longMax, data.longMin);
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								    .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
+
+			String[] owners = new String[n1];
+			LatLng[] markers = new LatLng[n2];
+			boolean outside = false;
+
+			for (int i = 0; i < n2; i++){
+				markers[i] = parcel.getLatLng(MARKER+i);
+
+				if (markers[i].getLatitude() > latMax || markers[i].getLatitude() < latMin || markers[i].getLongitude() > longMax || markers[i].getLongitude() < longMin){
+					outside = true;
+					break;
+				}
+			}
+
+			for(int i = 0; i < n1; i ++){
+				owners[i] = parcel.getString(OWNER+i);
+			}
+			
+			if (!outside){
+				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
+				parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+			}
+		});
+
+		return userParcels;
+	}
+
+	private List<ParcelInfo> getParcelByRegion(String region){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								    .setFilter(CompositeFilter.and(PropertyFilter.eq(REGION, region)))
+								    .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
+
+			String[] owners = new String[n1];
+			LatLng[] markers = new LatLng[n2];
+
+			for(int i = 0; i < n1; i ++){
+				owners[i] = parcel.getString(OWNER+i);
+			}
+
+			for (int i = 0; i < n1; i++){
+				markers[i] = parcel.getLatLng(MARKER+i);
+			}
+
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
+			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+		});
+
+		return userParcels;
+	}
+
 	private List<ParcelInfo> getQueries(String owner){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(PropertyFilter.hasAncestor(
@@ -370,15 +509,21 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n = Integer.parseInt(parcel.getString(NMARKERS));
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
 
-			LatLng markers[] = new LatLng[n];
+			String[] owners = new String[n1];
+			LatLng[] markers = new LatLng[n2];
 
-			for (int i = 0; i < n; i++){
+			for(int i = 0; i < n1; i ++){
+				owners[i] = parcel.getString(OWNER+i);
+			}
+
+			for (int i = 0; i < n1; i++){
 				markers[i] = parcel.getLatLng(MARKER+i);
 			}
 
-			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), parcel.getKey().getName(), parcel.getString(PARCEL_REGION), 
+			userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(REGION), 
 			parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE), parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
 		});
 

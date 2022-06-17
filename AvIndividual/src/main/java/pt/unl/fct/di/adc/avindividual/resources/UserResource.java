@@ -46,6 +46,7 @@ public class UserResource {
 	private final Gson g = new Gson();
 
 	//private ForumResource fr = new ForumResource();
+	private StatisticsResource sr = new StatisticsResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
@@ -67,8 +68,11 @@ public class UserResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
+
 	private static final String BUCKET_NAME = "land--it.appspot.com";
 	private static final String URL =  "https://storage.googleapis.com/land--it.appspot.com/";
+
+
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -82,9 +86,10 @@ public class UserResource {
 	//Keys
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
-	private static final String CODE = "Code";
 	private static final String STAT = "Statistics";
-	private static final String VALUE = "Value";
+	private static final String CODE = "Code";
+
+	private static final boolean ADD = true;
 	
 	public UserResource() {}
 
@@ -113,7 +118,7 @@ public class UserResource {
 		Key codeOwnerKey = datastore.newKeyFactory().setKind(USER).newKey(data.getCodeUser());
 		Key redeemCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.getCodeUser())).setKind(CODE).newKey(data.code);
 		Key generatedCodeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(CODE).newKey(data.generateCode());
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
 
 		try {
 			Entity user = tn.get(userKey);
@@ -160,15 +165,7 @@ public class UserResource {
 			.build();
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, 1L + stats.getLong(VALUE))
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
 			tn.add(user, generatedCodeEntity);
 
@@ -266,7 +263,7 @@ public class UserResource {
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameToRemove);
 
-		Key statsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
 
 		try {
             Entity user = tn.get(userKey);
@@ -305,15 +302,7 @@ public class UserResource {
 			removeUserCodes(data.usernameToRemove, tn);
 
 			//Update statistics
-			Entity stats = tn.get(statsKey);
-
-			if (stats != null){
-				stats = Entity.newBuilder(statsKey)
-						.set(VALUE, stats.getLong(VALUE)-1L)
-						.build();
-					
-				tn.put(stats);
-			}
+			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
 
 			tn.delete(userToRemoveKey);
 			tn.commit();
@@ -706,7 +695,7 @@ public class UserResource {
 	}
 
 	private List<String> getQueries(String role) {
-		if (role.equals(Roles.USER.getRole())) {
+		if (role.equals(Roles.OWNER.getRole())) {
 
 			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.build();

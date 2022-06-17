@@ -29,6 +29,8 @@ public class StartupResource {
 	//Keys
 	private static final String USER = "User";
     private static final String PARCEL = "Parcel";
+    private static final String FORUM = "Forum";
+    private static final String MESSAGE = "Message";
     private static final String STAT = "Statistics";
     private static final String VALUE = "Value";
 
@@ -43,6 +45,7 @@ public class StartupResource {
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
 	private static final String POINTS = "points";
+    private static final String PHOTO = "photo";
 	private static final String CTIME = "creation time";
 
 	private static final String SU_NAME = "Name";
@@ -54,6 +57,7 @@ public class StartupResource {
 	private static final String SU_ADDRESS = "FCT UNL";
 	private static final String SU_NIF = "0";
 	private static final String SU_VISIBILITY = "Public";
+    private static final String SU_PHOTO = "Mirror";
 	private static final String SU_POINTS = "-1";
 
 	public StartupResource() {}
@@ -85,6 +89,7 @@ public class StartupResource {
                     .set(NIF, SU_NIF)
                     .set(VISIBILITY, SU_VISIBILITY)
                     .set(POINTS, SU_POINTS)
+                    .set(PHOTO, SU_PHOTO)
                     .set(CTIME, Timestamp.now())
                     .build();
             
@@ -99,18 +104,19 @@ public class StartupResource {
 	}
 
     @POST
-	@Path("/statistics")
-	public Response createStatistics() {
-		LOG.info("Attempt to create statistics.");
+    @Path("/statistics")
+    public Response createStatistics(){
+        LOG.info("Attempt to create statistics.");
 
         Transaction tn = datastore.newTransaction();
 
         Key userStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
         Key parcelStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+        Key forumStatsKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+        Key messageKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
 
         try {
             Entity uStats = tn.get(userStatsKey);
-            Entity pStats = tn.get(parcelStatsKey);
 
             if (uStats != null){
                 return Response.status(Status.CONFLICT).entity("Statistics already exist.").build();
@@ -120,11 +126,19 @@ public class StartupResource {
                     .set(VALUE, 0L)
                     .build();
 
-            pStats = Entity.newBuilder(parcelStatsKey)
+            Entity pStats = Entity.newBuilder(parcelStatsKey)
+                    .set(VALUE, 0L)
+                    .build();
+
+            Entity fStats = Entity.newBuilder(forumStatsKey)
+                    .set(VALUE, 0L)
+                    .build();
+
+            Entity mStats = Entity.newBuilder(messageKey)
                     .set(VALUE, 0L)
                     .build();
             
-            tn.add(uStats, pStats);
+            tn.add(uStats, pStats, fStats, mStats);
             tn.commit();
 
             return Response.ok("Statistics created.").build();
@@ -132,5 +146,5 @@ public class StartupResource {
             if (tn.isActive())
             tn.rollback();
         }
-	}
+    }
 }
