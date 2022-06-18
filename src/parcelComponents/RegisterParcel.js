@@ -23,6 +23,9 @@ export default function RegisterParcel() {
     const [freg, setFreg] = react.useState([]);
     const [conc, setConc] = react.useState([]);
     const [dist, setDist] = react.useState([]);
+    const [chosenFreg, setChosenFreg] = react.useState(null);
+    const [chosenConc, setChosenConc] = react.useState(null);
+    const [chosenDist, setChosenDist] = react.useState(null);
 
     let index = 0;
     let existingParcels = []
@@ -50,10 +53,10 @@ export default function RegisterParcel() {
             .then(text => {
                 split = text.split(";")
 
-                for(let i=0; i<split.length; i++) {
-                    if(i%3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
-                    else if(i%3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
-                    else if(freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
+                for (let i = 0; i < split.length; i++) {
+                    if (i % 3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
+                    else if (i % 3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
+                    else if (freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
                 }
                 setDist(distritos)
                 setConc(concelhos)
@@ -68,6 +71,21 @@ export default function RegisterParcel() {
     function parcelNameHandler(e) {
         setParcelName(e.target.value);
     }
+
+    /*
+    function chosenDistHandler(e) {
+        setChosenDist(e.target.value);
+    }
+
+    function chosenConcHandler(e) {
+        setChosenConc(e.target.value);
+    }
+
+    function chosenFregHandler(e) {
+        setChosenFreg(e.target.value);
+    }
+    */
+
 
     function descriptionHandler(e) {
         setDescription(e.target.value);
@@ -136,6 +154,9 @@ export default function RegisterParcel() {
         setCurrUsage("");
         setPrevUsage("");
         setArea("");
+        setChosenConc(null);
+        setChosenFreg(null);
+        setChosenDist(null);
     }
 
     function resetValuesFail() {
@@ -146,7 +167,8 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, parcelId, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
+        //console.log("parcelName :" + parcelName + " chosenDist : " + chosenDist" + " chosenConc : " + chosenConc" + " chosenFreg : " + chosenFreg + " parcelId")
+        restCalls.parcelRegister(parcelName, chosenDist, chosenConc, chosenFreg, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
             .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); resetValuesFail(); });
         setDisplayParcelMessage(true);
     }
@@ -227,24 +249,39 @@ export default function RegisterParcel() {
                                 selectOnFocus
                                 id="distritos"
                                 options={dist}
-                                sx={{ width: 400, mt:1 }}
+                                getOptionLabel={option => option}
+                                value={chosenDist}
+                                onChange={(_event, newDistrict) => {
+                                    setChosenDist(newDistrict);
+                                  }}
+                                sx={{ width: 400, mt: 1 }}
                                 renderInput={(params) => <TextField {...params} label="Distrito" />}
                             />
                             <Autocomplete
                                 selectOnFocus
                                 id="concelhos"
                                 options={conc}
-                                sx={{ width: 400, mt:2  }}
+                                getOptionLabel={option => option}
+                                value={chosenConc}
+                                onChange={(_event, newConc) => {
+                                    setChosenConc(newConc);
+                                  }}
+                                sx={{ width: 400, mt: 2 }}
                                 renderInput={(params) => <TextField {...params} label="Concelho" />}
                             />
                             <Autocomplete
                                 selectOnFocus
                                 id="freguesias"
                                 options={freg}
-                                sx={{ width: 400, mt:2  }}
+                                getOptionLabel={option => option}
+                                value={chosenFreg}
+                                onChange={(_event, newFreg) => {
+                                    setChosenFreg(newFreg);
+                                  }}
+                                sx={{ width: 400, mt: 2 }}
                                 renderInput={(params) => <TextField {...params} label="Freguesia" />}
                             />
-
+                            {/*
                             <TextField
                                 margin="normal"
                                 required
@@ -255,7 +292,7 @@ export default function RegisterParcel() {
                                 color="success"
                                 value={parcelId}
                                 onChange={parcelIdHandler}
-                            />
+                            />*/}
                             <TextField
                                 margin="normal"
                                 required
