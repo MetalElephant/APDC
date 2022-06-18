@@ -233,7 +233,7 @@ public class ParcelResource {
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
-		Key parcelKey = datastore.newKeyFactory().setKind(PARCEL).newKey(data.parcelName);
+		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 
 		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
