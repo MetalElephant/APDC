@@ -124,6 +124,12 @@
 			<artifactId>google-cloud-storage</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.sendgrid</groupId>
+			<artifactId>sendgrid-java</artifactId>
+			<version>4.9.1</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
