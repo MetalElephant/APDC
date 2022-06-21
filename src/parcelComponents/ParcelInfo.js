@@ -8,7 +8,9 @@ import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps
 export default function ParcelInfo() {
 
     const [parcelName, setParcelName] = react.useState("")
-    const [parcelRegion, setParcelRegion] = react.useState("")
+    const [parcelDist, setParcelDist] = react.useState("")
+    const [parcelCounty, setParcelCounty] = react.useState("")
+    const [parcelFreg, setParcelFreg] = react.useState("")
     const [description, setDescription] = react.useState("")
     const [groundType, setGroundType] = react.useState("")
     const [currUsage, setCurrUsage] = react.useState("")
@@ -39,7 +41,9 @@ export default function ParcelInfo() {
             var parcel = parcels[chosenParcel]
             if(parcel != null) {
                 setParcelName(parcel.parcelName);
-                setParcelRegion(parcel.parcelRegion);
+                setParcelDist(parcel.district);
+                setParcelCounty(parcel.county);
+                setParcelFreg(parcel.freguesia);
                 setDescription(parcel.description);
                 setGroundType(parcel.groundType);
                 setCurrUsage(parcel.currUsage);
@@ -114,7 +118,17 @@ export default function ParcelInfo() {
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Region: {parcelRegion} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> District: {parcelDist} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> County: {parcelCounty} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freg: {parcelFreg} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
