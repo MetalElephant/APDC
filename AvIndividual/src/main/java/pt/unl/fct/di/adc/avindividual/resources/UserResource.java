@@ -68,8 +68,8 @@ public class UserResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull.appspot.com";
-	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
+	private static final String BUCKET_NAME = "land--it.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/land--it.appspot.com/";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -319,10 +319,10 @@ public class UserResource {
 		LOG.info("Attempt to update user: " + data.usernameToUpdate);
 		
 		//Check if data was input correctly
+		if (!data.validData())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-		if(!data.validRoleFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Wrong type of role: try 'USER', 'GBO', 'GS' or 'SU'").build();
 	
 		Transaction tn = datastore.newTransaction();
 
@@ -650,31 +650,7 @@ public class UserResource {
 	private boolean canModify(UserUpdateData data, Entity user, Entity userToModify) {
 		//if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
 			//return false;
-		
-		//update values so its easier to do transaction.put throught the data from ModifyData
-		if (data.name == null || data.name.length() == 0)
-			data.name = userToModify.getString(NAME);
-		
-		if (data.email == null || data.email.length() == 0)
-			data.email = userToModify.getString(EMAIL);
-		
-		if (data.role == null || data.role.length() == 0)
-			data.role = userToModify.getString(ROLE);
-		
-		if (data.mobilePhone == null || data.mobilePhone.length() == 0)
-			data.mobilePhone = userToModify.getString(MPHONE);
-		
-		if (data.homePhone == null || data.homePhone.length() == 0)
-			data.homePhone = userToModify.getString(HPHONE);
-		
-		if (data.address == null || data.address.length() == 0)
-			data.address = userToModify.getString(ADDRESS);
-		
-		if (data.nif == null || data.nif.length() == 0)
-			data.nif = userToModify.getString(NIF);
-		
-		if (data.visibility == null || data.visibility.length() == 0)
-			data.visibility = userToModify.getString(VISIBILITY);
+			
 		return true;
 	}
 

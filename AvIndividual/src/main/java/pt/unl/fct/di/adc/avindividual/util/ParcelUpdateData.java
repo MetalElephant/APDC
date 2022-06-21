@@ -2,17 +2,22 @@ package pt.unl.fct.di.adc.avindividual.util;
 
 public class ParcelUpdateData {
 
-	public String owner, parcelName, parcelRegion, description, groundType, currUsage, prevUsage;
+	public String owner, parcelName, description, groundType, currUsage, prevUsage;
+	public String[] owners;
+	public double[] allLats, allLngs;
 	
 	public ParcelUpdateData() {}
 	
-	public ParcelUpdateData(String owner, String parcelName, String description, String groundType, String currUsage, String prevUsage) {
+	public ParcelUpdateData(String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats, double[] allLngs) {
 		this.owner = owner;
 		this.parcelName = parcelName;
+		this.owners = owners;
 		this.description = description;
 		this.groundType = groundType;
 		this.currUsage = currUsage;
 		this.prevUsage = prevUsage;
+		this.allLats = allLats;
+		this.allLngs = allLngs;
 	}
 
     public boolean isDataValid(){

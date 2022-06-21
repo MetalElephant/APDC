@@ -187,7 +187,17 @@ public class ParcelResource {
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
-			verifyChanges(data, parcel);
+			LatLng[] markers = new LatLng[data.allLats.length];
+
+			for(int i = 0; i< data.allLats.length; i++) {
+				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
+			}
+			
+			if(isOverlapped(markers)){
+				LOG.warning("Parcel overlaps with another parcel.");
+				tn.rollback();
+				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel.").build();
+			}
 
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
@@ -198,14 +208,15 @@ public class ParcelResource {
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, parcel.getString(AREA))
-                    .set(NMARKERS, parcel.getString(NMARKERS));
+                    .set(NMARKERS, String.valueOf(data.allLats.length))
+					.set(NOWNERS, String.valueOf(data.owners.length));
 
-			for(int i = 0; i < Integer.parseInt(parcel.getString(NOWNERS)); i++){
-				builder.set(OWNER+i, parcel.getString(OWNER+i));
+			for(int i = 0; i < data.owners.length; i++){
+				builder.set(OWNER+i, data.owners[i]);
 			}
-			
-			for(int i = 0; i < Integer.parseInt(parcel.getString(NMARKERS)); i++) {
-				builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
+					
+			for(int i = 0; i< data.allLats.length; i++) {
+				builder.set(MARKER+i, markers[i]);
 			}
 
 			parcel = builder.build();
@@ -315,20 +326,6 @@ public class ParcelResource {
 		if (!ur.isLoggedIn(token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-		}
-
-		int n1 = Integer.parseInt(parcel.getString(NOWNERS));
-		int n2 = Integer.parseInt(parcel.getString(NMARKERS));
-
-		String[] owners = new String[n1];
-		LatLng markers[] = new LatLng[n2];
-
-		for(int i = 0; i < n1; i ++){
-			owners[i] = parcel.getString(OWNER+i);
-		}
-
-		for (int i = 0; i < n2; i++){
-			markers[i] = parcel.getLatLng(MARKER+i);
 		}
 
 		ParcelInfo p = parcelInfoBuilder(parcel);
@@ -591,27 +588,5 @@ public class ParcelResource {
 	private boolean canRemove(String username){
 		//TODO
 		return true;
-	}
-
-	public void verifyChanges(ParcelUpdateData data, Entity modified) {
-		if(data.parcelName == null || data.parcelName.length() == 0) {
-			data.parcelName = modified.getKey().getName();
-		}
-		
-		if(data.description == null || data.description.length() == 0) {
-			data.description = modified.getString(DESCRIPTION);
-		}
-		
-		if(data.groundType == null || data.groundType.length() == 0) {
-			data.groundType = modified.getString(GROUND_COVER_TYPE);
-		}
-		
-		if(data.currUsage == null || data.currUsage.length() == 0) {
-			data.currUsage = modified.getString(CURR_USAGE);
-		}
-		
-		if(data.prevUsage == null || data.prevUsage.length() == 0) {
-			data.prevUsage = modified.getString(PREV_USAGE);
-		}
 	}
 }
