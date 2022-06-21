@@ -9,9 +9,6 @@ export default function RegisterParcel() {
     const [allLats, setAllLats] = react.useState([]);
     const [allLngs, setAllLngs] = react.useState([]);
     const [parcelName, setParcelName] = react.useState("");
-    const [parcelId, setParcelId] = react.useState("");
-    //const [existingParcels2, setExistingParcels2] = react.useState([]);
-    //const [currMarkers2, setCurrMarkers2] = react.useState([]);
     const [description, setDescription] = react.useState("");
     const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
@@ -26,23 +23,17 @@ export default function RegisterParcel() {
     const [chosenFreg, setChosenFreg] = react.useState(null);
     const [chosenConc, setChosenConc] = react.useState(null);
     const [chosenDist, setChosenDist] = react.useState(null);
+    const [owners, setOwners] = react.useState("");
+    const [modifiedMarker, setModifiedMarker] = react.useState(null);
+    const [tempIndex, setTempIndex] = react.useState(-1);
 
     let index = 0;
-    let existingParcels = []
+    let idd = -1;
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
     useEffect(() => {
         restCalls.parcelInfo();
-
-        if (parcels != null) {
-            parcels.map(parcel => {
-                existingParcels.push({
-                    parcelName: parcel.parcelName,
-                    markers: parcel.markers
-                })
-            })
-        }
 
         let split = [];
         let distritos = [];
@@ -64,31 +55,16 @@ export default function RegisterParcel() {
             });
     }, [])
 
-    function parcelIdHandler(e) {
-        setParcelId(e.target.value);
-    }
-
     function parcelNameHandler(e) {
         setParcelName(e.target.value);
     }
 
-    /*
-    function chosenDistHandler(e) {
-        setChosenDist(e.target.value);
-    }
-
-    function chosenConcHandler(e) {
-        setChosenConc(e.target.value);
-    }
-
-    function chosenFregHandler(e) {
-        setChosenFreg(e.target.value);
-    }
-    */
-
-
     function descriptionHandler(e) {
         setDescription(e.target.value);
+    }
+
+    function ownersHandler(e) {
+        setOwners(e.target.value);
     }
 
     function groundTypeHandler(e) {
@@ -117,38 +93,11 @@ export default function RegisterParcel() {
         return markers[0].lng;
     }
 
-    function showParcels() {
-        let polygons = []
-        let currMarkers = []
-        //console.log(existingParcels)
-        //console.log(existingParcels[0])
-
-        existingParcels.map(parcel => (
-            console.log("hi"),
-            currMarkers = parcel.markers,
-            currMarkers.map(marker => (
-                <Marker
-                    key={marker.area}
-                    id={marker.area}
-                    position={{ lat: marker.lat, lng: marker.lng }}
-                />
-            )),
-            polygons.push(
-                < Polygon
-                    path={currMarkers}
-                    options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
-                />
-            )
-        ))
-        return polygons
-    }
-
     function resetValues() {
         setAllLats([]);
         setAllLngs([]);
         setMarkers([]);
         setParcelName("");
-        setParcelId("");
         setDescription("");
         setGroundType("");
         setCurrUsage("");
@@ -157,6 +106,7 @@ export default function RegisterParcel() {
         setChosenConc(null);
         setChosenFreg(null);
         setChosenDist(null);
+        setOwners("");
     }
 
     function resetValuesFail() {
@@ -165,11 +115,23 @@ export default function RegisterParcel() {
         setMarkers([]);
     }
 
+    function searchIndex(tempData) {
+        var index = 0
+        markers.map((marker) => {
+            if ((marker.lat === tempData.latLng.lat()) && (marker.lng === tempData.latLng.lng())) {
+                console.log("INSIDE: " + index);
+                setTempIndex(index)
+                idd = index;
+                console.log("IDD: " + idd);
+            }
+            index++;
+        })
+    }
+
     function parcelRegisterManager(e) {
         e.preventDefault();
-        //console.log("parcelName :" + parcelName + " chosenDist : " + chosenDist" + " chosenConc : " + chosenConc" + " chosenFreg : " + chosenFreg + " parcelId")
-        restCalls.parcelRegister(parcelName, chosenDist, chosenConc, chosenFreg, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
-            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); resetValuesFail(); });
+        restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
+            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true);});
         setDisplayParcelMessage(true);
     }
 
@@ -189,14 +151,13 @@ export default function RegisterParcel() {
                                 {
                                     lat: event.latLng.lat(),
                                     lng: event.latLng.lng(),
-                                    time: new Date(),
+                                    id: index++
                                 },
                             ]);
                             allLats.push(event.latLng.lat())
                             allLngs.push(event.latLng.lng())
                         }}
                     >
-                        {showParcels()}
 
                         {markers.map(marker => (
                             <Marker
@@ -238,11 +199,21 @@ export default function RegisterParcel() {
                                 fullWidth
                                 autoFocus
                                 name="nome"
-                                label="Nome"
+                                label="Nome da parcela"
                                 id="nome"
                                 color="success"
                                 value={parcelName}
                                 onChange={parcelNameHandler}
+                            />
+                            <TextField
+                                margin="normal"
+                                fullWidth
+                                name="nome"
+                                label="Outros proprietários (separados por vírgula)"
+                                id="owners"
+                                color="success"
+                                value={owners}
+                                onChange={ownersHandler}
                             />
 
                             <Autocomplete
@@ -253,9 +224,9 @@ export default function RegisterParcel() {
                                 value={chosenDist}
                                 onChange={(_event, newDistrict) => {
                                     setChosenDist(newDistrict);
-                                  }}
+                                }}
                                 sx={{ width: 400, mt: 1 }}
-                                renderInput={(params) => <TextField {...params} label="Distrito" />}
+                                renderInput={(params) => <TextField {...params} label="Distrito *" />}
                             />
                             <Autocomplete
                                 selectOnFocus
@@ -265,9 +236,9 @@ export default function RegisterParcel() {
                                 value={chosenConc}
                                 onChange={(_event, newConc) => {
                                     setChosenConc(newConc);
-                                  }}
+                                }}
                                 sx={{ width: 400, mt: 2 }}
-                                renderInput={(params) => <TextField {...params} label="Concelho" />}
+                                renderInput={(params) => <TextField {...params} label="Concelho *" />}
                             />
                             <Autocomplete
                                 selectOnFocus
@@ -277,22 +248,10 @@ export default function RegisterParcel() {
                                 value={chosenFreg}
                                 onChange={(_event, newFreg) => {
                                     setChosenFreg(newFreg);
-                                  }}
+                                }}
                                 sx={{ width: 400, mt: 2 }}
-                                renderInput={(params) => <TextField {...params} label="Freguesia" />}
+                                renderInput={(params) => <TextField {...params} label="Freguesia *" />}
                             />
-                            {/*
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                id="freguesiaSeccaoArtigo"
-                                label="Freguesia, Secção e Artigo"
-                                name="freguesiaSeccaoArtigo"
-                                color="success"
-                                value={parcelId}
-                                onChange={parcelIdHandler}
-                            />*/}
                             <TextField
                                 margin="normal"
                                 required

@@ -64,7 +64,8 @@ class restCalls {
         })
     }
 
-    parcelRegister(parcelName, district, county, freguesia, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
+    parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
+        var splitOwners = owners.split(",");
         return fetch("https://our-hull.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
@@ -72,7 +73,7 @@ class restCalls {
             },
             body: JSON.stringify({
                 owner: JSON.parse(localStorage.getItem('token')).username,
-                owners: [],
+                owners: splitOwners,
                 parcelName: parcelName,
                 county: county,
                 district: district,
