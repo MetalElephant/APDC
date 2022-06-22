@@ -193,7 +193,7 @@ public class ParcelResource {
 				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
 			}
 			
-			if(isOverlapped(markers)){
+			if(isOverlappedUpdate(markers, data.parcelName)){
 				LOG.warning("Parcel overlaps with another parcel.");
 				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel.").build();
@@ -527,6 +527,30 @@ public class ParcelResource {
 			if (contains(markers, auxMarkers))
 				return true;
 		}
+		return false;
+	}
+
+	private boolean isOverlappedUpdate(LatLng[] markers, String name){
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+
+		QueryResults<Entity> parcels = datastore.run(query);
+
+		while(parcels.hasNext()){
+			Entity parcel = parcels.next();
+
+			if(!parcel.getKey().getName().equals(name)){
+				int nMarkers = Integer.parseInt(parcel.getString(NMARKERS));
+
+				LatLng[] auxMarkers = new LatLng[nMarkers];
+
+           	 	for(int i = 0; i < nMarkers; i++){
+               		auxMarkers[i] = parcel.getLatLng(MARKER + i);
+           		}
+
+            	if (overlaps(markers, auxMarkers) || contains(markers, auxMarkers))
+                	return true;
+			}
+			}
 		return false;
 	}
 
