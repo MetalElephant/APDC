@@ -316,10 +316,13 @@ public class UserResource {
 
 		// Check if data was input correctly
 		if (!data.validEmailFormat())
+
+			// Check if data was input correctly
+			if (!data.validData())
+				return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		if (!data.validEmailFormat())
+
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-		if (!data.validRoleFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Wrong type of role: try 'USER', 'GBO', 'GS' or 'SU'")
-					.build();
 
 		Transaction tn = datastore.newTransaction();
 
@@ -660,6 +663,9 @@ public class UserResource {
 
 		if (data.visibility == null || data.visibility.length() == 0)
 			data.visibility = userToModify.getString(VISIBILITY);
+		// if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
+		// return false;
+
 		return true;
 	}
 

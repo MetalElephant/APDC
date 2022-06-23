@@ -23,17 +23,10 @@ public class UserUpdateData {
 		this.nif = nif;
 		this.role = role;
 	}
-	
-	public boolean validRoleFormat() {
-		if (this.role == null || this.role.length() == 0)
-			return true;
-		//TODO Now it is typed manually, later make a drop down list to choose the value and we can remove this boolean
-		String roleF = this.role;
-		if (roleF == null || roleF.equals("SU") || roleF.equals("GS") || roleF.equals("GBO") ||
-				roleF.equals("USER"))
-			return true;
-		
-		return false;
+
+	public boolean validData(){	
+		//Check missing info
+		return this.username != null && this.username.length() != 0 && this.usernameToUpdate != null && this.usernameToUpdate.length() != 0;
 	}
 	
 	public boolean validEmailFormat() {
