@@ -5,9 +5,7 @@ import restCalls from "../restCalls";
 export default function MessagesList() {
 
     const [loaded, setLoaded] = react.useState(false)
-
     const [message, setMessage] = react.useState("");
-
     const [messageErr, setMessageErr] = react.useState({});
 
     const forbiddenWords = ["puta", "caralho", "cona", "obesa", "obeso", "merda", "cabrão", "cabrao", "rabo", "pila",
@@ -15,18 +13,18 @@ export default function MessagesList() {
 
     var messages = JSON.parse(localStorage.getItem('messages'))
 
-    function messageHandler(e) {
-        setMessage(e.target.value);
-    }
-
     useEffect(() => {
         restCalls.listForumMessages().then(() => { setLoaded(true) })
     })
 
+    function messageHandler(e) {
+        setMessage(e.target.value);
+    }
+
     function postMessageManager() {
         const isMessageValid = messageErrorValidation();
         if (isMessageValid)
-            restCalls.postMessage(message).then(() => { window.location.reload() })
+            restCalls.postMessage(message)
     }
 
     const messageErrorValidation = () => {

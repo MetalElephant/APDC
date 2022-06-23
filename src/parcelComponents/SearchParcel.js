@@ -1,155 +1,87 @@
-import react, { useEffect } from 'react'
-import restCalls from "../restCalls"
-import landAvatar from "../images/land-avatar.png";
-import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, MenuItem } from "@mui/material";
+import react, { useEffect } from 'react';
+import restCalls from "../restCalls";
+import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
-export default function ModifyParcel() {
+export default function SearchParcel() {
 
-    const [parcelName, setParcelName] = react.useState("");
-    const [description, setDescription] = react.useState("");
-    const [groundType, setGroundType] = react.useState("");
-    const [currUsage, setCurrUsage] = react.useState("");
-    const [prevUsage, setPrevUsage] = react.useState("");
-    const [markers, setMarkers] = react.useState([]);
-    const [allLats, setAllLats] = react.useState([]);
-    const [allLngs, setAllLngs] = react.useState([]);
-    const [owners, setOwners] = react.useState("");
     const [chosenParcel, setChosenParcel] = react.useState("");
+    const [latMax, setLatMax] = react.useState(0);
+    const [latMin, setLatMin] = react.useState(0);
+    const [lngMax, setLngMax] = react.useState(0);
+    const [lngMin, setLngMin] = react.useState(0);
+    const [markers, setMarkers] = react.useState([]);
+    const [loaded, setLoaded] = react.useState(false);
+    const [option, setOption] = react.useState("local");
 
-    const [loaded, setLoaded] = react.useState(true);
-    const [displayMessage, setDisplayMessage] = react.useState(false);
-    const [isModifySubmit, setIsModifySubmit] = react.useState(false);
-    const [isModifyNotSubmit, setIsModifyNotSubmit] = react.useState(false);
 
-
-    var parcels = JSON.parse(localStorage.getItem('parcels'))
+    //var parcels = JSON.parse(restCalls.getParcelsByPosition(latMax, latMin, lngMax, lngMin))
 
     useEffect(() => {
-        const temp = []
-        if (parcels != null) {
-            if (parcels[chosenParcel] != null) {
-                parcels[chosenParcel].markers.map(marker => {
-                    temp.push({
-                        lat: marker.latitude,
-                        lng: marker.longitude,
-                        time: new Date()
-                    })
-                    allLats.push(marker.latitude)
-                    allLngs.push(marker.longitude)
-                })
-                setMarkers(temp)
-                setOriginValues(parcels[chosenParcel]);
-            }
-        }
-    }, [chosenParcel])
+        //setMarkers(parcels)
+        //setLoaded(true)
+    }, [])
 
-    function setOriginValues(parcel) {
-        setOwners(parcel.owners)
-        setDescription(parcel.description)
-        setGroundType(parcel.groundType)
-        setCurrUsage(parcel.currUsage)
-        setPrevUsage(parcel.prevUsage)
-    }
-
-    function setAttributes(event) {
-        var parcel = parcels[event.target.value]
-        setChosenParcel(event.target.value)
-        setParcelName(parcel.parcelName)
-    }
-
-    function resetMarkers() {
-        setMarkers([]);
-        setAllLats([]);
-        setAllLngs([]);
-    }
-
-
-    function generateSelects() {
-        const views = []
-        if (parcels == null || parcels.length === 0)
-            return <Typography> Não há parcelas registadas</Typography>
-        else
-            for (var i = 0; i < parcels.length; i++) {
-                views.push(
-                    <MenuItem
-                        key={i}
-                        value={i}
-                    >
-                        {parcels[i].parcelName}
-                    </MenuItem>
-                )
-            }
-        return views;
-    }
-
-    function parcelNameHandler(e) {
-        setParcelName(e.target.value);
-    }
-
-    function descriptionHandler(e) {
-        setDescription(e.target.value);
-    }
-
-    function groundTypeHandler(e) {
-        setGroundType(e.target.value);
-    }
-
-    function currUsageHandler(e) {
-        setCurrUsage(e.target.value);
-    }
-
-    function prevUsageHandler(e) {
-        setPrevUsage(e.target.value);
-    }
-
-    function modifyParcelManager(e) {
-        e.preventDefault();
-        restCalls.modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
-            .then(() => { setIsModifySubmit(true); setIsModifyNotSubmit(false) }).catch(() => { setIsModifySubmit(false); setIsModifyNotSubmit(true) });
-        setDisplayMessage(true);
+    function optionHandler(e) {
+        setOption(e.target.value);
     }
 
     return (
         <>
-            <Grid item xs={10} sx={{ml:"100"}}>
+            <Grid item xs={7}>
                 <LoadScript
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
-                    {(parcels != null && parcels[chosenParcel] != null) &&
-                        <GoogleMap
-                            mapContainerStyle={{ width: "100%", height: "100%" }}
-                            center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
-                            zoom={13}
-                            onClick={(event) => {
-                                setMarkers(current => [
-                                    ...current,
-                                    {
-                                        lat: event.latLng.lat(),
-                                        lng: event.latLng.lng()
-                                    },
-                                ]);
-                                allLats.push(event.latLng.lat())
-                                allLngs.push(event.latLng.lng())
-                            }}
-                        >
-                            {markers.map(marker => (
-                                <Marker
-                                    position={{ lat: marker.lat, lng: marker.lng }}
-                                />
-                            ))}
-
-                            <Polygon
-                                paths={markers}
-                                onClick={() => this.handleClick()}
-                                options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
+                    <GoogleMap
+                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                        center={{ lat: 39.639538, lng: -8.088107 }}
+                        zoom={7}
+                    >
+                        {loaded && markers.map(marker => (
+                            <Marker
+                                position={{ lat: marker.lat, lng: marker.lng }}
                             />
+                        ))}
 
-                            { /* Child components, such as markers, info windows, etc. */}
-                        </GoogleMap>
-                    }
-                    <Button color="error" onClick={resetMarkers}>Delete Markers</Button>
+                        <Polygon
+                            paths={markers}
+                            onClick={() => this.handleClick()}
+                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
+                        />
+                    </GoogleMap>
                 </LoadScript>
+            </Grid>
+            <Grid item xs={3}>
+                <Box>
+                    <FormControl>
+                        <FormLabel id="demo-radio-buttons-group-label"><Typography color="black" fontSize={20}>Pesquisa de parcelas por: </Typography></FormLabel>
+                        <RadioGroup
+                            row
+                            aria-labelledby="demo-radio-buttons-group-label"
+                            defaultValue="female"
+                            name="radio-buttons-group"
+                            value={option}
+                            onChange={optionHandler}
+                        >
+                            <FormControlLabel value="local" control={<Radio color="success" />} label="Localização" />
+                            <FormControlLabel value="limits" control={<Radio color="success" />} label="Limites" />
+                        </RadioGroup>
+                    </FormControl>
+
+                    {option == "limits" ?
+                        <Box>
+                            <Typography>1. Clique no mapa para definir o limite máximo de latitude</Typography>
+                            <Typography>2. Clique no mapa para definir o limite mínimo de latitude</Typography>
+                            <Typography>3. Clique no mapa para definir o limite máximo de longitude</Typography>
+                            <Typography>4. Clique no mapa para definir o limite mínimo de longitude</Typography>
+                        </Box>
+                        :
+                        <Box>
+                            <Typography>Selecione uma localização</Typography>
+                        </Box>
+                    }
+                    <Button color="success" size="large"> <Typography variant="h6" size="large"> Done </Typography> </Button>
+                </Box>
             </Grid>
         </>
     )

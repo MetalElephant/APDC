@@ -1,7 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import landAvatar from "../images/land-avatar.png";
-import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, MenuItem } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, MenuItem, ButtonGroup } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import { Refresh } from '@mui/icons-material';
 
@@ -9,22 +9,34 @@ export default function ModifyParcel() {
 
     const [parcelName, setParcelName] = react.useState("");
     const [description, setDescription] = react.useState("");
-    const [groundType, setGroundType] = react.useState(""); 
+    const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
     const [markers, setMarkers] = react.useState([]);
+    const [markersMem, setMarkersMem] = react.useState([]);
+    const [allLatsMem, setAllLatsMem] = react.useState([]);
+    const [allLngsMem, setAllLngsMem] = react.useState([]);
     const [allLats, setAllLats] = react.useState([]);
     const [allLngs, setAllLngs] = react.useState([]);
     const [owners, setOwners] = react.useState("");
     const [chosenParcel, setChosenParcel] = react.useState("");
 
     const [loaded, setLoaded] = react.useState(false);
+    const [loadButtons, setLoadButtons] = react.useState(false);
     const [displayMessage, setDisplayMessage] = react.useState(false);
     const [isModifySubmit, setIsModifySubmit] = react.useState(false);
     const [isModifyNotSubmit, setIsModifyNotSubmit] = react.useState(false);
+    const [isNotDelete, setIsNotDelete] = react.useState(true);
+    const [isDelete, setIsDelete] = react.useState(false);
+    const [displayDeleteMessage, setDisplayDeleteMessage] = react.useState(false);
+    const [markersErr, setMarkersErr] = react.useState(false);
 
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
+
+    useEffect(() => {
+        restCalls.parcelInfo().then(() => { setLoaded(true) })
+    })
 
     useEffect(() => {
         const temp = []
@@ -40,14 +52,14 @@ export default function ModifyParcel() {
                     allLngs.push(marker.longitude)
                 })
                 setMarkers(temp)
+                setMarkersMem(temp)
+                setAllLatsMem(allLats)
+                setAllLngsMem(allLngs)
                 setOriginValues(parcels[chosenParcel]);
+                setLoadButtons(true)
             }
         }
     }, [chosenParcel])
-
-    useEffect(() => {
-        restCalls.parcelInfo().then(() => {setLoaded(true)})
-    })
 
     function setOriginValues(parcel) {
         setOwners(parcel.owners)
@@ -63,10 +75,16 @@ export default function ModifyParcel() {
         setParcelName(parcel.parcelName)
     }
 
-    function resetMarkers() {
+    function deleteMarkers() {
         setMarkers([]);
         setAllLats([]);
         setAllLngs([]);
+    }
+
+    function resetMarkers() {
+        setMarkers(markersMem);
+        setAllLats(allLatsMem);
+        setAllLngs(allLngsMem);
     }
 
 
@@ -108,16 +126,47 @@ export default function ModifyParcel() {
         setPrevUsage(e.target.value);
     }
 
+    function modifySuccess() {
+        setIsModifySubmit(true);
+        setIsModifyNotSubmit(false);
+        setMarkersErr(false)
+    }
+
+    function modifyUnsuccess() {
+        setIsModifySubmit(false)
+        setIsModifyNotSubmit(true)
+    }
+
+    function deleteSuccess() {
+        setIsNotDelete(false)
+        setIsDelete(true)
+        setDisplayMessage(false);
+        setDisplayDeleteMessage(true);
+    }
+
+    function deleteUnsuccess() {
+        setIsDelete(false)
+        setIsNotDelete(true)
+        setDisplayMessage(false);
+        setDisplayDeleteMessage(true);
+    }
+
     function modifyParcelManager(e) {
         e.preventDefault();
-        restCalls.modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
-            .then(() => { setIsModifySubmit(true); setIsModifyNotSubmit(false) }).catch(() => { setIsModifySubmit(false); setIsModifyNotSubmit(true) });
-        setDisplayMessage(true);
+        if (markers.length >= 3) {
+            restCalls.modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
+                .then(() => { modifySuccess() }).catch(() => { modifyUnsuccess() });
+            setDisplayDeleteMessage(false);
+            setDisplayMessage(true);
+        }
+        else {
+            setMarkersErr(true)
+        }
     }
 
     function deleteParcelManager(e) {
         e.preventDefault();
-        restCalls.deleteParcel(parcelName).then(() => {window.location.reload()});
+        restCalls.deleteParcel(parcelName).then(() => { deleteSuccess() }).catch(() => { deleteUnsuccess() });
     }
 
     return (
@@ -137,6 +186,8 @@ export default function ModifyParcel() {
                     </Select>
                 </FormControl>
 
+                <Button color="error" onClick={deleteParcelManager} variant="contained" sx={{ mt: "10px" }}> Eliminate parcel </Button>
+
                 {isModifySubmit && displayMessage ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela modificada com sucesso.</Typography>
@@ -148,7 +199,16 @@ export default function ModifyParcel() {
                     </Alert> : <></>
                 }
 
-                <Button color="error" onClick={deleteParcelManager} variant="contained" sx={{ mt: "10px" }}> Eliminate parcel </Button>
+                {isDelete && displayDeleteMessage ?
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela eliminada com sucesso.</Typography>
+                    </Alert> : <></>
+                }
+                {isNotDelete && displayDeleteMessage ?
+                    <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao eliminar a parcela. Por favor, verifique o nome da parcela.</Typography>
+                    </Alert> : <></>
+                }
             </Grid>
             <Grid item xs={3.5}>
                 <Container component="main" maxWidth="xs">
@@ -256,8 +316,14 @@ export default function ModifyParcel() {
                             { /* Child components, such as markers, info windows, etc. */}
                         </GoogleMap>
                     }
-                    <Button color="error" onClick={resetMarkers}>Delete Markers</Button>
                 </LoadScript>
+                {loadButtons &&
+                    <ButtonGroup variant="outlined" aria-label="outlined button group">
+                        <Button color="error" onClick={deleteMarkers}>Delete Markers</Button>
+                        <Button color="success" onClick={resetMarkers}>Reset Markers</Button>
+                    </ButtonGroup>
+                }
+                {markersErr && <Typography color="error"> Escolha 3 ou mais pontos para definir uma parcela </Typography>}
             </Grid>
         </>
     )
