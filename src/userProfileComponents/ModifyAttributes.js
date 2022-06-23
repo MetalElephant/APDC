@@ -1,4 +1,4 @@
-import react from 'react'
+import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert } from "@mui/material";
 
@@ -22,6 +22,18 @@ export default function ModifyAttributes() {
     const [displayMessage, setDisplayMessage] = react.useState(0);
     const [userModified, setUserModified] = react.useState(false);
     const [userNotModified, setUserNotModified] = react.useState(false);
+
+    var user = JSON.parse(localStorage.getItem('user'))
+
+    useEffect(() => {
+        setEmail(user.email);
+        setName(user.name);
+        setVisibility(user.visibility);
+        setHomePhone(user.landphone);
+        setMobilePhone(user.mobilephone);
+        setAddress(user.address);
+        setNif(user.nif);
+    }, [])
 
     function nameHandler(e) {
         setName(e.target.value);
@@ -150,6 +162,7 @@ export default function ModifyAttributes() {
                                 margin="normal"
                                 fullWidth
                                 autoFocus
+                                value={email}
                                 name="email"
                                 label="Email"
                                 id="email"
@@ -164,6 +177,7 @@ export default function ModifyAttributes() {
                                 fullWidth
                                 id="nome"
                                 label="Name"
+                                value={name}
                                 name="nome"
                                 color="success"
                                 onChange={nameHandler}
@@ -174,6 +188,7 @@ export default function ModifyAttributes() {
                                     aria-labelledby="demo-radio-buttons-group-label"
                                     name="radio-buttons-group"
                                     row
+                                    value={visibility}
                                     onChange={visibilityHandler}
                                 >
                                     <FormControlLabel value="Public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />
@@ -186,6 +201,7 @@ export default function ModifyAttributes() {
                                 fullWidth
                                 name="homePhone"
                                 label="Home Phone"
+                                value={homePhone}
                                 id="homePhone"
                                 color="success"
                                 onChange={homePhoneHandler}
@@ -199,6 +215,7 @@ export default function ModifyAttributes() {
                                 fullWidth
                                 name="mobilePhone"
                                 label="Mobile Phone"
+                                value={mobilePhone}
                                 id="mobilePhone"
                                 color="success"
                                 onChange={mobilePhoneHandler}
@@ -211,6 +228,7 @@ export default function ModifyAttributes() {
                                 fullWidth
                                 name="address"
                                 label="Address"
+                                value={address}
                                 id="address"
                                 color="success"
                                 onChange={addressHandler}
@@ -220,6 +238,7 @@ export default function ModifyAttributes() {
                                 fullWidth
                                 name="nif"
                                 label="NIF"
+                                value={nif}
                                 id="nif"
                                 color="success"
                                 onChange={nifHandler}

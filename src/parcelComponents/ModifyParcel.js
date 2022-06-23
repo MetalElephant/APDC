@@ -14,6 +14,7 @@ export default function ModifyParcel() {
     const [markers, setMarkers] = react.useState([]);
     const [allLats, setAllLats] = react.useState([]);
     const [allLngs, setAllLngs] = react.useState([]);
+    const [owners, setOwners] = react.useState("");
     const [chosenParcel, setChosenParcel] = react.useState("");
 
     const [loaded, setLoaded] = react.useState(true);
@@ -34,12 +35,22 @@ export default function ModifyParcel() {
                         lng: marker.longitude,
                         time: new Date()
                     })
+                    allLats.push(marker.latitude)
+                    allLngs.push(marker.longitude)
                 })
                 setMarkers(temp)
+                setOriginValues(parcels[chosenParcel]);
             }
         }
     }, [chosenParcel])
 
+    function setOriginValues(parcel) {
+        setOwners(parcel.owners)
+        setDescription(parcel.description)
+        setGroundType(parcel.groundType)
+        setCurrUsage(parcel.currUsage)
+        setPrevUsage(parcel.prevUsage)
+    }
 
     function setAttributes(event) {
         var parcel = parcels[event.target.value]
@@ -94,7 +105,7 @@ export default function ModifyParcel() {
 
     function modifyParcelManager(e) {
         e.preventDefault();
-        restCalls.modifyParcel(parcelName, description, groundType, currUsage, prevUsage)
+        restCalls.modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
             .then(() => { setIsModifySubmit(true); setIsModifyNotSubmit(false) }).catch(() => { setIsModifySubmit(false); setIsModifyNotSubmit(true) });
         setDisplayMessage(true);
     }
@@ -127,7 +138,7 @@ export default function ModifyParcel() {
                     </Alert> : <></>
                 }
 
-                <Button color="error" variant="contained" sx={{mt: "10px"}}> Eliminate parcel </Button>
+                <Button color="error" variant="contained" sx={{ mt: "10px" }}> Eliminate parcel </Button>
             </Grid>
             <Grid item xs={3.5}>
                 <Container component="main" maxWidth="xs">
@@ -149,6 +160,7 @@ export default function ModifyParcel() {
                                 fullWidth
                                 name="descricao"
                                 label="Descrição"
+                                value={description}
                                 id="descricao"
                                 color="success"
                                 onChange={descriptionHandler}
@@ -158,6 +170,7 @@ export default function ModifyParcel() {
                                 fullWidth
                                 name="tipoCoberturaSolo"
                                 label="Tipo de Cobertura do Solo"
+                                value={groundType}
                                 id="tipoCoberturaSolo"
                                 color="success"
                                 onChange={groundTypeHandler}
@@ -167,6 +180,7 @@ export default function ModifyParcel() {
                                 fullWidth
                                 name="utilizacaoAtual"
                                 label="Utilização Atual"
+                                value={currUsage}
                                 id="utilizacaoAtual"
                                 color="success"
                                 onChange={currUsageHandler}
@@ -176,6 +190,7 @@ export default function ModifyParcel() {
                                 fullWidth
                                 name="utilizacaoAnterior"
                                 label="Utilização Anterior"
+                                value={prevUsage}
                                 id="utilizacaoAnterior"
                                 color="success"
                                 onChange={prevUsageHandler}
@@ -204,10 +219,21 @@ export default function ModifyParcel() {
                             mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
                             zoom={13}
+                            onClick={(event) => {
+                                setMarkers(current => [
+                                    ...current,
+                                    {
+                                        lat: event.latLng.lat(),
+                                        lng: event.latLng.lng()
+                                    },
+                                ]);
+                                allLats.push(event.latLng.lat())
+                                allLngs.push(event.latLng.lng())
+                            }}
                         >
-                            {parcels[chosenParcel].markers.map(marker => (
+                            {markers.map(marker => (
                                 <Marker
-                                    position={{ lat: marker.latitude, lng: marker.longitude }}
+                                    position={{ lat: marker.lat, lng: marker.lng }}
                                 />
                             ))}
 
@@ -220,6 +246,7 @@ export default function ModifyParcel() {
                             { /* Child components, such as markers, info windows, etc. */}
                         </GoogleMap>
                     }
+                    <Button color="error" onClick={resetMarkers}>Delete Markers</Button>
                 </LoadScript>
             </Grid>
         </>

@@ -24,17 +24,10 @@ export default function RegisterParcel() {
     const [chosenConc, setChosenConc] = react.useState(null);
     const [chosenDist, setChosenDist] = react.useState(null);
     const [owners, setOwners] = react.useState("");
-    const [modifiedMarker, setModifiedMarker] = react.useState(null);
-    const [tempIndex, setTempIndex] = react.useState(-1);
 
     let index = 0;
-    let idd = -1;
-
-    var parcels = JSON.parse(localStorage.getItem('parcels'))
 
     useEffect(() => {
-        restCalls.parcelInfo();
-
         let split = [];
         let distritos = [];
         let concelhos = [];
@@ -113,19 +106,6 @@ export default function RegisterParcel() {
         setAllLats([]);
         setAllLngs([]);
         setMarkers([]);
-    }
-
-    function searchIndex(tempData) {
-        var index = 0
-        markers.map((marker) => {
-            if ((marker.lat === tempData.latLng.lat()) && (marker.lng === tempData.latLng.lng())) {
-                console.log("INSIDE: " + index);
-                setTempIndex(index)
-                idd = index;
-                console.log("IDD: " + idd);
-            }
-            index++;
-        })
     }
 
     function parcelRegisterManager(e) {

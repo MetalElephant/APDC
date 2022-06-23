@@ -39,6 +39,7 @@ export default function LoginRegister() {
     const [showPasswordLogin, setShowPasswordLogin] = react.useState(false);
     const [showPasswordRegister, setShowPasswordRegister] = react.useState(false);
     const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
+    const [showRoleErr, setShowRoleErr] = react.useState(false);
 
 
     const [image, setImage] = react.useState();
@@ -175,6 +176,7 @@ export default function LoginRegister() {
         setMobilePhone("");
         setAddress("");
         setNif("");
+        setRole("");
     }
 
     const registerFormValidation = () => {
@@ -263,6 +265,13 @@ export default function LoginRegister() {
             nifErr.onlyNumbers = "NIF must not contain any letters or special characters."
             isValid = false;
             setNifErr(nifErr)
+        }
+
+        if(role == "") {
+            setShowRoleErr(true)
+            isValid = false;
+        } else{
+            setShowRoleErr(false)
         }
 
         setUsernameErr(usernameErr)
@@ -496,13 +505,15 @@ export default function LoginRegister() {
                                     </Select>
                                 </FormControl>
 
+                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14 }}>You need to select a role</Typography>}
+
                                 <FormControl sx={{ mt: "13px", pb: 1 }}>
                                     <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
                                     <RadioGroup
                                         aria-labelledby="demo-radio-buttons-group-label"
                                         name="radio-buttons-group"
                                         row
-                                        defaultValue="Public"
+                                        value={visibility}
                                         onChange={visibilityHandler}
                                     >
                                         <FormControlLabel value="Public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />

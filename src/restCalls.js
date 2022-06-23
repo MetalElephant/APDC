@@ -30,7 +30,7 @@ class restCalls {
 
 
     register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo, role) {
-        return fetch("https://our-hull.appspot.com/rest/users/register/", {
+        return fetch("https://our-hull.appspot.com/rest/users/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -100,7 +100,7 @@ class restCalls {
         })
     }
 
-    modifyParcel(parcelName, description, groundType, currUsage, prevUsage) {
+    modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs) {
         return fetch("https://our-hull.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
@@ -108,11 +108,14 @@ class restCalls {
             },
             body: JSON.stringify({
                 owner: JSON.parse(localStorage.getItem('token')).username,
+                owners: owners,
                 parcelName: parcelName,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
-                prevUsage: prevUsage
+                prevUsage: prevUsage,
+                allLats: allLats,
+                allLngs: allLngs
             })
         }).then(function (response) {
             if (!response.ok) {
