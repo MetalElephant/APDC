@@ -2,6 +2,7 @@ import react from "react"
 import {Button, Grid, Typography} from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
+import SearchParcel from "./SearchParcel";
 import restCalls from "../restCalls"
 import ParcelInfo from "./ParcelInfo";
 import {useHistory} from "react-router-dom";
@@ -9,6 +10,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FeedIcon from '@mui/icons-material/Feed';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function Main() {
     let history = useHistory();
@@ -61,6 +63,18 @@ export default function Main() {
                     </Button>
                     <Button
                         type="submit"
+                        id="4"
+                        fullWidth
+                        variant="outlined"
+                        color="success"
+                        startIcon={<SearchIcon sx={{color:"black"}}/>}
+                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        onClick={() => { setDisplay(3) }}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> search parcels </Typography>
+                    </Button>
+                    <Button
+                        type="submit"
                         id="5"
                         fullWidth
                         variant="outlined"
@@ -75,6 +89,7 @@ export default function Main() {
                 {(display === 0) ? <RegisterParcel /> : <></>}
                 {(display === 1) ? <ParcelInfo />: <></>}
                 {(display === 2) ? <ModifyParcel />: <></>}
+                {(display === 3) ? <SearchParcel />: <></>}
 
             </Grid>
         </Grid>
