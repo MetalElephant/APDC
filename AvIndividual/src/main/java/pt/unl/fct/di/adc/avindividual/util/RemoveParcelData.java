@@ -4,6 +4,8 @@ public class RemoveParcelData {
 
     public String username, owner, parcelName;
 
+    public RemoveParcelData(){}
+
     public RemoveParcelData(String username, String owner, String parcelName){
         this.username = username;
         this.owner = owner;
