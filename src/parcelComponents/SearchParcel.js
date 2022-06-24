@@ -108,7 +108,6 @@ export default function SearchParcel() {
                         mapContainerStyle={{ width: "100%", height: "600px" }}
                         center={{ lat: 39.639538, lng: -8.088107 }}
                         zoom={7}
-                        sx={{ Height: "200px" }}
                         onClick={(event) => {
                             if (option == "limits" && markers.length < 4) {
                                 setMarkers(current => [

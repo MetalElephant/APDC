@@ -505,7 +505,7 @@ export default function LoginRegister() {
                                     </Select>
                                 </FormControl>
 
-                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14 }}>You need to select a role</Typography>}
+                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt:1 }}>You need to select a role</Typography>}
 
                                 <FormControl sx={{ mt: "13px", pb: 1 }}>
                                     <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
