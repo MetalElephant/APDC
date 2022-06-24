@@ -26,6 +26,7 @@ export default function NavbarOps() {
                 <Grid item xs={2}  >
                     <Box component="img" src={logoProduto} width="300px" sx={{ mt: "5px" }} />
                 </Grid>
+                {/*
                 <Grid item xs={2.5} container direction="row" alignItems="flex-end" justify="center">
                     <Tabs textColor='inherit'
                         TabIndicatorProps={{ sx: { background: "black" } }}
@@ -47,6 +48,25 @@ export default function NavbarOps() {
                     <Box component="img" src={logoWelcome} width="300px" sx={{ ml: "20px" }} />
                 </Grid>
                 <Grid item xs={2.5}>
+                </Grid>
+                */}
+
+                <Grid item xs={8} container direction="row" alignItems="flex-end" justify="center">
+                    <Tabs textColor='inherit'
+                        TabIndicatorProps={{ sx: { background: "black" } }}
+                        value={selectedLeftTab}
+                        onChange={handleChangeLeft}
+                        variant="scrollable"
+                        scrollButtons
+                    >
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="User" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcels" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Rewards" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Forum" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Statistics" />
+
+                    </Tabs>
                 </Grid>
                 <Grid item xs={2}>
                     <Box component="img" src={logoEquipa} width="310px" sx={{ ml: "auto", display: "flex" }} />
