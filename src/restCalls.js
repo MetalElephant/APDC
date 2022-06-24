@@ -284,7 +284,7 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
-            localStorage.setItem('parcels', text);
+            localStorage.setItem('parcelsSearch', text);
             return text;
         })
     }
@@ -472,6 +472,7 @@ class restCalls {
             localStorage.removeItem('user')
             localStorage.removeItem('token')
             localStorage.removeItem('parcels')
+            localStorage.removeItem('parcelsSearch')
             localStorage.removeItem('forumsUser')
             localStorage.removeItem('forumsAll')
             localStorage.removeItem('forum')
