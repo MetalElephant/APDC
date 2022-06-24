@@ -27,6 +27,12 @@ import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+
 
 @Path("/parcel")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -51,8 +57,14 @@ public class ParcelResource {
 	private static final String CURR_USAGE = "current usage";
 	private static final String PREV_USAGE = "previous usage";
 	private static final String AREA = "area";
+	private static final String CONFIRMATION = "Confirmation";
     private static final String NMARKERS = "number of markers";
 	private static final String MARKER = "marker";
+
+	//Bucket information
+	private static final String PROJECT_ID = "Land It";
+	private static final String BUCKET_NAME = "our-hull.appspot.com"; //"land--it.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
 
 	//Keys
 	private static final String USER = "User";
@@ -123,6 +135,7 @@ public class ParcelResource {
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, data.area)
+					.set(CONFIRMATION, uploadConfirmation(data.owner + ":" + data.parcelName, data.confirmation))
                     .set(NMARKERS, String.valueOf(data.allLats.length))
 					.set(NOWNERS, String.valueOf(data.owners.length));
 			
@@ -208,6 +221,7 @@ public class ParcelResource {
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, parcel.getString(AREA))
+
                     .set(NMARKERS, String.valueOf(data.allLats.length))
 					.set(NOWNERS, String.valueOf(data.owners.length));
 
@@ -429,6 +443,16 @@ public class ParcelResource {
 		List<ParcelInfo> parcelList = getParcelByPosition(data.latMax, data.latMin, data.longMax, data.longMin);
 
 		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	private String uploadConfirmation(String name, byte[] data){
+		Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
+		BlobId blobId = BlobId.of(BUCKET_NAME, name);
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("application/pdf").build();
+		storage.create(blobInfo, data);
+		storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
+
+		return URL + name;
 	}
 
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
