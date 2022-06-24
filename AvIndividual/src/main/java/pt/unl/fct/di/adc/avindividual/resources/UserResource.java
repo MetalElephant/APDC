@@ -45,6 +45,7 @@ public class UserResource {
 
 	private final Gson g = new Gson();
 
+	private AdministrativeResource ar = new AdministrativeResource();
 	//private ForumResource fr = new ForumResource();
 	private StatisticsResource sr = new StatisticsResource();
 
@@ -85,6 +86,14 @@ public class UserResource {
     private static final String TOKEN = "Token";
 	private static final String STAT = "Statistics";
 	private static final String CODE = "Code";
+
+	//Roles
+	private static final String SU = "Super User";
+	private static final String MODERATOR = "Moderator";
+	private static final String OWNER = "Owner";
+	private static final String REPRESENTATIVE = "Representative";
+	private static final String MERCHANT = "Merchant";
+
 
 	private static final boolean ADD = true;
 	
@@ -285,7 +294,7 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-			if (!canRemove(user, userToRemove)) {
+			if (!ar.canRemove(user, userToRemove)) {
 				LOG.warning("User " + data.username + " unathourized to remove other User");
 				tn.rollback();
 
@@ -323,7 +332,6 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-	
 		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);		
@@ -354,22 +362,26 @@ public class UserResource {
 			}
 			
 			//To set what will stay the same value or what will actually be changed
-			if(!canModify(data, user, userToUpdate))
+			if(!ar.canModify(user, userToUpdate)) {
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
+			}
 
-				userToUpdate = Entity.newBuilder(userUpdateKey)
-					.set(NAME, data.name)
-					.set(PASSWORD, userToUpdate.getString(PASSWORD))
-					.set(EMAIL, data.email)
-					.set(ROLE, data.role)
-					.set(MPHONE, data.mobilePhone)
-					.set(HPHONE, data.homePhone)
-					.set(ADDRESS, data.address)
-					.set(NIF, data.nif)
-					.set(VISIBILITY, data.visibility)
-					.set(POINTS, userToUpdate.getString(POINTS))
-					.set(CTIME, userToUpdate.getTimestamp(CTIME))
-					.build();
+			relaxModification(data, userToUpdate);
+
+			userToUpdate = Entity.newBuilder(userUpdateKey)
+				.set(NAME, data.name)
+				.set(PASSWORD, userToUpdate.getString(PASSWORD))
+				.set(EMAIL, data.email)
+				.set(ROLE, data.role)
+				.set(MPHONE, data.mobilePhone)
+				.set(HPHONE, data.homePhone)
+				.set(ADDRESS, data.address)
+				.set(NIF, data.nif)
+				.set(VISIBILITY, data.visibility)
+				.set(POINTS, userToUpdate.getString(POINTS))
+				.set(CTIME, userToUpdate.getTimestamp(CTIME))
+				.build();
 			
 			tn.put(userToUpdate);
 			tn.commit();
@@ -626,35 +638,37 @@ public class UserResource {
 
 	}
 
-	//TODO No roles so right now we can always do it for the sake of testing
-	private boolean canRemove(Entity user, Entity userToRemove) {
-		/*
-		String role1 = user.getString(ROLE);
-		String role2 = userToRemove.getString(ROLE);
-		String name1 = user.getString(USERNAME);
-		String name2 = userToRemove.getString(USERNAME);
-			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
-				return false;
-			}
-			if (role1.equals(GBO) && !role2.equals(USER)) { // can only remove USER level 
-				return false;
-			}
-			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
-				return false;
-			}
-		*/
-		return true;
-	}
-
 	//TODO we won't need to check for null values if we get the old info so we will only need canUpdateValues
-	private boolean canModify(UserUpdateData data, Entity user, Entity userToModify) {
-		//if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
-			//return false;
-			
+	private boolean relaxModification(UserUpdateData data, Entity userToModify) {
+		//update values so its easier to do transaction.put throught the data from ModifyData
+		if (data.name == null || data.name.length() == 0)
+			data.name = userToModify.getString(NAME);
+		
+		if (data.email == null || data.email.length() == 0)
+			data.email = userToModify.getString(EMAIL);
+		
+		if (data.role == null || data.role.length() == 0)
+			data.role = userToModify.getString(ROLE);
+		
+		if (data.mobilePhone == null || data.mobilePhone.length() == 0)
+			data.mobilePhone = userToModify.getString(MPHONE);
+		
+		if (data.homePhone == null || data.homePhone.length() == 0)
+			data.homePhone = userToModify.getString(HPHONE);
+		
+		if (data.address == null || data.address.length() == 0)
+			data.address = userToModify.getString(ADDRESS);
+		
+		if (data.nif == null || data.nif.length() == 0)
+			data.nif = userToModify.getString(NIF);
+		
+		if (data.visibility == null || data.visibility.length() == 0)
+			data.visibility = userToModify.getString(VISIBILITY);
+
 		return true;
 	}
 
-	private void removeUserCodes(String user, Transaction tn){
+	public void removeUserCodes(String user, Transaction tn){
 		Query<Entity> codesQuery = Query.newEntityQueryBuilder().setKind(CODE)
 								.setFilter(PropertyFilter.hasAncestor(
                 				datastore.newKeyFactory().setKind(USER).newKey(user)))

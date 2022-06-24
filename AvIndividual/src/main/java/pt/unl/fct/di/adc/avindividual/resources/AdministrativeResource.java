@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,6 +27,7 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 
 import pt.unl.fct.di.adc.avindividual.util.RegisterModeratorData;
+import pt.unl.fct.di.adc.avindividual.util.RemoveData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 @Path("/admin")
@@ -58,9 +60,6 @@ public class AdministrativeResource {
 
 	private static final String PUBLIC = "Public";
 
-	//Roles
-	private static final String SU = "SU";
-
 	//Token information
 	private static final String TOKENID = "token ID";
 	private static final String TOKENUSER = "token user";
@@ -85,12 +84,7 @@ public class AdministrativeResource {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-		if(!data.validPasswordFormat())
-			return Response.status(Status.BAD_REQUEST).entity("Passwords should be at least 5 chars long, contain at least 1 "+
-			"letter, 1 upper case letter and 1 special character").build();
-		if(!data.confirmedPassword())
-			return Response.status(Status.BAD_REQUEST).entity("Passwords don't match.").build();
-
+		
 		data.optionalAttributes();
 
 		Transaction tn = datastore.newTransaction();
@@ -124,15 +118,14 @@ public class AdministrativeResource {
 				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
 			}
 
-			String password = generatePassword(8);
+			String password = generatePassword(12);
 
 			if(verifyRegister(userReg)) {
-				//Create User
 				user = Entity.newBuilder(userKey)
 						.set(NAME, data.name)
-						.set(PASSWORD, DigestUtils.sha512Hex(data.password))
+						.set(PASSWORD, DigestUtils.sha512Hex(password))
 						.set(EMAIL, data.email)
-						.set(ROLE, Roles.MODERATOR.name())		
+						.set(ROLE, Roles.MODERATOR.getRole())		
 						.set(MPHONE, data.mobilePhone)
 						.set(HPHONE, data.homePhone)
 						.set(ADDRESS, data.address)
@@ -164,6 +157,54 @@ public class AdministrativeResource {
 		if(userReg.getString(ROLE).equals(Roles.SU.getRole()) ||
 				userReg.getString(ROLE).equals(Roles.MODERATOR.getRole())) {
 					return true;
+		}
+
+		return false;
+	}
+
+	public boolean canModify(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+				return true;
+			case MODERATOR:
+				if(e2Role != Roles.SU && e2Role != Roles.MODERATOR)
+					return true;
+				break;
+			case OWNER:
+			case REPRESENTATIVE:
+			case MERCHANT:
+				if(e1 == e2)
+					return true;
+				break;
+			default:
+				break;
+		}
+
+		return false;
+	}
+
+	public boolean canRemove(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+				return true;
+			case MODERATOR:
+				if(e2Role != Roles.SU) 
+					return true;
+				break;
+			case OWNER:
+			case REPRESENTATIVE:
+			case MERCHANT:
+				if(e1 == e2)
+					return true;
+				break;
+			default:
+				break;
 		}
 
 		return false;

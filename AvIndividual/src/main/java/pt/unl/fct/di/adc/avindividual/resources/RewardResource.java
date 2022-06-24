@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response.Status;
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
+import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.RewardData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
@@ -34,6 +35,7 @@ public class RewardResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
+    private AdministrativeResource ar = new AdministrativeResource();
     
     // Reward info
     private static final String OWNER = "owner";
@@ -156,19 +158,14 @@ public class RewardResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
-            if(!isUserValid(user)) {
-                LOG.warning("User " + data.owner + " isn't a merchant.");
-				tn.rollback();
-
-				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " isn't a merchant.").build();
-            }
-
 			if (reward == null) {
 				LOG.warning("Reward " + data.name + " doesn't exist.");
 				tn.rollback();
 
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
 			}
+
+            if(!ar.canModify(user, owner))
 
             Builder builder = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
@@ -192,8 +189,8 @@ public class RewardResource {
     @DELETE
     @Path("/remove")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removeReward(RequestData data) {
-        LOG.info("Attempt to remove reward: " + data.name);
+    public Response removeReward(RemoveObjectData data) {
+        LOG.info("Attempt to remove reward: " + data.objectName);
 
 		if(!data.isDataValid()){
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
@@ -201,14 +198,16 @@ public class RewardResource {
 
         Transaction tn = datastore.newTransaction();
 
-        Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(REWARD).newKey(data.name);
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+        Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
+		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(REWARD).newKey(data.objectName);
 
         try {
-            Entity user = tn.get(ownerKey);
-            Entity reward = tn.get(rewardKey);
+            Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
+            Entity reward = tn.get(rewardKey);
+            Entity owner = tn.get(ownerKey);
 
             if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
@@ -223,24 +222,24 @@ public class RewardResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-            if(!isUserValid(user)) {
-                LOG.warning("User " + data.username + " isn't a merchant.");
-				tn.rollback();
-
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " isn't a merchant.").build();
-            }
-
 			if (reward == null) {
 				LOG.warning("Reward " + data.username + " doesn't exist.");
 				tn.rollback();
 
-				return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
+				return Response.status(Status.NOT_FOUND).entity("Reward " + data.objectName + " doesn't exists.").build();
 			}
+
+            if(!ar.canRemove(user, owner)) {
+                LOG.warning("User " + data.username + " can't remove this reward.");
+                tn.rollback();
+
+                return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't remove this reward.").build();
+            }
 
             tn.delete(rewardKey);
             tn.commit();
 
-            return Response.ok("Reward " + data.name + " deleted.").build();
+            return Response.ok("Reward " + data.objectName + " deleted.").build();
         } finally {
             if(tn.isActive()) {
                 tn.rollback();

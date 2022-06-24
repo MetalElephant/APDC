@@ -7,7 +7,7 @@ public class RegisterModeratorData {
     public String usernameReg;
 
     //Mandatory information
-	public String username, password, pwdConfirmation, email, name;
+	public String username, email, name;
 
 	//Optional or default information
 	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code;
@@ -18,14 +18,12 @@ public class RegisterModeratorData {
 	
 	public RegisterModeratorData() {}
 	
-	public RegisterModeratorData(String usernameReg, String username, String password, String confirmation, String email, String name, String visibility,
+	public RegisterModeratorData(String usernameReg, String username, String email, String name, String visibility,
 			String homePhone, String mobilePhone, String address, String nif, byte[] photo) {
 		this.usernameReg = usernameReg;
         
         //Mandatory information
 		this.username = username;
-		this.password = password;
-		this.pwdConfirmation = confirmation;
 		this.email = email;
 		this.name = name;
 		this.visibility = visibility;
@@ -38,13 +36,11 @@ public class RegisterModeratorData {
 		this.photo = photo;
 	}
 
-	public RegisterModeratorData(String usernameReg, String username, String password, String confirmation, String email, String name) {
+	public RegisterModeratorData(String usernameReg, String username, String email, String name) {
 		this.usernameReg = usernameReg;
         
         //Mandatory information
 		this.username = username;
-		this.password = password;
-		this.pwdConfirmation = confirmation;
 		this.email = email;
 		this.name = name;
 	}
@@ -66,40 +62,17 @@ public class RegisterModeratorData {
 	
 	public boolean validData() {
 		//Check missing info
-		if(this.username == null || this.password == null || this.email == null|| this.name == null 
-				|| this.pwdConfirmation == null || this.visibility == null)
+		if(this.username == null || this.email == null|| this.name == null 
+				|| this.visibility == null)
 			return false;
 		
 		//Check empty data
-		if(this.username.length() == 0 || this.password.length() == 0 || this.email.length() == 0||
-				this.name.length() == 0	|| this.pwdConfirmation.length() == 0 || this.visibility.length() == 0)
+		if(this.username.length() == 0 || this.email.length() == 0||
+				this.name.length() == 0 || this.visibility.length() == 0)
 			return false;
 		
 		return true;	
 	}
-	
-	public boolean validPasswordFormat() {
-		
-		String pwd = this.password;
-		
-		if(pwd.length()>=5) {
-	        Pattern letters = Pattern.compile("[a-zA-Z]");
-			Pattern upper = Pattern.compile("[A-Z]");
-	        Pattern numbers = Pattern.compile("[0-9]");
-	        Pattern specChars = Pattern.compile ("[!@#$%&*()_+=|<>?{}\\[\\]~-]");
-
-	        if( letters.matcher(pwd).find() && numbers.matcher(pwd).find()
-	        		&& specChars.matcher(pwd).find() && upper.matcher(pwd).find())
-	        		return true;
-		}
-	        return false;
-		
-	}
-	
-	public boolean confirmedPassword() {
-		return this.password.equals(this.pwdConfirmation);
-	}
-	
 	
 	public boolean validEmailFormat() {
 		String email = this.email;

@@ -2,15 +2,20 @@ package pt.unl.fct.di.adc.avindividual.util;
 
 public class ParcelUpdateData {
 
-	public String owner, parcelName, description, groundType, currUsage, prevUsage;
+	public String username, owner, parcelName, description, groundType, currUsage, prevUsage;
 	public String[] owners;
 	public double[] allLats, allLngs;
 	public byte[] confirmation;
 	
 	public ParcelUpdateData() {}
 	
+<<<<<<< Updated upstream
 	public ParcelUpdateData(String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats,
 	 						double[] allLngs, byte[] confirmation) {
+=======
+	public ParcelUpdateData(String username, String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats, double[] allLngs) {
+		this.username = username;
+>>>>>>> Stashed changes
 		this.owner = owner;
 		this.parcelName = parcelName;
 		this.owners = owners;
@@ -24,7 +29,7 @@ public class ParcelUpdateData {
 	}
 
     public boolean isDataValid(){
-        if (this.owner == null || this.parcelName == null)
+        if (this.username == null || this.owner == null || this.parcelName == null)
             return false;
 
         return (this.owner.length() != 0 && this.parcelName.length() != 0);
