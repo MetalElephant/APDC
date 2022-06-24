@@ -2,6 +2,7 @@ import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Marker, Polyline } from '@react-google-maps/api';
+import { ThemeProvider } from '@emotion/react';
 
 export default function SearchParcel() {
 
@@ -14,15 +15,13 @@ export default function SearchParcel() {
     const [firstAux, setFirstAux] = react.useState([]);
     const [secondAux, setSecondAux] = react.useState([]);
     const [thirdAux, setThirdAux] = react.useState([]);
-    const [forthAux, setForthAux] = react.useState([]);
-    const [allLats, setAllLats] = react.useState([]);
-    const [allLngs, setAllLngs] = react.useState([]);
+    const [fourthAux, setFourthAux] = react.useState([]);
     const [loaded, setLoaded] = react.useState(false);
-    const [option, setOption] = react.useState("local");
+    const [option, setOption] = react.useState("limits");
     const [first, setFirst] = react.useState(false);
     const [second, setSecond] = react.useState(false);
     const [third, setThird] = react.useState(false);
-    const [forth, setForth] = react.useState(false);
+    const [fourth, setFourth] = react.useState(false);
 
     var temp;
 
@@ -36,13 +35,17 @@ export default function SearchParcel() {
             setFirst(false);
             setSecond(false);
             setThird(false);
-            setForth(false);
+            setFourth(false);
+            setFirstAux([]);
+            setSecondAux([]);
+            setThirdAux([]);
+            setFourthAux([]);
         }
         else if (markers.length == 1) {
             setFirst(true);
             setSecond(false);
             setThird(false);
-            setForth(false);
+            setFourth(false);
             temp = { lat: markers[0].lat, lng: maxLngPt }
             firstAux.push(temp);
             temp = { lat: markers[0].lat, lng: minLngPt }
@@ -52,38 +55,43 @@ export default function SearchParcel() {
             setFirst(true);
             setSecond(true);
             setThird(false);
-            setForth(false);
+            setFourth(false);
             temp = { lat: markers[1].lat, lng: maxLngPt }
-            firstAux.push(temp);
+            secondAux.push(temp);
             temp = { lat: markers[1].lat, lng: minLngPt }
-            firstAux.push(temp);
+            secondAux.push(temp);
         }
         else if (markers.length == 3) {
             setFirst(true);
             setSecond(true);
             setThird(true);
-            setForth(false);
-            temp = { lat: maxLatPt, lng: markers[2].lng }
-            firstAux.push(temp);
-            temp = { lat: minLatPt, lng: markers[2].lng }
-            firstAux.push(temp);
+            setFourth(false);
+            temp = { lat: markers[0].lat, lng: markers[2].lng }
+            thirdAux.push(temp);
+            temp = { lat: markers[1].lat, lng: markers[2].lng }
+            thirdAux.push(temp);
+            temp = { lat: markers[0].lat, lng: markers[2].lng }
+            firstAux[0] = temp
+            console.log(firstAux)
         }
         else {
             setFirst(true);
             setSecond(true);
             setThird(true);
-            setForth(true);
-            temp = { lat: maxLatPt, lng: markers[3].lng }
-            firstAux.push(temp);
-            temp = { lat: minLatPt, lng: markers[3].lng }
-            firstAux.push(temp);
+            setFourth(true);
+            temp = { lat: markers[0].lat, lng: markers[3].lng }
+            fourthAux.push(temp);
+            temp = { lat: markers[1].lat, lng: markers[3].lng }
+            fourthAux.push(temp);
         }
     }, [markers])
 
     function deleteMarkers() {
         setMarkers([]);
-        setAllLats([]);
-        setAllLngs([]);
+    }
+
+    function getData() {
+        restCalls.getParcelsByPosition(latMax, latMin, lngMax, lngMin);
     }
 
     function optionHandler(e) {
@@ -110,19 +118,27 @@ export default function SearchParcel() {
                                         lng: event.latLng.lng()
                                     },
                                 ]);
-                                allLats.push(event.latLng.lat())
-                                allLngs.push(event.latLng.lng())
                             }
                         }}
                     >
-                        {option == "limits" && markers.map(marker => (
-                            <Marker
-                                position={{ lat: marker.lat, lng: marker.lng }}
-                            />
-                        ))}
                         {firstAux.length > 0 &&
                             <Polyline
                                 path={firstAux}
+                            />
+                        }
+                        {secondAux.length > 0 &&
+                            <Polyline
+                                path={secondAux}
+                            />
+                        }
+                        {thirdAux.length > 0 &&
+                            <Polyline
+                                path={thirdAux}
+                            />
+                        }
+                        {fourthAux.length > 0 &&
+                            <Polyline
+                                path={fourthAux}
                             />
                         }
 
@@ -148,17 +164,17 @@ export default function SearchParcel() {
 
                     {option == "limits" ?
                         <Box>
-                            <Typography color={first ? "darkgreen" : "error"}>1. Clique no mapa para definir o limite máximo de latitude</Typography>
-                            <Typography color={second ? "darkgreen" : "error"}>2. Clique no mapa para definir o limite mínimo de latitude</Typography>
-                            <Typography color={third ? "darkgreen" : "error"}>3. Clique no mapa para definir o limite máximo de longitude</Typography>
-                            <Typography color={forth ? "darkgreen" : "error"}>4. Clique no mapa para definir o limite mínimo de longitude</Typography>
+                            <Typography color={first ? "darkgreen" : "error"}>1. Clique no mapa para definir o limite máximo de longitude</Typography>
+                            <Typography color={second ? "darkgreen" : "error"}>2. Clique no mapa para definir o limite mínimo de longitude</Typography>
+                            <Typography color={third ? "darkgreen" : "error"}>3. Clique no mapa para definir o limite máximo de latitude</Typography>
+                            <Typography color={fourth ? "darkgreen" : "error"}>4. Clique no mapa para definir o limite mínimo de latitude</Typography>
                         </Box>
                         :
                         <Box>
                             <Typography>Selecione uma localização</Typography>
                         </Box>
                     }
-                    <Button color="success" size="large"> <Typography variant="h6" size="large"> Done </Typography> </Button>
+                    <Button color="success" size="large" onClick={getData}> <Typography variant="h6" size="large"> Done </Typography> </Button>
                 </Box>
             </Grid>
         </>
