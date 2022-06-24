@@ -1,7 +1,7 @@
 import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button } from "@mui/material";
-import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import { Data, GoogleMap, LoadScript, Marker, Polyline } from '@react-google-maps/api';
 
 export default function SearchParcel() {
 
@@ -11,16 +11,80 @@ export default function SearchParcel() {
     const [lngMax, setLngMax] = react.useState(0);
     const [lngMin, setLngMin] = react.useState(0);
     const [markers, setMarkers] = react.useState([]);
+    const [firstAux, setFirstAux] = react.useState([]);
+    const [secondAux, setSecondAux] = react.useState([]);
+    const [thirdAux, setThirdAux] = react.useState([]);
+    const [forthAux, setForthAux] = react.useState([]);
+    const [allLats, setAllLats] = react.useState([]);
+    const [allLngs, setAllLngs] = react.useState([]);
     const [loaded, setLoaded] = react.useState(false);
     const [option, setOption] = react.useState("local");
+    const [first, setFirst] = react.useState(false);
+    const [second, setSecond] = react.useState(false);
+    const [third, setThird] = react.useState(false);
+    const [forth, setForth] = react.useState(false);
 
+    var temp;
 
-    //var parcels = JSON.parse(restCalls.getParcelsByPosition(latMax, latMin, lngMax, lngMin))
+    const maxLatPt = 42.1543;
+    const minLatPt = 36.9597;
+    const maxLngPt = -6.1890;
+    const minLngPt = -9.5006;
 
     useEffect(() => {
-        //setMarkers(parcels)
-        //setLoaded(true)
-    }, [])
+        if (markers.length == 0) {
+            setFirst(false);
+            setSecond(false);
+            setThird(false);
+            setForth(false);
+        }
+        else if (markers.length == 1) {
+            setFirst(true);
+            setSecond(false);
+            setThird(false);
+            setForth(false);
+            temp = { lat: markers[0].lat, lng: maxLngPt }
+            firstAux.push(temp);
+            temp = { lat: markers[0].lat, lng: minLngPt }
+            firstAux.push(temp);
+        }
+        else if (markers.length == 2) {
+            setFirst(true);
+            setSecond(true);
+            setThird(false);
+            setForth(false);
+            temp = { lat: markers[1].lat, lng: maxLngPt }
+            firstAux.push(temp);
+            temp = { lat: markers[1].lat, lng: minLngPt }
+            firstAux.push(temp);
+        }
+        else if (markers.length == 3) {
+            setFirst(true);
+            setSecond(true);
+            setThird(true);
+            setForth(false);
+            temp = { lat: maxLatPt, lng: markers[2].lng }
+            firstAux.push(temp);
+            temp = { lat: minLatPt, lng: markers[2].lng }
+            firstAux.push(temp);
+        }
+        else {
+            setFirst(true);
+            setSecond(true);
+            setThird(true);
+            setForth(true);
+            temp = { lat: maxLatPt, lng: markers[3].lng }
+            firstAux.push(temp);
+            temp = { lat: minLatPt, lng: markers[3].lng }
+            firstAux.push(temp);
+        }
+    }, [markers])
+
+    function deleteMarkers() {
+        setMarkers([]);
+        setAllLats([]);
+        setAllLngs([]);
+    }
 
     function optionHandler(e) {
         setOption(e.target.value);
@@ -33,23 +97,38 @@ export default function SearchParcel() {
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
                     <GoogleMap
-                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                        mapContainerStyle={{ width: "100%", height: "600px" }}
                         center={{ lat: 39.639538, lng: -8.088107 }}
                         zoom={7}
+                        sx={{ Height: "200px" }}
+                        onClick={(event) => {
+                            if (option == "limits" && markers.length < 4) {
+                                setMarkers(current => [
+                                    ...current,
+                                    {
+                                        lat: event.latLng.lat(),
+                                        lng: event.latLng.lng()
+                                    },
+                                ]);
+                                allLats.push(event.latLng.lat())
+                                allLngs.push(event.latLng.lng())
+                            }
+                        }}
                     >
-                        {loaded && markers.map(marker => (
+                        {option == "limits" && markers.map(marker => (
                             <Marker
                                 position={{ lat: marker.lat, lng: marker.lng }}
                             />
                         ))}
+                        {firstAux.length > 0 &&
+                            <Polyline
+                                path={firstAux}
+                            />
+                        }
 
-                        <Polygon
-                            paths={markers}
-                            onClick={() => this.handleClick()}
-                            options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
-                        />
                     </GoogleMap>
                 </LoadScript>
+                <Button color="error" onClick={deleteMarkers} >Eliminar pontos</Button>
             </Grid>
             <Grid item xs={3}>
                 <Box>
@@ -58,7 +137,6 @@ export default function SearchParcel() {
                         <RadioGroup
                             row
                             aria-labelledby="demo-radio-buttons-group-label"
-                            defaultValue="female"
                             name="radio-buttons-group"
                             value={option}
                             onChange={optionHandler}
@@ -70,10 +148,10 @@ export default function SearchParcel() {
 
                     {option == "limits" ?
                         <Box>
-                            <Typography>1. Clique no mapa para definir o limite máximo de latitude</Typography>
-                            <Typography>2. Clique no mapa para definir o limite mínimo de latitude</Typography>
-                            <Typography>3. Clique no mapa para definir o limite máximo de longitude</Typography>
-                            <Typography>4. Clique no mapa para definir o limite mínimo de longitude</Typography>
+                            <Typography color={first ? "darkgreen" : "error"}>1. Clique no mapa para definir o limite máximo de latitude</Typography>
+                            <Typography color={second ? "darkgreen" : "error"}>2. Clique no mapa para definir o limite mínimo de latitude</Typography>
+                            <Typography color={third ? "darkgreen" : "error"}>3. Clique no mapa para definir o limite máximo de longitude</Typography>
+                            <Typography color={forth ? "darkgreen" : "error"}>4. Clique no mapa para definir o limite mínimo de longitude</Typography>
                         </Box>
                         :
                         <Box>
