@@ -217,7 +217,7 @@ export default function SearchParcel() {
 
                     </GoogleMap>
                 </LoadScript>
-                <Button color="error" onClick={deleteMarkers} >Eliminar pontos</Button>
+                <Button color="error" onClick={deleteMarkers} >nova pesquisa</Button>
             </Grid>
             <Grid item xs={3}>
                 <Box>
