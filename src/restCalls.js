@@ -64,7 +64,7 @@ class restCalls {
         })
     }
 
-    parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, area, allLats, allLngs) {
+    parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, allLats, allLngs, photo) {
         var splitOwners = owners.split(",");
         return fetch("https://land--it.appspot.com/rest/parcel/register", {
             method: 'POST',
@@ -82,9 +82,10 @@ class restCalls {
                 groundType: groundType,
                 currUsage: currUsage,
                 prevUsage: prevUsage,
-                area: area,
                 allLats: allLats,
-                allLngs: allLngs
+                allLngs: allLngs,
+                confirmation: photo,
+                type: 2 //2 for png or jpeg, 1 for pdf
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -273,6 +274,33 @@ class restCalls {
                 latMin: latMin,
                 longMax: longMax,
                 longMin: longMin
+                //type: 1 county, 2 district, 3 freg
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('parcelsSearch', text);
+            return text;
+        })
+    }
+
+    getParcelsByRegion(region, type) {
+        return fetch("https://land--it.appspot.com/rest/parcel/searchByRegion", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                region: region,
+                type: type  //type: 1 county, 2 district, 3 freg
             })
         }).then(function (response) {
             if (!response.ok) {

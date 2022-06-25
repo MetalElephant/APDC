@@ -1,8 +1,8 @@
 import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
-import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button } from "@mui/material";
+import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button, TextField, Autocomplete } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Polyline, Polygon } from '@react-google-maps/api';
-import { render } from '@testing-library/react';
+import locais from "../locais/distritos.txt" 
 
 export default function SearchParcel() {
 
@@ -18,21 +18,50 @@ export default function SearchParcel() {
     const [thirdAux, setThirdAux] = react.useState([]);
     const [fourthAux, setFourthAux] = react.useState([]);
     const [loaded, setLoaded] = react.useState(false);
-    const [option, setOption] = react.useState("limits");
+    const [option, setOption] = react.useState("region");
     const [first, setFirst] = react.useState(false);
     const [second, setSecond] = react.useState(false);
     const [third, setThird] = react.useState(false);
     const [fourth, setFourth] = react.useState(false);
     const [renderPolygons, setRenderPolygons] = react.useState(false);
+    const [dist, setDist] = react.useState([]);
+    const [conc, setConc] = react.useState([]);
+    const [freg, setFreg] = react.useState([]);
+    const [chosenDist, setChosenDist] = react.useState(null);
+    const [chosenConc, setChosenConc] = react.useState(null);
+    const [chosenFreg, setChosenFreg] = react.useState(null);
+
 
     var temp;
     var searchedParcels;
-    var test = [{ lat: 37, lng: -7 }, { lat: 37.5, lng: -7.5 }, { lat: 37.6, lng: -7.7 }]
+    var type = -1;
+    var region;
 
     const maxLatPt = 42.1543;
     const minLatPt = 36.9597;
     const maxLngPt = -6.1890;
     const minLngPt = -9.5006;
+
+    useEffect(() => {
+        let split = [];
+        let distritos = [];
+        let concelhos = [];
+        let freguesias = [];
+        fetch(locais)
+            .then(r => r.text())
+            .then(text => {
+                split = text.split(";")
+
+                for (let i = 0; i < split.length; i++) {
+                    if (i % 3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
+                    else if (i % 3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
+                    else if (freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
+                }
+                setDist(distritos)
+                setConc(concelhos)
+                setFreg(freguesias)
+            });
+    }, [])
 
     useEffect(() => {
         if (markers.length == 0) {
@@ -122,10 +151,16 @@ export default function SearchParcel() {
         setRenderPolygons(false)
         if (markers.length === 4) {
             var list = []
-            if (option == "limits")
+            if (option == "limits") {
+                console.log(type)
                 restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
-            else
-                //restCalls.getParcelsByRegion(region);
+            }
+            else {
+                console.log(type)
+                console.log(region)
+                if(type != -1)
+                    restCalls.getParcelsByRegion(region, type);
+            }
             searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
             if (searchedParcels != null && searchedParcels.length > 0) {
                 searchedParcels.map((parcel) => {
@@ -167,6 +202,12 @@ export default function SearchParcel() {
 
     function optionHandler(e) {
         setOption(e.target.value);
+        setMarkers([]);
+        setFirstAux([]);
+        setSecondAux([]);
+        setThirdAux([]);
+        setFourthAux([]);
+        setPolygonMarkers([]);
     }
 
     return (
@@ -216,7 +257,7 @@ export default function SearchParcel() {
                             />
                         }
 
-                        {renderPolygons && getPolygons()}
+                        {(renderPolygons || option == "region") && getPolygons()}
 
                     </GoogleMap>
                 </LoadScript>
@@ -233,7 +274,7 @@ export default function SearchParcel() {
                             value={option}
                             onChange={optionHandler}
                         >
-                            <FormControlLabel value="local" control={<Radio color="success" />} label="Localização" />
+                            <FormControlLabel value="region" control={<Radio color="success" />} label="Região" />
                             <FormControlLabel value="limits" control={<Radio color="success" />} label="Limites" />
                         </RadioGroup>
                     </FormControl>
@@ -248,8 +289,57 @@ export default function SearchParcel() {
                         :
                         <Box>
                             <Typography>Selecione uma localização</Typography>
+                            <Autocomplete
+                                selectOnFocus
+                                id="distritos"
+                                options={dist}
+                                getOptionLabel={option => option}
+                                value={chosenDist}
+                                onChange={(_event, newDistrict) => {
+                                    setChosenDist(newDistrict);
+                                    setChosenConc(null);
+                                    setChosenFreg(null);
+                                    region = newDistrict
+                                    type = 2
+                                }}
+                                sx={{ width: 400, mt: 1 }}
+                                renderInput={(params) => <TextField {...params} label="Distrito *" />}
+                            />
+                            <Autocomplete
+                                selectOnFocus
+                                id="concelhos"
+                                options={conc}
+                                getOptionLabel={option => option}
+                                value={chosenConc}
+                                onChange={(_event, newConc) => {
+                                    setChosenConc(newConc);
+                                    setChosenDist(null);
+                                    setChosenFreg(null);
+                                    region = newConc
+                                    type = 1
+                                }}
+                                sx={{ width: 400, mt: 2 }}
+                                renderInput={(params) => <TextField {...params} label="Concelho *" />}
+                            />
+                            <Autocomplete
+                                selectOnFocus
+                                id="freguesias"
+                                options={freg}
+                                getOptionLabel={option => option}
+                                value={chosenFreg}
+                                onChange={(_event, newFreg) => {
+                                    setChosenFreg(newFreg);
+                                    setChosenConc(null);
+                                    setChosenDist(null);
+                                    region = newFreg
+                                    type = 3
+                                }}
+                                sx={{ width: 400, mt: 2 }}
+                                renderInput={(params) => <TextField {...params} label="Freguesia *" />}
+                            />
                         </Box>
                     }
+
                     <Button variant="contained" color="success" size="large" onClick={getData} sx={{ mt: 3 }}> <Typography variant="h6" size="large"> Avançar </Typography> </Button>
                 </Box>
             </Grid>

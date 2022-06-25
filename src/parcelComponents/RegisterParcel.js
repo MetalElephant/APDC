@@ -1,8 +1,9 @@
 import react, { useRef, useCallback, useEffect } from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete, listClasses } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
+import e from 'cors';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
@@ -13,22 +14,22 @@ export default function RegisterParcel() {
     const [groundType, setGroundType] = react.useState("");
     const [currUsage, setCurrUsage] = react.useState("");
     const [prevUsage, setPrevUsage] = react.useState("");
-    const [area, setArea] = react.useState("");
     const [isParcelSubmit, setIsParcelSubmit] = react.useState(false);
     const [isParcelNotSubmit, setIsParcelNotSubmit] = react.useState(false);
     const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
     const [freg, setFreg] = react.useState([]);
     const [conc, setConc] = react.useState([]);
     const [dist, setDist] = react.useState([]);
+    const [imageArray, setImageArray] = react.useState([]);
     const [chosenFreg, setChosenFreg] = react.useState(null);
     const [chosenConc, setChosenConc] = react.useState(null);
     const [chosenDist, setChosenDist] = react.useState(null);
     const [owners, setOwners] = react.useState("");
 
     let index = 0;
+    let split = [];
 
     useEffect(() => {
-        let split = [];
         let distritos = [];
         let concelhos = [];
         let freguesias = [];
@@ -40,7 +41,7 @@ export default function RegisterParcel() {
                 for (let i = 0; i < split.length; i++) {
                     if (i % 3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
                     else if (i % 3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
-                    else if (freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
+                    else if (i % 3 == 2 && freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
                 }
                 setDist(distritos)
                 setConc(concelhos)
@@ -72,10 +73,6 @@ export default function RegisterParcel() {
         setPrevUsage(e.target.value);
     }
 
-    function areaHandler(e) {
-        setArea(e.target.value);
-    }
-
     function getLastLat() {
         if (markers.length === 0) return 39.5532;
         return markers[0].lat;
@@ -95,7 +92,6 @@ export default function RegisterParcel() {
         setGroundType("");
         setCurrUsage("");
         setPrevUsage("");
-        setArea("");
         setChosenConc(null);
         setChosenFreg(null);
         setChosenDist(null);
@@ -108,10 +104,30 @@ export default function RegisterParcel() {
         setMarkers([]);
     }
 
+    function uploadImage(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        const fileByteArray = [];
+        if(file) {
+            reader.readAsArrayBuffer(file);
+            reader.onloadend = (evt) => {
+                if (evt.target.readyState === FileReader.DONE) {
+                    const arrayBuffer = evt.target.result,
+                        array = new Uint8Array(arrayBuffer);
+                    for (const a of array) {
+                        fileByteArray.push(a);
+                    }
+                    setImageArray(fileByteArray)
+                }
+            }
+        }
+    }
+
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg, description, groundType, currUsage, prevUsage, area, allLats, allLngs)
-            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true);});
+        restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg, 
+            description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray)
+            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); });
         setDisplayParcelMessage(true);
     }
 
@@ -156,7 +172,7 @@ export default function RegisterParcel() {
                         { /* Child components, such as markers, info windows, etc. */}
                     </GoogleMap>
                 </LoadScript>
-                <Button color="error" onClick={resetValuesFail}>Delete Markers</Button>
+                <Button color="error" onClick={resetValuesFail}>remover marcadores</Button>
             </Grid>
             <Grid item xs={4}>
                 <Container component="main" maxWidth="xs">
@@ -170,7 +186,7 @@ export default function RegisterParcel() {
                         }}
                     >
                         <Typography component="h1" variant="h5">
-                            Parcel Registration
+                            Registo de parcela
                         </Typography>
                         <Box component="form" sx={{ mt: 1 }}>
                             <TextField
@@ -276,16 +292,12 @@ export default function RegisterParcel() {
                                 value={prevUsage}
                                 onChange={prevUsageHandler}
                             />
-                            <TextField
-                                margin="normal"
-                                required
-                                fullWidth
-                                name="area"
-                                label="Área (aproximada)"
-                                id="area"
-                                color="success"
-                                value={area}
-                                onChange={areaHandler}
+
+                            <input
+                                type="file"
+                                name="file"
+                                onChange={uploadImage}
+                                placeholder="upload an image"
                             />
 
                             <Button
@@ -296,7 +308,7 @@ export default function RegisterParcel() {
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { parcelRegisterManager(e) }}
                             >
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Submeter </Typography>
                             </Button>
                             {(isParcelSubmit && displayParcelMessage) ?
                                 <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
