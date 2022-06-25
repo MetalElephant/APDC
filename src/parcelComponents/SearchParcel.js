@@ -122,7 +122,10 @@ export default function SearchParcel() {
         setRenderPolygons(false)
         if (markers.length === 4) {
             var list = []
-            restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
+            if (option == "limits")
+                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
+            else
+                //restCalls.getParcelsByRegion(region);
             searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
             if (searchedParcels != null && searchedParcels.length > 0) {
                 searchedParcels.map((parcel) => {
@@ -191,25 +194,25 @@ export default function SearchParcel() {
                         {firstAux.length > 0 &&
                             <Polyline
                                 path={firstAux}
-                                options={{strokeOpacity:0.5}}
+                                options={{ strokeOpacity: 0.5 }}
                             />
                         }
                         {secondAux.length > 0 &&
                             <Polyline
                                 path={secondAux}
-                                options={{strokeOpacity:0.5}}
+                                options={{ strokeOpacity: 0.5 }}
                             />
                         }
                         {thirdAux.length > 0 &&
                             <Polyline
                                 path={thirdAux}
-                                options={{strokeOpacity:0.5}}
+                                options={{ strokeOpacity: 0.5 }}
                             />
                         }
                         {fourthAux.length > 0 &&
                             <Polyline
                                 path={fourthAux}
-                                options={{strokeOpacity:0.5}}
+                                options={{ strokeOpacity: 0.5 }}
                             />
                         }
 
