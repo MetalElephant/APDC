@@ -1,6 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.util;
 
-public class ParcelSearchData {
+public class ParcelSearchPositionData {
     
     private static final double MAXLONG = -6.1890;
     private static final double MINLONG = -9.5006;
@@ -10,9 +10,9 @@ public class ParcelSearchData {
     public double latMax, latMin, longMax, longMin;
     public String username;
 
-    public ParcelSearchData(){}
+    public ParcelSearchPositionData(){}
 
-    public ParcelSearchData(String username, double latMax, double latMin, double longMax, double longMin){
+    public ParcelSearchPositionData(String username, double latMax, double latMin, double longMax, double longMin){
         this.username = username;
         this.latMax = latMax;
         this.latMin = latMin;
