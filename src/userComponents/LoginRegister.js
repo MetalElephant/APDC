@@ -190,79 +190,79 @@ export default function LoginRegister() {
         let isValid = true;
 
         if (usernameRegister.length < 5 || usernameRegister.length > 40) {
-            usernameErr.usernameTooLongOrTooShort = "Username too long or too short.";
+            usernameErr.usernameTooLongOrTooShort = "Username demasiado curto ou demasiado longo.";
             isValid = false;
             setUsernameErr(usernameErr)
         }
 
         if (passwordRegister.length < 5) {
-            passwordErr.passwordTooShort = "Password must contain at least 5 characters.";
+            passwordErr.passwordTooShort = "Password deve conter pelo menos 5 caracteres.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
         if (passwordRegister.match(/[A-Z]/) == null) {
-            passwordErr.passwordWithoutCapitalLetter = "Password must contain at least 1 capital letter.";
+            passwordErr.passwordWithoutCapitalLetter = "Password deve conter pelo menos uma letra maiúscula.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
         if (passwordRegister.match(/[0-9]/) == null) {
-            passwordErr.passwordWithoutNumber = "Password must contain at least 1 number.";
+            passwordErr.passwordWithoutNumber = "Password deve conter pelo menos um número.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
         if (passwordRegister.match(/[$&+,:;=?@#|'<>.*()%!-]/) == null) {
-            passwordErr.passwordWithoutSpecialCharacter = "Password must contain at least 1 special character.";
+            passwordErr.passwordWithoutSpecialCharacter = "Password deve conter pelo menos um caracter especial.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
         if (!pwdConfirmation.match(passwordRegister) || !passwordRegister.match(pwdConfirmation)) {
-            passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Password confimation does not match."
+            passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Confirmação deve ser igual a Palavra-passe."
             isValid = false;
             setPasswordConfirmationErr(passwordConfirmationErr)
         }
 
         if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
-            emailErr.emailWithoutValidFormat = "Email must be of a valid format.";
+            emailErr.emailWithoutValidFormat = "O e-mail deve possuir um formato válido.";
             isValid = false;
             setEmailErr(emailErr)
         }
 
         if ((homePhone.length > 0) && (homePhone.length !== 9)) {
-            homePhoneErr.not9Digits = "Home phone is not composed of nine digits."
+            homePhoneErr.not9Digits = "Número de telefone fixo não é composto por 9 dígitos."
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
 
         if ((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) {
-            homePhoneErr.onlyNumbers = "Home phone must not contain any letters or special characters."
+            homePhoneErr.onlyNumbers = "Número de telefone fixo não pode conter letras ou caracteres especiais."
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
 
         if ((mobilePhone.length > 0) && (mobilePhone.length !== 9)) {
-            mobilePhoneErr.not9Digits = "Mobile phone is not composed of nine digits."
+            mobilePhoneErr.not9Digits = "Número de telemóvel não é composto por 9 dígitos."
             isValid = false;
             setMobilePhoneErr(mobilePhoneErr)
         }
 
         if ((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) {
-            mobilePhoneErr.onlyNumbers = "Mobile phone must not contain any letters or special characters."
+            mobilePhoneErr.onlyNumbers = "Número de telemóvel não pode conter letras ou caracteres especiais."
             isValid = false;
             setMobilePhoneErr(mobilePhoneErr)
         }
 
         if ((nif.length > 0) && (nif.length !== 9)) {
-            nifErr.not9Digits = "NIF is not composed of nine digits."
+            nifErr.not9Digits = "NIF não é composto por 9 dígitos."
             isValid = false;
             setNifErr(nifErr)
         }
 
         if ((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) {
-            nifErr.onlyNumbers = "NIF must not contain any letters or special characters."
+            nifErr.onlyNumbers = "NIF não pode conter letras ou caracteres especiais."
             isValid = false;
             setNifErr(nifErr)
         }
@@ -335,7 +335,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     id="username"
-                                    label="Username"
+                                    label="Nome de Utilizador"
                                     name="username"
                                     color="success"
                                     onChange={usernameLoginHandler}
@@ -345,7 +345,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     name="password"
-                                    label="Password"
+                                    label="Palavra-passe"
                                     type={showPasswordLogin ? "text" : "password"}
                                     id="password"
                                     color="success"
@@ -369,7 +369,7 @@ export default function LoginRegister() {
                                     sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                     onClick={(e) => { loginManager(e) }}
                                 >
-                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Fazer Login </Typography>
                                 </Button>
                             </Box>
                             {!isLoginSubmit ?
@@ -392,7 +392,7 @@ export default function LoginRegister() {
                             }}
                         >
                             <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
-                                User Registration
+                                Registo de Utilizador
                             </Typography>
                             <Box component="form" sx={{ mt: 1 }}>
 
@@ -401,7 +401,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     id="username"
-                                    label="Username"
+                                    label="Nome de Utilizador"
                                     name="username"
                                     value={usernameRegister}
                                     autoFocus
@@ -417,7 +417,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     name="password"
-                                    label="Password"
+                                    label="Palavra-passe"
                                     value={passwordRegister}
                                     type={showPasswordRegister ? "text" : "password"}
                                     id="password"
@@ -442,7 +442,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     name="passwordConfirmation"
-                                    label="Password Confirmation"
+                                    label="Confirmação Palavra-passe"
                                     value={pwdConfirmation}
                                     type={showPasswordConfirmation ? "text" : "password"}
                                     id="passwordConfirmation"
@@ -466,7 +466,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     name="email"
-                                    label="Email"
+                                    label="E-mail"
                                     type="email"
                                     value={email}
                                     id="email"
@@ -482,7 +482,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     name="name"
-                                    label="Name"
+                                    label="Nome"
                                     value={name}
                                     type="name"
                                     id="name"
@@ -491,7 +491,7 @@ export default function LoginRegister() {
                                 />
 
                                 <FormControl variant="standard">
-                                    <InputLabel id="id" sx={{ color: "green" }} >Role</InputLabel>
+                                    <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                     <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
                                         <MenuItem value="Proprietário" label="Proprietário">
                                             Proprietário
@@ -505,10 +505,10 @@ export default function LoginRegister() {
                                     </Select>
                                 </FormControl>
 
-                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt:1 }}>You need to select a role</Typography>}
+                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt:1 }}>Por favor, selecione o seu papel.</Typography>}
 
                                 <FormControl sx={{ mt: "13px", pb: 1 }}>
-                                    <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
+                                    <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade de Perfil</Typography></FormLabel>
                                     <RadioGroup
                                         aria-labelledby="demo-radio-buttons-group-label"
                                         name="radio-buttons-group"
@@ -516,8 +516,8 @@ export default function LoginRegister() {
                                         value={visibility}
                                         onChange={visibilityHandler}
                                     >
-                                        <FormControlLabel value="Public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />
-                                        <FormControlLabel value="Private" control={<Radio color="success" />} label="Private" sx={{ color: "black" }} />
+                                        <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
+                                        <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
                                     </RadioGroup>
                                 </FormControl>
 
@@ -541,7 +541,7 @@ export default function LoginRegister() {
                                                     fileInputRef.current.click();
                                                 }}
                                             >
-                                                Add Profile Picture
+                                                Adicionar Foto de Perfil
                                             </button>
                                         )}
                                         <input
@@ -567,7 +567,7 @@ export default function LoginRegister() {
                                     margin="normal"
                                     fullWidth
                                     name="mobilePhone"
-                                    label="Mobile Phone"
+                                    label="Número de telemóvel"
                                     type="mobilePhone"
                                     value={mobilePhone}
                                     id="mobilePhone"
@@ -581,7 +581,7 @@ export default function LoginRegister() {
                                     margin="normal"
                                     fullWidth
                                     name="homePhone"
-                                    label="Home Phone"
+                                    label="Número de telefone fixo"
                                     value={homePhone}
                                     type="homePhone"
                                     id="homePhone"
@@ -595,7 +595,7 @@ export default function LoginRegister() {
                                     margin="normal"
                                     fullWidth
                                     name="address"
-                                    label="Address"
+                                    label="Morada"
                                     type="address"
                                     value={address}
                                     id="address"
@@ -625,7 +625,7 @@ export default function LoginRegister() {
                                     sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                     onClick={(e) => { registerManager(e) }}
                                 >
-                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Criar Utilizador </Typography>
                                 </Button>
                             </Box>
                         </Box>
