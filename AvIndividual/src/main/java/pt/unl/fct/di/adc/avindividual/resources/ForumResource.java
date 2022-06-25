@@ -38,7 +38,6 @@ public class ForumResource {
 
     //Forum information
     private static final String TOPIC = "Topic";
-    private static final String POINTS = "Points";
     private static final String CRT_DATE = "Creation date";
 
     //Keys
@@ -99,7 +98,6 @@ public class ForumResource {
 
             forum = Entity.newBuilder(forumKey)
                     .set(TOPIC, data.topic)
-                    .set(POINTS, 0L)
                     .set(CRT_DATE, cal.getTime().toString())
                     .build();
 
@@ -164,7 +162,6 @@ public class ForumResource {
             Entity message = Entity.newBuilder(messageKey)
             .set(MESSAGE, data.message)
             .set(OWNER, data.username)
-            .set(POINTS, 0L)
             .set(CRT_DATE, cal.getTime().toString())
             .build();
 
@@ -247,7 +244,7 @@ public class ForumResource {
 
 		forumResult.forEachRemaining(f -> {
 			forumList.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(),
-                                        f.getString(TOPIC), String.valueOf(f.getLong(POINTS)), f.getString(CRT_DATE)));
+                                        f.getString(TOPIC), f.getString(CRT_DATE)));
 		});
 
 		return Response.ok(g.toJson(forumList)).build();
@@ -363,8 +360,7 @@ public class ForumResource {
 
 		forumResult.forEachRemaining(f -> {
             if (isQueryOk(f.getKey().getName(), query))
-			    forums.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(), f.getString(TOPIC), 
-                                         String.valueOf(f.getLong(POINTS)), f.getString(CRT_DATE)));
+			    forums.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
 		});
 
 		return forums;
@@ -400,7 +396,7 @@ public class ForumResource {
 		List<ForumInfo> forums = new LinkedList<>();
 
 		forumResult.forEachRemaining(f -> {
-			forums.add(new ForumInfo(username, f.getKey().getName(), f.getString(TOPIC), String.valueOf(f.getLong(POINTS)), f.getString(CRT_DATE)));
+			forums.add(new ForumInfo(username, f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
 		});
 
 		return forums;
@@ -417,7 +413,7 @@ public class ForumResource {
 		List<MessageInfo> forumMsg = new LinkedList<>();
 
 		messages.forEachRemaining(msg -> {
-			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), String.valueOf(msg.getLong(POINTS)), msg.getString(CRT_DATE)));
+			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
 		});
 
 		return forumMsg;
