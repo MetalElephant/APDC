@@ -33,8 +33,8 @@ public class ParcelData {
 			owners = new String[0];
 
 		if (this.owner == null || this.parcelName == null || this.county == null || this.district == null || this.freguesia == null ||
-			this.description == null || this.groundType == null || this.currUsage == null || this.prevUsage == null || this.type != 1 ||
-			this.type != 2 || this.allLats == null || this.allLngs == null || this.confirmation == null)
+			this.description == null || this.groundType == null || this.currUsage == null || this.prevUsage == null || 
+			(this.type != 1 && this.type != 2) || this.allLats == null || this.allLngs == null || this.confirmation == null)
 			return false;
 
 		if (this.owner.length() == 0 || this.parcelName.length() == 0 || this.county.length() == 0 || this.district.length() == 0 || this.freguesia.length() == 0 ||
