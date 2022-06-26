@@ -20,7 +20,8 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
-import pt.unl.fct.di.adc.avindividual.util.ParcelSearchData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelSearchPositionData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelSearchRegionData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
@@ -59,6 +60,7 @@ public class ParcelResource {
 	private static final String PREV_USAGE = "previous usage";
 	private static final String AREA = "area";
 	private static final String CONFIRMATION = "Confirmation";
+	private static final String CONFIRMED = "Confirmed";
     private static final String NMARKERS = "number of markers";
 	private static final String MARKER = "marker";
 
@@ -135,8 +137,9 @@ public class ParcelResource {
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, data.area)
-					.set(CONFIRMATION, uploadConfirmation(data.owner + ":" + data.parcelName, data.confirmation))
+					.set(AREA, getArea(markers))
+					.set(CONFIRMATION, uploadConfirmation(data.owner + ":" + data.parcelName, data.confirmation, data.type))
+					.set(CONFIRMED, false)
                     .set(NMARKERS, String.valueOf(data.allLats.length))
 					.set(NOWNERS, String.valueOf(data.owners.length));
 			
@@ -394,7 +397,7 @@ public class ParcelResource {
 	@Path("/searchByRegion")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response searchParcelRegion(RequestData data){
+	public Response searchParcelRegion(ParcelSearchRegionData data){
 		LOG.info("Attempt to list specific parcels");
 
 		if(!data.isDataValid()){
@@ -417,7 +420,7 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		List<ParcelInfo> parcelList = getParcelByRegion(data.name, data.name);//TODO fix
+		List<ParcelInfo> parcelList = getParcelByRegion(data.region, data.type);
 
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
@@ -426,7 +429,7 @@ public class ParcelResource {
 	@Path("/searchByPosition")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response searchParcelPosition(ParcelSearchData data){
+	public Response searchParcelPosition(ParcelSearchPositionData data){
 		LOG.info("Attempt to list specific parcels");
 
 		if(!data.isDataValid()){
@@ -456,10 +459,32 @@ public class ParcelResource {
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
 
-	private String uploadConfirmation(String name, byte[] data){
+	private String getArea(LatLng[] markers){
+		double area = 0.0;
+     
+        int j = markers.length-1;
+
+        for (int i = 0; i < markers.length; i++)
+        {
+            area += (markers[j].getLatitude() + markers[i].getLatitude()) * (markers[j].getLongitude() - markers[i].getLongitude());
+             
+            j = i;
+        }
+     
+        return String.valueOf(Math.abs(area / 2.0));
+	}
+
+	private String uploadConfirmation(String name, byte[] data, int type){
+		String content; 
+
+		if (type == 1)
+			content = "application/pdf";
+		else
+			content = "image/jpeg";
+
 		Storage storage = StorageOptions.newBuilder().setProjectId(PROJECT_ID).build().getService();
 		BlobId blobId = BlobId.of(BUCKET_NAME, name);
-		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType("application/pdf").build();
+		BlobInfo blobInfo = BlobInfo.newBuilder(blobId).setContentType(content).build();
 		storage.create(blobInfo, data);
 		storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
@@ -475,27 +500,26 @@ public class ParcelResource {
 		List<ParcelInfo> userParcels = new LinkedList<>();
 
 		parcels.forEachRemaining(parcel -> {
-			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
 			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
-
-			String[] owners = new String[n1];
 			LatLng[] markers = new LatLng[n2];
-			boolean outside = false;
+			boolean outside = true;
 
 			for (int i = 0; i < n2; i++){
 				markers[i] = parcel.getLatLng(MARKER+i);
 
-				if (markers[i].getLatitude() > latMax || markers[i].getLatitude() < latMin || markers[i].getLongitude() > longMax || markers[i].getLongitude() < longMin){
-					outside = true;
-					break;
+				if (outside && (markers[i].getLatitude() < latMax && markers[i].getLatitude() > latMin && markers[i].getLongitude() < longMax && markers[i].getLongitude() > longMin)){
+					outside = false;
 				}
-			}
-
-			for(int i = 0; i < n1; i ++){
-				owners[i] = parcel.getString(OWNER+i);
 			}
 			
 			if (!outside){
+				int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+				String[] owners = new String[n1];
+
+				for(int i = 0; i < n1; i ++){
+					owners[i] = parcel.getString(OWNER+i);
+				}
+
 				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(COUNTY), 
 											   parcel.getString(DISTRICT), parcel.getString(FREGUESIA), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
 											   parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
@@ -505,7 +529,21 @@ public class ParcelResource {
 		return userParcels;
 	}
 
-	private List<ParcelInfo> getParcelByRegion(String region, String search){
+	private List<ParcelInfo> getParcelByRegion(String region, int type){
+		String search;
+
+		switch(type){
+			case 1:
+				search = COUNTY;
+				break;
+			case 2:
+				search = DISTRICT;
+				break;
+			default:
+				search = FREGUESIA;
+				break;
+		}
+
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								    .setFilter(CompositeFilter.and(PropertyFilter.eq(search, region)))
 								    .build();
