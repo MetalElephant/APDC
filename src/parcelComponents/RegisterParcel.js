@@ -3,7 +3,6 @@ import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete, listClasses } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
-import e from 'cors';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
@@ -20,14 +19,23 @@ export default function RegisterParcel() {
     const [freg, setFreg] = react.useState([]);
     const [conc, setConc] = react.useState([]);
     const [dist, setDist] = react.useState([]);
-    const [imageArray, setImageArray] = react.useState([]);
     const [chosenFreg, setChosenFreg] = react.useState(null);
     const [chosenConc, setChosenConc] = react.useState(null);
     const [chosenDist, setChosenDist] = react.useState(null);
     const [owners, setOwners] = react.useState("");
+    const [image, setImage] = react.useState();
+    const [preview, setPreview] = react.useState();
+    const fileInputRef = react.useRef();
+    const [imageArray, setImageArray] = react.useState();
+    const [distConcState, setDistConcState] = react.useState();
+    const [concFregState, setConcFregState] = react.useState();
+    const [disableConc, setDisableConc] = react.useState(true)
+    const [disableFreg, setDisableFreg] = react.useState(true)
 
     let index = 0;
     let split = [];
+    let distToConc = new Map()
+    let concToFreg = new Map()
 
     useEffect(() => {
         let distritos = [];
@@ -39,15 +47,47 @@ export default function RegisterParcel() {
                 split = text.split(";")
 
                 for (let i = 0; i < split.length; i++) {
-                    if (i % 3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
-                    else if (i % 3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
-                    else if (i % 3 == 2 && freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
+                    var elem = split[i]
+                    if (i % 3 == 0) {
+                        if (!distToConc.has(elem)) {
+                            distToConc.set(elem, [])
+                            distritos.push(elem)
+                        }
+                        if (distToConc.get(elem).indexOf(split[i + 1]) == -1)
+                            distToConc.get(elem).push(split[i + 1])
+                    }
+                    else if (i % 3 == 1) {
+                        if (!concToFreg.has(elem)) {
+                            concToFreg.set(elem, [])
+                            concelhos.push(elem)
+                        }
+                        if (concToFreg.get(elem).indexOf(split[i + 1]) == -1)
+                            concToFreg.get(elem).push(split[i + 1])
+                    }
+                    else {
+                        if (freguesias.indexOf(elem) == -1)
+                            freguesias.push(elem)
+                    }
                 }
                 setDist(distritos)
                 setConc(concelhos)
                 setFreg(freguesias)
+                setDistConcState(distToConc)
+                setConcFregState(concToFreg)
             });
     }, [])
+
+    useEffect(() => {
+        if (image) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            }
+            reader.readAsDataURL(image);
+        } else {
+            setPreview(null);
+        }
+    }, [image]);
 
     function parcelNameHandler(e) {
         setParcelName(e.target.value);
@@ -83,6 +123,23 @@ export default function RegisterParcel() {
         return markers[0].lng;
     }
 
+    function loadPhoto(f) {
+        const reader = new FileReader();
+        const fileByteArray = [];
+
+        reader.readAsArrayBuffer(f);
+        reader.onloadend = (evt) => {
+            if (evt.target.readyState === FileReader.DONE) {
+                const arrayBuffer = evt.target.result,
+                    array = new Uint8Array(arrayBuffer);
+                for (const a of array) {
+                    fileByteArray.push(a);
+                }
+                setImageArray(fileByteArray)
+            }
+        }
+    }
+
     function resetValues() {
         setAllLats([]);
         setAllLngs([]);
@@ -104,28 +161,9 @@ export default function RegisterParcel() {
         setMarkers([]);
     }
 
-    function uploadImage(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        const fileByteArray = [];
-        if(file) {
-            reader.readAsArrayBuffer(file);
-            reader.onloadend = (evt) => {
-                if (evt.target.readyState === FileReader.DONE) {
-                    const arrayBuffer = evt.target.result,
-                        array = new Uint8Array(arrayBuffer);
-                    for (const a of array) {
-                        fileByteArray.push(a);
-                    }
-                    setImageArray(fileByteArray)
-                }
-            }
-        }
-    }
-
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg, 
+        restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg,
             description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray)
             .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); });
         setDisplayParcelMessage(true);
@@ -220,11 +258,19 @@ export default function RegisterParcel() {
                                 value={chosenDist}
                                 onChange={(_event, newDistrict) => {
                                     setChosenDist(newDistrict);
+                                    if (dist.length > 0) {
+                                        if (distConcState.has(newDistrict)) {
+                                            var temp = distConcState.get(newDistrict)
+                                            setConc(temp)
+                                            setDisableConc(false)
+                                        }
+                                    }
                                 }}
                                 sx={{ width: 400, mt: 1 }}
                                 renderInput={(params) => <TextField {...params} label="Distrito *" />}
                             />
                             <Autocomplete
+                                disabled={disableConc}
                                 selectOnFocus
                                 id="concelhos"
                                 options={conc}
@@ -232,11 +278,19 @@ export default function RegisterParcel() {
                                 value={chosenConc}
                                 onChange={(_event, newConc) => {
                                     setChosenConc(newConc);
+                                    if (dist.length > 0) {
+                                        if (concFregState.has(newConc)) {
+                                            var temp = concFregState.get(newConc)
+                                            setFreg(temp)
+                                            setDisableFreg(false)
+                                        }
+                                    }
                                 }}
                                 sx={{ width: 400, mt: 2 }}
                                 renderInput={(params) => <TextField {...params} label="Concelho *" />}
                             />
                             <Autocomplete
+                                disabled={disableFreg}
                                 selectOnFocus
                                 id="freguesias"
                                 options={freg}
@@ -293,12 +347,45 @@ export default function RegisterParcel() {
                                 onChange={prevUsageHandler}
                             />
 
-                            <input
-                                type="file"
-                                name="file"
-                                onChange={uploadImage}
-                                placeholder="upload an image"
-                            />
+                            <div>
+                                <form>
+                                    {preview ? (
+                                        <img
+                                            src={preview}
+                                            style={{ objectFit: "cover", width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                            onClick={() => {
+                                                setImage(null);
+                                            }}
+                                        />
+                                    ) : (
+                                        <button
+                                            style={{ width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                fileInputRef.current.click();
+                                            }}
+                                        >
+                                            Foto do documento
+                                        </button>
+                                    )}
+                                    <input
+                                        type="file"
+                                        style={{ display: "none" }}
+                                        ref={fileInputRef}
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file && file.type.substring(0, 5) === "image") {
+                                                setImage(file);
+                                                loadPhoto(file);
+                                            } else {
+                                                setImage(null);
+                                            }
+                                        }}
+                                    />
+
+                                </form>
+                            </div>
 
                             <Button
                                 type="submit"
