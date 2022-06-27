@@ -12,7 +12,6 @@ export default function ModifyAttributes() {
     const [address, setAddress] = react.useState("");
     const [nif, setNif] = react.useState("");
 
-    const [noModificationsErr, setNoModificationsErr] = react.useState({});
     const [emailErr, setEmailErr] = react.useState({});
     const [homePhoneErr, setHomePhoneErr] = react.useState({});
     const [mobilePhoneErr, setMobilePhoneErr] = react.useState({});
@@ -76,26 +75,19 @@ export default function ModifyAttributes() {
     }
 
     const modifyUserFormValidation = () => {
-        const noModificationsErr = {};
         const emailErr = {};
         const homePhoneErr = {};
         const mobilePhoneErr = {};
         const nifErr = {};
         let isValid = true;
 
-        if (name.length === 0 && email.length === 0 && visibility.length === 0 && homePhone.length === 0 && mobilePhone.length === 0 && address.length === 0 && nif.length === 0) {
-            noModificationsErr.noModifications = "No modifications were made to the user."
-            isValid = false;
-            setNoModificationsErr(noModificationsErr)
-        }
-
         if ((email.length > 0) && (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null)) {
-            emailErr.emailWithoutValidFormat = "Email must be of a valid format.";
+            emailErr.emailWithoutValidFormat = "O Email tem de ter um formato válido.";
             isValid = false;
             setEmailErr(emailErr)
         }
 
-        if((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone.match(/[a-zA-Z]/) != null) && (homePhone != "UNDEFINED"))  {
+        if((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone != "UNDEFINED"))  {
             homePhoneErr.not9Digits = "Este número não é composto por 9 dígitos"
             isValid = false;
             setHomePhoneErr(homePhoneErr)
@@ -131,7 +123,6 @@ export default function ModifyAttributes() {
             setNifErr(nifErr)
         }
 
-        setNoModificationsErr(noModificationsErr)
         setEmailErr(emailErr)
         setHomePhoneErr(homePhoneErr)
         setMobilePhoneErr(mobilePhoneErr)
@@ -247,9 +238,6 @@ export default function ModifyAttributes() {
                                 return <Typography sx={{ color: "red", fontSize: 14 }}> {nifErr[key]}</Typography>
                             })}
 
-                            {Object.keys(noModificationsErr).map((key) => {
-                                return <Typography sx={{ color: "red", fontSize: 14 }}> {noModificationsErr[key]}</Typography>
-                            })}
                             <Button
                                 type="submit"
                                 fullWidth
