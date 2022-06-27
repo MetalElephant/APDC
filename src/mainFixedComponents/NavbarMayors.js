@@ -1,13 +1,13 @@
 import react from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
-import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import RewardsMerchantPage from "../rewardComponents/RewardsMerchantPage";
+import ParcelsMayorsPage from "../parcelComponents/ParcelsMayorsPage";
 
 
 
@@ -34,9 +34,9 @@ export default function NavbarMerchants() {
                         scrollButtons
                     >
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórum" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About us" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
 
                     </Tabs>
@@ -46,7 +46,7 @@ export default function NavbarMerchants() {
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
-            {selectedLeftTab === 1 && <RewardsMerchantPage />}
+            {selectedLeftTab === 1 && <ParcelsMayorsPage />}
             {selectedLeftTab === 2 && <ForumPage />}
             {selectedLeftTab === 3 && <AboutUs />}
             {selectedLeftTab === 4 && <StatisticsPage />}

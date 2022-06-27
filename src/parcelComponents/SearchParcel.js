@@ -55,7 +55,7 @@ export default function SearchParcel() {
                 for (let i = 0; i < split.length; i++) {
                     if (i % 3 == 0 && distritos.indexOf(split[i]) == -1) distritos.push(split[i]);
                     else if (i % 3 == 1 && concelhos.indexOf(split[i]) == -1) concelhos.push(split[i]);
-                    else if (freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
+                    else if (i % 3 == 2 && freguesias.indexOf(split[i]) == -1) freguesias.push(split[i]);
                 }
                 setDist(distritos)
                 setConc(concelhos)

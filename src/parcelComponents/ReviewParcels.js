@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import restCalls from "../restCalls";
 import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
-export default function ParcelInfo() {
+export default function ReviewParcels() {
 
     const [parcelName, setParcelName] = react.useState("")
     const [parcelDist, setParcelDist] = react.useState("")
@@ -113,47 +113,47 @@ export default function ParcelInfo() {
             <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da parcela: {parcelName} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Name: {parcelName} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Distrito: {parcelDist} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> District: {parcelDist} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Concelho: {parcelCounty} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> County: {parcelCounty} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freguesia: {parcelFreg} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freg: {parcelFreg} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}>  Descrição: {description} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}>  Description: {description} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Tipo de Cobertura do Solo: {groundType}</Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Ground Type: {groundType}</Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Utilização Atual: {currUsage}  </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Current Usage: {currUsage}  </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Utilização Prévia: {prevUsage} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Previous Usage: {prevUsage} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Área: {area} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Area: {area} </Typography>
                     </Paper>
                 </Box>
             </Grid>

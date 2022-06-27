@@ -29,15 +29,16 @@ export default function RegisterParcel() {
     const [imageArray, setImageArray] = react.useState();
     const [distConcState, setDistConcState] = react.useState();
     const [concFregState, setConcFregState] = react.useState();
-    const [disableConc, setDisableConc] = react.useState(true)
-    const [disableFreg, setDisableFreg] = react.useState(true)
+    const [disableConc, setDisableConc] = react.useState(true);
+    const [disableFreg, setDisableFreg] = react.useState(true);
+    const [type, setType] = react.useState(2);
 
     let index = 0;
     let split = [];
-    let distToConc = new Map()
-    let concToFreg = new Map()
 
     useEffect(() => {
+        let distToConc = new Map()
+        let concToFreg = new Map()
         let distritos = [];
         let concelhos = [];
         let freguesias = [];
@@ -164,7 +165,7 @@ export default function RegisterParcel() {
     function parcelRegisterManager(e) {
         e.preventDefault();
         restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg,
-            description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray)
+            description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, type)
             .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); });
         setDisplayParcelMessage(true);
     }
@@ -258,6 +259,8 @@ export default function RegisterParcel() {
                                 value={chosenDist}
                                 onChange={(_event, newDistrict) => {
                                     setChosenDist(newDistrict);
+                                    setChosenConc(null)
+                                    setChosenFreg(null)
                                     if (dist.length > 0) {
                                         if (distConcState.has(newDistrict)) {
                                             var temp = distConcState.get(newDistrict)
@@ -278,6 +281,7 @@ export default function RegisterParcel() {
                                 value={chosenConc}
                                 onChange={(_event, newConc) => {
                                     setChosenConc(newConc);
+                                    setChosenFreg(null)
                                     if (dist.length > 0) {
                                         if (concFregState.has(newConc)) {
                                             var temp = concFregState.get(newConc)
@@ -374,10 +378,10 @@ export default function RegisterParcel() {
                                         ref={fileInputRef}
                                         accept="image/*"
                                         onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file && file.type.substring(0, 5) === "image") {
-                                                setImage(file);
-                                                loadPhoto(file);
+                                            const f = e.target.files[0];
+                                            if (f && f.type.substring(0, 5) === "image") {
+                                                setImage(f);
+                                                loadPhoto(f);
                                             } else {
                                                 setImage(null);
                                             }

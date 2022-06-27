@@ -13,6 +13,7 @@ export default function UserInfo() {
     const [mobilephone, setMobilephone] = react.useState("")
     const [address, setAddress] = react.useState("")
     const [nif, setNif] = react.useState("")
+    const [role,setRole] = react.useState("")
     const [image, setImage] = react.useState("")
 
     useEffect(() => {
@@ -27,14 +28,15 @@ export default function UserInfo() {
         setAddress(user.address)
         setNif(user.nif)
         setImage(user.photo)
-    })
+        setRole(user.role)
+    }, [])
 
     return (
         <>  
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Username: {username} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Nome de Utilizador: {username} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
@@ -44,27 +46,32 @@ export default function UserInfo() {
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Name: {name} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Função: {role} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Visibility: {visibility} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Nome: {name} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Home Phone: {landphone} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Visibilidade: {visibility} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Mobile Phone: {mobilephone} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Número de Telefone: {landphone} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Address: {address} </Typography>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Número de Telemóvel: {mobilephone} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Morada: {address} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">

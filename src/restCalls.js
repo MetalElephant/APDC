@@ -4,7 +4,7 @@ class restCalls {
 
     //depois alterar url https://land--it.appspot.com/rest/users/login
     login(username, password) {
-        return fetch("https://land--it.appspot.com/rest/users/login", {
+        return fetch("https://our-hull.appspot.com/rest/users/login", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -30,7 +30,7 @@ class restCalls {
 
 
     register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo, role) {
-        return fetch("https://land--it.appspot.com/rest/users/register", {
+        return fetch("https://our-hull.appspot.com/rest/users/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -64,9 +64,9 @@ class restCalls {
         })
     }
 
-    parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, allLats, allLngs, photo) {
+    parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, allLats, allLngs, photo, type) {
         var splitOwners = owners.split(",");
-        return fetch("https://land--it.appspot.com/rest/parcel/register", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ class restCalls {
                 allLats: allLats,
                 allLngs: allLngs,
                 confirmation: photo,
-                type: 2 //2 for png or jpeg, 1 for pdf
+                type: type //2 for png or jpeg, 1 for pdf
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -102,7 +102,7 @@ class restCalls {
     }
 
     modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs) {
-        return fetch("https://land--it.appspot.com/rest/parcel/update", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ class restCalls {
     }
 
     deleteParcel(parcelName) {
-        return fetch("https://land--it.appspot.com/rest/parcel/remove", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/remove", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -157,8 +157,32 @@ class restCalls {
         })
     }
 
+    deleteUser() {
+        return fetch("https://our-hull.appspot.com/rest/users/remove", {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                usernameToRemove: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
     modifyPassword(oldPassword, newPassword, pwdConfirmation) {
-        return fetch("https://land--it.appspot.com/rest/users/updatePwd", {
+        return fetch("https://our-hull.appspot.com/rest/users/updatePwd", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -184,7 +208,7 @@ class restCalls {
     }
 
     modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif) {
-        return fetch("https://land--it.appspot.com/rest/users/update", {
+        return fetch("https://our-hull.appspot.com/rest/users/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -215,7 +239,7 @@ class restCalls {
     }
 
     userInfo() {
-        return fetch("https://land--it.appspot.com/rest/users/info", {
+        return fetch("https://our-hull.appspot.com/rest/users/info", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -239,7 +263,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch("https://land--it.appspot.com/rest/parcel/list", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/list", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -263,7 +287,7 @@ class restCalls {
     }
 
     getParcelsByPosition(latMax, latMin, longMax, longMin) {
-        return fetch("https://land--it.appspot.com/rest/parcel/searchByPosition", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/searchByPosition", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -292,7 +316,7 @@ class restCalls {
     }
 
     getParcelsByRegion(region, type) {
-        return fetch("https://land--it.appspot.com/rest/parcel/searchByRegion", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/searchByRegion", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -318,7 +342,7 @@ class restCalls {
     }
 
     createForum(forumName, topic) {
-        return fetch("https://land--it.appspot.com/rest/forum/register", {
+        return fetch("https://our-hull.appspot.com/rest/forum/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -343,7 +367,7 @@ class restCalls {
     }
 
     listAllForums() {
-        return fetch("https://land--it.appspot.com/rest/forum/list", {
+        return fetch("https://our-hull.appspot.com/rest/forum/list", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -364,7 +388,7 @@ class restCalls {
     }
 
     listUserForums() {
-        return fetch("https://land--it.appspot.com/rest/forum/listUser", {
+        return fetch("https://our-hull.appspot.com/rest/forum/listUser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -388,7 +412,7 @@ class restCalls {
     }
 
     postMessage(message) {
-        return fetch("https://land--it.appspot.com/rest/forum/message", {
+        return fetch("https://our-hull.appspot.com/rest/forum/message", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -414,7 +438,7 @@ class restCalls {
     }
 
     listForumMessages() {
-        return fetch("https://land--it.appspot.com/rest/forum/listMessages", {
+        return fetch("https://our-hull.appspot.com/rest/forum/listMessages", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -439,7 +463,7 @@ class restCalls {
     }
 
     createSuperUser() {
-        return fetch("https://land--it.appspot.com/rest/startup/superuser", {
+        return fetch("https://our-hull.appspot.com/rest/startup/superuser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -459,7 +483,7 @@ class restCalls {
     }
 
     createStatistics() {
-        return fetch("https://land--it.appspot.com/rest/startup/statistics", {
+        return fetch("https://our-hull.appspot.com/rest/startup/statistics", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -479,7 +503,7 @@ class restCalls {
     }
 
     logout() {
-        return fetch("https://land--it.appspot.com/rest/users/logout", {
+        return fetch("https://our-hull.appspot.com/rest/users/logout", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

@@ -466,7 +466,7 @@ export default function LoginRegister() {
                                     required
                                     fullWidth
                                     name="email"
-                                    label="E-mail"
+                                    label="Email"
                                     type="email"
                                     value={email}
                                     id="email"
@@ -581,7 +581,7 @@ export default function LoginRegister() {
                                     margin="normal"
                                     fullWidth
                                     name="homePhone"
-                                    label="Número de telefone fixo"
+                                    label="Número de telefone"
                                     value={homePhone}
                                     type="homePhone"
                                     id="homePhone"

@@ -259,7 +259,7 @@ export default function ModifyParcel() {
                                 margin="normal"
                                 fullWidth
                                 name="utilizacaoAnterior"
-                                label="Utilização Anterior"
+                                label="Utilização Prévia"
                                 value={prevUsage}
                                 id="utilizacaoAnterior"
                                 color="success"
