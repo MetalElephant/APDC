@@ -9,13 +9,8 @@ public class ParcelUpdateData {
 	
 	public ParcelUpdateData() {}
 	
-<<<<<<< Updated upstream
-	public ParcelUpdateData(String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats,
-	 						double[] allLngs, byte[] confirmation) {
-=======
-	public ParcelUpdateData(String username, String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats, double[] allLngs) {
+	public ParcelUpdateData(String username, String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats, double[] allLngs, byte[] confirmation) {
 		this.username = username;
->>>>>>> Stashed changes
 		this.owner = owner;
 		this.parcelName = parcelName;
 		this.owners = owners;

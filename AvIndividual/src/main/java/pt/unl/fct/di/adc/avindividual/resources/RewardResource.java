@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.RewardData;
+import pt.unl.fct.di.adc.avindividual.util.RewardUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.datastore.*;
@@ -126,7 +127,7 @@ public class RewardResource {
     @PUT
     @Path("/update")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateReward(RewardData data) {
+    public Response updateReward(RewardUpdateData data) {
         LOG.info("Attempting to modify reward " + data.name);
 
         // Check if the data is valid
@@ -136,26 +137,28 @@ public class RewardResource {
 
         Transaction tn = datastore.newTransaction();
 
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(REWARD).newKey(data.name);
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
 
         try {
-            Entity user = tn.get(ownerKey);
-            Entity reward = tn.get(rewardKey);
+            Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
+            Entity owner = tn.get(ownerKey);
+            Entity reward = tn.get(rewardKey);
 
             if (user == null) {
-				LOG.warning("User " + data.owner + " does not exist");
+				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
 
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, data.owner)){
-				LOG.warning("User " + data.owner + " not logged in.");
+			if (!ur.isLoggedIn(token, data.username)){
+				LOG.warning("User " + data.username + " not logged in.");
 				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if (reward == null) {
@@ -165,15 +168,18 @@ public class RewardResource {
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
 			}
 
-            if(!ar.canModify(user, owner))
+            if(!ar.canModify(user, owner)) {
+                LOG.warning("User " + data.username + " can't modify this.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this reward.").build();
+            }
 
-            Builder builder = Entity.newBuilder(rewardKey)
+            reward = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
                     .set(REWARD_NAME, data.name)
                     .set(DESCRIPTION, data.description)
-                    .set(PRICE, data.price);
-
-            reward = builder.build();
+                    .set(PRICE, data.price)
+                    .set(NREDEEMED, reward.getString(NREDEEMED)).build();
 
             tn.put(reward);
             tn.commit();

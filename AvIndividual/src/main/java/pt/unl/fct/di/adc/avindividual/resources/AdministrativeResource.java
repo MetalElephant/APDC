@@ -1,7 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -27,7 +26,6 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 
 import pt.unl.fct.di.adc.avindividual.util.RegisterModeratorData;
-import pt.unl.fct.di.adc.avindividual.util.RemoveData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 @Path("/admin")
@@ -74,7 +72,7 @@ public class AdministrativeResource {
     public AdministrativeResource() {}
 
 	@POST
-	@Path("/register")
+	@Path("/registermod")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response registerModerator(RegisterModeratorData data) throws IOException {
 		LOG.info("Attempt to register user: " + data.username);
@@ -140,7 +138,104 @@ public class AdministrativeResource {
 
 				LOG.fine("Registered moderator: " + data.username);
 
-				sendAutomaticEmail(data.email, data.name, password);
+				String subject = "Welcome to Land It, " + data.username + " !";
+				Content content = new Content("text/plain", 
+											"Please use these credentials to login. You will be prompted to change the password.\n" 
+											+ "Username: " + data.username + "\n"
+											+ "Password: " + password);
+
+				sendAutomaticEmail(data.email, subject, content);
+
+				return Response.ok(g.toJson(null)).build();
+			} else {
+				LOG.warning("Unable to register new moderator.");
+				return Response.status(Status.FORBIDDEN).build();
+			}
+		} finally {
+			if (tn.isActive())
+				tn.rollback();
+		}
+	}
+
+	// Use remove user from UserResources to remove moderators
+
+	// Use modify from UserResources to modify moderators
+
+	@POST
+	@Path("/registerrep")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response registerRepresentative(RegisterModeratorData data) throws IOException {
+		LOG.info("Attempt to register user: " + data.username);
+
+		//Check if data was input correctly
+		if (!data.validData())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		if(!data.validEmailFormat())
+			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
+		
+		data.optionalAttributes();
+
+		Transaction tn = datastore.newTransaction();
+
+		Key userRegKey = datastore.newKeyFactory().setKind(USER).newKey(data.usernameReg);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameReg);
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+
+		try {
+			Entity userReg = tn.get(userRegKey);
+			Entity token = tn.get(tokenKey);
+			Entity user = tn.get(userKey);
+
+			//Check if user registering exists
+			if(userReg == null) {
+				LOG.warning("User registering doesn't exist: " + data.usernameReg);
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User registering doesn't exist").build();
+			}
+
+			//Check if user registering is logged in
+			if(!ur.isLoggedIn(token, data.usernameReg)) {
+				LOG.warning("User " + data.usernameReg + " not logged in.");
+				return Response.status(Status.FORBIDDEN).entity("User " + data.usernameReg + " not logged in.").build();
+			}
+            
+			//Check if user already exists
+			if (user != null) {
+				LOG.warning("User already exists:" + data.username);
+				tn.rollback();
+				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
+			}
+
+			String password = generatePassword(12);
+
+			if(verifyRegister(userReg)) {
+				user = Entity.newBuilder(userKey)
+						.set(NAME, data.name)
+						.set(PASSWORD, DigestUtils.sha512Hex(password))
+						.set(EMAIL, data.email)
+						.set(ROLE, Roles.REPRESENTATIVE.getRole())		
+						.set(MPHONE, data.mobilePhone)
+						.set(HPHONE, data.homePhone)
+						.set(ADDRESS, data.address)
+						.set(NIF, data.nif)
+						.set(VISIBILITY, data.visibility)
+						.set(POINTS, -1)
+						.set(CTIME, Timestamp.now())
+						.build();
+
+				tn.add(user);
+				tn.commit();
+
+				LOG.fine("Registered representative: " + data.username);
+
+				String subject = "Welcome to Land It, " + data.username + " !";
+				Content content = new Content("text/plain", 
+											"Thanks for representing your autarchy.\n" 
+											+ "Please use these credentials to login. You will be prompted to change the password.\n" 
+											+ "Username: " + data.username + "\n"
+											+ "Password: " + password);
+
+				sendAutomaticEmail(data.email, subject, content);
 
 				return Response.ok(g.toJson(null)).build();
 			} else {
@@ -170,7 +265,7 @@ public class AdministrativeResource {
 			case SU:
 				return true;
 			case MODERATOR:
-				if(e2Role != Roles.SU && e2Role != Roles.MODERATOR)
+				if(e1 == e2 || (e2Role != Roles.SU && e2Role != Roles.MODERATOR))
 					return true;
 				break;
 			case OWNER:
@@ -194,7 +289,7 @@ public class AdministrativeResource {
 			case SU:
 				return true;
 			case MODERATOR:
-				if(e2Role != Roles.SU) 
+				if(e1 == e2 || e2Role != Roles.SU) 
 					return true;
 				break;
 			case OWNER:
@@ -210,14 +305,27 @@ public class AdministrativeResource {
 		return false;
 	}
 
-	private void sendAutomaticEmail(String to_user, String username, String password) throws IOException {		
+	public boolean canVerifyParcel(Entity e1) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+			case MODERATOR:
+			case REPRESENTATIVE:
+				return true;
+			case OWNER:
+			case MERCHANT:
+			default:
+				break;
+		}
+
+		return false;
+	}
+
+	private void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
 		// Set content for request.
 		Email to = new Email(to_user);
 		Email from = new Email(SENDGRID_SENDER);
-		String subject = "Welcome to Land It, " + username + " !";
-		Content content = new Content("text/plain", "Please use these credentials to login. You will be prompted to change the password.\n" 
-											+ "Username: " + username + "\n"
-											+ "Password: " + password);
 		Mail mail = new Mail(from, subject, to, content);
 
 		// Instantiates SendGrid client.

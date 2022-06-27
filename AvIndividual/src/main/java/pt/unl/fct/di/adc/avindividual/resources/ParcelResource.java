@@ -14,10 +14,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelVerifyData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelSearchPositionData;
@@ -459,16 +462,16 @@ public class ParcelResource {
 	@POST
 	@Path("/verify")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response searchParcelPosition(RequestData data){
+	public Response searchParcelPosition(ParcelVerifyData data){
 		LOG.info("Attempt to verify parcels of user: " + data.username);
 
-		if(!data.isUsernameValid()){
+		if(!data.isDataValid()){
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		}
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(PARCEL).newKey(data.name);
+		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
 		Transaction tn = datastore.newTransaction();
@@ -494,7 +497,11 @@ public class ParcelResource {
 				return Response.status(Status.CONFLICT).entity("Parcel does not exist.").build();
 			}
 
-			//TODO needs to verify is user has permission for action
+			if (!ar.canVerifyParcel(user)) {
+				LOG.warning("User can't verify this parcel.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User can't verify this parcel.").build();
+			}
 
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
