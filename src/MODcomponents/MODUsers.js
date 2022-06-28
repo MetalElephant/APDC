@@ -10,7 +10,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
-export default function SUUsers() {
+export default function MODUsers() {
     let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);

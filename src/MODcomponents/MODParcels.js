@@ -9,8 +9,10 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import FeedIcon from '@mui/icons-material/Feed';
+import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 
-export default function SUUsers() {
+export default function MODParcels() {
     let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
@@ -29,11 +31,11 @@ export default function SUUsers() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<AccountBoxIcon sx={{ color: "black" }} />}
+                        startIcon={<FeedIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> lista de Utilizadores </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de Parcelas </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -41,11 +43,11 @@ export default function SUUsers() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<PersonAddIcon sx={{ color: "black" }} />}
+                        startIcon={<CancelPresentationIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Adicionar Utilizador </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Parcela </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -53,23 +55,11 @@ export default function SUUsers() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<PersonRemoveIcon sx={{ color: "black" }} />}
+                        startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(2) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Utilizador </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<ManageAccountsIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(3) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Utilizador </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Parcela </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -87,7 +77,6 @@ export default function SUUsers() {
                 {(display === 0) ? <div> OLHEM</div> : <></>}
                 {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
                 {(display === 2) ? <div> FUCK IT</div> : <></>}
-                {(display === 3) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
         </Grid>
     )
