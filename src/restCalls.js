@@ -287,6 +287,10 @@ class restCalls {
     }
 
     getParcelsByPosition(latMax, latMin, longMax, longMin) {
+        console.log(latMax)
+        console.log(latMin)
+        console.log(longMax)
+        console.log(longMin)
         return fetch("https://our-hull.appspot.com/rest/parcel/searchByPosition", {
             method: 'POST',
             headers: {
@@ -298,7 +302,6 @@ class restCalls {
                 latMin: latMin,
                 longMax: longMax,
                 longMin: longMin
-                //type: 1 county, 2 district, 3 freg
             })
         }).then(function (response) {
             if (!response.ok) {
