@@ -14,11 +14,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
-import pt.unl.fct.di.adc.avindividual.util.RemoveParcelData;
+import pt.unl.fct.di.adc.avindividual.util.ParcelVerifyData;
+import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelSearchPositionData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelSearchRegionData;
@@ -45,6 +48,7 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
+	private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 	
 	//Parcel info
@@ -92,7 +96,6 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
-		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 		
 		try {
 			Entity user = tn.get(userKey);
@@ -151,9 +154,6 @@ public class ParcelResource {
 			}
 
 			parcel = builder.build();
-
-			//Update statistics
-			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 			
 			tn.add(parcel);
 			tn.commit();
@@ -177,23 +177,25 @@ public class ParcelResource {
 
 		Transaction tn = datastore.newTransaction();
 
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
-		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
+		Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		
 		try {
-			Entity parcel = tn.get(parcelKey);
 			Entity user = tn.get(userKey);
 			Entity token = tn.get(tokenKey);
+			Entity parcel = tn.get(parcelKey);
+			Entity owner = tn.get(ownerKey);
 			
 			if (user == null) {
-				LOG.warning("User " + data.owner + " does not exist");
+				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, data.owner)){
-				LOG.warning("User " + data.owner + " not logged in.");
+			if (!ur.isLoggedIn(token, data.username)){
+				LOG.warning("User " + data.username + " not logged in.");
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
@@ -201,6 +203,12 @@ public class ParcelResource {
 				LOG.warning("Parcel doesn't exists.");
 				tn.rollback();
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
+			}
+
+			if(!ar.canModify(user, owner)) {
+				LOG.warning("User " + data.username + " can't modify this.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this parcel.").build();
 			}
 
 			LatLng[] markers = new LatLng[data.allLats.length];
@@ -224,7 +232,8 @@ public class ParcelResource {
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
 					.set(AREA, parcel.getString(AREA))
-
+					.set(CONFIRMATION, parcel.getString(CONFIRMATION))
+					.set(CONFIRMED, parcel.getBoolean(CONFIRMED))
                     .set(NMARKERS, String.valueOf(data.allLats.length))
 					.set(NOWNERS, String.valueOf(data.owners.length));
 
@@ -251,8 +260,8 @@ public class ParcelResource {
 	@DELETE
 	@Path("/remove")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response deleteParcel(RemoveParcelData data){
-		LOG.info("Attempting to remove parcel: " + data.parcelName);
+	public Response deleteParcel(RemoveObjectData data){
+		LOG.info("Attempting to remove parcel: " + data.objectName);
 
 		if (!data.isDataValid())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
@@ -260,14 +269,16 @@ public class ParcelResource {
 		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
-		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);	
+		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.objectName);
 
 		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
 		try {
             Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
+			Entity owner = tn.get(ownerKey);
             Entity parcel = tn.get(parcelKey);
 
 			if (user == null) {
@@ -277,9 +288,9 @@ public class ParcelResource {
 			}
 
 			if (parcel == null){
-				LOG.warning("Parcel to be removed " + data.parcelName + " does not exist.");
+				LOG.warning("Parcel to be removed " + data.objectName + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.NOT_FOUND).entity("Parcel to be removed " + data.parcelName + " does not exist.").build();
+				return Response.status(Status.NOT_FOUND).entity("Parcel to be removed " + data.objectName + " does not exist.").build();
 			}
 
 			if (!ur.isLoggedIn(token, data.username)){
@@ -288,7 +299,7 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-			if (!canRemove(data.username)) {
+			if (!ar.canRemove(user, owner)) {
 				LOG.warning("User " + data.username + " unathourized to remove parcel.");
 				tn.rollback();
 
@@ -296,12 +307,12 @@ public class ParcelResource {
 			}
 
 			//Update statistics
-			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
 
 			tn.delete(parcelKey);
 			tn.commit();
 
-			return Response.ok("User " + data.username + " deleted the parcel " + data.parcelName).build();
+			return Response.ok("User " + data.username + " deleted the parcel " + data.objectName).build();
 
 		} finally {
 			if (tn.isActive())
@@ -448,6 +459,91 @@ public class ParcelResource {
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
 
+	@POST
+	@Path("/verify")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response searchParcelPosition(ParcelVerifyData data){
+		LOG.info("Attempt to verify parcels of user: " + data.username);
+
+		if(!data.isDataValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+
+		Transaction tn = datastore.newTransaction();
+
+		try{
+			Entity user = datastore.get(userKey);
+			Entity token = datastore.get(tokenKey);
+			Entity parcel = tn.get(parcelKey);
+
+			if (user == null) {				
+				LOG.warning("User does not exist");
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+			}
+
+			if (!ur.isLoggedIn(token, data.username)){
+				LOG.warning("User " + data.username + " not logged in.");
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
+
+			if (parcel == null) {
+				LOG.warning("Parcel does not exist.");
+				tn.rollback();
+				return Response.status(Status.CONFLICT).entity("Parcel does not exist.").build();
+			}
+
+			if (!ar.canVerifyParcel(user)) {
+				LOG.warning("User can't verify this parcel.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User can't verify this parcel.").build();
+			}
+
+			Builder builder = Entity.newBuilder(parcelKey)
+					.set(COUNTY, parcel.getString(COUNTY))
+					.set(DISTRICT, parcel.getString(DISTRICT))
+					.set(FREGUESIA, parcel.getString(FREGUESIA))
+					.set(DESCRIPTION, parcel.getString(DESCRIPTION))
+					.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
+					.set(CURR_USAGE, parcel.getString(CURR_USAGE))
+					.set(PREV_USAGE, parcel.getString(PREV_USAGE))
+					.set(AREA, parcel.getString(AREA))
+					.set(CONFIRMATION, parcel.getString(CONFIRMATION))
+					.set(CONFIRMED, true)
+                    .set(NMARKERS, parcel.getString(NMARKERS))
+					.set(NOWNERS, parcel.getString(NOWNERS));
+
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
+
+			for(int i = 0; i < n1; i++){
+				builder.set(OWNER+i, parcel.getString(OWNER+i));
+			}
+					
+			for(int i = 0; i < n2; i++) {
+				builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
+			}
+
+			parcel = builder.build();
+
+			//Update statistics
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+			
+			tn.put(parcel);
+			tn.commit();
+		
+			return Response.ok("Parcel verified.").build();
+
+		}finally{
+			if(tn.isActive())
+				tn.rollback();
+		}
+	}
+
 	private String getArea(LatLng[] markers){
 		double area = 0.0;
      
@@ -482,6 +578,7 @@ public class ParcelResource {
 
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+									.setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true)))
 								    .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
@@ -534,7 +631,7 @@ public class ParcelResource {
 		}
 
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-								    .setFilter(CompositeFilter.and(PropertyFilter.eq(search, region)))
+								    .setFilter(CompositeFilter.and(PropertyFilter.eq(search, region), PropertyFilter.eq(CONFIRMED, true)))
 								    .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
@@ -550,8 +647,8 @@ public class ParcelResource {
 
 	private List<ParcelInfo> getQueries(String owner){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-								  .setFilter(PropertyFilter.hasAncestor(
-                				  datastore.newKeyFactory().setKind(USER).newKey(owner)))
+								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)),
+								   			 PropertyFilter.eq(CONFIRMED, true)))
 								  .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
@@ -568,7 +665,8 @@ public class ParcelResource {
 
     //Run through every parcel and verify that they don't overlap with the given one
     private boolean isOverlapped(LatLng[] markers){
-		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
+								   .setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true))).build();
 
 		QueryResults<Entity> parcels = datastore.run(query);
 
@@ -593,7 +691,8 @@ public class ParcelResource {
 	}
 
 	private boolean isOverlappedUpdate(LatLng[] markers, String name){
-		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
+								   .setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true))).build();
 
 		QueryResults<Entity> parcels = datastore.run(query);
 
@@ -669,10 +768,5 @@ public class ParcelResource {
 		boolean overlaps = false;
 
 		return overlaps;
-	}
-
-	private boolean canRemove(String username){
-		//TODO
-		return true;
 	}
 }
