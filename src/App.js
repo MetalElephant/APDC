@@ -9,6 +9,8 @@ import NavbarMayors from "./mainFixedComponents/NavbarMayors";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import './style.css';
 import NavbarMerchants from "./mainFixedComponents/NavbarMerchants";
+import NavbarModerador from "./mainFixedComponents/NavbarModerador";
+import NavbarSU from "./mainFixedComponents/NavbarSU";
 
 
 
@@ -37,6 +39,12 @@ export default function App() {
                     </Route>
                     <Route exact path="/mayors">
                         <NavbarMayors />
+                    </Route>
+                    <Route exact path="/moderador">
+                        <NavbarModerador />
+                    </Route>
+                    <Route exact path="/superuser">
+                        <NavbarSU />
                     </Route>
                 </Switch>
             </div>

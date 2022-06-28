@@ -123,6 +123,12 @@ export default function LoginRegister() {
             case "Autarca":
                 history.push("/mayors")
                 break;
+            case "Moderador":
+                history.push("/moderador")
+                break;
+            case "Super User":
+                history.push("/superuser")
+                break;
             default:
                 break;
         }
@@ -267,10 +273,10 @@ export default function LoginRegister() {
             setNifErr(nifErr)
         }
 
-        if(role == "") {
+        if (role == "") {
             setShowRoleErr(true)
             isValid = false;
-        } else{
+        } else {
             setShowRoleErr(false)
         }
 
@@ -505,7 +511,7 @@ export default function LoginRegister() {
                                     </Select>
                                 </FormControl>
 
-                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt:1 }}>Por favor, selecione o seu papel.</Typography>}
+                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt: 1 }}>Por favor, selecione o seu papel.</Typography>}
 
                                 <FormControl sx={{ mt: "13px", pb: 1 }}>
                                     <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade de Perfil</Typography></FormLabel>
