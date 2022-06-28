@@ -1,0 +1,61 @@
+import react from "react"
+import { Button, Grid, Typography } from "@mui/material";
+import restCalls from "../restCalls"
+import {useHistory} from "react-router-dom";
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import FeedIcon from '@mui/icons-material/Feed';
+import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
+import RemoveIcon from '@mui/icons-material/Remove';
+
+export default function SURewards() {
+    const [display, setDisplay] = react.useState(0);
+
+    return (
+        <Grid container spacing={2} direction="column">
+            <Grid item xs={12} container align="center">
+                <Grid item xs={2}>
+                    <Button
+                        type="submit"
+                        id="1"
+                        fullWidth
+                        variant="outlined"
+                        color="success"
+                        startIcon={<FeedIcon sx={{ color: "black" }} />}
+                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        onClick={() => { setDisplay(0) }}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de Recompensas </Typography>
+                    </Button>
+                    <Button
+                        type="submit"
+                        id="1"
+                        fullWidth
+                        variant="outlined"
+                        color="success"
+                        startIcon={<RemoveIcon sx={{ color: "black" }} />}
+                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        onClick={() => { setDisplay(1) }}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Recompensa </Typography>
+                    </Button>
+                    <Button
+                        type="submit"
+                        id="1"
+                        fullWidth
+                        variant="outlined"
+                        color="success"
+                        startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
+                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        onClick={() => { setDisplay(2) }}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Recompensa </Typography>
+                    </Button>
+                </Grid>
+                {(display === 0) ? <div> OLHEM</div> : <></>}
+                {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
+                {(display === 2) ? <div> FUCK IT</div> : <></>}
+            </Grid>
+        </Grid>
+    )
+}

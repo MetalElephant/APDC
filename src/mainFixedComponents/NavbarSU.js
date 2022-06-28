@@ -11,6 +11,7 @@ import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import SUUsers from "../SUcomponents/SUUsers";
 import SUParcels from "../SUcomponents/SUParcels";
+import SURewards from "../SUcomponents/SURewards";
 
 export default function NavbarSU() {
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
@@ -38,6 +39,8 @@ export default function NavbarSU() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Users" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
+                        
                     </Tabs>
                 </Grid>
                 <Grid item xs={2}>
@@ -47,6 +50,8 @@ export default function NavbarSU() {
             {selectedLeftTab === 0 && <UserPage />}
             {selectedLeftTab === 1 && <SUUsers />}
             {selectedLeftTab === 2 && <SUParcels />}
+            {selectedLeftTab === 3 && <SURewards />}
+            {selectedLeftTab === 4 && <StatisticsPage />}
 
             {/*
             {selectedLeftTab === 3 && <ForumPage />}
