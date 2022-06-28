@@ -499,9 +499,6 @@ export default function LoginRegister() {
                                         <MenuItem value="Comerciante" label="Comerciante">
                                             Comerciante
                                         </MenuItem>
-                                        <MenuItem value="Autarca" label="Autarca">
-                                            Autarca
-                                        </MenuItem>
                                     </Select>
                                 </FormControl>
 

@@ -2,7 +2,7 @@ import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button, TextField, Autocomplete } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Polyline, Polygon } from '@react-google-maps/api';
-import locais from "../locais/distritos.txt" 
+import locais from "../locais/distritos.txt"
 
 export default function SearchParcel() {
 
@@ -30,12 +30,12 @@ export default function SearchParcel() {
     const [chosenDist, setChosenDist] = react.useState(null);
     const [chosenConc, setChosenConc] = react.useState(null);
     const [chosenFreg, setChosenFreg] = react.useState(null);
+    const [type, setType] = react.useState(-1);
+    const [region, setRegion] = react.useState(null);
 
 
     var temp;
     var searchedParcels;
-    var type = -1;
-    var region;
 
     const maxLatPt = 42.1543;
     const minLatPt = 36.9597;
@@ -151,25 +151,28 @@ export default function SearchParcel() {
         setRenderPolygons(false)
         if (markers.length === 4) {
             var list = []
-            if (option == "limits") {
-                console.log(type)
+            if (option === "limits") {
+                console.log("limitessss")
                 restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
+                searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
             }
-            else {
-                console.log(type)
-                console.log(region)
-                if(type != -1)
-                    restCalls.getParcelsByRegion(region, type);
-            }
-            searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
-            if (searchedParcels != null && searchedParcels.length > 0) {
-                searchedParcels.map((parcel) => {
-                    list.push(parcel)
-                })
-                setPolygonMarkers([...list]);
-                setRenderPolygons(true)
-            }
+
         }
+        else if (type !== -1) {
+            list = []
+            restCalls.getParcelsByRegion(region, type);
+            searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+        }
+
+        if (searchedParcels != null && searchedParcels.length > 0) {
+            console.log("rendering parcels...")
+            searchedParcels.map((parcel) => {
+                list.push(parcel)
+            })
+            setPolygonMarkers([...list]);
+            setRenderPolygons(true)
+        }
+
     }
 
     function getPolygons() {
@@ -201,6 +204,12 @@ export default function SearchParcel() {
     }
 
     function optionHandler(e) {
+        if(e.target.value === "limits") {
+            setType(-1)
+            setChosenDist(null)
+            setChosenConc(null)
+            setChosenFreg(null)
+        }
         setOption(e.target.value);
         setMarkers([]);
         setFirstAux([]);
@@ -299,8 +308,8 @@ export default function SearchParcel() {
                                     setChosenDist(newDistrict);
                                     setChosenConc(null);
                                     setChosenFreg(null);
-                                    region = newDistrict
-                                    type = 2
+                                    setRegion(newDistrict)
+                                    setType(2)
                                 }}
                                 sx={{ width: 400, mt: 1 }}
                                 renderInput={(params) => <TextField {...params} label="Distrito *" />}
@@ -315,8 +324,8 @@ export default function SearchParcel() {
                                     setChosenConc(newConc);
                                     setChosenDist(null);
                                     setChosenFreg(null);
-                                    region = newConc
-                                    type = 1
+                                    setRegion(newConc)
+                                    setType(1)
                                 }}
                                 sx={{ width: 400, mt: 2 }}
                                 renderInput={(params) => <TextField {...params} label="Concelho *" />}
@@ -331,8 +340,8 @@ export default function SearchParcel() {
                                     setChosenFreg(newFreg);
                                     setChosenConc(null);
                                     setChosenDist(null);
-                                    region = newFreg
-                                    type = 3
+                                    setRegion(newFreg)
+                                    setType(3)
                                 }}
                                 sx={{ width: 400, mt: 2 }}
                                 renderInput={(params) => <TextField {...params} label="Freguesia *" />}

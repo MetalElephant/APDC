@@ -165,7 +165,7 @@ export default function RegisterParcel() {
     function parcelRegisterManager(e) {
         e.preventDefault();
         restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg,
-            description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, type)
+            description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, 2)
             .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); });
         setDisplayParcelMessage(true);
     }
@@ -376,15 +376,16 @@ export default function RegisterParcel() {
                                         type="file"
                                         style={{ display: "none" }}
                                         ref={fileInputRef}
-                                        accept="image/*"
+                                        accept="image/*,.pdf"
                                         onChange={(e) => {
                                             const f = e.target.files[0];
                                             if (f && f.type.substring(0, 5) === "image") {
+                                                setType(2)
                                                 setImage(f);
-                                                loadPhoto(f);
-                                            } else {
-                                                setImage(null);
                                             }
+                                            if(f.type.substring(0, 5) !== "image")
+                                                setType(1)
+                                            loadPhoto(f);
                                         }}
                                     />
 
