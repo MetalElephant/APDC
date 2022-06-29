@@ -494,7 +494,7 @@ public class ParcelResource {
 	@POST
 	@Path("/verify")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response searchParcelPosition(ParcelVerifyData data){
+	public Response verifyParcel(ParcelVerifyData data){
 		LOG.info("Attempt to verify parcels of user: " + data.username);
 
 		if(!data.isDataValid()){
