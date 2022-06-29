@@ -9,6 +9,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import AddUser from "./AddUser"
 
 export default function SUUsers() {
 
@@ -68,7 +69,7 @@ export default function SUUsers() {
                     </Button>
                 </Grid>
                 {(display === 0) ? <div> OLHEM</div> : <></>}
-                {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
+                {(display === 1) ? <AddUser /> : <></>}
                 {(display === 2) ? <div> FUCK IT</div> : <></>}
                 {(display === 3) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
