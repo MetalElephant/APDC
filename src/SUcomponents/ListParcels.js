@@ -5,40 +5,40 @@ import { useEffect } from "react";
 import restCalls from "../restCalls";
 import { color } from "@mui/system";
 
-export default function ListUsers() {
+export default function ListParcels() {
 
-    const [chosenUser, setChosenUser] = react.useState()
-    const [username, setUsername] = react.useState("")
-    const [role, setRole] = react.useState("")
-    const [email, setEmail] = react.useState("")
-    const [name, setName] = react.useState("")
-    const [visibility, setVisibility] = react.useState("")
-    const [homePhone, setHomePhone] = react.useState("")
-    const [mobilePhone, setMobilePhone] = react.useState("")
-    const [address, setAddress] = react.useState("")
-    const [nif, setNif] = react.useState("")
-    const [allUsers, setAllUsers] = react.useState([])
-    const [user, setUser] = react.useState([])
+    const [chosenParcel, setChosenParcel] = react.useState()
+    const [parcelName, setParcelName] = react.useState("")
+    const [dist, setDist] = react.useState("")
+    const [conc, setConc] = react.useState("")
+    const [freg, setFreg] = react.useState("")
+    const [description, setDescription] = react.useState("")
+    const [groundType, setGroundType] = react.useState("")
+    const [currUsage, setCurrUsage] = react.useState("")
+    const [prevUsage, setPrevUsage] = react.useState("")
+    const [area, setArea] = react.useState("")
+    const [allParcels, setAllParcels] = react.useState([])
+    const [parcel, setParcel] = react.useState([])
     const [repeat, setRepeat] = react.useState(false)
-    const [isUserRemoved, setIsUserRemoved] = react.useState(false)
-    const [isUserNotRemoved, setIsUserNotRemoved] = react.useState(true)
+    const [isParcelRemoved, setIsParcelRemoved] = react.useState(false)
+    const [isParcelNotRemoved, setIsParcelNotRemoved] = react.useState(true)
     const [displayMessage, setDisplayMessage] = react.useState(false)
 
     useEffect(() => {
         restCalls.listUsers()
-        var users = JSON.parse(localStorage.getItem('allUsers'))
+        var parcels = JSON.parse(localStorage.getItem('allParcels'))
         var temp = []
-        if (users != null) {
-            users.map((user) => {
+        if (parcels != null) {
+            parcels.map((user) => {
                 temp.push(user)
             })
-            setAllUsers(temp)
+            setAllParcels(temp)
         } else {
             setRepeat(!repeat)
         }
     }, [repeat])
 
-
+/*
     useEffect(() => {
         setUsername(user.username)
         setRole(user.role)
@@ -49,14 +49,14 @@ export default function ListUsers() {
         setMobilePhone(user.mobilephone)
         setAddress(user.address)
         setNif(user.nif)
-    }, [user])
+    }, [user])*/
 
     function userToBeRemovedManager() {
-        if(chosenUser != null) {
-            restCalls.deleteUser(chosenUser).then(() => { setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsUserRemoved(false); setIsUserNotRemoved(true); setDisplayMessage(true) })
+        if(chosenParcel != null) {
+            restCalls.deleteParcel(chosenParcel).then(() => { setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
         }else {
-            setIsUserRemoved(false); 
-            setIsUserNotRemoved(true);
+            setIsParcelRemoved(false); 
+            setIsParcelNotRemoved(true);
             setDisplayMessage(true)
         }
     }
@@ -66,24 +66,24 @@ export default function ListUsers() {
             <Grid item xs={1.5} >
                 <Autocomplete
                     selectOnFocus
-                    id="users"
-                    options={allUsers != null ? allUsers : []}
-                    getOptionLabel={option => option.username}
-                    onChange={(event, newChosenUser) => {
-                        setChosenUser(newChosenUser.username);
-                        setUser(newChosenUser)
+                    id="parcels"
+                    options={allParcels != null ? allParcels : []}
+                    getOptionLabel={option => option.parcelName}
+                    onChange={(event, newChosenParcel) => {
+                        setChosenParcel(newChosenParcel.parcelName);
+                        setParcel(newChosenParcel)
                     }}
                     sx={{ width: 200, mt: 1 }}
-                    renderInput={(params) => <TextField {...params} label="Utilizadores" />}
+                    renderInput={(params) => <TextField {...params} label="Parcelas" />}
                 />
 
                 <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ mt: 2 }}>Remover Utilizador</Button>
 
-                {(isUserRemoved && displayMessage) ?
+                {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador removido com sucesso.</Typography>
                     </Alert> : <></>}
-                {(isUserNotRemoved && displayMessage) ?
+                {(isParcelNotRemoved && displayMessage) ?
                     <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na remoção do utilizador. Por favor, verifique o nome do mesmo.</Typography>
                     </Alert> : <></>}
@@ -91,47 +91,47 @@ export default function ListUsers() {
             <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome de utilizador: {username} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da Parcela: {parcelName} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Email: {email} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Distrito: {dist} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Nome: {name} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Concelho: {conc} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Papel: {role} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freguesia: {freg} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Visibilidade: {visibility} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Descrição: {description} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Número de Telefone: {homePhone} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Tipo de Cobertura de Solo: {groundType} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Número de Telemóvel: {mobilePhone} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Utilização Atual: {currUsage} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Morada: {address} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Utilização Prévia: {prevUsage} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> NIF: {nif} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Área: {area} </Typography>
                     </Paper>
                 </Box>
             </Grid>

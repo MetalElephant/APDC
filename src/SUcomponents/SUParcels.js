@@ -11,6 +11,7 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import FeedIcon from '@mui/icons-material/Feed';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
+import ListParcels from "./ListParcels"
 
 
 export default function SUParcels() {
@@ -36,19 +37,7 @@ export default function SUParcels() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de Parcelas </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<CancelPresentationIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(1) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Parcela </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Parcelas </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -58,7 +47,7 @@ export default function SUParcels() {
                         color="success"
                         startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
+                        onClick={() => { setDisplay(1) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Parcela </Typography>
                     </Button>
@@ -75,9 +64,8 @@ export default function SUParcels() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <div> OLHEM</div> : <></>}
-                {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
-                {(display === 2) ? <div> FUCK IT</div> : <></>}
+                {(display === 0) ? <ListParcels /> : <></>}
+                {(display === 1) ? <div> FUCK IT</div> : <></>}
             </Grid>
         </Grid>
     )

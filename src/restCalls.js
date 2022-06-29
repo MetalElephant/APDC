@@ -340,6 +340,27 @@ class restCalls {
         })
     }
 
+    listParcels() {
+        return fetch("https://our-hull.appspot.com/rest/parcel/list", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('allParcels', text);
+            return text;
+        })
+    }
+
     listUsers() {
         return fetch("https://our-hull.appspot.com/rest/users/list", {
             method: 'GET',
