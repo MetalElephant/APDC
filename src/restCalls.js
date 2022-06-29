@@ -157,7 +157,7 @@ class restCalls {
         })
     }
 
-    deleteUser() {
+    deleteUser(usernameToRemove) {
         return fetch("https://our-hull.appspot.com/rest/users/remove", {
             method: 'DELETE',
             headers: {
@@ -165,7 +165,7 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                usernameToRemove: JSON.parse(localStorage.getItem('token')).username
+                usernameToRemove: usernameToRemove
             })
         }).then(function (response) {
             if (!response.ok) {
