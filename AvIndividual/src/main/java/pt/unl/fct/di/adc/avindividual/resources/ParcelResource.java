@@ -388,7 +388,39 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		List<ParcelInfo> parcelList = getQueries(data.username);
+		List<ParcelInfo> parcelList = getUserParcels(data.username);
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	@POST
+	@Path("/listRep")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response showRepresentativeParcel(RequestData data) {
+		LOG.info("Attempt to list parcels for representative: " + data.username);
+
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getRepParcels(data.username);
 
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
@@ -645,9 +677,25 @@ public class ParcelResource {
 		return userParcels;
 	}
 
-	private List<ParcelInfo> getQueries(String owner){
+	private List<ParcelInfo> getUserParcels(String owner){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)))
+								  .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			userParcels.add(parcelInfoBuilder(parcel));
+		});
+
+		return userParcels;
+	}
+
+	private List<ParcelInfo> getRepParcels(String region){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								  .setFilter(PropertyFilter.eq(FREGUESIA, region))
 								  .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
