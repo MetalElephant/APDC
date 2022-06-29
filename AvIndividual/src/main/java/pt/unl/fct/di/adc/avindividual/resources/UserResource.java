@@ -25,7 +25,6 @@ import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
-import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -45,7 +44,7 @@ public class UserResource {
 
 	private final Gson g = new Gson();
 
-	//private ForumResource fr = new ForumResource();
+	private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -85,6 +84,7 @@ public class UserResource {
     private static final String TOKEN = "Token";
 	private static final String STAT = "Statistics";
 	private static final String CODE = "Code";
+
 
 	private static final boolean ADD = true;
 	
@@ -285,7 +285,7 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-			if (!canRemove(user, userToRemove)) {
+			if (!ar.canRemove(user, userToRemove)) {
 				LOG.warning("User " + data.username + " unathourized to remove other User");
 				tn.rollback();
 
@@ -323,7 +323,6 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 		if(!data.validEmailFormat())
 			return Response.status(Status.BAD_REQUEST).entity("Wrong email format: try example@domain.com").build();
-	
 		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);		
@@ -354,8 +353,10 @@ public class UserResource {
 			}
 			
 			//To set what will stay the same value or what will actually be changed
-			if(!canModify(data, user, userToUpdate))
+			if(!ar.canModify(user, userToUpdate)) {
+				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
+			}
 
 				userToUpdate = Entity.newBuilder(userUpdateKey)
 					.set(NAME, data.name)
@@ -525,9 +526,7 @@ public class UserResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		String userRole = user.getString(ROLE);
-			
-		List<String> userList = getQueries(userRole);
+		List<UserInfo> userList = getQueries();
 
 		return Response.ok(g.toJson(userList)).build();
 	}
@@ -627,35 +626,7 @@ public class UserResource {
 
 	}
 
-	//TODO No roles so right now we can always do it for the sake of testing
-	private boolean canRemove(Entity user, Entity userToRemove) {
-		/*
-		String role1 = user.getString(ROLE);
-		String role2 = userToRemove.getString(ROLE);
-		String name1 = user.getString(USERNAME);
-		String name2 = userToRemove.getString(USERNAME);
-			if (role1.equals(USER) && !name1.equals(name2)) { // can only remove themselves
-				return false;
-			}
-			if (role1.equals(GBO) && !role2.equals(USER)) { // can only remove USER level 
-				return false;
-			}
-			if (role1.equals(GS) && role2.equals(SU)) { // can remove all but SU
-				return false;
-			}
-		*/
-		return true;
-	}
-
-	//TODO we won't need to check for null values if we get the old info so we will only need canUpdateValues
-	private boolean canModify(UserUpdateData data, Entity user, Entity userToModify) {
-		//if(!data.canUpdateValues(user.getString(ROLE), userToModify.getString(ROLE)))
-			//return false;
-			
-		return true;
-	}
-
-	private void removeUserCodes(String user, Transaction tn){
+	public void removeUserCodes(String user, Transaction tn){
 		Query<Entity> codesQuery = Query.newEntityQueryBuilder().setKind(CODE)
 								.setFilter(PropertyFilter.hasAncestor(
                 				datastore.newKeyFactory().setKind(USER).newKey(user)))
@@ -668,58 +639,19 @@ public class UserResource {
 		}
 	}
 
-	private List<String> getQueries(String role) {
-		if (role.equals(Roles.OWNER.getRole())) {
-
-			Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
+	private List<UserInfo> getQueries() {
+		Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
 					.build();
 
-			QueryResults<Entity> users = datastore.run(queryUSER);
+		QueryResults<Entity> users = datastore.run(queryUSER);
 
-			List<String> allUsers = new LinkedList<String>();
-			allUsers.add("List of Active Users: ");
+		List<UserInfo> allUsers = new LinkedList<>();
 
-			users.forEachRemaining(userList -> {
-				allUsers.add("Username: " + userList.getKey().getName() + " -|- Name: " + userList.getString(NAME)
-						+ " -|- Email: " + userList.getString(EMAIL));
-			});
-
-			return allUsers;
-
-		}
-
-		if (role.equals(Roles.SU.getRole())) {
-
-			Query<Entity> query = Query.newEntityQueryBuilder().setKind(USER).build();
-
-			return buildQueryList(query);
-		}
-
-		return null;
-
-	}
-	
-	private List<String> buildQueryList(Query<Entity> query) {	
-		QueryResults<Entity> users = datastore.run(query);
-		
-		List<String> allUsers = new LinkedList<String>();
-		allUsers.add("List of Users: ");
-		
-		users.forEachRemaining(userList-> {
-			allUsers.add("Username: "+ userList.getKey().getName() +
-					" -|- Name: "+ userList.getString(NAME) +
-					" -|- Email: " + userList.getString(EMAIL) +
-					" -|- Role: "+ userList.getString(ROLE)+
-					" -|- Profile: "+ userList.getString(VISIBILITY)+
-					" -|- Password: "+ userList.getString(PASSWORD)+
-					" -|- Address: "+ userList.getString(ADDRESS)+
-					" -|- Landphone: "+ userList.getString(HPHONE)+
-					" -|- Mobile Phone: "+ userList.getString(MPHONE)+
-					" -|- NIF: "+ userList.getString(NIF)+
-					" -|- Creation Time: "+ userList.getTimestamp(CTIME).toString()
-					);
+		users.forEachRemaining(user -> {
+			allUsers.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
+									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(VISIBILITY), user.getString(PHOTO)));
 		});
-		
+
 		return allUsers;
 	}
 }

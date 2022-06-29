@@ -1,12 +1,11 @@
 package pt.unl.fct.di.adc.avindividual.util;
 
-public class RemoveParcelData {
-
+public class ParcelVerifyData {
     public String username, owner, parcelName;
 
-    public RemoveParcelData(){}
+    public ParcelVerifyData() {}
 
-    public RemoveParcelData(String username, String owner, String parcelName){
+    public ParcelVerifyData(String username, String owner, String parcelName) {
         this.username = username;
         this.owner = owner;
         this.parcelName = parcelName;
@@ -16,7 +15,6 @@ public class RemoveParcelData {
         if (this.username == null || this.owner == null || this.parcelName == null)
             return false;
 
-        return this.username.length() != 0 && this.owner.length() !=0 && this.parcelName.length() != 0;
+        return (this.username.length() != 0 && this.owner.length() != 0 && this.parcelName.length() != 0);
     }
-    
 }

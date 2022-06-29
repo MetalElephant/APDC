@@ -11,6 +11,8 @@ public class RewardData {
 
     public String name, description, owner, price, timesRedeemed;
 
+    public RewardData() {}
+
     public RewardData(String name, String description, String owner, String price, String timesRedeemed) {
         this.name = name;
         this.description = description;
