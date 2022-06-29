@@ -12,7 +12,7 @@ public class RegisterData {
 
 	public byte[] photo;
 	
-	private static final String UNDEFINED = "Não Definido";
+	private static final String UNDEFINED = "Undefined";
 	
 	public RegisterData() {}
 	

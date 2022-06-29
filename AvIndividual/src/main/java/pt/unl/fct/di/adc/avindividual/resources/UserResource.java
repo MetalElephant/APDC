@@ -44,7 +44,7 @@ public class UserResource {
 
 	private final Gson g = new Gson();
 
-	private AdministrativeResource ar = new AdministrativeResource();
+	//private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
@@ -63,7 +63,7 @@ public class UserResource {
 	private static final String POINTS = "points";
 	private static final String CTIME = "creation time";
 
-	private static final String UNDEFINED = "Não Definido";
+	private static final String UNDEFINED = "Undefined";
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
@@ -285,12 +285,12 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-			if (!ar.canRemove(user, userToRemove)) {
+			/*if (!ar.canRemove(user, userToRemove)) {
 				LOG.warning("User " + data.username + " unathourized to remove other User");
 				tn.rollback();
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove other User").build();
-			}
+			}*/
 			
 			//Remove the token associated with the user if it exists
 			if(tn.get(tokenToRemoveKey) != null)
@@ -353,10 +353,10 @@ public class UserResource {
 			}
 			
 			//To set what will stay the same value or what will actually be changed
-			if(!ar.canModify(user, userToUpdate)) {
+			/*if(!ar.canModify(user, userToUpdate)) {
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
-			}
+			}*/
 
 				userToUpdate = Entity.newBuilder(userUpdateKey)
 					.set(NAME, data.name)
