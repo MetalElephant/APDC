@@ -1,6 +1,6 @@
 import react from "react"
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, inputAdornmentClasses, Card, Select, InputLabel, MenuItem } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, Card, Select, InputLabel, MenuItem } from "@mui/material";
 import { useHistory } from "react-router-dom"
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -41,11 +41,13 @@ export default function LoginRegister() {
     const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
     const [showRoleErr, setShowRoleErr] = react.useState(false);
 
-
     const [image, setImage] = react.useState();
     const [preview, setPreview] = react.useState();
     const [imageArray, setImageArray] = react.useState();
     const fileInputRef = react.useRef();
+
+    const [nUsers, setNUsers] = react.useState("")
+    const [nParcels, setNParcels] = react.useState("")
 
     useEffect(() => {
         if (image) {
@@ -58,6 +60,16 @@ export default function LoginRegister() {
             setPreview(null);
         }
     }, [image]);
+
+    useEffect(() => {
+        restCalls.numberOfUsersStatistics();
+        var numberUsers = JSON.parse(localStorage.getItem('numberOfUsers'))
+        setNUsers(numberUsers)
+
+        restCalls.numberOfParcelsStatistics();
+        var numberParcels = JSON.parse(localStorage.getItem('numberOfParcels'))
+        setNParcels(numberParcels)
+    })
 
     function usernameLoginHandler(e) {
         setUsernameLogin(e.target.value);
@@ -309,14 +321,14 @@ export default function LoginRegister() {
                     <Box sx={{ p: 4 }}>
                         <Card raised sx={{ p: 1 }}>
                             <Typography variant="h5" sx={{ fontSize: 12 }}>
-                                Número de utilizadores registados no sistema: 25
+                                Número de utilizadores registados no sistema: {nUsers}
                             </Typography>
                         </Card>
                     </Box>
                     <Box sx={{ p: 4 }}>
                         <Card raised sx={{ p: 1 }} >
                             <Typography variant="h5" sx={{ fontSize: 12 }}>
-                                Número de parcelas registadas no sistema: 83
+                                Número de parcelas registadas no sistema: {nParcels}
                             </Typography>
                         </Card>
                     </Box>

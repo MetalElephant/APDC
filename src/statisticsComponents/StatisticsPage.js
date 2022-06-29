@@ -1,6 +1,29 @@
-import { Grid, Card, Box, CardContent, Typography } from "@mui/material";
+import restCalls from "../restCalls"
+
+import { Grid, Card, Box, Typography } from "@mui/material";
+import react, { useEffect } from "react";
 
 export default function StatisticsPage() {
+
+    const [nUsers, setNUsers] = react.useState("")
+    const [nParcels, setNParcels] = react.useState("")
+    const [nForums, setNForums] = react.useState("")
+
+    useEffect(() => {
+        restCalls.numberOfUsersStatistics();
+        var numberUsers = JSON.parse(localStorage.getItem('numberOfUsers'))
+        setNUsers(numberUsers)
+
+        restCalls.numberOfParcelsStatistics();
+        var numberParcels = JSON.parse(localStorage.getItem('numberOfParcels'))
+        setNParcels(numberParcels)
+
+        restCalls.numberOfForumsStatistics();
+        var numberForums = JSON.parse(localStorage.getItem('numberOfForums'))
+        setNForums(numberForums)
+
+    })
+
     return (
         <Grid container spacing={2}>
             <Grid item xs={3}>
@@ -14,7 +37,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número de utilizadores registados no sistema:
+                            Número de utilizadores registados no sistema: {nUsers}
                         </Typography>
                     </Card>
                 </Box>
@@ -51,7 +74,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }} >
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número de parcelas registadas no sistema:
+                            Número de parcelas registadas no sistema: {nParcels}
                         </Typography>
                     </Card>
                 </Box>
@@ -74,7 +97,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }} >
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número de forums registados no sistema:
+                            Número de forums registados no sistema: {/*nForums*/}
                         </Typography>
                     </Card>
                 </Box>
