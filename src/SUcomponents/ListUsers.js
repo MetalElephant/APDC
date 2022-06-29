@@ -19,19 +19,21 @@ export default function ListUsers() {
     const [nif, setNif] = react.useState("")
     const [allUsers, setAllUsers] = react.useState([])
     const [user, setUser] = react.useState([])
-
-    var users = JSON.parse(localStorage.getItem('allUsers'))
+    const [repeat, setRepeat] = react.useState(false)
 
     useEffect(() => {
         restCalls.listUsers()
+        var users = JSON.parse(localStorage.getItem('allUsers'))
         var temp = []
         if (users != null) {
             users.map((user) => {
                 temp.push(user)
             })
+            setAllUsers(temp)
+        }else {
+            setRepeat(!repeat)
         }
-        setAllUsers(temp)
-    }, [])
+    }, [repeat])
 
 
     useEffect(() => {
@@ -52,7 +54,7 @@ export default function ListUsers() {
                 <Autocomplete
                     selectOnFocus
                     id="users"
-                    options={users}
+                    options={allUsers != null ? allUsers : []}
                     getOptionLabel={option => option.username}
                     onChange={(event, newChosenUser) => {
                         setChosenUser(newChosenUser.username);

@@ -161,16 +161,21 @@ export default function SearchParcel() {
             list = []
             restCalls.getParcelsByRegion(region, type);
             searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+
+            if (searchedParcels != null && searchedParcels.length > 0) {
+                console.log("rendering parcels...")
+                searchedParcels.map((parcel) => {
+                    list.push(parcel)
+                })
+                setPolygonMarkers([...list]);
+                setRenderPolygons(true)
+            }
+            else {
+                setPolygonMarkers([])
+            }
         }
 
-        if (searchedParcels != null && searchedParcels.length > 0) {
-            console.log("rendering parcels...")
-            searchedParcels.map((parcel) => {
-                list.push(parcel)
-            })
-            setPolygonMarkers([...list]);
-            setRenderPolygons(true)
-        }
+        
 
     }
 
