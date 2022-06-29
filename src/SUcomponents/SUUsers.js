@@ -10,6 +10,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AddUser from "./AddUser"
+import ListUsers from "./ListUsers"
 
 export default function SUUsers() {
     let history = useHistory();
@@ -85,7 +86,7 @@ export default function SUUsers() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <div> OLHEM</div> : <></>}
+                {(display === 0) ? <ListUsers /> : <></>}
                 {(display === 1) ? <AddUser /> : <></>}
                 {(display === 2) ? <div> FUCK IT</div> : <></>}
                 {(display === 3) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}

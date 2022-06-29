@@ -152,7 +152,6 @@ export default function SearchParcel() {
         if (markers.length === 4) {
             var list = []
             if (option === "limits") {
-                console.log("limitessss")
                 restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
                 searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
             }

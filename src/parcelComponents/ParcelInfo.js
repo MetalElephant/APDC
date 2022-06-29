@@ -80,7 +80,7 @@ export default function ParcelInfo() {
 
     useEffect(() => {
         restCalls.parcelInfo().then(() => { setLoaded(true) })
-    })
+    }, [])
 
     function generateSelects() {
         const views = []

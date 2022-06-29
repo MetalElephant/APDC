@@ -287,10 +287,6 @@ class restCalls {
     }
 
     getParcelsByPosition(latMax, latMin, longMax, longMin) {
-        console.log(latMax)
-        console.log(latMin)
-        console.log(longMax)
-        console.log(longMin)
         return fetch("https://our-hull.appspot.com/rest/parcel/searchByPosition", {
             method: 'POST',
             headers: {
@@ -340,6 +336,27 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem('parcelsSearch', text);
+            return text;
+        })
+    }
+
+    listUsers() {
+        return fetch("https://our-hull.appspot.com/rest/users/list", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('allUsers', text);
             return text;
         })
     }
@@ -532,6 +549,7 @@ class restCalls {
             localStorage.removeItem('forumsAll')
             localStorage.removeItem('forum')
             localStorage.removeItem('messages')
+            localStorage.removeItem('allUsers')
             return text;
         })
     }
