@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -499,36 +500,24 @@ public class UserResource {
 		}
 	}
 	
-	@POST
+	@GET
 	@Path("/list")
-	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-	public Response showUsers(RequestData data) {
-		LOG.info("Attempt to list users for user: " + data.username);
+	public Response showUsers() {
+		LOG.info("Attempt to list users for users");
 
-		if(!data.isUsernameValid()){
-			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-		}
-	
-		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);		
-		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-		
-		Entity user = datastore.get(userKey);
-		Entity token = datastore.get(tokenKey);
+		Query<Entity> queryUser = Query.newEntityQueryBuilder().setKind(USER).build();
 
-		if (user == null) {
-			LOG.warning("User does not exist");
-			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-		}
+		QueryResults<Entity> usersRes = datastore.run(queryUser);
 
-		if (!isLoggedIn(token, data.username)){
-			LOG.warning("User " + data.username + " not logged in.");
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-		}
-			
-		List<UserInfo> userList = getQueries();
+		List<UserInfo> usersList = new LinkedList<>();
 
-		return Response.ok(g.toJson(userList)).build();
+		usersRes.forEachRemaining(user -> {
+			usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
+									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(VISIBILITY), user.getString(PHOTO)));
+		});
+
+		return Response.ok(g.toJson(usersList)).build();
 	}
 
 	@POST
@@ -637,21 +626,5 @@ public class UserResource {
 		while(userCodes.hasNext()){
 			tn.delete(userCodes.next().getKey());
 		}
-	}
-
-	private List<UserInfo> getQueries() {
-		Query<Entity> queryUSER = Query.newEntityQueryBuilder().setKind(USER)
-					.build();
-
-		QueryResults<Entity> users = datastore.run(queryUSER);
-
-		List<UserInfo> allUsers = new LinkedList<>();
-
-		users.forEachRemaining(user -> {
-			allUsers.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
-									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(VISIBILITY), user.getString(PHOTO)));
-		});
-
-		return allUsers;
 	}
 }
