@@ -11,7 +11,6 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AddUser from "./AddUser"
 import ListUsers from "./ListUsers"
-import SURemoveUser from "./SURemoveUser";
 
 export default function SUUsers() {
     let history = useHistory();
@@ -36,7 +35,7 @@ export default function SUUsers() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> lista de Utilizadores </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Utilizadores </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -49,18 +48,6 @@ export default function SUUsers() {
                         onClick={() => { setDisplay(1) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Adicionar Utilizador </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<PersonRemoveIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Utilizador </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -89,8 +76,7 @@ export default function SUUsers() {
                 </Grid>
                 {(display === 0) ? <ListUsers /> : <></>}
                 {(display === 1) ? <AddUser /> : <></>}
-                {(display === 2) ? <SURemoveUser /> : <></>}
-                {(display === 3) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
+                {(display === 2) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
         </Grid>
     )
