@@ -630,7 +630,7 @@ public class ParcelResource {
 	private List<ParcelInfo> getQueries(String owner){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)),
-								   			 PropertyFilter.eq(CONFIRMED, true)))
+								   			 PropertyFilter.eq(CONFIRMED, false)))
 								  .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);

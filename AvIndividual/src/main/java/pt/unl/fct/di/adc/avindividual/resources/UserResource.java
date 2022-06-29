@@ -64,12 +64,12 @@ public class UserResource {
 	private static final String POINTS = "points";
 	private static final String CTIME = "creation time";
 
-	private static final String UNDEFINED = "UNDEFINED";
+	private static final String UNDEFINED = "Não Definido";
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "land--it.appspot.com";
-	private static final String URL =  "https://storage.googleapis.com/land--it.appspot.com/";
+	private static final String BUCKET_NAME = "our-hull.appspot.com"; //"land--it.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -361,12 +361,13 @@ public class UserResource {
 					.set(NAME, data.name)
 					.set(PASSWORD, userToUpdate.getString(PASSWORD))
 					.set(EMAIL, data.email)
-					.set(ROLE, data.role)
+					.set(ROLE, userToUpdate.getString(ROLE))
 					.set(MPHONE, data.mobilePhone)
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
+					.set(PHOTO, user.getString(PHOTO))
 					.set(POINTS, userToUpdate.getString(POINTS))
 					.set(CTIME, userToUpdate.getTimestamp(CTIME))
 					.build();

@@ -6,12 +6,12 @@ public class UserUpdateData {
 	
 	public String username, usernameToUpdate;
 	
-	public String email, name, visibility, homePhone, mobilePhone, address, nif, role;
+	public String email, name, visibility, homePhone, mobilePhone, address, nif;
 	
 	public UserUpdateData() {}
 	
 	public UserUpdateData(String username, String usernameToUpdate, String name,  String email, String visibility, String homePhone,
-			String mobilePhone, String nif, String role, String address) {
+			String mobilePhone, String nif, String address) {
 		this.username = username;
 		this.usernameToUpdate = usernameToUpdate;
 		this.name = name;
@@ -21,7 +21,6 @@ public class UserUpdateData {
 		this.homePhone = homePhone;
 		this.mobilePhone = mobilePhone;
 		this.nif = nif;
-		this.role = role;
 	}
 
 	public boolean validData(){	
