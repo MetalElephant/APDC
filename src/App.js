@@ -9,8 +9,8 @@ import NavbarMayors from "./mainFixedComponents/NavbarMayors";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import './style.css';
 import NavbarMerchants from "./mainFixedComponents/NavbarMerchants";
-import NavbarModerador from "./mainFixedComponents/NavbarModerador";
 import NavbarSU from "./mainFixedComponents/NavbarSU";
+import NavbarMOD from "./mainFixedComponents/NavbarMOD";
 
 
 
@@ -41,7 +41,7 @@ export default function App() {
                         <NavbarMayors />
                     </Route>
                     <Route exact path="/moderador">
-                        <NavbarModerador />
+                        <NavbarMOD />
                     </Route>
                     <Route exact path="/superuser">
                         <NavbarSU />
