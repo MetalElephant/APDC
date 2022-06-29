@@ -157,7 +157,7 @@ class restCalls {
         })
     }
 
-    deleteUser() {
+    deleteUser(usernameToRemove) {
         return fetch("https://our-hull.appspot.com/rest/users/remove", {
             method: 'DELETE',
             headers: {
@@ -165,7 +165,7 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                usernameToRemove: JSON.parse(localStorage.getItem('token')).username
+                usernameToRemove: usernameToRemove
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -502,9 +502,9 @@ class restCalls {
         })
     }
 
-    createStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/startup/statistics", {
-            method: 'POST',
+    numberOfUsersStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/users", {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -518,6 +518,49 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
+            localStorage.setItem('numberOfUsers', text)
+            return text;
+        })
+    }
+
+    numberOfParcelsStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/parcels", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('numberOfParcels', text)
+            return text;
+        })
+    }
+
+    numberOfForumsStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/forums", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('numberOfForums', text)
             return text;
         })
     }
@@ -550,6 +593,9 @@ class restCalls {
             localStorage.removeItem('forum')
             localStorage.removeItem('messages')
             localStorage.removeItem('allUsers')
+            localStorage.removeItem('numberOfUsers')
+            localStorage.removeItem('numberOfParcels')
+            localStorage.removeItem('numberOfForums')
             return text;
         })
     }

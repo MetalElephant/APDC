@@ -11,6 +11,7 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AddUser from "./AddUser"
 import ListUsers from "./ListUsers"
+import SURemoveUser from "./SURemoveUser";
 
 export default function SUUsers() {
     let history = useHistory();
@@ -88,7 +89,7 @@ export default function SUUsers() {
                 </Grid>
                 {(display === 0) ? <ListUsers /> : <></>}
                 {(display === 1) ? <AddUser /> : <></>}
-                {(display === 2) ? <div> FUCK IT</div> : <></>}
+                {(display === 2) ? <SURemoveUser /> : <></>}
                 {(display === 3) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
         </Grid>
