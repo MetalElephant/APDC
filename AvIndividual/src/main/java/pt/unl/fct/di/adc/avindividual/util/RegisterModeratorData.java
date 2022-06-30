@@ -10,7 +10,7 @@ public class RegisterModeratorData {
 	public String username, email, name;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code;
+	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code, freguesia;
 
 	public byte[] photo;
 
@@ -21,7 +21,7 @@ public class RegisterModeratorData {
 	public RegisterModeratorData() {}
 	
 	public RegisterModeratorData(String usernameReg, String username, String email, String name, String visibility,
-			String homePhone, String mobilePhone, String address, String nif, byte[] photo, boolean isRep) {
+			String homePhone, String mobilePhone, String address, String nif, byte[] photo, boolean isRep, String freguesia) {
 		this.usernameReg = usernameReg;
         
         //Mandatory information
@@ -29,6 +29,7 @@ public class RegisterModeratorData {
 		this.email = email;
 		this.name = name;
 		this.visibility = visibility;
+		this.isRep = isRep;
 
 		//Optional information
 		this.homePhone = homePhone;
@@ -36,8 +37,7 @@ public class RegisterModeratorData {
 		this.address = address;
 		this.nif = nif;	
 		this.photo = photo;
-
-		this.isRep = isRep;
+		this.freguesia = freguesia;
 	}
 
 	public RegisterModeratorData(String usernameReg, String username, String email, String name) {

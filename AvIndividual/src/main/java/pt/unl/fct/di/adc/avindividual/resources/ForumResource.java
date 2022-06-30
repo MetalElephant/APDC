@@ -195,7 +195,8 @@ public class ForumResource {
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(FORUM).newKey(data.name);
-        Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+        Key statKeyF = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+        Key statKeyM = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
 
         Transaction tn = datastore.newTransaction();
 
@@ -222,9 +223,11 @@ public class ForumResource {
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
             }
 
-            deleteForumMessages(data.name, tn);
+            int n = deleteForumMessages(data.name, tn);
 
-            sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+            sr.updateStats(statKeyM, tn.get(statKeyM), tn, !ADD, n);
+
+            sr.updateStats(statKeyF, tn.get(statKeyF), tn, !ADD);
 
             tn.delete(forumKey);
             tn.commit();
@@ -248,6 +251,7 @@ public class ForumResource {
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.forumOwner)).setKind(FORUM).newKey(data.forumName);
+        Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
 
         Transaction tn = datastore.newTransaction();
 
@@ -255,6 +259,7 @@ public class ForumResource {
             Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
             Entity forum = tn.get(forumKey);
+            Entity stat = tn.get(statKey);
 
             if (user == null) {
                 LOG.warning("User does not exist");
@@ -282,6 +287,8 @@ public class ForumResource {
 
             if (!messages.hasNext())
                 return Response.status(Status.NOT_FOUND).entity("Message does not exist.").build();
+
+            sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
 
             tn.delete(messages.next().getKey());
             tn.commit();
@@ -400,7 +407,7 @@ public class ForumResource {
 		return Response.ok(g.toJson(parcelList)).build();
     }
 
-    private void deleteForumMessages(String forumName, Transaction tn){
+    private int deleteForumMessages(String forumName, Transaction tn){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
 								  .setFilter(PropertyFilter.hasAncestor(
                 				  datastore.newKeyFactory().setKind(FORUM).newKey(forumName)))
@@ -408,9 +415,14 @@ public class ForumResource {
         
         QueryResults<Entity> messages = datastore.run(msgQuery);
 
+        int counter = 0;
+
         while(messages.hasNext()){
+            counter ++;
             tn.delete(messages.next().getKey());
         }
+
+        return counter;
     }
 
     private List<ForumInfo> forumSearchQuery(String query){

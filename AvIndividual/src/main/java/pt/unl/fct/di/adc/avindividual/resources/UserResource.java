@@ -61,7 +61,7 @@ public class UserResource {
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
 	private static final String PHOTO = "photo";
-	private static final String POINTS = "points";
+	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
 
 	private static final String UNDEFINED = "Undefined";
@@ -87,6 +87,8 @@ public class UserResource {
 	private static final String CODE = "Code";
 	private static final String PARCEL = "Parcel";
 	private static final String FORUM = "Forum";
+    private static final String MESSAGE = "Message";
+	private static final String OWNER = "Owner";
 
 	private static final boolean ADD = true;
 	
@@ -151,7 +153,7 @@ public class UserResource {
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
 					.set(PHOTO, uploadPhoto(data.username, data.photo))
-					.set(POINTS, String.valueOf(points))
+					.set(SPEC, String.valueOf(points))
 					.set(CTIME, Timestamp.now())
                     .build();
 
@@ -371,7 +373,7 @@ public class UserResource {
 					.set(NIF, data.nif)
 					.set(VISIBILITY, data.visibility)
 					.set(PHOTO, user.getString(PHOTO))
-					.set(POINTS, userToUpdate.getString(POINTS))
+					.set(SPEC, userToUpdate.getString(SPEC))
 					.set(CTIME, userToUpdate.getTimestamp(CTIME))
 					.build();
 			
@@ -420,18 +422,18 @@ public class UserResource {
 				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Original password is incorrect.").build();
 			}
+
+			if (!isLoggedIn(token, data.username)){
+				LOG.warning("User " + data.username + " not logged in.");
+				tn.rollback();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
 	
 			String newPwd = DigestUtils.sha512Hex(data.newPwd);
 			if(user.getString(PASSWORD).equals(newPwd)) {
 					LOG.warning("Old password can't be the same as new password.");
 					tn.rollback();
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
-			}
-
-			if (!isLoggedIn(token, data.username)){
-				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
-				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			user = Entity.newBuilder(userKey)
@@ -444,6 +446,8 @@ public class UserResource {
 					.set(ADDRESS, user.getString(ADDRESS))
 					.set(NIF, user.getString(NIF))
 					.set(VISIBILITY, user.getString(VISIBILITY))
+					.set(PHOTO, user.getString(PHOTO))
+					.set(SPEC, user.getString(SPEC))
 					.set(CTIME, user.getTimestamp(CTIME))
 					.build();
 			
@@ -613,37 +617,36 @@ public class UserResource {
 		//TODO add the bonus to the owner of the code	
 
 		return bonus;
-
 	}
 
 	private void deleteUserEntities(String username, Transaction tn){
-		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
-									.build();
+		deleteEntities(username, PARCEL, tn);
+		deleteEntities(username, FORUM, tn);
+		deleteEntities(username, CODE, tn);
+		deleteUserMessages(username, tn);
+	}
 
-		Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
+	private void deleteEntities(String username, String entity, Transaction tn){
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(entity)
 									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
 									.build();
 	
+		QueryResults<Entity> res = datastore.run(query);
 
-		Query<Entity> codeQuery = Query.newEntityQueryBuilder().setKind(CODE)
-									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
-									.build();
-	
-		QueryResults<Entity> parcels = datastore.run(parcelQuery);
-		QueryResults<Entity> forums = datastore.run(forumQuery);
-		QueryResults<Entity> codes = datastore.run(codeQuery);
-	
-		parcels.forEachRemaining(parcel -> {
-			tn.delete(parcel.getKey());
+		res.forEachRemaining(e -> {
+			tn.delete(e.getKey());
 		});
+	}
 
-		forums.forEachRemaining(forum -> {
-			tn.delete(forum.getKey());
-		});
+	private void deleteUserMessages(String username, Transaction tn) {
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(MESSAGE)
+									.setFilter(PropertyFilter.eq(OWNER, username))
+									.build();
+	
+		QueryResults<Entity> res = datastore.run(query);
 
-		codes.forEachRemaining(code -> {
-			tn.delete(code.getKey());
+		res.forEachRemaining(e -> {
+			tn.delete(e.getKey());
 		});
 	}
 }

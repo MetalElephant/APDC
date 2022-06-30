@@ -30,6 +30,7 @@ public class StatisticsResource {
 	private static final String USER = "User";
 	private static final String PARCEL = "Parcel";
 	private static final String FORUM = "Forum";
+	private static final String MESSAGE = "Message";
 	private static final String STAT = "Statistics";
 
 	//Statistics information
@@ -40,7 +41,21 @@ public class StatisticsResource {
 	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd){
 		long val = 1L;
 		if (!isAdd)
-			val = -1L;
+			val = -val;
+		
+		if (stat != null){
+			stat = Entity.newBuilder(statKey)
+					.set(VALUE, val + stat.getLong(VALUE))
+					.build();
+				
+			tn.put(stat);
+		}
+	}
+
+	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd, int counter){
+		long val = counter;
+		if (!isAdd)
+			val = -val;
 		
 		if (stat != null){
 			stat = Entity.newBuilder(statKey)
@@ -144,4 +159,19 @@ public class StatisticsResource {
 
 		return Response.ok(counter).build();
 	}
+
+	@GET
+	@Path("/messages")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response messagestatistics() {
+		LOG.info("Attempt to read users related statistics.");
+
+		Key msgKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
+
+		Entity msg = datastore.get(msgKey);
+
+		String val = String.valueOf(msg.getLong(VALUE));
+
+		return Response.ok(val).build();
+	}	
 }
