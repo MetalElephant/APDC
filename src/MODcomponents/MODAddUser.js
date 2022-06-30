@@ -2,7 +2,7 @@ import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, Card, Select, InputLabel, MenuItem } from "@mui/material";
 
-export default function AddUser() {
+export default function MODAddUser() {
 
     const [username, setUsername] = react.useState("");
     const [email, setEmail] = react.useState("");

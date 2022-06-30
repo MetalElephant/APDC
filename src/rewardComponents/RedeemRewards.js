@@ -3,7 +3,7 @@ import { Button, Grid, Typography, Box, Card, CardMedia, CardContent, CardAction
 export default function RedeemRewards() {
 
     return (
-        <Grid container direction="column" justifyContent="flex-start" alignItems="center">
+        <Grid item xs={8} container direction="column" justifyContent="flex-start" alignItems="center">
             <Box sx={{ p: 2 }}>
                 <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
                     <CardContent>
