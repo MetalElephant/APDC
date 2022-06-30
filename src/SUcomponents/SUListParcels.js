@@ -51,7 +51,7 @@ export default function ListParcels() {
         setArea(parcel.area)
     }, [parcel])
 
-    
+
     function parcelRemoval() {
         if (chosenParcel != null) {
             restCalls.deleteParcel(owner, chosenParcel).then(() => { setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
@@ -64,7 +64,7 @@ export default function ListParcels() {
 
     return (
         <>
-            <Grid item xs={1.5} >
+            <Grid item xs={2} >
                 <Autocomplete
                     selectOnFocus
                     id="parcels"
@@ -74,12 +74,12 @@ export default function ListParcels() {
                         setChosenParcel(newChosenParcel.parcelName);
                         setParcel(newChosenParcel)
                     }}
-                    sx={{ width: 200, mt: 1 }}
+                    sx={{ width: "80%", mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Parcelas" />}
                 />
 
-                <Button onClick={parcelRemoval} variant="contained" size="large" color="error" sx={{ mt: 2 }}>Remover Parcela</Button>
-
+                <Button onClick={parcelRemoval} variant="contained" size="large" color="error" sx={{ width: "80%", mt: 2 }}>Remover Parcela</Button>
+                
                 {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removido com sucesso.</Typography>
@@ -89,7 +89,7 @@ export default function ListParcels() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na remoção da parcela. Por favor, verifique o nome do mesmo.</Typography>
                     </Alert> : <></>}
             </Grid>
-            <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
+            <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Dono da Parcela: {owner} </Typography>

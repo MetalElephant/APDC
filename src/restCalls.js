@@ -64,6 +64,34 @@ class restCalls {
         })
     }
 
+    registerUserSU(username, email, name, visibility, role) {
+        return fetch("https://our-hull.appspot.com/rest/admin/registerrep", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: JSON.stringify({
+                usernameReg: JSON.parse(localStorage.getItem('token')).username,
+                username: username,
+                email: email,
+                name: name,
+                visibility: visibility,
+                role: role
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
     parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, allLats, allLngs, photo, type) {
         var splitOwners = owners.split(",");
         return fetch("https://our-hull.appspot.com/rest/parcel/register", {

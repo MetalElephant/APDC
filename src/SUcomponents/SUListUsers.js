@@ -61,7 +61,7 @@ export default function ListUsers() {
 
     return (
         <>
-            <Grid item xs={1.5} >
+            <Grid item xs={2} >
                 <Autocomplete
                     selectOnFocus
                     id="users"
@@ -71,11 +71,11 @@ export default function ListUsers() {
                         setChosenUser(newChosenUser.username);
                         setUser(newChosenUser)
                     }}
-                    sx={{ width: 200, mt: 1 }}
+                    sx={{ width: "80%", mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Utilizadores" />}
                 />
 
-                <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ mt: 2 }}>Remover Utilizador</Button>
+                <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ mt: 2, width: "80%" }}>Remover Utilizador</Button>
 
                 {(isUserRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
@@ -86,7 +86,7 @@ export default function ListUsers() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na remoção do utilizador. Por favor, verifique o nome do mesmo.</Typography>
                     </Alert> : <></>}
             </Grid>
-            <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
+            <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome de utilizador: {username} </Typography>
