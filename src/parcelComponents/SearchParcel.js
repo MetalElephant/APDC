@@ -6,18 +6,17 @@ import locais from "../locais/distritos.txt"
 
 export default function SearchParcel() {
 
-    const [chosenParcel, setChosenParcel] = react.useState("");
     const [latMax, setLatMax] = react.useState(0);
     const [latMin, setLatMin] = react.useState(0);
     const [lngMax, setLngMax] = react.useState(0);
     const [lngMin, setLngMin] = react.useState(0);
     const [markers, setMarkers] = react.useState([]);
     const [polygonMarkers, setPolygonMarkers] = react.useState([]);
+    const [polygonList, setPolygonList] = react.useState([]);
     const [firstAux, setFirstAux] = react.useState([]);
     const [secondAux, setSecondAux] = react.useState([]);
     const [thirdAux, setThirdAux] = react.useState([]);
     const [fourthAux, setFourthAux] = react.useState([]);
-    const [loaded, setLoaded] = react.useState(false);
     const [option, setOption] = react.useState("region");
     const [first, setFirst] = react.useState(false);
     const [second, setSecond] = react.useState(false);
@@ -35,7 +34,6 @@ export default function SearchParcel() {
 
 
     var temp;
-    var searchedParcels;
 
     const maxLatPt = 42.1543;
     const minLatPt = 36.9597;
@@ -121,6 +119,7 @@ export default function SearchParcel() {
         }
     }, [markers])
 
+
     function adjustLines() {
         let firstTemp = []
         temp = { lat: latMax, lng: lngMax }
@@ -148,40 +147,38 @@ export default function SearchParcel() {
     }
 
     function getData() {
+        var searchedParcels = []
+        var list;
         setRenderPolygons(false)
         if (markers.length === 4) {
-            var list = []
+            list = []
             if (option === "limits") {
                 restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
                 searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
             }
-
         }
         else if (type !== -1) {
             list = []
             restCalls.getParcelsByRegion(region, type);
             searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
-
-            if (searchedParcels != null && searchedParcels.length > 0) {
-                console.log("rendering parcels...")
-                searchedParcels.map((parcel) => {
-                    list.push(parcel)
-                })
-                setPolygonMarkers([...list]);
-                setRenderPolygons(true)
-            }
-            else {
-                setPolygonMarkers([])
-            }
         }
 
-        
-
+        if (searchedParcels != null && searchedParcels.length > 0) {
+            searchedParcels.map((parcel) => {
+                list.push(parcel)
+            })
+            setPolygonMarkers([...searchedParcels])
+            setRenderPolygons(true)
+        }
+        else {
+            setPolygonMarkers([])
+        }
     }
 
-    function getPolygons() {
+
+    useEffect(() => {
         var list = [];
-        var polygonList = [];
+        var polygonListMem = [];
         var id = 0;
         if (polygonMarkers.length > 0) {
             polygonMarkers.map((parcel) => {
@@ -199,15 +196,45 @@ export default function SearchParcel() {
                     options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                     key={id++}
                 />
-                polygonList.push(polygonMem);
+                polygonListMem.push(polygonMem);
             })
+            setPolygonList(polygonListMem)
         }
+        else {
+            setPolygonList([])
+        }
+    }, [polygonMarkers])
 
+    /*
+    function getPolygons() {
+        var list = [];
+        var polygonListMem = [];
+        var id = 0;
+        if (polygonMarkers.length > 0) {
+            polygonMarkers.map((parcel) => {
+                list = []
+                parcel.markers.map((marker) => {
+                    var mem = {
+                        lat: marker.latitude,
+                        lng: marker.longitude
+                    }
+                    list.push(mem)
+                })
+
+                var polygonMem = <Polygon
+                    path={list}
+                    options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
+                    key={id++}
+                />
+                polygonListMem.push(polygonMem);
+            })
+            setPolygonList(polygonListMem)
+        }
         return polygonList
-    }
+    }*/
 
     function optionHandler(e) {
-        if(e.target.value === "limits") {
+        if (e.target.value === "limits") {
             setType(-1)
             setChosenDist(null)
             setChosenConc(null)
@@ -220,6 +247,7 @@ export default function SearchParcel() {
         setThirdAux([]);
         setFourthAux([]);
         setPolygonMarkers([]);
+        setPolygonList([]);
     }
 
     return (
@@ -269,7 +297,8 @@ export default function SearchParcel() {
                             />
                         }
 
-                        {(renderPolygons || option == "region") && getPolygons()}
+                        {/*(renderPolygons || option == "region") && getPolygons()*/}
+                        {(renderPolygons || option == "region") && polygonList}
 
                     </GoogleMap>
                 </LoadScript>
@@ -315,7 +344,7 @@ export default function SearchParcel() {
                                     setType(2)
                                 }}
                                 sx={{ width: 400, mt: 1 }}
-                                renderInput={(params) => <TextField {...params} label="Distrito *" />}
+                                renderInput={(params) => <TextField {...params} label="Distrito" />}
                             />
                             <Autocomplete
                                 selectOnFocus
@@ -331,7 +360,7 @@ export default function SearchParcel() {
                                     setType(1)
                                 }}
                                 sx={{ width: 400, mt: 2 }}
-                                renderInput={(params) => <TextField {...params} label="Concelho *" />}
+                                renderInput={(params) => <TextField {...params} label="Concelho" />}
                             />
                             <Autocomplete
                                 selectOnFocus
@@ -347,7 +376,7 @@ export default function SearchParcel() {
                                     setType(3)
                                 }}
                                 sx={{ width: 400, mt: 2 }}
-                                renderInput={(params) => <TextField {...params} label="Freguesia *" />}
+                                renderInput={(params) => <TextField {...params} label="Freguesia" />}
                             />
                         </Box>
                     }

@@ -132,7 +132,7 @@ class restCalls {
         })
     }
 
-    deleteParcel(parcelName) {
+    deleteParcel(owner, parcelName) {
         return fetch("https://our-hull.appspot.com/rest/parcel/remove", {
             method: 'DELETE',
             headers: {
@@ -140,7 +140,7 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                owner: JSON.parse(localStorage.getItem('token')).username,
+                owner: owner,
                 parcelName: parcelName
             })
         }).then(function (response) {
@@ -263,7 +263,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch("https://our-hull.appspot.com/rest/parcel/list", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/listRep", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
