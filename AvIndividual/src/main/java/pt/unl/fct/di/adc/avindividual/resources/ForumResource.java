@@ -20,7 +20,6 @@ import pt.unl.fct.di.adc.avindividual.util.ForumMessageData;
 import pt.unl.fct.di.adc.avindividual.util.ForumRegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveMessageData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
-import pt.unl.fct.di.adc.avindividual.util.SortByOrder;
 import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
@@ -476,7 +475,7 @@ public class ForumResource {
 			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
 		});
 
-        Collections.sort(forumMsg, new SortByOrder());
+        //Collections.sort(forumMsg, new SortByOrder());
 
 		return forumMsg;
     }

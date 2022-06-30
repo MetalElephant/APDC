@@ -24,7 +24,7 @@ import pt.unl.fct.di.adc.avindividual.util.UserUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.Info.UserInfo;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
-import pt.unl.fct.di.adc.avindividual.util.RemoveData;
+import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 
 import com.google.cloud.storage.BlobId;
@@ -37,10 +37,6 @@ import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.storage.StorageOptions;
 
-/**
- * @author jpgd2
- *
- */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource {
@@ -250,20 +246,20 @@ public class UserResource {
 	@DELETE
 	@Path("/remove")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response removeUser(RemoveData data) {
-		LOG.info("Attempt to remove user: " + data.usernameToRemove);
+	public Response removeUser(RemoveObjectData data) {
+		LOG.info("Attempt to remove user: " + data.username);
 		//TODO Remove user code and rewards
 		//Check if data was input correctly
-		if (!data.validData())
+		if (!data.isDataValid())
 			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
 
 		Transaction tn = datastore.newTransaction();
 
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-		Key userToRemoveKey = datastore.newKeyFactory().setKind(USER).newKey(data.usernameToRemove);
+		Key userToRemoveKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
-		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.usernameToRemove);
+		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 
 		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
 
@@ -279,9 +275,9 @@ public class UserResource {
 			}
 
 			if (userToRemove == null){
-				LOG.warning("User to be removed" + data.usernameToRemove + " does not exist.");
+				LOG.warning("User to be removed" + data.username + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.usernameToRemove + " does not exist.").build();
+				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.username + " does not exist.").build();
 			}
 
 			if (!isLoggedIn(token, data.username)){
@@ -301,7 +297,7 @@ public class UserResource {
 			if(tn.get(tokenToRemoveKey) != null)
 				tn.delete(tokenToRemoveKey);
 			
-			removeUserCodes(data.usernameToRemove, tn);
+			removeUserCodes(data.username, tn);
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
@@ -309,7 +305,7 @@ public class UserResource {
 			tn.delete(userToRemoveKey);
 			tn.commit();
 
-			return Response.ok("User " + data.username + " deleted User " + data.usernameToRemove).build();
+			return Response.ok("User " + data.username + " deleted User " + data.username).build();
 
 		} finally {
 			if (tn.isActive())
