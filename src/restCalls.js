@@ -132,7 +132,7 @@ class restCalls {
         })
     }
 
-    deleteParcel(parcelName) {
+    deleteParcel(objectName, owner) {
         return fetch("https://our-hull.appspot.com/rest/parcel/remove", {
             method: 'DELETE',
             headers: {
@@ -140,8 +140,8 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                owner: JSON.parse(localStorage.getItem('token')).username,
-                parcelName: parcelName
+                objectName: objectName,
+                owner: owner
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -165,32 +165,7 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                usernameToRemove: usernameToRemove
-            })
-        }).then(function (response) {
-            if (!response.ok) {
-                return response.text().then((text) => {
-                    const error = new Error(text)
-                    error.code = response.status;
-                    throw error
-                })
-            }
-            return response.text()
-        }).then(function (text) {
-            return text;
-        })
-    }
-
-    deleteParcel(objectName) {
-        return fetch("https://our-hull.appspot.com/rest/parcel/remove", {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: JSON.parse(localStorage.getItem('token')).username,
-               // owner: ,
-                objectName: objectName
+                name: usernameToRemove
             })
         }).then(function (response) {
             if (!response.ok) {
