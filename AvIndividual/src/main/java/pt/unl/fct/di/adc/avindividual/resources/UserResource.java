@@ -85,7 +85,8 @@ public class UserResource {
     private static final String TOKEN = "Token";
 	private static final String STAT = "Statistics";
 	private static final String CODE = "Code";
-
+	private static final String PARCEL = "Parcel";
+	private static final String FORUM = "Forum";
 
 	private static final boolean ADD = true;
 	
@@ -297,11 +298,7 @@ public class UserResource {
 			if(tn.get(tokenToRemoveKey) != null)
 				tn.delete(tokenToRemoveKey);
 			
-			removeUserCodes(data.name, tn);
-
-			//removeUserForums();
-
-			//pr.removeUserParcels(data.name, tn);
+			deleteUserEntities(data.name, tn);
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
@@ -619,16 +616,34 @@ public class UserResource {
 
 	}
 
-	public void removeUserCodes(String user, Transaction tn){
-		Query<Entity> codesQuery = Query.newEntityQueryBuilder().setKind(CODE)
-								.setFilter(PropertyFilter.hasAncestor(
-                				datastore.newKeyFactory().setKind(USER).newKey(user)))
-								.build();
-		
-		QueryResults<Entity> userCodes = datastore.run(codesQuery);
+	private void deleteUserEntities(String username, Transaction tn){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
+									.build();
 
-		while(userCodes.hasNext()){
-			tn.delete(userCodes.next().getKey());
-		}
+		Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
+									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
+									.build();
+	
+
+		Query<Entity> codeQuery = Query.newEntityQueryBuilder().setKind(CODE)
+									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
+									.build();
+	
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+		QueryResults<Entity> forums = datastore.run(forumQuery);
+		QueryResults<Entity> codes = datastore.run(codeQuery);
+	
+		parcels.forEachRemaining(parcel -> {
+			tn.delete(parcel.getKey());
+		});
+
+		forums.forEachRemaining(forum -> {
+			tn.delete(forum.getKey());
+		});
+
+		codes.forEachRemaining(code -> {
+			tn.delete(code.getKey());
+		});
 	}
 }

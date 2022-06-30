@@ -29,6 +29,7 @@ public class StatisticsResource {
 	//Keys
 	private static final String USER = "User";
 	private static final String PARCEL = "Parcel";
+	private static final String FORUM = "Forum";
 	private static final String STAT = "Statistics";
 
 	//Statistics information
@@ -86,7 +87,7 @@ public class StatisticsResource {
 	public Response forumStatistics() {
 		LOG.info("Attempt to read forum related statistics.");
 
-		Key forumKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key forumKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
 
 		Entity forums = datastore.get(forumKey);
 
