@@ -7,6 +7,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MODListUsers from "./MODListUsers";
+import MODAddUser from "./MODAddUser";
 
 export default function MODUsers() {
     let history = useHistory();
@@ -71,7 +72,7 @@ export default function MODUsers() {
                     </Button>
                 </Grid>
                 {(display === 0) ? <MODListUsers /> : <></>}
-                {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
+                {(display === 1) ? <MODAddUser /> : <></>}
                 {(display === 2) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
         </Grid>
