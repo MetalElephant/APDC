@@ -9,6 +9,7 @@ export default function ListParcels() {
 
     const [chosenParcel, setChosenParcel] = react.useState()
     const [parcelName, setParcelName] = react.useState("")
+    const [owner, setOwner] = react.useState("")
     const [dist, setDist] = react.useState("")
     const [conc, setConc] = react.useState("")
     const [freg, setFreg] = react.useState("")
@@ -25,12 +26,12 @@ export default function ListParcels() {
     const [displayMessage, setDisplayMessage] = react.useState(false)
 
     useEffect(() => {
-        restCalls.listUsers()
+        restCalls.listParcels()
         var parcels = JSON.parse(localStorage.getItem('allParcels'))
         var temp = []
         if (parcels != null) {
-            parcels.map((user) => {
-                temp.push(user)
+            parcels.map((parcel) => {
+                temp.push(parcel)
             })
             setAllParcels(temp)
         } else {
@@ -38,24 +39,26 @@ export default function ListParcels() {
         }
     }, [repeat])
 
-/*
-    useEffect(() => {
-        setUsername(user.username)
-        setRole(user.role)
-        setName(user.name)
-        setEmail(user.email)
-        setVisibility(user.visibility)
-        setHomePhone(user.landphone)
-        setMobilePhone(user.mobilephone)
-        setAddress(user.address)
-        setNif(user.nif)
-    }, [user])*/
 
-    function userToBeRemovedManager() {
-        if(chosenParcel != null) {
-            restCalls.deleteParcel(chosenParcel).then(() => { setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
-        }else {
-            setIsParcelRemoved(false); 
+    useEffect(() => {
+        setParcelName(parcel.parcelName)
+        setOwner(parcel.owner)
+        setDist(parcel.district)
+        setConc(parcel.county)
+        setFreg(parcel.freguesia)
+        setDescription(parcel.description)
+        setGroundType(parcel.groundType)
+        setCurrUsage(parcel.currUsage)
+        setPrevUsage(parcel.prevUsage)
+        setArea(parcel.area)
+    }, [parcel])
+
+    
+    function parcelRemoval() {
+        if (chosenParcel != null) {
+            restCalls.deleteParcel(owner, chosenParcel).then(() => { setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
+        } else {
+            setIsParcelRemoved(false);
             setIsParcelNotRemoved(true);
             setDisplayMessage(true)
         }
@@ -77,18 +80,27 @@ export default function ListParcels() {
                     renderInput={(params) => <TextField {...params} label="Parcelas" />}
                 />
 
+<<<<<<< HEAD
                 <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ width: "80%", mt: 2 }}>Remover Utilizador</Button>
+=======
+                <Button onClick={parcelRemoval} variant="contained" size="large" color="error" sx={{ mt: 2 }}>Remover Parcela</Button>
+>>>>>>> 994a9b6fba372a569bac5c749871c3875061ca1b
 
                 {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador removido com sucesso.</Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removido com sucesso.</Typography>
                     </Alert> : <></>}
                 {(isParcelNotRemoved && displayMessage) ?
                     <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na remoção do utilizador. Por favor, verifique o nome do mesmo.</Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na remoção da parcela. Por favor, verifique o nome do mesmo.</Typography>
                     </Alert> : <></>}
             </Grid>
             <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
+                <Box p={2.5} textAlign="center" >
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Dono da Parcela: {owner} </Typography>
+                    </Paper>
+                </Box>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da Parcela: {parcelName} </Typography>

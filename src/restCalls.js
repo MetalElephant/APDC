@@ -291,7 +291,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch("https://our-hull.appspot.com/rest/parcel/list", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/listRep", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
