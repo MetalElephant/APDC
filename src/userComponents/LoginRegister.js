@@ -514,7 +514,7 @@ export default function LoginRegister() {
                                 <FormControl variant="standard">
                                     <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                     <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
-                                        <MenuItem value="Proprietário" label="Proprietário">
+                                        <MenuItem value="Proprietario" label="Proprietario">
                                             Proprietário
                                         </MenuItem >
                                         <MenuItem value="Comerciante" label="Comerciante">
