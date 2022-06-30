@@ -53,7 +53,7 @@ public class AdministrativeResource {
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
-	private static final String POINTS = "points";
+	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
 
 	private static final String PUBLIC = "Public";
@@ -68,6 +68,7 @@ public class AdministrativeResource {
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
 	private static final String CODE = "Code";
+	private static final String MOD = "Mod";
     
     public AdministrativeResource() {}
 
@@ -133,7 +134,7 @@ public class AdministrativeResource {
 						.set(ADDRESS, data.address)
 						.set(NIF, data.nif)
 						.set(VISIBILITY, data.visibility)
-						.set(POINTS, -1)
+						.set(SPEC, data.isRep ? data.freguesia : MOD)
 						.set(CTIME, Timestamp.now())
 						.build();
 
