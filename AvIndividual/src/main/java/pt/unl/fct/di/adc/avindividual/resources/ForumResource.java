@@ -1,6 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,11 +18,14 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ForumMessageData;
 import pt.unl.fct.di.adc.avindividual.util.ForumRegisterData;
+import pt.unl.fct.di.adc.avindividual.util.RemoveMessageData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.SortByOrder;
 import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
 import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 
@@ -46,6 +50,7 @@ public class ForumResource {
 	private static final String FORUM = "Forum";
     private static final String MESSAGE = "Message";
     private static final String OWNER = "Owner";
+    private static final String ORDER = "Order";
     private static final String STAT = "Statistics";
 
     private static final boolean ADD = true;
@@ -162,6 +167,7 @@ public class ForumResource {
             Entity message = Entity.newBuilder(messageKey)
             .set(MESSAGE, data.message)
             .set(OWNER, data.username)
+            .set(ORDER, System.currentTimeMillis())
             .set(CRT_DATE, cal.getTime().toString())
             .build();
 
@@ -178,7 +184,7 @@ public class ForumResource {
     }
 
     @DELETE
-    @Path("/remove")
+    @Path("/removeForum")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response removeForum(RequestData data){
         LOG.info("Attempt to delete forum: " + data.name);
@@ -221,6 +227,60 @@ public class ForumResource {
             sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
             tn.delete(forumKey);
+            tn.commit();
+
+            return Response.ok("Forum successfully deleted.").build();
+        }finally{
+            if(tn.isActive())
+                tn.rollback();
+        }
+    }
+
+    @DELETE
+    @Path("/removeMessage")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response removeMessage(RemoveMessageData data){
+        LOG.info("Attempt to delete message from forum: " + data.forumName);
+
+        if (!data.isDataValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+        Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.forumOwner)).setKind(FORUM).newKey(data.forumName);
+
+        Transaction tn = datastore.newTransaction();
+
+        try{
+            Entity user = tn.get(userKey);
+            Entity token = tn.get(tokenKey);
+            Entity forum = tn.get(forumKey);
+
+            if (user == null) {
+                LOG.warning("User does not exist");
+                tn.rollback();
+                return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+            }
+    
+            if (!ur.isLoggedIn(token, data.username)){
+                LOG.warning("User " + data.username + " not logged in.");
+                tn.rollback();
+                return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+            }
+
+            if (forum == null){
+                LOG.warning("Forum " + data.forumName + " doesn't exists.");
+                tn.rollback();
+                return Response.status(Status.NOT_FOUND).entity("Forum " + data.forumName + " doesn't exists.").build();
+            }
+
+            Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
+								  .setFilter(CompositeFilter.and(PropertyFilter.eq(MESSAGE, data.msg),PropertyFilter.eq(OWNER, data.msgOwner)))
+								  .build();
+        
+            QueryResults<Entity> messages = datastore.run(msgQuery);
+
+            tn.delete(messages.next().getKey());
             tn.commit();
 
             return Response.ok("Forum successfully deleted.").build();
@@ -415,6 +475,8 @@ public class ForumResource {
 		messages.forEachRemaining(msg -> {
 			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
 		});
+
+        Collections.sort(forumMsg, new SortByOrder());
 
 		return forumMsg;
     }

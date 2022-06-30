@@ -13,13 +13,15 @@ public class RegisterModeratorData {
 	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code;
 
 	public byte[] photo;
+
+	public boolean isRep;
 	
 	private static final String UNDEFINED = "UNDEFINED";
 	
 	public RegisterModeratorData() {}
 	
 	public RegisterModeratorData(String usernameReg, String username, String email, String name, String visibility,
-			String homePhone, String mobilePhone, String address, String nif, byte[] photo) {
+			String homePhone, String mobilePhone, String address, String nif, byte[] photo, boolean isRep) {
 		this.usernameReg = usernameReg;
         
         //Mandatory information
@@ -34,6 +36,8 @@ public class RegisterModeratorData {
 		this.address = address;
 		this.nif = nif;	
 		this.photo = photo;
+
+		this.isRep = isRep;
 	}
 
 	public RegisterModeratorData(String usernameReg, String username, String email, String name) {
@@ -56,18 +60,21 @@ public class RegisterModeratorData {
 			this.address = UNDEFINED;
 		
 		if(this.nif == null || this.nif.length() == 0)
-			this.nif = UNDEFINED;	
+			this.nif = UNDEFINED;
+		
+		if (this.photo == null)
+			this.photo = new byte[0];
 	}
 	
 	
 	public boolean validData() {
 		//Check missing info
-		if(this.username == null || this.email == null|| this.name == null 
-				|| this.visibility == null)
+		if(this.username == null || this.email == null|| this.name == null || 
+		   this.visibility == null)
 			return false;
 		
 		//Check empty data
-		if(this.username.length() == 0 || this.email.length() == 0||
+		if(this.username.length() == 0 || this.email.length() == 0 ||
 				this.name.length() == 0 || this.visibility.length() == 0)
 			return false;
 		
