@@ -69,7 +69,10 @@ export default function LoginRegister() {
         restCalls.numberOfParcelsStatistics();
         var numberParcels = JSON.parse(localStorage.getItem('numberOfParcels'))
         setNParcels(numberParcels)
-    })
+
+        restCalls.numberOfForumsStatistics();
+        restCalls.numberOfMessagesStatistics();
+    }, [])
 
     function usernameLoginHandler(e) {
         setUsernameLogin(e.target.value);
@@ -126,13 +129,13 @@ export default function LoginRegister() {
     function switchForRole() {
         var roleType = JSON.parse(localStorage.getItem('user')).role
         switch (roleType) {
-            case "Proprietário":
+            case "Proprietario":
                 history.push("/main")
                 break;
             case "Comerciante":
                 history.push("/merchants")
                 break;
-            case "Autarca":
+            case "Representante":
                 history.push("/mayors")
                 break;
             case "Moderador":
