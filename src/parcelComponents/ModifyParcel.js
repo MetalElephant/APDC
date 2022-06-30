@@ -19,6 +19,7 @@ export default function ModifyParcel() {
     const [allLats, setAllLats] = react.useState([]);
     const [allLngs, setAllLngs] = react.useState([]);
     const [owners, setOwners] = react.useState("");
+    const [owner, setOwner] = react.useState("");
     const [chosenParcel, setChosenParcel] = react.useState("");
 
     const [loaded, setLoaded] = react.useState(false);
@@ -62,6 +63,7 @@ export default function ModifyParcel() {
     }, [chosenParcel])
 
     function setOriginValues(parcel) {
+        setOwner(parcel.owner)
         setOwners(parcel.owners)
         setDescription(parcel.description)
         setGroundType(parcel.groundType)
@@ -154,7 +156,7 @@ export default function ModifyParcel() {
     function modifyParcelManager(e) {
         e.preventDefault();
         if (markers.length >= 3) {
-            restCalls.modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
+            restCalls.modifyParcel(owner, owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
                 .then(() => { modifySuccess() }).catch(() => { modifyUnsuccess() });
             setDisplayDeleteMessage(false);
             setDisplayMessage(true);
@@ -166,7 +168,7 @@ export default function ModifyParcel() {
 
     function deleteParcelManager(e) {
         e.preventDefault();
-        restCalls.deleteParcel(parcelName).then(() => { deleteSuccess() }).catch(() => { deleteUnsuccess() });
+        restCalls.deleteParcel(parcelName, owner).then(() => { deleteSuccess() }).catch(() => { deleteUnsuccess() });
     }
 
     return (
@@ -186,7 +188,7 @@ export default function ModifyParcel() {
                     </Select>
                 </FormControl>
 
-                <Button color="error" onClick={deleteParcelManager} variant="contained" sx={{ mt: "10px" }}> Eliminate parcel </Button>
+                <Button color="error" onClick={deleteParcelManager} variant="contained" sx={{ mt: "20px" }}> Remover parcela </Button>
 
                 {isModifySubmit && displayMessage ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>

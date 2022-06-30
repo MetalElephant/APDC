@@ -24,7 +24,7 @@ export default function ListParcels() {
     const [displayMessage, setDisplayMessage] = react.useState(false)
 
     useEffect(() => {
-        restCalls.listParcels()
+        restCalls.listAllParcels()
         var parcels = JSON.parse(localStorage.getItem('allParcels'))
         var temp = []
         if (parcels != null) {

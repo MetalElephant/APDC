@@ -23,7 +23,7 @@ export default function ListUsers() {
     const [displayMessage, setDisplayMessage] = react.useState(false)
 
     useEffect(() => {
-        restCalls.listUsers()
+        restCalls.listAllUsers()
         var users = JSON.parse(localStorage.getItem('allUsers'))
         var temp = []
         if (users != null) {

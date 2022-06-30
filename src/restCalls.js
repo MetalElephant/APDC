@@ -129,14 +129,15 @@ class restCalls {
         })
     }
 
-    modifyParcel(owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs) {
+    modifyParcel(owner, owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs) {
         return fetch("https://our-hull.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                owner: JSON.parse(localStorage.getItem('token')).username,
+                username: JSON.parse(localStorage.getItem('token')).username,
+                owner: owner,
                 owners: owners,
                 parcelName: parcelName,
                 description: description,
@@ -291,7 +292,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch("https://our-hull.appspot.com/rest/parcel/listRep", {
+        return fetch("https://our-hull.appspot.com/rest/parcel/listUser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -368,7 +369,7 @@ class restCalls {
         })
     }
 
-    listParcels() {
+    listAllParcels() {
         return fetch("https://our-hull.appspot.com/rest/parcel/list", {
             method: 'GET',
             headers: {
@@ -389,7 +390,7 @@ class restCalls {
         })
     }
 
-    listUsers() {
+    listAllUsers() {
         return fetch("https://our-hull.appspot.com/rest/users/list", {
             method: 'GET',
             headers: {
