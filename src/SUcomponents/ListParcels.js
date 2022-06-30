@@ -63,7 +63,7 @@ export default function ListParcels() {
 
     return (
         <>
-            <Grid item xs={1.5} >
+            <Grid item xs={2} >
                 <Autocomplete
                     selectOnFocus
                     id="parcels"
@@ -73,11 +73,11 @@ export default function ListParcels() {
                         setChosenParcel(newChosenParcel.parcelName);
                         setParcel(newChosenParcel)
                     }}
-                    sx={{ width: 200, mt: 1 }}
+                    sx={{ width: "80%", mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Parcelas" />}
                 />
 
-                <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ mt: 2 }}>Remover Utilizador</Button>
+                <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ width: "80%", mt: 2 }}>Remover Utilizador</Button>
 
                 {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
@@ -88,7 +88,7 @@ export default function ListParcels() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na remoção do utilizador. Por favor, verifique o nome do mesmo.</Typography>
                     </Alert> : <></>}
             </Grid>
-            <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
+            <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da Parcela: {parcelName} </Typography>

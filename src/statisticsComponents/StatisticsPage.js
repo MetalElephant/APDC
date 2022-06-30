@@ -97,7 +97,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }} >
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número de forums registados no sistema: {/*nForums*/}
+                            Número de forums registados no sistema: {nForums}
                         </Typography>
                     </Card>
                 </Box>
