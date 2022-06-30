@@ -236,7 +236,7 @@ class restCalls {
         })
     }
 
-    modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif) {
+    modifyUserAttributes(usernameToUpdate, name, email, visibility, address, homePhone, mobilePhone, nif) {
         return fetch("https://our-hull.appspot.com/rest/users/update", {
             method: 'PUT',
             headers: {
@@ -244,7 +244,7 @@ class restCalls {
             },
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
-                usernameToUpdate: JSON.parse(localStorage.getItem('token')).username,
+                usernameToUpdate: usernameToUpdate,
                 name: name,
                 email: email,
                 visibility: visibility,

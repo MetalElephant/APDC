@@ -75,7 +75,7 @@ export default function ListParcels() {
                         setChosenParcel(newChosenParcel.parcelName);
                         setParcel(newChosenParcel)
                     }}
-                    sx={{ width: 200, mt: 1 }}
+                    sx={{ width: 200, mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Parcelas" />}
                 />
 

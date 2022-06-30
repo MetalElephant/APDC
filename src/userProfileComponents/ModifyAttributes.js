@@ -67,7 +67,7 @@ export default function ModifyAttributes() {
         const isModifyUserFormValid = modifyUserFormValidation();
 
         if (isModifyUserFormValid) {
-            restCalls.modifyUserAttributes(name, email, visibility, address, homePhone, mobilePhone, nif).then(() => { restCalls.userInfo().then(() => { setUserModified(true); setDisplayMessage(0) }) })
+            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, visibility, address, homePhone, mobilePhone, nif).then(() => { restCalls.userInfo().then(() => { setUserModified(true); setDisplayMessage(0) }) })
         } else {
             setUserNotModified(true);
             setDisplayMessage(1);

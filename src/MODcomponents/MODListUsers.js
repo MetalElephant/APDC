@@ -72,7 +72,7 @@ export default function ListUsers() {
                         setChosenUser(newChosenUser.username);
                         setUser(newChosenUser)
                     }}
-                    sx={{ width: 200, mt: 1 }}
+                    sx={{ width: 200, mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Utilizadores" />}
                 />
 

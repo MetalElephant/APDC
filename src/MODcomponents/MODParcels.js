@@ -5,8 +5,6 @@ import {useHistory} from "react-router-dom";
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FeedIcon from '@mui/icons-material/Feed';
-import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import MODRemoveParcel from "./MODRemoveParcel";
 import MODListParcels from "./MODListParcels";
 
 export default function MODParcels() {
