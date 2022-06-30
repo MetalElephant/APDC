@@ -53,7 +53,7 @@ export default function ListParcels() {
         setArea(parcel.area)
     }, [parcel])
 
-    
+
     function parcelRemoval() {
         if (chosenParcel != null) {
             restCalls.deleteParcel(owner, chosenParcel).then(() => { setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
@@ -80,12 +80,8 @@ export default function ListParcels() {
                     renderInput={(params) => <TextField {...params} label="Parcelas" />}
                 />
 
-<<<<<<< HEAD
-                <Button onClick={userToBeRemovedManager} variant="contained" size="large" color="error" sx={{ width: "80%", mt: 2 }}>Remover Utilizador</Button>
-=======
-                <Button onClick={parcelRemoval} variant="contained" size="large" color="error" sx={{ mt: 2 }}>Remover Parcela</Button>
->>>>>>> 994a9b6fba372a569bac5c749871c3875061ca1b
-
+                <Button onClick={parcelRemoval} variant="contained" size="large" color="error" sx={{ width: "80%", mt: 2 }}>Remover Parcela</Button>
+                
                 {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removido com sucesso.</Typography>
