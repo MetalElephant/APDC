@@ -473,7 +473,7 @@ public class ForumResource {
 		List<MessageInfo> forumMsg = new LinkedList<>();
 
 		messages.forEachRemaining(msg -> {
-			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
+			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE), msg.getLong(ORDER)));
 		});
 
         Collections.sort(forumMsg, new SortByOrder());
