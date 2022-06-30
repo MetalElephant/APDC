@@ -279,10 +279,13 @@ public class ForumResource {
         
             QueryResults<Entity> messages = datastore.run(msgQuery);
 
+            if (!messages.hasNext())
+                return Response.status(Status.NOT_FOUND).entity("Message does not exist.").build();
+
             tn.delete(messages.next().getKey());
             tn.commit();
 
-            return Response.ok("Forum successfully deleted.").build();
+            return Response.ok("Message successfully deleted.").build();
         }finally{
             if(tn.isActive())
                 tn.rollback();
@@ -472,7 +475,7 @@ public class ForumResource {
 		List<MessageInfo> forumMsg = new LinkedList<>();
 
 		messages.forEachRemaining(msg -> {
-			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE)));
+			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE), msg.getLong(ORDER)));
 		});
 
         //Collections.sort(forumMsg, new SortByOrder());

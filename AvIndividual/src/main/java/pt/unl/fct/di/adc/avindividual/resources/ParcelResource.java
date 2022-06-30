@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -361,8 +362,28 @@ public class ParcelResource {
 		return Response.ok(g.toJson(p)).build();
 	}
 
-	@POST
+	@GET
 	@Path("/list")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response showUserParcel() {
+		LOG.info("Attempt to list all parcels");
+			
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> parcelList = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			parcelList.add(parcelInfoBuilder(parcel));
+		});
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	@POST
+	@Path("/listUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response showUserParcel(RequestData data) {
@@ -815,5 +836,17 @@ public class ParcelResource {
 		boolean overlaps = false;
 
 		return overlaps;
+	}
+
+	public void removeUserParcels(String username, Transaction tn){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
+								  .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		parcels.forEachRemaining(parcel -> {
+			tn.delete(parcel.getKey());
+		});
 	}
 }
