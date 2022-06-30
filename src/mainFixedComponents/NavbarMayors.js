@@ -35,8 +35,8 @@ export default function NavbarMerchants() {
                     >
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórum" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About us" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórums" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Sobre Nós" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
 
                     </Tabs>

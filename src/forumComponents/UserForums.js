@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions} from "@mui/material";
+import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
@@ -11,7 +11,6 @@ export default function UserForums() {
     useEffect(() => {
         restCalls.listUserForums().then(() => { setLoaded(true) })
     })
-
 
     function generateForums() {
         const forumCards = []

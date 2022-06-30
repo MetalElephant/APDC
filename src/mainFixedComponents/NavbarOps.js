@@ -38,8 +38,8 @@ export default function NavbarOps() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórum" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="About Us" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórums" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Sobre Nós" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
 
                     </Tabs>

@@ -1,8 +1,9 @@
 import react from "react"
 import { Button, Grid, Typography } from "@mui/material";
-import RedeemRewards from "./RedeemRewards"
+import RedeemRewards from "./RewardsList"
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
+import RewardsList from "./RewardsList";
 
 export default function RewardsPage() {
 
@@ -22,7 +23,7 @@ export default function RewardsPage() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> redeem rewards </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de recompensas por reinvidicar </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -34,10 +35,10 @@ export default function RewardsPage() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> show redeemed rewards </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de recompensas reinvidicadas </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <RedeemRewards /> : <></>}
+                {(display === 0) ? <RewardsList /> : <></>}
                 {(display === 1) ? <></>: <></>}
             </Grid>
         </Grid>

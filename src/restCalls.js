@@ -637,6 +637,31 @@ class restCalls {
         })
     }
 
+    listRewards() {
+        return fetch("https://our-hull.appspot.com/rest/reward/list", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('rewards', text);
+            return text;
+        })
+    }
+
+
     logout() {
         return fetch("https://our-hull.appspot.com/rest/users/logout", {
             method: 'DELETE',
@@ -666,6 +691,7 @@ class restCalls {
             localStorage.removeItem('messages')
             localStorage.removeItem('allUsers')
             localStorage.removeItem('allParcels')
+            localStorage.removeItem('rewards')
             return text;
         })
     }

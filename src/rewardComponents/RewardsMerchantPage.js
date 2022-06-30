@@ -1,6 +1,6 @@
 import react from "react"
 import { Button, Grid, Typography } from "@mui/material";
-import RedeemRewards from "./RedeemRewards"
+import RewardsList from "./RewardsList"
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
 
