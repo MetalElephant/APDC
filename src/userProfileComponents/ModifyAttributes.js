@@ -87,37 +87,37 @@ export default function ModifyAttributes() {
             setEmailErr(emailErr)
         }
 
-        if((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone != "UNDEFINED"))  {
+        if((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone.toUpperCase() !== "UNDEFINED"))  {
             homePhoneErr.not9Digits = "Este número não é composto por 9 dígitos"
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
 
-        if(((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (homePhone != "UNDEFINED"))  {
+        if(((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (homePhone.toUpperCase() !== "UNDEFINED"))  {
             homePhoneErr.onlyNumbers = "Este número não pode conter letras ou caracteres especiais"
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
 
-        if((mobilePhone.length > 0) && (mobilePhone.length !== 9) && (mobilePhone != "UNDEFINED")) {
+        if((mobilePhone.length > 0) && (mobilePhone.length !== 9) && (mobilePhone.toUpperCase() !== "UNDEFINED")) {
             mobilePhoneErr.not9Digits = "Este número não é composto por 9 dígitos"
             isValid = false;
             setMobilePhoneErr(mobilePhoneErr)
         }
 
-        if(((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (mobilePhone != "UNDEFINED"))  {
+        if(((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (mobilePhone.toUpperCase() !== "UNDEFINED"))  {
             mobilePhoneErr.onlyNumbers = "Este número não pode conter letras ou caracteres especiais"
             isValid = false;
             setMobilePhoneErr(mobilePhoneErr)
         }
 
-        if((nif.length > 0) && (nif.length !== 9) && nif != "UNDEFINED") {
+        if((nif.length > 0) && (nif.length !== 9) && nif.toUpperCase() !== "UNDEFINED") {
             nifErr.not9Digits = "Este NIF não é composto por 9 dígitos"
             isValid = false;
             setNifErr(nifErr)
         }
 
-        if(((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && nif != "UNDEFINED")  {
+        if(((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && nif.toUpperCase() !== "UNDEFINED")  {
             nifErr.onlyNumbers = "O NIF não pode conter letras ou caracteres especiais"
             isValid = false;
             setNifErr(nifErr)

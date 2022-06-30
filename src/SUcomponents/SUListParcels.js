@@ -1,9 +1,7 @@
 import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert } from "@mui/material";
-import mapsAvatar from "../images/maps-avatar.png";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
-import { color } from "@mui/system";
 
 export default function ListParcels() {
 

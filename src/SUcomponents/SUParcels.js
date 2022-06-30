@@ -11,7 +11,7 @@ import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import FeedIcon from '@mui/icons-material/Feed';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import ListParcels from "./ListParcels"
+import ListParcels from "./SUListParcels"
 
 
 export default function SUParcels() {

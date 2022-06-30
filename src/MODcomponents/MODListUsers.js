@@ -1,9 +1,7 @@
 import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert } from "@mui/material";
-import mapsAvatar from "../images/maps-avatar.png";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
-import { color } from "@mui/system";
 
 export default function ListUsers() {
 
@@ -33,7 +31,8 @@ export default function ListUsers() {
                 temp.push(user)
             })
             setAllUsers(temp)
-        } else {
+        }
+        else {
             setRepeat(!repeat)
         }
     }, [repeat])
@@ -53,7 +52,7 @@ export default function ListUsers() {
 
     function userToBeRemovedManager() {
         if(chosenUser != null) {
-            restCalls.deleteUser(chosenUser).then(() => { setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true) }).catch(() => { setIsUserRemoved(false); setIsUserNotRemoved(true); setDisplayMessage(true) })
+            restCalls.deleteUser(chosenUser).then(() => { restCalls.listUsers(); setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true); }).catch(() => { setIsUserRemoved(false); setIsUserNotRemoved(true); setDisplayMessage(true) })
         }else {
             setIsUserRemoved(false); 
             setIsUserNotRemoved(true);

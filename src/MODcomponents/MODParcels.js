@@ -7,6 +7,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import FeedIcon from '@mui/icons-material/Feed';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import MODRemoveParcel from "./MODRemoveParcel";
+import MODListParcels from "./MODListParcels";
 
 export default function MODParcels() {
     let history = useHistory();
@@ -31,19 +32,7 @@ export default function MODParcels() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de Parcelas </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<CancelPresentationIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(1) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Parcela </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Parcelas </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -53,7 +42,7 @@ export default function MODParcels() {
                         color="success"
                         startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
+                        onClick={() => { setDisplay(1) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Parcela </Typography>
                     </Button>
@@ -65,14 +54,13 @@ export default function MODParcels() {
                         color="success"
                         startIcon={<LogoutIcon sx={{color:"black"}}/>}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { logoutManager()}}
+                        onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <div> OLHEM</div> : <></>}
-                {(display === 1) ? <MODRemoveParcel /> : <></>}
-                {(display === 2) ? <div> FUCK IT</div> : <></>}
+                {(display === 0) ? <MODListParcels /> : <></>}
+                {(display === 1) ? <div> FUCK IT</div> : <></>}
             </Grid>
         </Grid>
     )

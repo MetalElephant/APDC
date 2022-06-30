@@ -10,7 +10,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import AddUser from "./AddUser"
-import ListUsers from "./ListUsers"
+import ListUsers from "./SUListUsers"
 
 export default function SUUsers() {
     let history = useHistory();

@@ -617,6 +617,7 @@ class restCalls {
             localStorage.removeItem('numberOfUsers')
             localStorage.removeItem('numberOfParcels')
             localStorage.removeItem('numberOfForums')
+            localStorage.removeItem('allParcels')
             return text;
         })
     }

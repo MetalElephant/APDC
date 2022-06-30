@@ -10,6 +10,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MODRemoveUser from "./MODRemoveUser";
+import MODListUsers from "./MODListUsers";
 
 export default function MODUsers() {
     let history = useHistory();
@@ -54,21 +55,9 @@ export default function MODUsers() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<PersonRemoveIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Utilizador </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
                         startIcon={<ManageAccountsIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(3) }}
+                        onClick={() => { setDisplay(2) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Utilizador </Typography>
                     </Button>
@@ -85,10 +74,9 @@ export default function MODUsers() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <div> OLHEM</div> : <></>}
+                {(display === 0) ? <MODListUsers /> : <></>}
                 {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
-                {(display === 2) ? <MODRemoveUser /> : <></>}
-                {(display === 3) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
+                {(display === 2) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
         </Grid>
     )
