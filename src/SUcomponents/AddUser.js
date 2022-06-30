@@ -9,6 +9,8 @@ export default function AddUser() {
     const [name, setName] = react.useState("");
     const [visibility, setVisibility] = react.useState("Public");
     const [role, setRole] = react.useState("");
+    const [isRep, setIsRep] = react.useState(false);
+    const [freg, setFreg] = react.useState(null);
 
     const [displayMessage, setDisplayMessage] = react.useState();
     const [isUserRegistered, setIsUserRegistered] = react.useState(false);
@@ -30,13 +32,21 @@ export default function AddUser() {
         setVisibility(e.target.value)
     }
 
+    function fregHandler(e) {
+        setFreg(e.target.value)
+    }
+
     function roleHandler(e) {
+        if (e.target.value == "Representante")
+            setIsRep(true)
+        else
+            setIsRep(false)
         setRole(e.target.value)
     }
 
     function addUserManager(e) {
         e.preventDefault();
-        restCalls.registerUserSU(username, email, name, visibility, role).then(() => { setIsUserRegistered(true); setDisplayMessage(0) }).catch(() => { setIsUserNotRegistered(true); setDisplayMessage(1) })
+        restCalls.registerUserSU(username, email, name, visibility, isRep, freg).then(() => { setIsUserRegistered(true); setDisplayMessage(0) }).catch(() => { setIsUserNotRegistered(true); setDisplayMessage(1) })
     }
 
     return (
@@ -115,6 +125,20 @@ export default function AddUser() {
                                     </MenuItem>
                                 </Select>
                             </FormControl>
+
+                            {isRep &&
+                                <TextField
+                                    required
+                                    margin="normal"
+                                    fullWidth
+                                    value={freg}
+                                    name="freg"
+                                    label="Freguesia"
+                                    id="freg"
+                                    color="success"
+                                    onChange={fregHandler}
+                                />
+                            }
 
                             <Button
                                 type="submit"
