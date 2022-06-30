@@ -6,7 +6,7 @@ public class UserUpdateData {
 	
 	public String username, usernameToUpdate;
 	
-	public String email, name, visibility, homePhone, mobilePhone, address, nif, role;
+	public String email, name, visibility, homePhone, mobilePhone, address, nif;
 	
 	public UserUpdateData() {}
 	

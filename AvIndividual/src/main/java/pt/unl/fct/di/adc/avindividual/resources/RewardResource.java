@@ -13,7 +13,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
@@ -36,7 +35,7 @@ public class RewardResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
-    private AdministrativeResource ar = new AdministrativeResource();
+    //private AdministrativeResource ar = new AdministrativeResource();
     
     // Reward info
     private static final String OWNER = "owner";
@@ -168,11 +167,11 @@ public class RewardResource {
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
 			}
 
-            if(!ar.canModify(user, owner)) {
+            /*if(!ar.canModify(user, owner)) {
                 LOG.warning("User " + data.username + " can't modify this.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this reward.").build();
-            }
+            }*/
 
             reward = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
@@ -235,12 +234,12 @@ public class RewardResource {
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.objectName + " doesn't exists.").build();
 			}
 
-            if(!ar.canRemove(user, owner)) {
+            /*if(!ar.canRemove(user, owner)) {
                 LOG.warning("User " + data.username + " can't remove this reward.");
                 tn.rollback();
 
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't remove this reward.").build();
-            }
+            }*/
 
             tn.delete(rewardKey);
             tn.commit();

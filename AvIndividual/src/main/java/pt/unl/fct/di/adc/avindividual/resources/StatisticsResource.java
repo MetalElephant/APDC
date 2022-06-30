@@ -60,7 +60,9 @@ public class StatisticsResource {
 
 		Entity users = datastore.get(usersKey);
 
-		return Response.ok(users.getString(VALUE)).build();
+		String val = String.valueOf(users.getLong(VALUE));
+
+		return Response.ok(val).build();
 	}
 
     @GET
@@ -71,9 +73,11 @@ public class StatisticsResource {
 
 		Key parcelKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
-		Entity parcels = datastore.get(parcelKey);
+		Entity parcel = datastore.get(parcelKey);
 
-		return Response.ok(parcels.getString(VALUE)).build();
+		String val = String.valueOf(parcel.getLong(VALUE));
+
+		return Response.ok(val).build();
 	}
 
 	@GET
@@ -86,7 +90,9 @@ public class StatisticsResource {
 
 		Entity forums = datastore.get(forumKey);
 
-		return Response.ok(forums.getString(VALUE)).build();
+		String val = String.valueOf(forums.getLong(VALUE));
+
+		return Response.ok(val).build();
 	}
 
 	@POST

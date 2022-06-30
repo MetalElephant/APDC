@@ -14,7 +14,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
@@ -48,7 +47,7 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
-	private AdministrativeResource ar = new AdministrativeResource();
+	//private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 	
 	//Parcel info
@@ -70,7 +69,7 @@ public class ParcelResource {
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
 	private static final String BUCKET_NAME = "our-hull.appspot.com"; //"land--it.appspot.com";
-	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
+	private static final String URL = "https://storage.googleapis.com/our-hull.appspot.com/";
 
 	//Keys
 	private static final String USER = "User";
@@ -205,11 +204,12 @@ public class ParcelResource {
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
+			/*
 			if(!ar.canModify(user, owner)) {
 				LOG.warning("User " + data.username + " can't modify this.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this parcel.").build();
-			}
+			}*/
 
 			LatLng[] markers = new LatLng[data.allLats.length];
 
@@ -298,13 +298,13 @@ public class ParcelResource {
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
-
+/* 
 			if (!ar.canRemove(user, owner)) {
 				LOG.warning("User " + data.username + " unathourized to remove parcel.");
 				tn.rollback();
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove parcel.").build();
-			}
+			}*/
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
@@ -388,7 +388,39 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		List<ParcelInfo> parcelList = getQueries(data.username);
+		List<ParcelInfo> parcelList = getUserParcels(data.username);
+
+		return Response.ok(g.toJson(parcelList)).build();	
+	}
+
+	@POST
+	@Path("/listRep")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	public Response showRepresentativeParcel(RequestData data) {
+		LOG.info("Attempt to list parcels for representative: " + data.username);
+
+		if(!data.isUsernameValid()){
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		}
+
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+		
+		Entity user = datastore.get(userKey);
+		Entity token = datastore.get(tokenKey);
+
+		if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+			
+		List<ParcelInfo> parcelList = getRepParcels(data.username);
 
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
@@ -462,7 +494,7 @@ public class ParcelResource {
 	@POST
 	@Path("/verify")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response searchParcelPosition(ParcelVerifyData data){
+	public Response verifyParcel(ParcelVerifyData data){
 		LOG.info("Attempt to verify parcels of user: " + data.username);
 
 		if(!data.isDataValid()){
@@ -496,12 +528,12 @@ public class ParcelResource {
 				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel does not exist.").build();
 			}
-
+/*
 			if (!ar.canVerifyParcel(user)) {
 				LOG.warning("User can't verify this parcel.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User can't verify this parcel.").build();
-			}
+			}*/
 
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
@@ -645,10 +677,25 @@ public class ParcelResource {
 		return userParcels;
 	}
 
-	private List<ParcelInfo> getQueries(String owner){
+	private List<ParcelInfo> getUserParcels(String owner){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)),
-								   			 PropertyFilter.eq(CONFIRMED, true)))
+								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)))
+								  .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<ParcelInfo> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			userParcels.add(parcelInfoBuilder(parcel));
+		});
+
+		return userParcels;
+	}
+
+	private List<ParcelInfo> getRepParcels(String region){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								  .setFilter(PropertyFilter.eq(FREGUESIA, region))
 								  .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
