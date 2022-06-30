@@ -7,7 +7,7 @@ export default function ModifyAttributes() {
     const [username, setUsername] = react.useState("");
     const [email, setEmail] = react.useState("");
     const [name, setName] = react.useState("");
-    const [visibility, setVisibility] = react.useState("");
+    const [visibility, setVisibility] = react.useState("Public");
     const [role, setRole] = react.useState("");
 
     const [displayMessage, setDisplayMessage] = react.useState();

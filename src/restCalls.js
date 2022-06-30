@@ -614,6 +614,27 @@ class restCalls {
         })
     }
 
+    numberOfMessagesStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/messages", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('numberOfMessages', text)
+            return text;
+        })
+    }
+
     logout() {
         return fetch("https://our-hull.appspot.com/rest/users/logout", {
             method: 'DELETE',
@@ -642,9 +663,6 @@ class restCalls {
             localStorage.removeItem('forum')
             localStorage.removeItem('messages')
             localStorage.removeItem('allUsers')
-            localStorage.removeItem('numberOfUsers')
-            localStorage.removeItem('numberOfParcels')
-            localStorage.removeItem('numberOfForums')
             localStorage.removeItem('allParcels')
             return text;
         })

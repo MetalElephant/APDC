@@ -1,5 +1,3 @@
-import restCalls from "../restCalls"
-
 import { Grid, Card, Box, Typography } from "@mui/material";
 import react, { useEffect } from "react";
 
@@ -8,21 +6,23 @@ export default function StatisticsPage() {
     const [nUsers, setNUsers] = react.useState("")
     const [nParcels, setNParcels] = react.useState("")
     const [nForums, setNForums] = react.useState("")
+    const [nMessages, setNMessages] = react.useState("")
 
-    useEffect(() => {
-        restCalls.numberOfUsersStatistics();
+    
+
+    useEffect(() =>  {
         var numberUsers = JSON.parse(localStorage.getItem('numberOfUsers'))
         setNUsers(numberUsers)
-
-        restCalls.numberOfParcelsStatistics();
+    
         var numberParcels = JSON.parse(localStorage.getItem('numberOfParcels'))
         setNParcels(numberParcels)
 
-        restCalls.numberOfForumsStatistics();
         var numberForums = JSON.parse(localStorage.getItem('numberOfForums'))
         setNForums(numberForums)
 
-    })
+        var numberMessages = JSON.parse(localStorage.getItem('numberOfMessages'))
+        setNMessages(numberMessages)
+    }, [])
 
     return (
         <Grid container spacing={2}>
@@ -120,7 +120,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número de mensagens registados no sistema:
+                            Número de mensagens registados no sistema: {nMessages}
                         </Typography>
                     </Card>
                 </Box>
