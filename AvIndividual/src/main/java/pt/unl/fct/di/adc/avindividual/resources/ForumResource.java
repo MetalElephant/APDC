@@ -280,10 +280,13 @@ public class ForumResource {
         
             QueryResults<Entity> messages = datastore.run(msgQuery);
 
+            if (!messages.hasNext())
+                return Response.status(Status.NOT_FOUND).entity("Message does not exist.").build();
+
             tn.delete(messages.next().getKey());
             tn.commit();
 
-            return Response.ok("Forum successfully deleted.").build();
+            return Response.ok("Message successfully deleted.").build();
         }finally{
             if(tn.isActive())
                 tn.rollback();

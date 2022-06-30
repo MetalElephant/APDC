@@ -46,6 +46,7 @@ public class UserResource {
 
 	//private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
+	//private ParcelResource pr = new ParcelResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
@@ -300,7 +301,7 @@ public class UserResource {
 
 			//removeUserForums();
 
-			//removeUserParcels();
+			//pr.removeUserParcels(data.name, tn);
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);

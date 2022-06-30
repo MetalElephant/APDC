@@ -837,4 +837,16 @@ public class ParcelResource {
 
 		return overlaps;
 	}
+
+	public void removeUserParcels(String username, Transaction tn){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
+								  .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		parcels.forEachRemaining(parcel -> {
+			tn.delete(parcel.getKey());
+		});
+	}
 }
