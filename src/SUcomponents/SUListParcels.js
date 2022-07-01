@@ -175,7 +175,7 @@ export default function ListParcels() {
     function parcelRemoval() {
         if (chosenParcel != null) {
             restCalls.deleteParcel(chosenParcel, owner)
-                .then(() => { setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) })
+                .then(() => { restCalls.listAllParcels(); setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) })
                 .catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
             setDisplayModifyMessage(false)
         } else {
