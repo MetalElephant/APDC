@@ -36,17 +36,20 @@ public class RegisterModeratorData {
 		this.mobilePhone = mobilePhone;
 		this.address = address;
 		this.nif = nif;	
+		this.code = code;
 		this.photo = photo;
 		this.freguesia = freguesia;
 	}
 
-	public RegisterModeratorData(String usernameReg, String username, String email, String name) {
+	public RegisterModeratorData(String usernameReg, String username, String email, String name, String role) {
 		this.usernameReg = usernameReg;
         
         //Mandatory information
 		this.username = username;
 		this.email = email;
 		this.name = name;
+		this.code = code;
+		this.role = role;
 	}
 
 	public void optionalAttributes() {
@@ -61,7 +64,6 @@ public class RegisterModeratorData {
 		
 		if(this.nif == null || this.nif.length() == 0)
 			this.nif = UNDEFINED;
-		
 		if (this.photo == null)
 			this.photo = new byte[0];
 	}

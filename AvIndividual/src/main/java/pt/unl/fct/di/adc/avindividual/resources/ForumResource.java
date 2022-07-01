@@ -18,8 +18,10 @@ import com.google.gson.Gson;
 
 import pt.unl.fct.di.adc.avindividual.util.ForumMessageData;
 import pt.unl.fct.di.adc.avindividual.util.ForumRegisterData;
+import pt.unl.fct.di.adc.avindividual.util.ForumRemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveMessageData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.Roles;
 import pt.unl.fct.di.adc.avindividual.util.SortByOrder;
 import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
@@ -39,6 +41,9 @@ public class ForumResource {
 	private UserResource ur = new UserResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+
+    //User information
+    private static final String ROLE = "role";
 
     //Forum information
     private static final String TOPIC = "Topic";
@@ -186,7 +191,7 @@ public class ForumResource {
     @DELETE
     @Path("/removeForum")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response removeForum(RequestData data){
+    public Response removeForum(ForumRemoveData data){
         LOG.info("Attempt to delete forum: " + data.name);
 
         if (!data.isDataValid())
@@ -194,7 +199,8 @@ public class ForumResource {
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-        Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.username)).setKind(FORUM).newKey(data.name);
+        Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
+        Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.name);
         Key statKeyF = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
         Key statKeyM = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
 
@@ -203,6 +209,7 @@ public class ForumResource {
         try{
             Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
+            Entity owner = tn.get(ownerKey);
             Entity forum = tn.get(forumKey);
 
             if (user == null) {
@@ -221,6 +228,12 @@ public class ForumResource {
                 LOG.warning("Forum " + data.name + " doesn't exists.");
                 tn.rollback();
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
+            }
+
+            if(!canRemove(user, owner)) {
+                LOG.warning("User " + data.username + " can't be removed by the user.");
+                tn.rollback();
+                return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't be removed by the user.").build();
             }
 
             int n = deleteForumMessages(data.name, tn);
@@ -406,6 +419,50 @@ public class ForumResource {
 
 		return Response.ok(g.toJson(parcelList)).build();
     }
+
+    private boolean canModify(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+				return true;
+			case MODERATOR:
+			case OWNER:
+			case REPRESENTATIVE:
+			case MERCHANT:
+				if(e1 == e2)
+					return true;
+				break;
+			default:
+				break;
+		}
+
+		return false;
+	}
+
+	private boolean canRemove(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+				return true;
+			case MODERATOR:
+				if(e1 == e2 || e2Role != Roles.SU) 
+					return true;
+				break;
+			case OWNER:
+			case REPRESENTATIVE:
+			case MERCHANT:
+				if(e1 == e2)
+					return true;
+				break;
+			default:
+				break;
+		}
+
+		return false;
+	}
 
     private int deleteForumMessages(String forumName, Transaction tn){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)

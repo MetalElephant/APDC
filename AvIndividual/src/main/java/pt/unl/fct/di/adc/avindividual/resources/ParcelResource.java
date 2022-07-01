@@ -26,6 +26,7 @@ import pt.unl.fct.di.adc.avindividual.util.ParcelData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelSearchPositionData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelSearchRegionData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.Roles;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
 import com.google.cloud.datastore.*;
@@ -51,6 +52,9 @@ public class ParcelResource {
 	//private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 	
+	//User info
+	private static final String ROLE = "role";
+
 	//Parcel info
 	private static final String OWNER = "Owner";
 	private static final String NOWNERS = "number of owners";
@@ -205,12 +209,11 @@ public class ParcelResource {
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
-			/*
-			if(!ar.canModify(user, owner)) {
+			if(!canModifyOrRemove(user, owner)) {
 				LOG.warning("User " + data.username + " can't modify this.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this parcel.").build();
-			}*/
+			}
 
 			LatLng[] markers = new LatLng[data.allLats.length];
 
@@ -299,13 +302,13 @@ public class ParcelResource {
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
-/* 
-			if (!ar.canRemove(user, owner)) {
+
+			if(!canModifyOrRemove(user, owner)) {
 				LOG.warning("User " + data.username + " unathourized to remove parcel.");
 				tn.rollback();
 
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove parcel.").build();
-			}*/
+			}
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
@@ -549,12 +552,12 @@ public class ParcelResource {
 				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel does not exist.").build();
 			}
-/*
-			if (!ar.canVerifyParcel(user)) {
+
+			if (!canVerify(user)) {
 				LOG.warning("User can't verify this parcel.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User can't verify this parcel.").build();
-			}*/
+			}
 
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
@@ -595,6 +598,43 @@ public class ParcelResource {
 			if(tn.isActive())
 				tn.rollback();
 		}
+	}
+
+	public boolean canModifyOrRemove(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+			case MODERATOR:
+				return true;
+			case OWNER:
+				if(e1 == e2)
+					return true;
+				break;
+			case REPRESENTATIVE:
+			case MERCHANT:
+			default:
+				break;
+		}
+
+		return false;
+	}
+
+	public boolean canVerify(Entity e1) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+			case MODERATOR:
+			case REPRESENTATIVE:
+				return true;
+			case OWNER:
+			case MERCHANT:
+			default:
+				break;
+		}
+
+		return false;
 	}
 
 	private String getArea(LatLng[] markers){

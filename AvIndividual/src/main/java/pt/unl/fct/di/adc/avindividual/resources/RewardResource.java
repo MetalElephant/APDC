@@ -167,11 +167,11 @@ public class RewardResource {
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
 			}
 
-            /*if(!ar.canModify(user, owner)) {
+            if(!canModifyOrRemove(user, owner)) {
                 LOG.warning("User " + data.username + " can't modify this.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this reward.").build();
-            }*/
+            }
 
             reward = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
@@ -234,12 +234,12 @@ public class RewardResource {
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.objectName + " doesn't exists.").build();
 			}
 
-            /*if(!ar.canRemove(user, owner)) {
+            if(!canModifyOrRemove(user, owner)) {
                 LOG.warning("User " + data.username + " can't remove this reward.");
                 tn.rollback();
 
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't remove this reward.").build();
-            }*/
+            }
 
             tn.delete(rewardKey);
             tn.commit();
@@ -344,6 +344,26 @@ public class RewardResource {
         }
 
 		return true;
+	}
+
+    private boolean canModifyOrRemove(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+            case MODERATOR:
+				return true;
+            case MERCHANT:
+				if(e1 == e2)
+					return true;
+				break;
+			case OWNER:
+			case REPRESENTATIVE:
+			default:
+				break;
+		}
+
+		return false;
 	}
 
     private List<RewardData> getQueries(String owner){

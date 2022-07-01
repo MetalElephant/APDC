@@ -25,6 +25,7 @@ import pt.unl.fct.di.adc.avindividual.util.Info.UserInfo;
 import pt.unl.fct.di.adc.avindividual.util.PasswordUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.RegisterData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
+import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -85,6 +86,8 @@ public class UserResource {
     private static final String TOKEN = "Token";
 	private static final String STAT = "Statistics";
 	private static final String CODE = "Code";
+
+	//Forums
 	private static final String PARCEL = "Parcel";
 	private static final String FORUM = "Forum";
     private static final String MESSAGE = "Message";
@@ -289,12 +292,11 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-			/*if (!ar.canRemove(user, userToRemove)) {
+			if(!canRemove(user, userToRemove)) {
 				LOG.warning("User " + data.username + " unathourized to remove other User");
 				tn.rollback();
-
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove other User").build();
-			}*/
+			}
 			
 			//Remove the token associated with the user if it exists
 			if(tn.get(tokenToRemoveKey) != null)
@@ -356,26 +358,25 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
-			//To set what will stay the same value or what will actually be changed
-			/*if(!ar.canModify(user, userToUpdate)) {
+			if(!canModify(user, userToUpdate)) {
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
-			}*/
+			}
 
-				userToUpdate = Entity.newBuilder(userUpdateKey)
-					.set(NAME, data.name)
-					.set(PASSWORD, userToUpdate.getString(PASSWORD))
-					.set(EMAIL, data.email)
-					.set(ROLE, userToUpdate.getString(ROLE))
-					.set(MPHONE, data.mobilePhone)
-					.set(HPHONE, data.homePhone)
-					.set(ADDRESS, data.address)
-					.set(NIF, data.nif)
-					.set(VISIBILITY, data.visibility)
-					.set(PHOTO, user.getString(PHOTO))
-					.set(SPEC, userToUpdate.getString(SPEC))
-					.set(CTIME, userToUpdate.getTimestamp(CTIME))
-					.build();
+			userToUpdate = Entity.newBuilder(userUpdateKey)
+				.set(NAME, data.name)
+				.set(PASSWORD, userToUpdate.getString(PASSWORD))
+				.set(EMAIL, data.email)
+				.set(ROLE, userToUpdate.getString(ROLE))
+				.set(MPHONE, data.mobilePhone)
+				.set(HPHONE, data.homePhone)
+				.set(ADDRESS, data.address)
+				.set(NIF, data.nif)
+				.set(VISIBILITY, data.visibility)
+				.set(PHOTO, user.getString(PHOTO))
+				.set(SPEC, userToUpdate.getString(SPEC))
+				.set(CTIME, userToUpdate.getTimestamp(CTIME))
+				.build();
 			
 			tn.put(userToUpdate);
 			tn.commit();
@@ -565,6 +566,46 @@ public class UserResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response redeemReward() {
 		return null;
+	}
+
+	private boolean canModify(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+				return true;
+			case MODERATOR:
+			case OWNER:
+			case REPRESENTATIVE:
+			case MERCHANT:
+				if(e1 == e2)
+					return true;
+				break;
+			default:
+				break;
+		}
+
+		return false;
+	}
+
+	private boolean canRemove(Entity e1, Entity e2) {
+		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
+
+		switch(e1Role) {
+			case SU:
+				return true;
+			case MODERATOR: 
+				return (e1 == e2 || e2Role != Roles.SU);
+			case OWNER:
+			case REPRESENTATIVE:
+			case MERCHANT:
+				return e1 == e2;
+			default:
+				break;
+		}
+
+		return false;
 	}
 
 	//Verify if token exists and is valid
