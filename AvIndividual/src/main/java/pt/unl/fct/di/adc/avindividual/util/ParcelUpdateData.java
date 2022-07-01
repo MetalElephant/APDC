@@ -27,6 +27,6 @@ public class ParcelUpdateData {
         if (this.username == null || this.owner == null || this.parcelName == null)
             return false;
 
-        return (this.owner.length() != 0 && this.parcelName.length() != 0);
+        return (this.username.length() != 0 && this.owner.length() != 0 && this.parcelName.length() != 0);
     }
 }

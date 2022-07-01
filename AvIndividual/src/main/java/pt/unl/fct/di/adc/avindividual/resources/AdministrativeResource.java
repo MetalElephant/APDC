@@ -5,7 +5,10 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
+<<<<<<< HEAD
 import javax.ws.rs.DELETE;		
+=======
+>>>>>>> branch 'main' of https://github.com/MetalElephant/APDC
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,7 +35,7 @@ import pt.unl.fct.di.adc.avindividual.util.Roles;
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class AdministrativeResource {
 
-    private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
+    private static final Logger LOG = Logger.getLogger(AdministrativeResource.class.getName());
 	private final Gson g = new Gson();
 
 	static final String SENDGRID_API_KEY = "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";
@@ -77,7 +80,7 @@ public class AdministrativeResource {
 	// Use modify from UserResources to modify moderators
 
 	@POST
-	@Path("/registerrep")
+	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response registerRepresentative(RegisterModeratorData data) throws IOException {
 		LOG.info("Attempt to register user: " + data.username);
@@ -164,77 +167,8 @@ public class AdministrativeResource {
 	}
 
 	private boolean verifyRegister(Entity userReg) {
-		if(userReg.getString(ROLE).equals(Roles.SU.getRole()) ||
-				userReg.getString(ROLE).equals(Roles.MODERATOR.getRole())) {
-					return true;
-		}
 
-		return false;
-	}
-
-	public boolean canModify(Entity e1, Entity e2) {
-		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
-		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
-
-		switch(e1Role) {
-			case SU:
-				return true;
-			case MODERATOR:
-				if(e1 == e2 || (e2Role != Roles.SU && e2Role != Roles.MODERATOR))
-					return true;
-				break;
-			case OWNER:
-			case REPRESENTATIVE:
-			case MERCHANT:
-				if(e1 == e2)
-					return true;
-				break;
-			default:
-				break;
-		}
-
-		return false;
-	}
-
-	public boolean canRemove(Entity e1, Entity e2) {
-		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
-		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
-
-		switch(e1Role) {
-			case SU:
-				return true;
-			case MODERATOR:
-				if(e1 == e2 || e2Role != Roles.SU) 
-					return true;
-				break;
-			case OWNER:
-			case REPRESENTATIVE:
-			case MERCHANT:
-				if(e1 == e2)
-					return true;
-				break;
-			default:
-				break;
-		}
-
-		return false;
-	}
-
-	public boolean canVerifyParcel(Entity e1) {
-		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
-
-		switch(e1Role) {
-			case SU:
-			case MODERATOR:
-			case REPRESENTATIVE:
-				return true;
-			case OWNER:
-			case MERCHANT:
-			default:
-				break;
-		}
-
-		return false;
+		return (userReg.getString(ROLE).equals(Roles.SU.getRole()) || userReg.getString(ROLE).equals(Roles.MODERATOR.getRole()));
 	}
 
 	private void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
