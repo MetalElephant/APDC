@@ -1,6 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.util.Calendar;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,11 +22,8 @@ import pt.unl.fct.di.adc.avindividual.util.ForumRegisterData;
 import pt.unl.fct.di.adc.avindividual.util.ForumRemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveMessageData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
-<<<<<<< HEAD
-=======
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 import pt.unl.fct.di.adc.avindividual.util.SortByOrder;
->>>>>>> branch 'main' of https://github.com/MetalElephant/APDC
 import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 

@@ -1,14 +1,12 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.io.IOException;
+
 import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-<<<<<<< HEAD
 import javax.ws.rs.DELETE;		
-=======
->>>>>>> branch 'main' of https://github.com/MetalElephant/APDC
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
