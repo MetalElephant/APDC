@@ -107,8 +107,6 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
-		Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.parcelName);
-        Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
 		
 		try {
 			Entity user = tn.get(userKey);
@@ -167,8 +165,6 @@ public class ParcelResource {
 			}
 
 			parcel = builder.build();
-
-			createForum(tn, forumKey, statKey);
 			
 			tn.add(parcel);
 			tn.commit();
@@ -539,7 +535,9 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
 		Key parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
-		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key statKeyP = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.parcelName);
+        Key statKeyF = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
 
 		Transaction tn = datastore.newTransaction();
 
@@ -598,7 +596,9 @@ public class ParcelResource {
 			parcel = builder.build();
 
 			//Update statistics
-			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+			sr.updateStats(statKeyP, tn.get(statKeyP), tn, ADD);
+
+			createForum(tn, forumKey, statKeyF);
 			
 			tn.put(parcel);
 			tn.commit();

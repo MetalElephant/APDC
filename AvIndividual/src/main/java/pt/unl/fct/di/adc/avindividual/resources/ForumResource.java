@@ -2,7 +2,6 @@ package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.util.Calendar;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -23,7 +22,6 @@ import pt.unl.fct.di.adc.avindividual.util.ForumRemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveMessageData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
-import pt.unl.fct.di.adc.avindividual.util.SortByOrder;
 import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
@@ -54,6 +52,7 @@ public class ForumResource {
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
 	private static final String FORUM = "Forum";
+    private static final String PARCEL = "Parcel";
     private static final String MESSAGE = "Message";
     private static final String OWNER = "Owner";
     private static final String ORDER = "Order";
@@ -395,6 +394,64 @@ public class ForumResource {
     }
 
     @POST
+    @Path("/listParcel")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listParcelForums(RequestData data){
+        LOG.info("Attempt to list forums of parcels user: " + data.username);
+
+        if (!data.isUsernameValid())
+			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+
+        Entity user = datastore.get(userKey);
+        Entity token = datastore.get(tokenKey);
+
+        if (user == null) {				
+			LOG.warning("User does not exist");
+			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+		}
+
+		if (!ur.isLoggedIn(token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
+
+        
+        //Roles role = Roles.valueOf(user.getString(ROLE));
+        Query<Entity> parcelQuery;
+/*
+        if (role == Roles.SUPERUSER || role == Roles.MODERADOR){
+            parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+
+        }else{*/
+            parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+                         .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(data.username)))
+                         .build();
+        //}
+
+        QueryResults<Entity> parcels = datastore.run(parcelQuery);
+        List<ForumInfo> forumList = new LinkedList<>();
+
+        while(parcels.hasNext()){
+            Key parcelKey = parcels.next().getKey();
+            
+            String parcelOwner = parcelKey.getAncestors().get(0).getName();
+            String parcelName = parcelKey.getName();
+
+            Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, parcelOwner)).setKind(FORUM).newKey(parcelName);
+
+            Entity forum = datastore.get(forumKey);
+
+            forumList.add(new ForumInfo(forum.getKey().getAncestors().get(0).getName(), forum.getKey().getName(), forum.getString(TOPIC), forum.getString(CRT_DATE)));
+        }
+
+		return Response.ok(g.toJson(forumList)).build();
+    }
+
+    @POST
     @Path("/listMessages")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -548,7 +605,7 @@ public class ForumResource {
 			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE), msg.getLong(ORDER)));
 		});
 
-        //Collections.sort(forumMsg, new SortByOrder());
+        //TODO Collections.sort(forumMsg, new SortByOrder());
 
 		return forumMsg;
     }
