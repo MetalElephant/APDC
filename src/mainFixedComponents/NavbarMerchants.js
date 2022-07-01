@@ -7,7 +7,7 @@ import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
-import RewardsMerchantPage from "../rewardComponents/RewardsMerchantPage";
+import RewardsCOMPage from "../rewardComponents/RewardsCOMPage";
 
 
 
@@ -46,7 +46,7 @@ export default function NavbarMerchants() {
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
-            {selectedLeftTab === 1 && <RewardsMerchantPage />}
+            {selectedLeftTab === 1 && <RewardsCOMPage />}
             {selectedLeftTab === 2 && <ForumPage />}
             {selectedLeftTab === 3 && <AboutUs />}
             {selectedLeftTab === 4 && <StatisticsPage />}

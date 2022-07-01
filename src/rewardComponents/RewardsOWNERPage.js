@@ -1,11 +1,11 @@
 import react from "react"
 import { Button, Grid, Typography } from "@mui/material";
-import RedeemRewards from "./RewardsList"
+import OWNERRewardsList from "./OWNERRewardsList"
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
-import RewardsList from "./RewardsList";
+import RewardsList from "./OWNERRewardsList";
 
-export default function RewardsPage() {
+export default function RewardsOWNERPage() {
 
     const [display, setDisplay] = react.useState(0);
 
@@ -38,7 +38,7 @@ export default function RewardsPage() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de recompensas reinvidicadas </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <RewardsList /> : <></>}
+                {(display === 0) ? <OWNERRewardsList /> : <></>}
                 {(display === 1) ? <></>: <></>}
             </Grid>
         </Grid>

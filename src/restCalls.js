@@ -661,6 +661,33 @@ class restCalls {
         })
     }
 
+    createReward(name, description, price) {
+        return fetch("https://our-hull.appspot.com/rest/reward/register", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: name,
+                description: description,
+                owner: JSON.parse(localStorage.getItem('token')).username,
+                price: price,
+                timesRedeemed: "0"
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
 
     logout() {
         return fetch("https://our-hull.appspot.com/rest/users/logout", {

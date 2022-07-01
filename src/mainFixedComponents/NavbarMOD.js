@@ -6,7 +6,6 @@ import { Box, Grid, Tabs, Tab } from "@mui/material";
 import ParcelsPage from "../parcelComponents/ParcelsPage";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
-import RewardsPage from "../rewardComponents/RewardsPage"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import MODUsers from "../MODcomponents/MODUsers";

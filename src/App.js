@@ -39,20 +39,17 @@ export default function App() {
                         <NavbarLR />
                         <LoginRegister />
                     </Route>
-                    <Route exact path="/main">
+                    <Route exact path="/proprietario">
                         <NavbarOps />
                     </Route>
-                    <Route exact path="/main/forumDiscussion">
+                    <Route exact path="/proprietario/forumDiscussion">
                         <NavbarMessages />
                         <ForumMessagesPage />
                     </Route>
-                    <Route exact path="/administration">
-                        <AdministrationPage />
-                    </Route>
-                    <Route exact path="/merchants">
+                    <Route exact path="/comerciante">
                         <NavbarMerchants />
                     </Route>
-                    <Route exact path="/mayors">
+                    <Route exact path="/representante">
                         <NavbarMayors />
                     </Route>
                     <Route exact path="/moderador">

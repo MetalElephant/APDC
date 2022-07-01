@@ -6,7 +6,6 @@ import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
-import RewardsMerchantPage from "../rewardComponents/RewardsMerchantPage";
 import ParcelsMayorsPage from "../parcelComponents/ParcelsMayorsPage";
 
 

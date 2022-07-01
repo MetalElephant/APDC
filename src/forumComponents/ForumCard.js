@@ -22,7 +22,7 @@ export default function ForumsCard(props) {
     })
 
     function forumDiscussion() {
-        history.push("/main/forumDiscussion")
+        history.push("/proprietario/forumDiscussion")
         localStorage.setItem('forum', JSON.stringify(forums[number]));
     }
 

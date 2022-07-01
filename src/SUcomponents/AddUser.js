@@ -55,7 +55,7 @@ export default function AddUser() {
     }
 
     function roleHandler(e) {
-        if (e.target.value == "Representante")
+        if (e.target.value == "REPRESENTANTE")
             setIsRep(true)
         else
             setIsRep(false)
@@ -135,10 +135,10 @@ export default function AddUser() {
                             <FormControl variant="standard">
                                 <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                 <Select label="papel" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
-                                    <MenuItem value="Representante" label="Representante">
+                                    <MenuItem value="REPRESENTANTE" label="REPRESENTANTE">
                                         Representante
                                     </MenuItem >
-                                    <MenuItem value="Moderador" label="Moderador">
+                                    <MenuItem value="MODERADOR" label="MODERADOR">
                                         Moderador
                                     </MenuItem>
                                 </Select>
