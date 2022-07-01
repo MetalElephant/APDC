@@ -129,19 +129,19 @@ export default function LoginRegister() {
     function switchForRole() {
         var roleType = JSON.parse(localStorage.getItem('user')).role
         switch (roleType) {
-            case "Proprietario":
-                history.push("/main")
+            case "PROPRIETARIO":
+                history.push("/proprietario")
                 break;
-            case "Comerciante":
-                history.push("/merchants")
+            case "COMERCIANTE":
+                history.push("/comerciante")
                 break;
-            case "Representante":
-                history.push("/mayors")
+            case "REPRESENTANTE":
+                history.push("/representante")
                 break;
-            case "Moderador":
+            case "MODERADOR":
                 history.push("/moderador")
                 break;
-            case "Super User":
+            case "SUPERUSER":
                 history.push("/superuser")
                 break;
             default:
@@ -514,10 +514,10 @@ export default function LoginRegister() {
                                 <FormControl variant="standard">
                                     <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                     <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
-                                        <MenuItem value="Proprietario" label="Proprietario">
+                                        <MenuItem value="PROPRIETARIO" label="PROPRIETARIO">
                                             Proprietário
                                         </MenuItem >
-                                        <MenuItem value="Comerciante" label="Comerciante">
+                                        <MenuItem value="COMERCIANTE" label="COMERCIANTE">
                                             Comerciante
                                         </MenuItem>
                                     </Select>

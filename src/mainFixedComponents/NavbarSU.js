@@ -3,11 +3,7 @@ import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
 import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
-import ParcelsPage from "../parcelComponents/ParcelsPage";
 import UserPage from "../userProfileComponents/UserPage";
-import AboutUs from "./AboutUs"
-import RewardsPage from "../rewardComponents/RewardsPage"
-import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import SUUsers from "../SUcomponents/SUUsers";
 import SUParcels from "../SUcomponents/SUParcels";

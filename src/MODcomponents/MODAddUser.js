@@ -107,10 +107,10 @@ export default function MODAddUser() {
                             <FormControl variant="standard">
                                 <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                 <Select label="papel" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
-                                    <MenuItem value="Representante" label="Representante">
+                                    <MenuItem value="REPRESENTANTE" label="REPRESENTANTE">
                                         Representante
                                     </MenuItem >
-                                    <MenuItem value="Moderador" label="Moderador">
+                                    <MenuItem value="MODERADOR" label="MODERADOR">
                                         Moderador
                                     </MenuItem>
                                 </Select>

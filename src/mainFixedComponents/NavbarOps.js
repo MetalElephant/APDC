@@ -6,7 +6,7 @@ import { Box, Grid, Tabs, Tab } from "@mui/material";
 import ParcelsPage from "../parcelComponents/ParcelsPage";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
-import RewardsPage from "../rewardComponents/RewardsPage"
+import RewardsOWNERPage from "../rewardComponents/RewardsOWNERPage"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
 
@@ -50,7 +50,7 @@ export default function NavbarOps() {
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
             {selectedLeftTab === 1 && <ParcelsPage />}
-            {selectedLeftTab === 2 && <RewardsPage />}
+            {selectedLeftTab === 2 && <RewardsOWNERPage />}
             {selectedLeftTab === 3 && <ForumPage />}
             {selectedLeftTab === 4 && <AboutUs />}
             {selectedLeftTab === 5 && <StatisticsPage />}
