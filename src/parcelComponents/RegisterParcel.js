@@ -383,7 +383,7 @@ export default function RegisterParcel() {
                                                 setType(2)
                                                 setImage(f);
                                             }
-                                            if(f.type.substring(0, 5) !== "image")
+                                            if (f.type.substring(0, 5) !== "image")
                                                 setType(1)
                                             loadPhoto(f);
                                         }}

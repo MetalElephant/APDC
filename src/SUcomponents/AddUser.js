@@ -1,6 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, Card, Select, InputLabel, MenuItem } from "@mui/material";
+import locais from "../locais/distritos.txt"
+import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, Autocomplete, Select, InputLabel, MenuItem } from "@mui/material";
 
 export default function AddUser() {
 
@@ -11,10 +12,27 @@ export default function AddUser() {
     const [role, setRole] = react.useState("");
     const [isRep, setIsRep] = react.useState(false);
     const [freg, setFreg] = react.useState(null);
+    const [allFregs, setAllFregs] = react.useState([]);
 
     const [displayMessage, setDisplayMessage] = react.useState();
     const [isUserRegistered, setIsUserRegistered] = react.useState(false);
     const [isUserNotRegistered, setIsUserNotRegistered] = react.useState(false);
+
+    useEffect(() => {
+        var split = []
+        var temp = []
+        fetch(locais)
+            .then(r => r.text())
+            .then(text => {
+                split = text.split(";")
+                for (let i = 2; i < split.length; i += 3) {
+                    var elem = split[i]
+                    if (temp.indexOf(elem) === -1)
+                        temp.push(elem)
+                }
+                setAllFregs(temp)
+            })
+    }, [])
 
     function usernameHandler(e) {
         setUsername(e.target.value)
@@ -127,16 +145,17 @@ export default function AddUser() {
                             </FormControl>
 
                             {isRep &&
-                                <TextField
-                                    required
-                                    margin="normal"
-                                    fullWidth
+                                <Autocomplete
+                                    selectOnFocus
+                                    id="freguesias"
+                                    options={allFregs}
+                                    getOptionLabel={option => option}
                                     value={freg}
-                                    name="freg"
-                                    label="Freguesia"
-                                    id="freg"
-                                    color="success"
-                                    onChange={fregHandler}
+                                    onChange={(_event, newFreg) => {
+                                        setFreg(newFreg);
+                                    }}
+                                    sx={{ width: 400, mt: 2 }}
+                                    renderInput={(params) => <TextField {...params} label="Freguesia *" />}
                                 />
                             }
 
