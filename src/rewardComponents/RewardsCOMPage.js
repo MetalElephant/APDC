@@ -3,10 +3,19 @@ import { Button, Grid, Typography } from "@mui/material";
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
 import COMAddReward from "./COMAddReward";
+import {useHistory} from "react-router-dom";
+import restCalls from "../restCalls"
+import LogoutIcon from '@mui/icons-material/Logout';
+
 
 export default function RewardsMerchantPage() {
+    let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+
+    function logoutManager() {
+        restCalls.logout().then(() => { history.push("/") })
+    }
 
     return (
         <Grid container spacing={2} direction="column">
@@ -47,6 +56,18 @@ export default function RewardsMerchantPage() {
                         onClick={() => { setDisplay(2) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Recompensa </Typography>
+                    </Button>
+                    <Button
+                        type="submit"
+                        id="5"
+                        fullWidth
+                        variant="outlined"
+                        color="success"
+                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                        onClick={() => { logoutManager()}}
+                    >
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
                 {(display === 0) ? <COMAddReward /> : <></>}
