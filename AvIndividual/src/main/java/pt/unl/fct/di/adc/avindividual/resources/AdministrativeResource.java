@@ -129,7 +129,7 @@ public class AdministrativeResource {
 						.set(NAME, data.name)
 						.set(PASSWORD, DigestUtils.sha512Hex(password))
 						.set(EMAIL, data.email)
-						.set(ROLE, data.isRep ? Roles.REPRESENTATIVE.getRole() : Roles.MODERATOR.getRole())		
+						.set(ROLE, data.isRep ? Roles.REPRESENTANTE.getRole() : Roles.MODERADOR.getRole())		
 						.set(MPHONE, data.mobilePhone)
 						.set(HPHONE, data.homePhone)
 						.set(ADDRESS, data.address)
@@ -165,8 +165,7 @@ public class AdministrativeResource {
 	}
 
 	private boolean verifyRegister(Entity userReg) {
-
-		return (userReg.getString(ROLE).equals(Roles.SU.getRole()) || userReg.getString(ROLE).equals(Roles.MODERATOR.getRole()));
+		return (userReg.getString(ROLE).equals(Roles.SUPERUSER.getRole()) || userReg.getString(ROLE).equals(Roles.MODERADOR.getRole()));
 	}
 
 	private void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		

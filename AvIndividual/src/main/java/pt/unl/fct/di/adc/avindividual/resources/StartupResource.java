@@ -1,5 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.POST;
@@ -26,6 +27,8 @@ public class StartupResource {
     //Create a stats entity with the key being the number of users/parcels in total
     //Add 1 to the count when a user/parcel is created and minus 1 when removed
 
+    private static final Random r = new Random();
+
 	//Keys
 	private static final String USER = "User";
     private static final String PARCEL = "Parcel";
@@ -33,6 +36,9 @@ public class StartupResource {
     private static final String MESSAGE = "Message";
     private static final String STAT = "Statistics";
     private static final String VALUE = "Value";
+    private static final String SECRET = "Secret";
+
+    private static final int SECRET_LENGTH = 64;
 
 	//User information
 	private static final String NAME = "name";
@@ -82,7 +88,7 @@ public class StartupResource {
                     .set(NAME, SU_NAME)
                     .set(PASSWORD, DigestUtils.sha512Hex(SU_PASSWORD))
                     .set(EMAIL, SU_EMAIL)
-                    .set(ROLE, Roles.SU.getRole())
+                    .set(ROLE, Roles.SUPERUSER.getRole())
                     .set(MPHONE, SU_MPHONE)
                     .set(HPHONE, SU_HPHONE)
                     .set(ADDRESS, SU_ADDRESS)
@@ -144,7 +150,77 @@ public class StartupResource {
             return Response.ok("Statistics created.").build();
         }finally{
             if (tn.isActive())
-            tn.rollback();
+                tn.rollback();
         }
     }
+
+    @POST
+    @Path("/secrets")
+    public Response createSecrets() {
+        LOG.info("Attempt to create secrets");
+
+        Transaction tn = datastore.newTransaction();
+
+        Key suSecretKey = datastore.newKeyFactory().setKind(SECRET).newKey(Roles.SUPERUSER.getRole());
+        Key moderatorSecretKey = datastore.newKeyFactory().setKind(SECRET).newKey(Roles.MODERADOR.getRole());
+        Key representativeSecretKey = datastore.newKeyFactory().setKind(SECRET).newKey(Roles.REPRESENTANTE.getRole());
+        Key merchantSecretKey = datastore.newKeyFactory().setKind(SECRET).newKey(Roles.COMERCIANTE.getRole());
+        Key ownerSecretKey = datastore.newKeyFactory().setKind(SECRET).newKey(Roles.PROPRIETARIO.getRole());
+
+        try {
+            Entity suSecret = tn.get(suSecretKey);
+
+            if (suSecret != null){
+                return Response.status(Status.CONFLICT).entity("Secrets already exist.").build();
+            }
+
+            suSecret = Entity.newBuilder(suSecretKey)
+                    .set(SECRET, generateSecret(SECRET_LENGTH))
+                    .build();
+
+            Entity moderatorSecret = Entity.newBuilder(moderatorSecretKey)
+                    .set(SECRET, generateSecret(SECRET_LENGTH))
+                    .build();
+
+            Entity representativeSecret = Entity.newBuilder(representativeSecretKey)
+                    .set(SECRET, generateSecret(SECRET_LENGTH))
+                    .build();
+
+            Entity merchantSecret = Entity.newBuilder(merchantSecretKey)
+                    .set(SECRET, generateSecret(SECRET_LENGTH))
+                    .build();
+
+            Entity ownerSecret = Entity.newBuilder(ownerSecretKey)
+                    .set(SECRET, generateSecret(SECRET_LENGTH))
+                    .build();
+            
+            tn.add(suSecret, moderatorSecret, representativeSecret, merchantSecret, ownerSecret);
+            tn.commit();
+
+            return Response.ok("Secrets created.").build();
+        } finally {
+            if (tn.isActive())
+                tn.rollback();
+        }
+    }
+
+    private static String generateSecret(int length) {
+		String capitalCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
+		String specialCharacters = "!@#$";
+		String numbers = "1234567890";
+		String combinedChars = capitalCaseLetters + lowerCaseLetters + specialCharacters + numbers;
+		char[] secret = new char[length];
+  
+		secret[0] = lowerCaseLetters.charAt(r.nextInt(lowerCaseLetters.length()));
+		secret[1] = capitalCaseLetters.charAt(r.nextInt(capitalCaseLetters.length()));
+		secret[2] = specialCharacters.charAt(r.nextInt(specialCharacters.length()));
+		secret[3] = numbers.charAt(r.nextInt(numbers.length()));
+	 
+		for(int i = 4; i< length ; i++) {
+		   secret[i] = combinedChars.charAt(r.nextInt(combinedChars.length()));
+		}
+
+		return String.valueOf(secret);
+	}
 }

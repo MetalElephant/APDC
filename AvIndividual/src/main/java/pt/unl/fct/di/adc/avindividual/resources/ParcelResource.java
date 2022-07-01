@@ -604,15 +604,15 @@ public class ParcelResource {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
-			case MODERATOR:
+			case SUPERUSER:
+			case MODERADOR:
 				return true;
-			case OWNER:
+			case PROPRIETARIO:
 				if(e1 == e2)
 					return true;
 				break;
-			case REPRESENTATIVE:
-			case MERCHANT:
+			case REPRESENTANTE:
+			case COMERCIANTE:
 			default:
 				break;
 		}
@@ -624,12 +624,12 @@ public class ParcelResource {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
-			case MODERATOR:
-			case REPRESENTATIVE:
+			case SUPERUSER:
+			case MODERADOR:
+			case REPRESENTANTE:
 				return true;
-			case OWNER:
-			case MERCHANT:
+			case PROPRIETARIO:
+			case COMERCIANTE:
 			default:
 				break;
 		}

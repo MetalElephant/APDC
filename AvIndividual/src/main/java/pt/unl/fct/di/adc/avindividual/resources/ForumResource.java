@@ -425,12 +425,12 @@ public class ForumResource {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
+			case SUPERUSER:
 				return true;
-			case MODERATOR:
-			case OWNER:
-			case REPRESENTATIVE:
-			case MERCHANT:
+			case MODERADOR:
+			case PROPRIETARIO:
+			case REPRESENTANTE:
+			case COMERCIANTE:
 				if(e1 == e2)
 					return true;
 				break;
@@ -446,15 +446,15 @@ public class ForumResource {
 		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
+			case SUPERUSER:
 				return true;
-			case MODERATOR:
-				if(e1 == e2 || e2Role != Roles.SU) 
+			case MODERADOR:
+				if(e1 == e2 || e2Role != Roles.SUPERUSER) 
 					return true;
 				break;
-			case OWNER:
-			case REPRESENTATIVE:
-			case MERCHANT:
+			case PROPRIETARIO:
+			case REPRESENTANTE:
+			case COMERCIANTE:
 				if(e1 == e2)
 					return true;
 				break;

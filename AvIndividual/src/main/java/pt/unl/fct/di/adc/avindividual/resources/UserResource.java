@@ -572,12 +572,12 @@ public class UserResource {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
+			case SUPERUSER:
 				return true;
-			case MODERATOR:
-			case OWNER:
-			case REPRESENTATIVE:
-			case MERCHANT:
+			case MODERADOR:
+			case PROPRIETARIO:
+			case REPRESENTANTE:
+			case COMERCIANTE:
 				if(e1 == e2)
 					return true;
 				break;
@@ -593,13 +593,13 @@ public class UserResource {
 		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
+			case SUPERUSER:
 				return true;
-			case MODERATOR: 
-				return (e1 == e2 || e2Role != Roles.SU);
-			case OWNER:
-			case REPRESENTATIVE:
-			case MERCHANT:
+			case MODERADOR: 
+				return (e1 == e2 || e2Role != Roles.SUPERUSER);
+			case PROPRIETARIO:
+			case REPRESENTANTE:
+			case COMERCIANTE:
 				return e1 == e2;
 			default:
 				break;

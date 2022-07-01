@@ -339,7 +339,7 @@ public class RewardResource {
 		
 		String role = user.getString(ROLE);
 		
-        if(!role.equalsIgnoreCase(Roles.MERCHANT.name())) {
+        if(!role.equalsIgnoreCase(Roles.COMERCIANTE.getRole())) {
             return false;
         }
 
@@ -350,15 +350,15 @@ public class RewardResource {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
 		switch(e1Role) {
-			case SU:
-            case MODERATOR:
+			case SUPERUSER:
+            case MODERADOR:
 				return true;
-            case MERCHANT:
+            case COMERCIANTE:
 				if(e1 == e2)
 					return true;
 				break;
-			case OWNER:
-			case REPRESENTATIVE:
+			case PROPRIETARIO:
+			case REPRESENTANTE:
 			default:
 				break;
 		}
