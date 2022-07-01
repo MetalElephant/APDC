@@ -22,11 +22,11 @@ public class RewardData {
     }
 
     public boolean isDataValid() {
-        if(name != null || description != null || owner != null) {
+        if(name == null || description == null || owner == null || price == null) {
             return false;
         }
 
-        if(name.length() == 0 || description.length() == 0 || owner.length() == 0) {
+        if(name.length() == 0 || description.length() == 0 || owner.length() == 0 || price.length() == 0) {
             return false;
         }
 
