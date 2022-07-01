@@ -153,16 +153,18 @@ export default function SearchParcel() {
         if (markers.length === 4) {
             list = []
             if (option === "limits") {
-                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng);
-                searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng).then(() => {updatePolygonMarkers()})
             }
         }
         else if (type !== -1) {
             list = []
-            restCalls.getParcelsByRegion(region, type);
-            searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+            restCalls.getParcelsByRegion(region, type).then(() => {updatePolygonMarkers()})
         }
+    }
 
+    function updatePolygonMarkers() {
+        var searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+        var list = []
         if (searchedParcels != null && searchedParcels.length > 0) {
             searchedParcels.map((parcel) => {
                 list.push(parcel)
