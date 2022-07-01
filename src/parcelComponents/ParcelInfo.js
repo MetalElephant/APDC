@@ -26,8 +26,8 @@ export default function ParcelInfo() {
 
     useEffect(() => {
         const temp = []
-        if(parcels != null) {
-            if(parcels[chosenParcel] != null) {
+        if (parcels != null) {
+            if (parcels[chosenParcel] != null) {
                 parcels[chosenParcel].markers.map(marker => {
                     temp.push({
                         lat: marker.latitude,
@@ -37,9 +37,9 @@ export default function ParcelInfo() {
                 })
                 setMarkers(temp)
             }
-           
+
             var parcel = parcels[chosenParcel]
-            if(parcel != null) {
+            if (parcel != null) {
                 setParcelName(parcel.parcelName);
                 setParcelDist(parcel.district);
                 setParcelCounty(parcel.county);
@@ -53,7 +53,7 @@ export default function ParcelInfo() {
         }
 
     }, [chosenParcel])
-    
+
 
     function setLats(parcel, size) {
         const tempLats = []

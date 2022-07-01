@@ -1,7 +1,7 @@
 import { Box, Typography, Grid, Paper} from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
-import userAvatar from "../images/user-avatar.png";
+import restCalls from "../restCalls"
 
 export default function UserInfo() {
 
@@ -17,6 +17,7 @@ export default function UserInfo() {
     const [image, setImage] = react.useState("")
 
     useEffect(() => {
+        restCalls.userInfo()
         var user = JSON.parse(localStorage.getItem('user'))
 
         setUsername(user.username)
