@@ -111,6 +111,17 @@ public class StatisticsResource {
 		return Response.ok(val).build();
 	}
 
+	@GET
+	@Path("/userMostParcels")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response userMostParcelsStatistics() {
+		LOG.info("Attempt to read user related statistics.");
+
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+
+		return Response.ok().build();
+	}
+
 	@POST
 	@Path("/parcelsByRegion")
 	@Consumes(MediaType.APPLICATION_JSON)

@@ -1,6 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.awt.geom.Line2D;
+import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -75,10 +76,16 @@ public class ParcelResource {
 	//Keys
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
+	private static final String FORUM = "Forum";
 	private static final String PARCEL = "Parcel";
 	private static final String STAT = "Statistics";
+	private static final String SPEC = "specialization";
 
 	private static final boolean ADD = true;
+
+	private static final String TOPIC = "Topic";
+    private static final String CRT_DATE = "Creation date";
+	private static final String PARCEL_TOPIC = "Forum de discussao sobre a parcela.";
 
 	public ParcelResource() { }
 	
@@ -96,6 +103,8 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.parcelName);
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.owner);
+		Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.parcelName);
+        Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
 		
 		try {
 			Entity user = tn.get(userKey);
@@ -154,6 +163,8 @@ public class ParcelResource {
 			}
 
 			parcel = builder.build();
+
+			createForum(tn, forumKey, statKey);
 			
 			tn.add(parcel);
 			tn.commit();
@@ -191,7 +202,7 @@ public class ParcelResource {
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
 				tn.rollback();
-				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
+				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 				
 			if (!ur.isLoggedIn(token, data.username)){
@@ -217,11 +228,11 @@ public class ParcelResource {
 			for(int i = 0; i< data.allLats.length; i++) {
 				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
 			}
-			
-			if(isOverlappedUpdate(markers, data.parcelName)){
+			String s = isOverlappedUpdate(markers, data.parcelName);
+			if(!s.equals("nonce")){
 				LOG.warning("Parcel overlaps with another parcel.");
 				tn.rollback();
-				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel.").build();
+				return Response.status(Status.CONFLICT).entity(s).build();
 			}
 
 			Builder builder = Entity.newBuilder(parcelKey)
@@ -232,7 +243,7 @@ public class ParcelResource {
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
 					.set(PREV_USAGE, data.prevUsage)
-					.set(AREA, parcel.getString(AREA))
+					.set(AREA, getArea(markers))
 					.set(CONFIRMATION, parcel.getString(CONFIRMATION))
 					.set(CONFIRMED, parcel.getBoolean(CONFIRMED))
                     .set(NMARKERS, String.valueOf(data.allLats.length))
@@ -441,7 +452,7 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		List<ParcelInfo> parcelList = getRepParcels(data.username);
+		List<ParcelInfo> parcelList = getRepParcels(user.getString(SPEC));
 
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
@@ -629,6 +640,21 @@ public class ParcelResource {
 		return URL + name;
 	}
 
+	private void createForum(Transaction tn, Key forumKey, Key statKey){
+		Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.HOUR, 1);
+
+        Entity forum = Entity.newBuilder(forumKey)
+                .set(TOPIC, PARCEL_TOPIC)
+                .set(CRT_DATE, cal.getTime().toString())
+                .build();
+
+        sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+
+        tn.add(forum);
+	}
+
+
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 									.setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true)))
@@ -758,7 +784,7 @@ public class ParcelResource {
 		return false;
 	}
 
-	private boolean isOverlappedUpdate(LatLng[] markers, String name){
+	private String isOverlappedUpdate(LatLng[] markers, String name){
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
 								   .setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true))).build();
 
@@ -777,10 +803,11 @@ public class ParcelResource {
            		}
 
             	if (overlaps(markers, auxMarkers) || contains(markers, auxMarkers))
-                	return true;
+                	return parcel.getKey().getName();
 			}
-			}
-		return false;
+		}
+
+		return "None";
 	}
 
 	private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers) {

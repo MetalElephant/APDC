@@ -5,11 +5,11 @@ public class ParcelUpdateData {
 	public String username, owner, parcelName, description, groundType, currUsage, prevUsage;
 	public String[] owners;
 	public double[] allLats, allLngs;
-	public byte[] confirmation;
 	
 	public ParcelUpdateData() {}
 	
-	public ParcelUpdateData(String username, String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, String prevUsage, double[] allLats, double[] allLngs, byte[] confirmation) {
+	public ParcelUpdateData(String username, String owner, String[] owners, String parcelName, String description, String groundType, String currUsage, 
+							String prevUsage, double[] allLats, double[] allLngs) {
 		this.username = username;
 		this.owner = owner;
 		this.parcelName = parcelName;
@@ -20,13 +20,16 @@ public class ParcelUpdateData {
 		this.prevUsage = prevUsage;
 		this.allLats = allLats;
 		this.allLngs = allLngs;
-		this.confirmation = confirmation;
 	}
 
     public boolean isDataValid(){
-        if (this.username == null || this.owner == null || this.parcelName == null)
+		if (this.allLats == null) this.allLats = new double[0];
+
+        if (this.username == null || this.owner == null || this.parcelName == null || this.description == null || this.groundType == null ||
+			this.currUsage == null || this.prevUsage == null || this.allLats == null || this.allLngs == null)
             return false;
 
-        return (this.owner.length() != 0 && this.parcelName.length() != 0);
+        return (this.username.length() != 0 && this.owner.length() != 0 && this.parcelName.length() != 0 && this.description.length() != 0 && this.groundType.length() != 0 && 
+				this.currUsage.length() != 0 && this.prevUsage.length() != 0 || this.allLats.length != 0 || this.allLats.length != 0);
     }
 }

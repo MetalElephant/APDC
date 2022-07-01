@@ -7,7 +7,7 @@ package pt.unl.fct.di.adc.avindividual.util;
 // Merchant
 
 public enum Roles {
-	SU("Super User"), MODERATOR("Moderator"), OWNER("Owner"), REPRESENTATIVE("Representative"), MERCHANT("Merchant");
+	SU("Super User"), MODERATOR("Moderador"), OWNER("Proprietario"), REPRESENTATIVE("Representante"), MERCHANT("Comerciante");
 
 	private final String role;
 

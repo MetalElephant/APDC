@@ -54,9 +54,11 @@ public class AdministrativeResource {
 	private static final String NIF = "nif";
 	private static final String VISIBILITY = "visibility";
 	private static final String SPEC = "specialization";
+	private static final String PHOTO = "photo";
 	private static final String CTIME = "creation time";
 
 	private static final String PUBLIC = "Public";
+	private static final String UNDEFINED = "Undefined";
 
 	//Token information
 	private static final String TOKENID = "token ID";
@@ -134,6 +136,7 @@ public class AdministrativeResource {
 						.set(ADDRESS, data.address)
 						.set(NIF, data.nif)
 						.set(VISIBILITY, data.visibility)
+						.set(PHOTO, UNDEFINED)
 						.set(SPEC, data.isRep ? data.freguesia : MOD)
 						.set(CTIME, Timestamp.now())
 						.build();

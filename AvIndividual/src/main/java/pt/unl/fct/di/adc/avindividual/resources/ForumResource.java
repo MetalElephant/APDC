@@ -259,7 +259,6 @@ public class ForumResource {
             Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
             Entity forum = tn.get(forumKey);
-            Entity stat = tn.get(statKey);
 
             if (user == null) {
                 LOG.warning("User does not exist");
