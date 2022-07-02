@@ -21,6 +21,7 @@ export default function MODParcels() {
             <Grid item xs={12} container align="center">
                 <Grid item xs={2}>
                     <Button
+                        disabled
                         type="submit"
                         id="1"
                         fullWidth
@@ -31,18 +32,6 @@ export default function MODParcels() {
                         onClick={() => { setDisplay(0) }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Parcelas </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(1) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Parcela </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -58,7 +47,6 @@ export default function MODParcels() {
                     </Button>
                 </Grid>
                 {(display === 0) ? <MODListParcels /> : <></>}
-                {(display === 1) ? <div> FUCK IT</div> : <></>}
             </Grid>
         </Grid>
     )

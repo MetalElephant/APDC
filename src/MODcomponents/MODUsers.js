@@ -7,7 +7,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import MODListUsers from "./MODListUsers";
-import MODAddUser from "./MODAddUser";
+import MODAddUser from "../SUcomponents/AddUser";
 
 export default function MODUsers() {
     let history = useHistory();
@@ -48,18 +48,6 @@ export default function MODUsers() {
                     </Button>
                     <Button
                         type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<ManageAccountsIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Utilizador </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
                         id="5"
                         fullWidth
                         variant="outlined"
@@ -73,7 +61,6 @@ export default function MODUsers() {
                 </Grid>
                 {(display === 0) ? <MODListUsers /> : <></>}
                 {(display === 1) ? <MODAddUser /> : <></>}
-                {(display === 2) ? <div> EU TOU COM MEUS HOMENS</div> : <></>}
             </Grid>
         </Grid>
     )
