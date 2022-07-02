@@ -1,7 +1,7 @@
 import react from "react"
 import { Button, Grid, Typography } from "@mui/material";
 import restCalls from "../restCalls"
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -52,9 +52,9 @@ export default function MODUsers() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        startIcon={<LogoutIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { logoutManager()}}
+                        onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>

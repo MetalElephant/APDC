@@ -1,175 +1,207 @@
-import { Box, Typography, Grid, Paper, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
-import mapsAvatar from "../images/maps-avatar.png";
+import { Box, Typography, Grid, Autocomplete, TextField, Button, Alert, Paper } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
-import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function ReviewParcels() {
 
+    const [chosenParcel, setChosenParcel] = react.useState()
+    const [parcelIndex, setParcelIndex] = react.useState("")
     const [parcelName, setParcelName] = react.useState("")
-    const [parcelDist, setParcelDist] = react.useState("")
-    const [parcelCounty, setParcelCounty] = react.useState("")
-    const [parcelFreg, setParcelFreg] = react.useState("")
+    const [owner, setOwner] = react.useState("")
+    const [owners, setOwners] = react.useState("")
+    const [dist, setDist] = react.useState(null)
+    const [conc, setConc] = react.useState(null)
+    const [freg, setFreg] = react.useState(null)
     const [description, setDescription] = react.useState("")
     const [groundType, setGroundType] = react.useState("")
     const [currUsage, setCurrUsage] = react.useState("")
     const [prevUsage, setPrevUsage] = react.useState("")
     const [area, setArea] = react.useState("")
-    const [allLats, setAllLats] = react.useState("")
-    const [allLngs, setAllLngs] = react.useState("")
-    const [chosenParcel, setChosenParcel] = react.useState("")
+    const [allParcels, setAllParcels] = react.useState([])
     const [markers, setMarkers] = react.useState([])
+    const [markersMem, setMarkersMem] = react.useState([])
+    const [allLats, setAllLats] = react.useState([])
+    const [allLngs, setAllLngs] = react.useState([])
+    const [allLatsMem, setAllLatsMem] = react.useState([])
+    const [allLngsMem, setAllLngsMem] = react.useState([])
+    const [parcel, setParcel] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
+    const [isParcelVerified, setIsParcelVerified] = react.useState(false)
+    const [isParcelNotVerified, setIsParcelNotVerified] = react.useState(true)
+    const [displayMessage, setDisplayMessage] = react.useState(false)
 
-    var parcels = JSON.parse(localStorage.getItem('parcels'))
+    //var parcels = JSON.parse(localStorage.getItem('searchedParcels'))
+    var parcels = JSON.parse(localStorage.getItem('allParcels'))
 
     useEffect(() => {
-        const temp = []
-        if(parcels != null) {
-            if(parcels[chosenParcel] != null) {
-                parcels[chosenParcel].markers.map(marker => {
-                    temp.push({
-                        lat: marker.latitude,
-                        lng: marker.longitude,
-                        time: new Date()
+        var user = JSON.parse(localStorage.getItem('user'))
+        restCalls.listAllParcels()
+            .then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('allParcels')); })
+        //restCalls.getParcelsByRegion("Areeiro", 3).then(setLoaded(true))
+    }, [])
+
+    useEffect(() => {
+        setParcelName(parcel.parcelName)
+        setOwner(parcel.owner)
+        setDist(parcel.district)
+        setConc(parcel.county)
+        setFreg(parcel.freguesia)
+        setDescription(parcel.description)
+        setGroundType(parcel.groundType)
+        setCurrUsage(parcel.currUsage)
+        setPrevUsage(parcel.prevUsage)
+        setArea(parcel.area)
+
+        setOwners("")
+        if (parcel.owners != null && parcel.owners.length > 0) {
+            var tempOwners = ""
+            for (let i = 0; i < parcel.owners.length; i++) {
+                if(tempOwners === "")
+                    tempOwners = parcel.owners[i]
+                else if (parcel.owners[i] !== "" && parcel.owners[i] != null)
+                    tempOwners = tempOwners + ", " + parcel.owners[i]
+            }
+            setOwners(tempOwners)
+        }
+
+        if (parcels != null && parcels.length > 0) {
+            var i = 0;
+            parcels.map((temp) => {
+                if (temp.parcelName === parcel.parcelName) {
+                    setParcelIndex(i)
+                    var tempMarkers = []
+                    var tempLats = []
+                    var tempLngs = []
+                    parcel.markers.map((marker) => {
+                        tempMarkers.push({
+                            lat: marker.latitude,
+                            lng: marker.longitude
+                        })
+                        tempLats.push(marker.latitude)
+                        tempLngs.push(marker.longitude)
                     })
-                })
-                setMarkers(temp)
-            }
-           
-            var parcel = parcels[chosenParcel]
-            if(parcel != null) {
-                setParcelName(parcel.parcelName);
-                setParcelDist(parcel.district);
-                setParcelCounty(parcel.county);
-                setParcelFreg(parcel.freguesia);
-                setDescription(parcel.description);
-                setGroundType(parcel.groundType);
-                setCurrUsage(parcel.currUsage);
-                setPrevUsage(parcel.prevUsage);
-                setArea(parcel.area);
-            }
+                    setMarkers(tempMarkers)
+                    setMarkersMem(tempMarkers)
+                    setAllLats(tempLats)
+                    setAllLatsMem(tempLats)
+                    setAllLngs(tempLngs)
+                    setAllLngsMem(tempLngs)
+                }
+                i++
+            })
         }
-
-    }, [chosenParcel])
-    
-
-    function setLats(parcel, size) {
-        const tempLats = []
-        for (var i = 0; i < size; i++) {
-            tempLats.push(parcel.markers[i].latitude)
-        }
-        return tempLats;
-    }
-
-    function setLngs(parcel, size) {
-        const tempLngs = []
-        for (var i = 0; i < size; i++) {
-            tempLngs.push(parcel.markers[i].longitude)
-        }
-        return tempLngs;
-    }
-
-    function setAttributes(event) {
-        var parcel = parcels[event.target.value]
-        setChosenParcel(event.target.value)
-        setAllLats(setLats(parcel, parcel.markers.length));
-        setAllLngs(setLngs(parcel, parcel.markers.length));
-    }
+    }, [parcel])
 
     useEffect(() => {
-        restCalls.parcelInfo().then(() => { setLoaded(true) })
-    })
-
-    function generateSelects() {
-        const views = []
-        if (parcels == null || parcels.length === 0)
-            return <Typography> Não há parcelas registadas</Typography>
-        else
-            for (var i = 0; i < parcels.length; i++) {
-                views.push(
-                    <MenuItem
-                        key={i}
-                        value={i}
-                    >
-                        {parcels[i].parcelName}
-                    </MenuItem>
-                )
-            }
-        return views;
-    }
+        var temp = []
+        if (parcels != null) {
+            parcels.map((parcel) => {
+                temp.push(parcel)
+            })
+            setAllParcels(temp)
+        }
+    }, [loaded])
 
     return (
         <>
-            <Grid item xs={1.5} >
-                <FormControl variant="standard">
-                    <InputLabel id="id">Parcels</InputLabel>
-                    <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "150px" }}>
-                        {loaded && generateSelects()}
-                    </Select>
-                </FormControl>
+            <Grid item xs={2} >
+                <Autocomplete
+                    selectOnFocus
+                    id="parcels"
+                    options={allParcels}
+                    getOptionLabel={option => option.parcelName}
+                    onChange={(event, newChosenParcel) => {
+                        setChosenParcel(newChosenParcel.parcelName);
+                        setParcel(newChosenParcel)
+                    }}
+                    sx={{ width: "80%", mt: 2 }}
+                    renderInput={(params) => <TextField {...params} label="Parcelas" />}
+                />
             </Grid>
-            <Grid item xs={4.5} sx={{ bgcolor: "#F5F5F5" }}>
+            <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Name: {parcelName} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Dono da parcela: {owner} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> District: {parcelDist} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Outros donos da parcela: {owners} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> County: {parcelCounty} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da parcela: {parcelName} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freg: {parcelFreg} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Distrito: {dist} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}>  Description: {description} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Concelho: {conc} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Ground Type: {groundType}</Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freguesia: {freg} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Current Usage: {currUsage}  </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Descrição: {description} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Previous Usage: {prevUsage} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Tipo de Cobertura do Solo: {groundType} </Typography>
                     </Paper>
                 </Box>
-                <Box p={2.5} textAlign="center">
+                <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Area: {area} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Utilização Atual: {currUsage} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center" >
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Utilização Prévia: {prevUsage} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center" >
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Área: {area} </Typography>
                     </Paper>
                 </Box>
             </Grid>
             <Grid item xs={4}>
+
                 <LoadScript
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
-                    {(parcels != null && parcels[chosenParcel] != null) &&
+                    {(parcels != null && parcels[parcelIndex] != null) &&
                         <GoogleMap
-                            mapContainerStyle={{ width: "100%", height: "100%" }}
-                            center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
+                            mapContainerStyle={{ width: "100%", height: "60%" }}
+                            center={{ lat: parcels[parcelIndex].markers[0].latitude, lng: parcels[parcelIndex].markers[0].longitude }}
                             zoom={13}
+                            onClick={(event) => {
+                                setMarkers(current => [
+                                    ...current,
+                                    {
+                                        lat: event.latLng.lat(),
+                                        lng: event.latLng.lng()
+                                    },
+                                ]);
+                                allLats.push(event.latLng.lat())
+                                allLngs.push(event.latLng.lng())
+                            }}
                         >
-                            {parcels[chosenParcel].markers.map(marker => (
+                            {markers.map(marker => (
                                 <Marker
-                                    position={{ lat: marker.latitude, lng: marker.longitude }}
+                                    position={{ lat: marker.lat, lng: marker.lng }}
                                 />
 
                             ))}
@@ -178,11 +210,19 @@ export default function ReviewParcels() {
                                 onClick={() => this.handleClick()}
                                 options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                             />
-
-                            { /* Child components, such as markers, info windows, etc. */}
                         </GoogleMap>
                     }
                 </LoadScript>
+
+                {(isParcelVerified && displayMessage) ?
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela verificada com sucesso.</Typography>
+                    </Alert> : <></>}
+                {(isParcelNotVerified && displayMessage) ?
+                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na verificação da parcela.</Typography>
+                    </Alert> : <></>
+                }
             </Grid>
         </>
     )

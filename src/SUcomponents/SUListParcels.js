@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Paper, ButtonGroup, Autocomplete, TextField, Button, Alert } from "@mui/material";
+import { Box, Typography, Grid, ButtonGroup, Autocomplete, TextField, Button, Alert } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
@@ -71,7 +71,7 @@ export default function ListParcels() {
         setArea(parcel.area)
 
         if (parcels != null && parcels.length > 0) {
-            var i=0;
+            var i = 0;
             parcels.map((temp) => {
                 if (temp.parcelName === parcel.parcelName) {
                     setParcelIndex(i)

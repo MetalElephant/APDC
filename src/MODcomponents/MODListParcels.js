@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Paper, ButtonGroup, Autocomplete, TextField, Button, Alert } from "@mui/material";
+import { Box, Typography, Grid, ButtonGroup, Autocomplete, TextField, Button, Alert } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
@@ -12,9 +12,9 @@ export default function ListParcels() {
     const [parcelName, setParcelName] = react.useState("")
     const [owner, setOwner] = react.useState("")
     const [owners, setOwners] = react.useState("")
-    const [dist, setDist] = react.useState("")
-    const [conc, setConc] = react.useState("")
-    const [freg, setFreg] = react.useState("")
+    const [dist, setDist] = react.useState(null)
+    const [conc, setConc] = react.useState(null)
+    const [freg, setFreg] = react.useState(null)
     const [description, setDescription] = react.useState("")
     const [groundType, setGroundType] = react.useState("")
     const [currUsage, setCurrUsage] = react.useState("")
@@ -255,6 +255,7 @@ export default function ListParcels() {
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <Autocomplete
+                        disabled={parcelName === "" && true}
                         selectOnFocus
                         id="distritos"
                         options={allDist}
@@ -271,6 +272,7 @@ export default function ListParcels() {
                                 }
                             }
                         }}
+                        getOptionSelected={(option, value) => option === value}
                         sx={{ width: 400, mt: 1 }}
                         renderInput={(params) => <TextField {...params} label="Distrito" />}
                     />
@@ -438,7 +440,7 @@ export default function ListParcels() {
 
                 {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removid acom sucesso.</Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removida com sucesso.</Typography>
                     </Alert> : <></>}
                 {(isParcelNotRemoved && displayMessage) ?
                     <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
