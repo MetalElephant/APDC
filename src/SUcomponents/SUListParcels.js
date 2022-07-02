@@ -12,9 +12,9 @@ export default function ListParcels() {
     const [parcelName, setParcelName] = react.useState("")
     const [owner, setOwner] = react.useState("")
     const [owners, setOwners] = react.useState("")
-    const [dist, setDist] = react.useState("")
-    const [conc, setConc] = react.useState("")
-    const [freg, setFreg] = react.useState("")
+    const [dist, setDist] = react.useState(null)
+    const [conc, setConc] = react.useState(null)
+    const [freg, setFreg] = react.useState(null)
     const [description, setDescription] = react.useState("")
     const [groundType, setGroundType] = react.useState("")
     const [currUsage, setCurrUsage] = react.useState("")
@@ -255,6 +255,7 @@ export default function ListParcels() {
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <Autocomplete
+                        disabled={parcelName === "" && true}
                         selectOnFocus
                         id="distritos"
                         options={allDist}
@@ -271,6 +272,7 @@ export default function ListParcels() {
                                 }
                             }
                         }}
+                        getOptionSelected={(option, value) => option === value}
                         sx={{ width: 400, mt: 1 }}
                         renderInput={(params) => <TextField {...params} label="Distrito" />}
                     />
@@ -319,6 +321,9 @@ export default function ListParcels() {
                         value={description}
                         id="description"
                         color="success"
+                        onChange={(event) => {
+                            setDescription(event.target.value)
+                        }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -330,6 +335,9 @@ export default function ListParcels() {
                         value={groundType}
                         id="groundType"
                         color="success"
+                        onChange={(event) => {
+                            setGroundType(event.target.value)
+                        }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -341,6 +349,9 @@ export default function ListParcels() {
                         value={currUsage}
                         id="currUsage"
                         color="success"
+                        onChange={(event) => {
+                            setCurrUsage(event.target.value)
+                        }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -352,6 +363,9 @@ export default function ListParcels() {
                         value={prevUsage}
                         id="prevUsage"
                         color="success"
+                        onChange={(event) => {
+                            setPrevUsage(event.target.value)
+                        }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -363,6 +377,9 @@ export default function ListParcels() {
                         value={area}
                         id="area"
                         color="success"
+                        InputProps={{
+                            readOnly: true,
+                        }}
                     />
                 </Box>
                 <Button
@@ -423,7 +440,7 @@ export default function ListParcels() {
 
                 {(isParcelRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removid acom sucesso.</Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela removida com sucesso.</Typography>
                     </Alert> : <></>}
                 {(isParcelNotRemoved && displayMessage) ?
                     <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>

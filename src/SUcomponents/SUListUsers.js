@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert } from "@mui/material";
+import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert, Radio, FormControl, FormControlLabel, RadioGroup, FormLabel } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
@@ -105,7 +105,7 @@ export default function ListUsers() {
         restCalls.modifyUserAttributes(username, name, email, visibility, address, homePhone, mobilePhone, nif)
             .then(() => { restCalls.listAllUsers(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
             .catch(() => { setIsUserModified(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
-            setDisplayMessage(false)
+        setDisplayMessage(false)
     }
 
     return (
@@ -182,16 +182,19 @@ export default function ListUsers() {
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
-                    <TextField
-                        margin="normal"
-                        fullWidth
-                        name="visibility"
-                        label="Visibilidade"
-                        value={visibility}
-                        id="visibility"
-                        color="success"
-                        onChange={visibilityHandler}
-                    />
+                    <FormControl>
+                        <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade de Perfil</Typography></FormLabel>
+                        <RadioGroup
+                            aria-labelledby="demo-radio-buttons-group-label"
+                            name="radio-buttons-group"
+                            row
+                            value={visibility}
+                            onChange={(event) => { setVisibility(event.target.value) }}
+                        >
+                            <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
+                            <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
+                        </RadioGroup>
+                    </FormControl>
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <TextField
