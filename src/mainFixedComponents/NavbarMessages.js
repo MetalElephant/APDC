@@ -10,7 +10,26 @@ export default function NavbarLR() {
     let history = useHistory();
 
     function goBack() {
-        history.push("/main")
+        var roleType = JSON.parse(localStorage.getItem('user')).role
+        switch (roleType) {
+            case "PROPRIETARIO":
+                history.push("/proprietario")
+                break;
+            case "COMERCIANTE":
+                history.push("/comerciante")
+                break;
+            case "REPRESENTANTE":
+                history.push("/representante")
+                break;
+            case "MODERADOR":
+                history.push("/moderador")
+                break;
+            case "SUPERUSER":
+                history.push("/superuser")
+                break;
+            default:
+                break;
+        }
     }
 
     return (

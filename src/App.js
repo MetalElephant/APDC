@@ -42,7 +42,7 @@ export default function App() {
                     <Route exact path="/proprietario">
                         <NavbarOps />
                     </Route>
-                    <Route exact path="/proprietario/forumDiscussion">
+                    <Route path="/proprietario/forumDiscussion">
                         <NavbarMessages />
                         <ForumMessagesPage />
                     </Route>
