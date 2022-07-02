@@ -6,6 +6,7 @@ import COMAddReward from "./COMAddReward";
 import {useHistory} from "react-router-dom";
 import restCalls from "../restCalls"
 import LogoutIcon from '@mui/icons-material/Logout';
+import COMRemoveReward from "./COMRemoveReward";
 
 
 export default function RewardsMerchantPage() {
@@ -71,7 +72,7 @@ export default function RewardsMerchantPage() {
                     </Button>
                 </Grid>
                 {(display === 0) ? <COMAddReward /> : <></>}
-                {(display === 1) ? <></>: <></>}
+                {(display === 1) ? <COMRemoveReward />: <></>}
             </Grid>
         </Grid>
     )
