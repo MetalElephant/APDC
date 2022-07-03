@@ -1,7 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.util.Calendar;
-
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -22,6 +22,7 @@ import pt.unl.fct.di.adc.avindividual.util.ForumRemoveData;
 import pt.unl.fct.di.adc.avindividual.util.RemoveMessageData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
+import pt.unl.fct.di.adc.avindividual.util.SortByOrder;
 import pt.unl.fct.di.adc.avindividual.util.Info.ForumInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.MessageInfo;
 
@@ -419,18 +420,17 @@ public class ForumResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-        
-        //Roles role = Roles.valueOf(user.getString(ROLE));
+        Roles role = Roles.valueOf(user.getString(ROLE)); 
         Query<Entity> parcelQuery;
-/*
+
         if (role == Roles.SUPERUSER || role == Roles.MODERADOR){
             parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
 
-        }else{*/
+        }else{
             parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
                          .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(data.username)))
                          .build();
-        //}
+        }
 
         QueryResults<Entity> parcels = datastore.run(parcelQuery);
         List<ForumInfo> forumList = new LinkedList<>();
@@ -473,6 +473,8 @@ public class ForumResource {
         }
 
         List<MessageInfo> parcelList = getMessageQueries(data.name);
+
+        Collections.sort(parcelList, new SortByOrder());
 
 		return Response.ok(g.toJson(parcelList)).build();
     }

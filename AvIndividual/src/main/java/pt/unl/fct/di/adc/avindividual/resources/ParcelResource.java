@@ -284,6 +284,7 @@ public class ParcelResource {
 		Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);	
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(PARCEL).newKey(data.objectName);
 
+		Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.objectName);
 		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
 		try {
@@ -317,8 +318,11 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove parcel.").build();
 			}
 
-			//Update statistics
-			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+			if (parcel.getBoolean(CONFIRMED)){
+				tn.delete(forumKey);
+
+				sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+			}
 
 			tn.delete(parcelKey);
 			tn.commit();
@@ -619,7 +623,7 @@ public class ParcelResource {
 			case MODERADOR:
 				return true;
 			case PROPRIETARIO:
-				if(e1 == e2)
+				if(e1.getKey().getName().equals(e2.getKey().getName()))
 					return true;
 				break;
 			case REPRESENTANTE:
@@ -693,7 +697,6 @@ public class ParcelResource {
 
         tn.add(forum);
 	}
-
 
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
