@@ -91,6 +91,8 @@ public class ParcelResource {
     private static final String CRT_DATE = "Creation date";
 	private static final String PARCEL_TOPIC = "Forum de discussao sobre a parcela.";
 
+	private static final double ERROR = 0.8798618961777017;
+
 	public ParcelResource() { }
 	
     @POST
@@ -659,12 +661,24 @@ public class ParcelResource {
 
         for (int i = 0; i < markers.length; i++)
         {
-            area += (markers[j].getLatitude() + markers[i].getLatitude()) * (markers[j].getLongitude() - markers[i].getLongitude());
+            area += (graphPoint(markers[j].getLatitude()) + graphPoint(markers[i].getLatitude())) * (graphPoint(markers[j].getLongitude()) - graphPoint(markers[i].getLongitude()));
              
             j = i;
         }
      
-        return String.valueOf(Math.abs(area / 2.0));
+		area = Math.abs(area / 2.0) * ERROR;
+        return String.format("%.2f", area) + " m²";
+	}
+
+	private double graphPoint(double p){
+		p = Math.toRadians(p);
+
+        double a = Math.pow(Math.sin((-p) / 2), 2)
+                + Math.cos(p) * Math.cos(0.0);
+
+        double c = 2 * Math.asin(Math.sqrt(a));
+
+        return (c * 6371000);
 	}
 
 	private String uploadConfirmation(String name, byte[] data, int type){
