@@ -2,11 +2,12 @@ package pt.unl.fct.di.adc.avindividual.util;
 
 public class RewardUpdateData {
 
-    public String username, name, description, owner, price;
+    public String username, name, description, owner;
+    public int price;
 
     public RewardUpdateData() {}
 
-    public RewardUpdateData(String username, String name, String description, String owner, String price) {
+    public RewardUpdateData(String username, String name, String description, String owner, int price) {
         this.username = username;
         this.name = name;
         this.description = description;
@@ -15,7 +16,7 @@ public class RewardUpdateData {
     }
 
     public boolean isDataValid() {
-        if(username != null || name != null || description != null || owner != null) {
+        if(username == null || name == null || description == null || owner == null) {
             return false;
         }
 
@@ -23,7 +24,7 @@ public class RewardUpdateData {
             return false;
         }
 
-        if(Integer.parseInt(price) < 1000) {
+        if(price < 1000) {
             return false;
         }
 

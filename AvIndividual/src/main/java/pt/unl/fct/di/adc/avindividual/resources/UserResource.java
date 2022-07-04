@@ -69,7 +69,7 @@ public class UserResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull.appspot.com"; //"land--it.appspot.com";
+	private static final String BUCKET_NAME = "our-hull.appspot.com";
 	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
 
 	//Token information

@@ -2,19 +2,11 @@ package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.util.logging.Logger;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import pt.unl.fct.di.adc.avindividual.util.RequestData;
-
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
 import com.google.cloud.datastore.*;
 
@@ -112,77 +104,116 @@ public class StatisticsResource {
 	}
 
 	@GET
+	@Path("/messages")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response messageStatistics() {
+		LOG.info("Attempt to read forum related statistics.");
+
+		Key msgKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
+
+		Entity msgs = datastore.get(msgKey);
+
+		String val = String.valueOf(msgs.getLong(VALUE));
+
+		return Response.ok(val).build();
+	}
+
+	@GET
+	@Path("/averageParcels")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response averageParcelStatistics() {
+		LOG.info("Attempt to read parcels related statistics.");
+
+		Key parcelKey = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
+		Key usersKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+
+		Entity parcel = datastore.get(parcelKey);
+		Entity users = datastore.get(usersKey);
+
+		double val1 = parcel.getLong(VALUE);
+		double val2 = users.getLong(VALUE);
+		double aux = val1/val2;
+		
+		String res = String.format("%.1f", aux);
+
+		return Response.ok(res).build();
+	}
+
+	@GET
+	@Path("/averageForums")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response averageForumStatistics() {
+		LOG.info("Attempt to read forum related statistics.");
+
+		Key forumKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+		Key usersKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+
+		Entity forum = datastore.get(forumKey);
+		Entity users = datastore.get(usersKey);
+
+		double val1 = forum.getLong(VALUE);
+		double val2 = users.getLong(VALUE);
+		double aux = val1/val2;
+		
+		String res = String.format("%.1f", aux);
+
+		return Response.ok(res).build();
+	}
+
+	@GET
+	@Path("/averageMessages")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response averageMessageStatistics() {
+		LOG.info("Attempt to read forum related statistics.");
+
+		Key msgKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
+		Key usersKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+
+		Entity msg = datastore.get(msgKey);
+		Entity users = datastore.get(usersKey);
+
+		double val1 = msg.getLong(VALUE);
+		double val2 = users.getLong(VALUE);
+		double aux = val1/val2;
+
+		String res = String.format("%.1f", aux);
+
+		return Response.ok(res).build();
+	}
+
+	@GET
 	@Path("/userMostParcels")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response userMostParcelsStatistics() {
 		LOG.info("Attempt to read user related statistics.");
 
+		//TODO
 		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
 
 		return Response.ok().build();
 	}
 
-	@POST
-	@Path("/parcelsByRegion")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@GET
+	@Path("/userMostForums")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response parcelRegionStatistics(RequestData data) {
-		LOG.info("Attempt to read parcels related statistics.");
+	public Response userMostForumsStatistics() {
+		LOG.info("Attempt to read user related statistics.");
 
-		if (!data.isUsernameValid())
-			return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+		//TODO
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
 
-		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(STAT)
-								   .setFilter(CompositeFilter.and(PropertyFilter.eq("REGION", data.username)))//TODO not finished
-								   .build();
-
-		QueryResults<Entity> statsResult = datastore.run(statsQuery);
-
-		long counter = 0;
-
-		while(statsResult.hasNext()){
-			Entity stat = statsResult.next();
-			counter += stat.getLong(VALUE);
-		}
-
-		return Response.ok(counter).build();
+		return Response.ok().build();
 	}
 
 	@GET
-	@Path("/userForum")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/userMostMessages")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response userForumStatistics(RequestData data) {
-		LOG.info("Attempt to read parcels related statistics.");
+	public Response userMostMessagesStatistics() {
+		LOG.info("Attempt to read user related statistics.");
 
-		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(STAT)
-								   .setFilter(CompositeFilter.and(PropertyFilter.eq("REGION", data.username)))//TODO not finished
-								   .build();
+		//TODO
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
 
-		QueryResults<Entity> statsResult = datastore.run(statsQuery);
-
-		long counter = 0;
-
-		while(statsResult.hasNext()){
-			Entity stat = statsResult.next();
-			counter += stat.getLong(VALUE);
-		}
-
-		return Response.ok(counter).build();
+		return Response.ok().build();
 	}
-
-	@GET
-	@Path("/messages")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response messagestatistics() {
-		LOG.info("Attempt to read users related statistics.");
-
-		Key msgKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
-
-		Entity msg = datastore.get(msgKey);
-
-		String val = String.valueOf(msg.getLong(VALUE));
-
-		return Response.ok(val).build();
-	}	
 }

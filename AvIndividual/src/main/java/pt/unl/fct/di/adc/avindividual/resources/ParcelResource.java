@@ -74,8 +74,8 @@ public class ParcelResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull.appspot.com"; //"land--it.appspot.com";
-	private static final String URL = "https://storage.googleapis.com/our-hull.appspot.com/";
+	private static final String BUCKET_NAME = "our-hull.appspot.com";
+	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
 
 	//Keys
 	private static final String USER = "User";
@@ -229,11 +229,11 @@ public class ParcelResource {
 			for(int i = 0; i< data.allLats.length; i++) {
 				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
 			}
-			String s = isOverlappedUpdate(markers, data.parcelName);
-			if(!s.equals("nonce")){
+
+			if(isOverlappedUpdate(markers, data.parcelName)){
 				LOG.warning("Parcel overlaps with another parcel.");
 				tn.rollback();
-				return Response.status(Status.CONFLICT).entity(s).build();
+				return Response.status(Status.CONFLICT).entity("New parcel markers overlap with other parcels markers.").build();
 			}
 
 			Builder builder = Entity.newBuilder(parcelKey)
@@ -661,12 +661,13 @@ public class ParcelResource {
 
         for (int i = 0; i < markers.length; i++)
         {
-            area += (graphPoint(markers[j].getLatitude()) + graphPoint(markers[i].getLatitude())) * (graphPoint(markers[j].getLongitude()) - graphPoint(markers[i].getLongitude()));
-             
+			area += (graphPoint(markers[j].getLatitude()) + graphPoint(markers[i].getLatitude())) * (graphPoint(markers[j].getLongitude()) - graphPoint(markers[i].getLongitude()));
+
             j = i;
         }
      
-		area = Math.abs(area / 2.0) * ERROR;
+        area = Math.abs(area / 2.0) * ERROR;
+
         return String.format("%.2f", area) + " m²";
 	}
 
@@ -729,22 +730,14 @@ public class ParcelResource {
 			for (int i = 0; i < n2; i++){
 				markers[i] = parcel.getLatLng(MARKER+i);
 
-				if (outside && (markers[i].getLatitude() < latMax && markers[i].getLatitude() > latMin && markers[i].getLongitude() < longMax && markers[i].getLongitude() > longMin)){
+				if (markers[i].getLatitude() < latMax && markers[i].getLatitude() > latMin && markers[i].getLongitude() < longMax && markers[i].getLongitude() > longMin){
 					outside = false;
+					break;
 				}
 			}
 			
 			if (!outside){
-				int n1 = Integer.parseInt(parcel.getString(NOWNERS));
-				String[] owners = new String[n1];
-
-				for(int i = 0; i < n1; i ++){
-					owners[i] = parcel.getString(OWNER+i);
-				}
-
-				userParcels.add(new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(COUNTY), 
-											   parcel.getString(DISTRICT), parcel.getString(FREGUESIA), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
-											   parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers));
+				userParcels.add(parcelInfoBuilder(parcel));
 			}
 		});
 
@@ -841,7 +834,7 @@ public class ParcelResource {
 		return false;
 	}
 
-	private String isOverlappedUpdate(LatLng[] markers, String name){
+	private boolean isOverlappedUpdate(LatLng[] markers, String name){
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
 								   .setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true))).build();
 
@@ -860,11 +853,11 @@ public class ParcelResource {
            		}
 
             	if (overlaps(markers, auxMarkers) || contains(markers, auxMarkers))
-                	return parcel.getKey().getName();
+                	return true;
 			}
 		}
 
-		return "None";
+		return false;
 	}
 
 	private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers) {
@@ -911,7 +904,7 @@ public class ParcelResource {
 
 		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(COUNTY), 
 		parcel.getString(DISTRICT), parcel.getString(FREGUESIA), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
-		parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers);
+		parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers, parcel.getString(CONFIRMATION), parcel.getBoolean(CONFIRMED));
 
 		return p;
 	}
