@@ -31,7 +31,7 @@ export default function ForumPage() {
                     sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { setDisplay(0) }}
                 >
-                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> forums list </Typography>
+                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de Fóruns </Typography>
                 </Button>
                 <Button
                     type="submit"
@@ -43,7 +43,7 @@ export default function ForumPage() {
                     sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { setDisplay(1) }}
                 >
-                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> user forums </Typography>
+                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Fóruns criados por si </Typography>
                 </Button>
                 <Button
                     type="submit"
@@ -55,7 +55,7 @@ export default function ForumPage() {
                     sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { setDisplay(2) }}
                 >
-                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> create forum </Typography>
+                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Criar Fórum </Typography>
                 </Button>
                 <Button
                     type="submit"

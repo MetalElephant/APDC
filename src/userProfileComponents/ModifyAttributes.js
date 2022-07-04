@@ -146,7 +146,7 @@ export default function ModifyAttributes() {
                         }}
                     >
                         <Typography component="h1" variant="h5">
-                            User Attributes Modification
+                            Modificação de Atributos
                         </Typography>
                         <Box component="form" sx={{ mt: 1 }}>
                             <TextField
@@ -167,14 +167,14 @@ export default function ModifyAttributes() {
                                 margin="normal"
                                 fullWidth
                                 id="nome"
-                                label="Name"
+                                label="Nome"
                                 value={name}
                                 name="nome"
                                 color="success"
                                 onChange={nameHandler}
                             />
                             <FormControl align="left" sx={{ mt: "13px" }}>
-                                <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Profile Visibility</Typography></FormLabel>
+                                <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade do Perfil</Typography></FormLabel>
                                 <RadioGroup
                                     aria-labelledby="demo-radio-buttons-group-label"
                                     name="radio-buttons-group"
@@ -182,8 +182,8 @@ export default function ModifyAttributes() {
                                     value={visibility}
                                     onChange={visibilityHandler}
                                 >
-                                    <FormControlLabel value="Public" control={<Radio color="success" />} label="Public" sx={{ color: "black" }} />
-                                    <FormControlLabel value="Private" control={<Radio color="success" />} label="Private" sx={{ color: "black" }} />
+                                    <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
+                                    <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
                                 </RadioGroup>
                             </FormControl>
 
@@ -191,7 +191,7 @@ export default function ModifyAttributes() {
                                 margin="normal"
                                 fullWidth
                                 name="homePhone"
-                                label="Home Phone"
+                                label="Número de Telefone"
                                 value={homePhone}
                                 id="homePhone"
                                 color="success"
@@ -205,7 +205,7 @@ export default function ModifyAttributes() {
                                 margin="normal"
                                 fullWidth
                                 name="mobilePhone"
-                                label="Mobile Phone"
+                                label="Número de Telemóvel"
                                 value={mobilePhone}
                                 id="mobilePhone"
                                 color="success"
@@ -218,7 +218,7 @@ export default function ModifyAttributes() {
                                 margin="normal"
                                 fullWidth
                                 name="address"
-                                label="Address"
+                                label="Morada"
                                 value={address}
                                 id="address"
                                 color="success"
@@ -246,7 +246,7 @@ export default function ModifyAttributes() {
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { modifyAttributesManager(e) }}
                             >
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Submeter </Typography>
                             </Button>
                         </Box>
                     </Box>

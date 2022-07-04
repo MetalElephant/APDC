@@ -26,7 +26,7 @@ export default function AboutUs() {
                             - Responsável pela parte de Frontend
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            - Porta-voz da apresentação da Fase Alfa
+                            - Porta-voz destas nozes
                         </Typography>
                     </CardContent>
                 </Card>

@@ -30,7 +30,7 @@ export default function StatisticsPage() {
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ p: 2 }}>
                     <Card variant="outlined" sx={{ p: 2, width: "50%", bgcolor: "whitesmoke", color: "darkgreen" }}>
                         <Typography textAlign="center" variant="h5" sx={{ fontSize: 17 }}>
-                            USERS
+                            UTILIZADORES
                         </Typography>
                     </Card>
                 </Box>
@@ -67,7 +67,7 @@ export default function StatisticsPage() {
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ p: 2 }}>
                     <Card variant="outlined" sx={{ p: 2, width: "50%", bgcolor: "whitesmoke", color: "darkgreen" }}>
                         <Typography textAlign="center" variant="h5" sx={{ fontSize: 17 }}>
-                            PARCELS
+                            PARCELAS
                         </Typography>
                     </Card>
                 </Box>
@@ -90,7 +90,7 @@ export default function StatisticsPage() {
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ p: 2 }}>
                     <Card variant="outlined" sx={{ p: 2, width: "50%", bgcolor: "whitesmoke", color: "darkgreen" }}>
                         <Typography textAlign="center" variant="h5" sx={{ fontSize: 17 }}>
-                            FORUMS
+                            FÓRUNS
                         </Typography>
                     </Card>
                 </Box>
@@ -113,7 +113,7 @@ export default function StatisticsPage() {
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ p: 2 }}>
                     <Card variant="outlined" sx={{ p: 2, width: "50%", bgcolor: "whitesmoke", color: "darkgreen" }}>
                         <Typography textAlign="center" variant="h5" sx={{ fontSize: 17 }}>
-                            MESSAGES
+                            MENSAGENS
                         </Typography>
                     </Card>
                 </Box>

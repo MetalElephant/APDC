@@ -68,7 +68,7 @@ export default function ModifyPassword() {
                         }}
                     >
                         <Typography component="h1" variant="h5">
-                            Password Modification
+                            Modificação de Palavra-passe
                         </Typography>
                         <Box component="form" sx={{ mt: 1 }}>
                             <TextField
@@ -77,7 +77,7 @@ export default function ModifyPassword() {
                                 fullWidth
                                 autoFocus
                                 name="oldPassword"
-                                label="Old Password"
+                                label="Palavra-passe Antiga"
                                 id="oldPassword"
                                 type={showOldPassword ? "text" : "password"}
                                 value={oldPassword}
@@ -99,7 +99,7 @@ export default function ModifyPassword() {
                                 required
                                 fullWidth
                                 id="newPassword"
-                                label="New Password"
+                                label="Palavra-passe Nova"
                                 name="newPassword"
                                 type={showNewPassword ? "text" : "password"}
                                 value={newPassword}
@@ -120,7 +120,7 @@ export default function ModifyPassword() {
                                 required
                                 fullWidth
                                 name="confirmNewPassword"
-                                label="Confirm New Password"
+                                label="Confirmação da Palavra-passe Nova"
                                 id="confirmNewPassword"
                                 type={showConfirmNewPassword ? "text" : "password"}
                                 value={confirmNewPassword}
@@ -144,7 +144,7 @@ export default function ModifyPassword() {
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { modifyPasswordManager(e) }}
                             >
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Submeter </Typography>
                             </Button>
                         </Box>
                     </Box>

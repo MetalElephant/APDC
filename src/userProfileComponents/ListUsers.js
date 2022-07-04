@@ -26,6 +26,10 @@ export default function ListUsers() {
     const [isUserNotModified, setIsUserNotModified] = react.useState(true)
     const [displayModifyMessage, setDisplayModifyMessage] = react.useState(false)
     const [loaded, setLoaded] = react.useState(false)
+    const [emailErr, setEmailErr] = react.useState(false)
+    const [mobilePhoneErr, setMobilePhoneErr] = react.useState(false)
+    const [homePhoneErr, setHomePhoneErr] = react.useState(false)
+    const [nifErr, setNifErr] = react.useState(false)
 
     var users = JSON.parse(localStorage.getItem('allUsers'))
 
@@ -70,10 +74,52 @@ export default function ListUsers() {
     }
 
     function modifyUserManager() {
-        restCalls.modifyUserAttributes(username, name, email, visibility, address, homePhone, mobilePhone, nif)
-            .then(() => { restCalls.listAllUsers(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
-            .catch(() => { setIsUserModified(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
-        setDisplayMessage(false)
+        if (isValid()) {
+            restCalls.modifyUserAttributes(username, name, email, visibility, address, homePhone, mobilePhone, nif)
+                .then(() => { restCalls.listAllUsers(); resetErrors(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
+                .catch(() => { setIsUserModified(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
+            setDisplayMessage(false)
+        }
+    }
+
+    function resetErrors() {
+        setEmailErr(false)
+        setHomePhoneErr(false)
+        setMobilePhoneErr(false)
+        setNifErr(false)
+    }
+
+    function isValid() {
+        var isValid = true
+        if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
+            setEmailErr(true);
+            isValid = false;
+        }
+        else
+            setEmailErr(false)
+
+        if ((homePhone.length !== 9 && homePhone.toLocaleUpperCase() !== "UNDEFINED") || (isNaN(homePhone) && homePhone.toLocaleUpperCase() !== "UNDEFINED")) {
+            isValid = false;
+            setHomePhoneErr(true)
+        }
+        else
+            setHomePhoneErr(false)
+
+        if ((mobilePhone.length !== 9 && mobilePhone.toLocaleUpperCase() !== "UNDEFINED") || (isNaN(mobilePhone) && mobilePhone.toLocaleUpperCase() !== "UNDEFINED")) {
+            isValid = false;
+            setMobilePhoneErr(true)
+        }
+        else
+            setMobilePhoneErr(false)
+
+        if ((nif.length !== 9 && nif.toLocaleUpperCase() !== "UNDEFINED") || (isNaN(nif) && nif.toLocaleUpperCase() !== "UNDEFINED")) {
+            isValid = false;
+            setNifErr(true)
+        }
+        else
+            setNifErr(false)
+
+        return isValid
     }
 
     return (
@@ -87,6 +133,7 @@ export default function ListUsers() {
                     onChange={(event, newChosenUser) => {
                         setChosenUser(newChosenUser.username);
                         setUser(newChosenUser)
+                        resetErrors()
                     }}
                     sx={{ width: "80%", mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Utilizadores" />}
@@ -135,6 +182,7 @@ export default function ListUsers() {
                         onChange={(event) => { setEmail(event.target.value) }}
                     />
                 </Box>
+                {emailErr && <Typography sx={{ color: "red", fontSize: 14 }}> Formato de Email incorreto </Typography>}
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
@@ -174,6 +222,7 @@ export default function ListUsers() {
                         onChange={(event) => { setHomePhone(event.target.value) }}
                     />
                 </Box>
+                {homePhoneErr && <Typography sx={{ color: "red", fontSize: 14 }}> Formato de número de telefone incorreto </Typography>}
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
@@ -186,6 +235,7 @@ export default function ListUsers() {
                         onChange={(event) => { setMobilePhone(event.target.value) }}
                     />
                 </Box>
+                {mobilePhoneErr && <Typography sx={{ color: "red", fontSize: 14 }}> Formato de número de telemóvel incorreto </Typography>}
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
@@ -210,6 +260,7 @@ export default function ListUsers() {
                         onChange={(event) => { setNif(event.target.value) }}
                     />
                 </Box>
+                {nifErr && <Typography sx={{ color: "red", fontSize: 14 }}> Formato de NIF incorreto </Typography>}
                 <Button
                     type="submit"
                     variant="outlined"
