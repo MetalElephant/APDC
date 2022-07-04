@@ -5,8 +5,8 @@ import { useHistory } from "react-router-dom";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import ListUsers from "../userComponents/ListUsers";
-import MODAddUser from "../userComponents/AddUser";
+import ListUsers from "../userProfileComponents/ListUsers";
+import AddUser from "../userProfileComponents/AddUser";
 
 export default function MODUsers() {
     let history = useHistory();
@@ -59,7 +59,7 @@ export default function MODUsers() {
                     </Button>
                 </Grid>
                 {(display === 0) ? <ListUsers /> : <></>}
-                {(display === 1) ? <MODAddUser /> : <></>}
+                {(display === 1) ? <AddUser /> : <></>}
             </Grid>
         </Grid>
     )

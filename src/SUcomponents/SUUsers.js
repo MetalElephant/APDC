@@ -3,14 +3,10 @@ import { Button, Grid, Typography } from "@mui/material";
 import restCalls from "../restCalls"
 import {useHistory} from "react-router-dom";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import AddUser from "../userComponents/AddUser"
-import ListUsers from "../userComponents/ListUsers"
+import AddUser from "../userProfileComponents/AddUser"
+import ListUsers from "../userProfileComponents/ListUsers"
 
 export default function SUUsers() {
     let history = useHistory();
