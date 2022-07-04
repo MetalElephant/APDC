@@ -2,10 +2,9 @@ import react from "react"
 import { Button, Grid, Typography } from "@mui/material";
 import restCalls from "../restCalls"
 import {useHistory} from "react-router-dom";
-import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FeedIcon from '@mui/icons-material/Feed';
-import MODListParcels from "./MODListParcels";
+import ListParcels from "../parcelComponents/ListParcels";
 
 export default function MODParcels() {
     let history = useHistory();
@@ -46,7 +45,7 @@ export default function MODParcels() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <MODListParcels /> : <></>}
+                {(display === 0) ? <ListParcels /> : <></>}
             </Grid>
         </Grid>
     )

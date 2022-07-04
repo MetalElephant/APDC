@@ -3,7 +3,7 @@ import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
 
-export default function COMManageRewards() {
+export default function ManageRewards() {
 
     const [chosenReward, setChosenReward] = react.useState()
     const [name, setName] = react.useState("")

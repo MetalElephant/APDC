@@ -41,21 +41,23 @@ export default function ListParcels() {
     const [isParcelNotModified, setIsParcelNotModified] = react.useState(true)
     const [displayModifyMessage, setDisplayModifyMessage] = react.useState(false)
     const [loadButtons, setLoadButtons] = react.useState(false)
+    const [loaded, setLoaded] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('allParcels'))
 
     useEffect(() => {
-        restCalls.listAllParcels()
+        restCalls.listAllParcels().then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('allParcels')) })
+    }, [])
+
+    useEffect(() => {
         var temp = []
         if (parcels != null) {
             parcels.map((parcel) => {
                 temp.push(parcel)
             })
             setAllParcels(temp)
-        } else {
-            setRepeat(!repeat)
         }
-    }, [repeat])
+    }, [loaded])
 
     useEffect(() => {
         setParcelName(parcel.parcelName)

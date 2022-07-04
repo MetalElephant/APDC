@@ -33,7 +33,7 @@ export default function RewardsMerchantPage() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Adicionar Recompensa </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Recompensas </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -45,7 +45,7 @@ export default function RewardsMerchantPage() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Recompensas </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Adicionar Recompensa </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -60,8 +60,8 @@ export default function RewardsMerchantPage() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <COMAddReward /> : <></>}
-                {(display === 1) ? <COMManageRewards />: <></>}
+                {(display === 0) ? <COMManageRewards />: <></>}
+                {(display === 1) ? <COMAddReward /> : <></>}
             </Grid>
         </Grid>
     )

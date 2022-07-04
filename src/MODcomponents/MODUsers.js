@@ -5,9 +5,8 @@ import { useHistory } from "react-router-dom";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import MODListUsers from "./MODListUsers";
-import MODAddUser from "../SUcomponents/AddUser";
+import ListUsers from "../userComponents/ListUsers";
+import MODAddUser from "../userComponents/AddUser";
 
 export default function MODUsers() {
     let history = useHistory();
@@ -59,7 +58,7 @@ export default function MODUsers() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <MODListUsers /> : <></>}
+                {(display === 0) ? <ListUsers /> : <></>}
                 {(display === 1) ? <MODAddUser /> : <></>}
             </Grid>
         </Grid>

@@ -710,6 +710,27 @@ class restCalls {
         })
     }
 
+    listAllRewards() {
+        return fetch("https://our-hull.appspot.com/rest/reward/listAll", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('AllRewards', text);
+            return text;
+        })
+    }
+
     createReward(name, description, price) {
         return fetch("https://our-hull.appspot.com/rest/reward/register", {
             method: 'POST',
@@ -737,8 +758,8 @@ class restCalls {
         })
     }
 
-    modifyReward(name, description,  owner, price) {
-        return fetch("https://our-hull.appspot.com/rest/reward/udpate", {
+    modifyReward(name, description, owner, price) {
+        return fetch("https://our-hull.appspot.com/rest/reward/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

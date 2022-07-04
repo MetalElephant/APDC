@@ -8,11 +8,10 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import FeedIcon from '@mui/icons-material/Feed';
 import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import RemoveIcon from '@mui/icons-material/Remove';
+import ManageRewards from "../rewardComponents/ManageRewards"
 
 export default function MODRewards() {
     let history = useHistory();
-
-    const [display, setDisplay] = react.useState(0);
 
     function logoutManager() {
         restCalls.logout().then(() => { history.push("/") })
@@ -23,6 +22,7 @@ export default function MODRewards() {
             <Grid item xs={12} container align="center">
                 <Grid item xs={2}>
                     <Button
+                        disabled
                         type="submit"
                         id="1"
                         fullWidth
@@ -30,33 +30,8 @@ export default function MODRewards() {
                         color="success"
                         startIcon={<FeedIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(0) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Lista de Recompensas </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<RemoveIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(1) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Recompensa </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="1"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Recompensa </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Recompensas </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -71,9 +46,7 @@ export default function MODRewards() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <div> OLHEM</div> : <></>}
-                {(display === 1) ? <div> OLHEM OLHEM</div> : <></>}
-                {(display === 2) ? <div> FUCK IT</div> : <></>}
+                <ManageRewards />
             </Grid>
         </Grid>
     )

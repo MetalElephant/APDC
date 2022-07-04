@@ -1,4 +1,5 @@
-import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert, Radio, FormControl, FormControlLabel, RadioGroup, FormLabel } from "@mui/material";
+import { SendToMobile } from "@mui/icons-material";
+import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
@@ -24,20 +25,23 @@ export default function ListUsers() {
     const [isUserModified, setIsUserModified] = react.useState(false)
     const [isUserNotModified, setIsUserNotModified] = react.useState(true)
     const [displayModifyMessage, setDisplayModifyMessage] = react.useState(false)
+    const [loaded, setLoaded] = react.useState(false)
+
+    var users = JSON.parse(localStorage.getItem('allUsers'))
 
     useEffect(() => {
-        restCalls.listAllUsers()
-        var users = JSON.parse(localStorage.getItem('allUsers'))
+        restCalls.listAllUsers().then(() => { setLoaded(true); users = JSON.parse(localStorage.getItem('allUsers')) })
+    }, [])
+
+    useEffect(() => {
         var temp = []
         if (users != null) {
             users.map((user) => {
                 temp.push(user)
             })
             setAllUsers(temp)
-        } else {
-            setRepeat(!repeat)
         }
-    }, [repeat])
+    }, [loaded])
 
 
     useEffect(() => {
@@ -63,42 +67,6 @@ export default function ListUsers() {
             setIsUserNotRemoved(true);
             setDisplayMessage(true)
         }
-    }
-
-    function usernameHandler(event) {
-        setUsername(event.target.value)
-    }
-
-    function emailHandler(event) {
-        setEmail(event.target.value)
-    }
-
-    function nameHandler(event) {
-        setName(event.target.value)
-    }
-
-    function roleHandler(event) {
-        setRole(event.target.value)
-    }
-
-    function visibilityHandler(event) {
-        setVisibility(event.target.value)
-    }
-
-    function homePhoneHandler(event) {
-        setHomePhone(event.target.value)
-    }
-
-    function mobilePhoneHandler(event) {
-        setMobilePhone(event.target.value)
-    }
-
-    function addressHandler(event) {
-        setAddress(event.target.value)
-    }
-
-    function nifHandler(event) {
-        setNif(event.target.value)
     }
 
     function modifyUserManager() {
@@ -136,7 +104,6 @@ export default function ListUsers() {
                         value={username}
                         id="username"
                         color="success"
-                        onChange={usernameHandler}
                         InputProps={{
                             readOnly: true,
                         }}
@@ -151,7 +118,6 @@ export default function ListUsers() {
                         value={role}
                         id="role"
                         color="success"
-                        onChange={roleHandler}
                         InputProps={{
                             readOnly: true,
                         }}
@@ -166,7 +132,7 @@ export default function ListUsers() {
                         value={email}
                         id="email"
                         color="success"
-                        onChange={emailHandler}
+                        onChange={(event) => { setEmail(event.target.value) }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -178,7 +144,7 @@ export default function ListUsers() {
                         value={name}
                         id="name"
                         color="success"
-                        onChange={nameHandler}
+                        onChange={(event) => { setName(event.target.value) }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -205,7 +171,7 @@ export default function ListUsers() {
                         value={homePhone}
                         id="homePhone"
                         color="success"
-                        onChange={homePhoneHandler}
+                        onChange={(event) => { setHomePhone(event.target.value) }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -217,7 +183,7 @@ export default function ListUsers() {
                         value={mobilePhone}
                         id="mobilePhone"
                         color="success"
-                        onChange={mobilePhoneHandler}
+                        onChange={(event) => { setMobilePhone(event.target.value) }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -229,7 +195,7 @@ export default function ListUsers() {
                         value={address}
                         id="address"
                         color="success"
-                        onChange={addressHandler}
+                        onChange={(event) => { setAddress(event.target.value) }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -241,7 +207,7 @@ export default function ListUsers() {
                         value={nif}
                         id="nif"
                         color="success"
-                        onChange={nifHandler}
+                        onChange={(event) => { setNif(event.target.value) }}
                     />
                 </Box>
                 <Button

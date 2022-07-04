@@ -9,8 +9,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import AddUser from "./AddUser"
-import ListUsers from "./SUListUsers"
+import AddUser from "../userComponents/AddUser"
+import ListUsers from "../userComponents/ListUsers"
 
 export default function SUUsers() {
     let history = useHistory();
