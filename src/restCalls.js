@@ -395,6 +395,30 @@ class restCalls {
         })
     }
 
+    getParcelsRep() {
+        return fetch("https://our-hull.appspot.com/rest/parcel/listRep", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('parcelsRep', text);
+            return text;
+        })
+    }
+
     listAllParcels() {
         return fetch("https://our-hull.appspot.com/rest/parcel/list", {
             method: 'GET',

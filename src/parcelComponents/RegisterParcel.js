@@ -177,7 +177,7 @@ export default function RegisterParcel() {
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
                     <GoogleMap
-                        mapContainerStyle={{ width: "100%", height: "100%" }}
+                        mapContainerStyle={{ width: "100%", height: "70%" }}
                         center={{ lat: getLastLat(), lng: getLastLng() }}
                         zoom={12}
                         onClick={(event) => {

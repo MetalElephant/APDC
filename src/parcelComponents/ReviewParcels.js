@@ -20,6 +20,8 @@ export default function ReviewParcels() {
     const [prevUsage, setPrevUsage] = react.useState("")
     const [area, setArea] = react.useState("")
     const [allParcels, setAllParcels] = react.useState([])
+    const [polygons, setPolygons] = react.useState([])
+    const [polygonList, setPolygonList] = react.useState([])
     const [markers, setMarkers] = react.useState([])
     const [markersMem, setMarkersMem] = react.useState([])
     const [allLats, setAllLats] = react.useState([])
@@ -31,15 +33,13 @@ export default function ReviewParcels() {
     const [isParcelVerified, setIsParcelVerified] = react.useState(false)
     const [isParcelNotVerified, setIsParcelNotVerified] = react.useState(true)
     const [displayMessage, setDisplayMessage] = react.useState(false)
+    const [renderPolygons, setRenderPolygons] = react.useState(false)
 
-    //var parcels = JSON.parse(localStorage.getItem('searchedParcels'))
-    var parcels = JSON.parse(localStorage.getItem('allParcels'))
+    var parcels = JSON.parse(localStorage.getItem('parcelsRep'))
 
     useEffect(() => {
-        var user = JSON.parse(localStorage.getItem('user'))
-        restCalls.listAllParcels()
-            .then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('allParcels')); })
-        //restCalls.getParcelsByRegion("Areeiro", 3).then(setLoaded(true))
+        restCalls.getParcelsRep()
+            .then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('parcelsRep')); updatePolygons() })
     }, [])
 
     useEffect(() => {
@@ -58,7 +58,7 @@ export default function ReviewParcels() {
         if (parcel.owners != null && parcel.owners.length > 0) {
             var tempOwners = ""
             for (let i = 0; i < parcel.owners.length; i++) {
-                if(tempOwners === "")
+                if (tempOwners === "")
                     tempOwners = parcel.owners[i]
                 else if (parcel.owners[i] !== "" && parcel.owners[i] != null)
                     tempOwners = tempOwners + ", " + parcel.owners[i]
@@ -104,23 +104,69 @@ export default function ReviewParcels() {
         }
     }, [loaded])
 
+    function updatePolygons() {
+        var tempPolygons = []
+        if (parcels != null && parcels.length > 0) {
+            parcels.map((parcel) => {
+                tempPolygons.push(parcel)
+            })
+            setPolygons([...tempPolygons])
+        }
+        else {
+            setPolygons([])
+        }
+    }
+
+    function updateInfo(id) {
+        var parcel = parcels[id]
+        setParcelName(parcel.parcelName)
+        setOwner(parcel.owner)
+        setOwners(parcel.owners)
+        setDist(parcel.district)
+        setConc(parcel.county)
+        setFreg(parcel.freguesia)
+        setDescription(parcel.description)
+        setGroundType(parcel.groundType)
+        setCurrUsage(parcel.currUsage)
+        setPrevUsage(parcel.prevUsage)
+        setArea(parcel.area)
+    }
+
+    useEffect(() => {
+        var list = [];
+        var polygonListMem = [];
+        var id = 0;
+        if (polygons.length > 0) {
+            polygons.map((parcel) => {
+                list = []
+                parcel.markers.map((marker) => {
+                    var mem = {
+                        lat: marker.latitude,
+                        lng: marker.longitude
+                    }
+                    list.push(mem)
+                })
+
+                var polygonMem = 
+                <Polygon
+                    onClick={(event) => updateInfo(id++)}
+                    path={list}
+                    options={{ strokeOpacity: 0.8, strokeColor: parcel.confirmed ? "#006600" : "#FF0606", fillColor: parcel.confirmed ? "#006600" : "#FF0606" }}
+                    key={id}
+                />
+                polygonListMem.push(polygonMem);
+            })
+            setPolygonList(polygonListMem)
+        }
+        else {
+            setPolygonList([])
+        }
+        setRenderPolygons(true)
+    }, [polygons])
+
     return (
         <>
-            <Grid item xs={2} >
-                <Autocomplete
-                    selectOnFocus
-                    id="parcels"
-                    options={allParcels}
-                    getOptionLabel={option => option.parcelName}
-                    onChange={(event, newChosenParcel) => {
-                        setChosenParcel(newChosenParcel.parcelName);
-                        setParcel(newChosenParcel)
-                    }}
-                    sx={{ width: "80%", mt: 2 }}
-                    renderInput={(params) => <TextField {...params} label="Parcelas" />}
-                />
-            </Grid>
-            <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
+            <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Dono da parcela: {owner} </Typography>
@@ -177,39 +223,25 @@ export default function ReviewParcels() {
                     </Paper>
                 </Box>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={5}>
 
                 <LoadScript
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
-                    {(parcels != null && parcels[parcelIndex] != null) &&
+                    {(parcels != null) &&
                         <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "60%" }}
-                            center={{ lat: parcels[parcelIndex].markers[0].latitude, lng: parcels[parcelIndex].markers[0].longitude }}
-                            zoom={13}
-                            onClick={(event) => {
-                                setMarkers(current => [
-                                    ...current,
-                                    {
-                                        lat: event.latLng.lat(),
-                                        lng: event.latLng.lng()
-                                    },
-                                ]);
-                                allLats.push(event.latLng.lat())
-                                allLngs.push(event.latLng.lng())
-                            }}
+                            center={{ lat: 	38.736946, lng: -9.142685 }}
+                            zoom={7}
                         >
-                            {markers.map(marker => (
-                                <Marker
-                                    position={{ lat: marker.lat, lng: marker.lng }}
-                                />
 
-                            ))}
-                            <Polygon
+                            {renderPolygons && polygonList}
+
+                            {/*<Polygon
                                 paths={markers}
                                 onClick={() => this.handleClick()}
                                 options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
-                            />
+                            />*/}
                         </GoogleMap>
                     }
                 </LoadScript>

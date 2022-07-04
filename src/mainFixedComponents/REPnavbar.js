@@ -6,11 +6,10 @@ import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
-import ParcelsMayorsPage from "../parcelComponents/ParcelsMayorsPage";
+import REPparcels from "../parcelComponents/REPparcels";
 
 
-
-export default function NavbarMerchants() {
+export default function Navbar() {
 
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
 
@@ -45,11 +44,10 @@ export default function NavbarMerchants() {
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
-            {selectedLeftTab === 1 && <ParcelsMayorsPage />}
+            {selectedLeftTab === 1 && <REPparcels />}
             {selectedLeftTab === 2 && <ForumPage />}
             {selectedLeftTab === 3 && <AboutUs />}
             {selectedLeftTab === 4 && <StatisticsPage />}
-
         </>
     )
 }

@@ -147,7 +147,6 @@ export default function SearchParcel() {
     }
 
     function getData() {
-        var searchedParcels = []
         var list;
         setRenderPolygons(false)
         if (markers.length === 4) {
@@ -206,34 +205,6 @@ export default function SearchParcel() {
             setPolygonList([])
         }
     }, [polygonMarkers])
-
-    /*
-    function getPolygons() {
-        var list = [];
-        var polygonListMem = [];
-        var id = 0;
-        if (polygonMarkers.length > 0) {
-            polygonMarkers.map((parcel) => {
-                list = []
-                parcel.markers.map((marker) => {
-                    var mem = {
-                        lat: marker.latitude,
-                        lng: marker.longitude
-                    }
-                    list.push(mem)
-                })
-
-                var polygonMem = <Polygon
-                    path={list}
-                    options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
-                    key={id++}
-                />
-                polygonListMem.push(polygonMem);
-            })
-            setPolygonList(polygonListMem)
-        }
-        return polygonList
-    }*/
 
     function optionHandler(e) {
         if (e.target.value === "limits") {

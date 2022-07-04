@@ -23,6 +23,7 @@ export default function Main() {
             <Grid item xs={12} container align="center">
                 <Grid item xs={2}>
                     <Button
+                        disabled
                         type="submit"
                         id="5"
                         fullWidth

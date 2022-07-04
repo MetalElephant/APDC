@@ -6,7 +6,7 @@ import AdministrationPage from "./mainFixedComponents/AdministrationPage";
 import LoginRegister from "./userComponents/LoginRegister"
 import ForumMessagesPage from "./forumComponents/ForumMessagesPage";
 import NavbarMessages from "./mainFixedComponents/NavbarMessages";
-import NavbarMayors from "./mainFixedComponents/NavbarMayors";
+import REPnavbar from "./mainFixedComponents/REPnavbar";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import './style.css';
 import NavbarMerchants from "./mainFixedComponents/NavbarMerchants";
@@ -50,7 +50,7 @@ export default function App() {
                         <NavbarMerchants />
                     </Route>
                     <Route exact path="/representante">
-                        <NavbarMayors />
+                        <REPnavbar />
                     </Route>
                     <Route exact path="/moderador">
                         <NavbarMOD />

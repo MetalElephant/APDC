@@ -165,17 +165,17 @@ export default function ParcelInfo() {
                         <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
-                            zoom={13}
+                            zoom={area === "" ? 15 : (parseInt(area)/1900)}
                         >
-                            {parcels[chosenParcel].markers.map(marker => (
+                            {/*parcels[chosenParcel].markers.map(marker => (
                                 <Marker
                                     position={{ lat: marker.latitude, lng: marker.longitude }}
                                 />
 
-                            ))}
+                            ))*/}
                             <Polygon
                                 paths={markers}
-                                onClick={() => this.handleClick()}
+                                onClick={() => {console.log("clicked")}}
                                 options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                             />
 
