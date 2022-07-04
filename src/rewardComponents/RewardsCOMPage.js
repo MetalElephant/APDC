@@ -6,7 +6,8 @@ import COMAddReward from "./COMAddReward";
 import {useHistory} from "react-router-dom";
 import restCalls from "../restCalls"
 import LogoutIcon from '@mui/icons-material/Logout';
-import COMRemoveReward from "./COMRemoveReward";
+import COMRemoveReward from "./COMManageRewards";
+import COMManageRewards from "./COMManageRewards";
 
 
 export default function RewardsMerchantPage() {
@@ -44,19 +45,7 @@ export default function RewardsMerchantPage() {
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Remover Recompensa </Typography>
-                    </Button>
-                    <Button
-                        type="submit"
-                        id="3"
-                        fullWidth
-                        variant="outlined"
-                        color="success"
-                        startIcon={<RedeemIcon sx={{ color: "black" }} />}
-                        sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { setDisplay(2) }}
-                    >
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Recompensa </Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Gerir Recompensas </Typography>
                     </Button>
                     <Button
                         type="submit"
@@ -72,7 +61,7 @@ export default function RewardsMerchantPage() {
                     </Button>
                 </Grid>
                 {(display === 0) ? <COMAddReward /> : <></>}
-                {(display === 1) ? <COMRemoveReward />: <></>}
+                {(display === 1) ? <COMManageRewards />: <></>}
             </Grid>
         </Grid>
     )
