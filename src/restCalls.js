@@ -440,6 +440,32 @@ class restCalls {
         })
     }
 
+    verifyParcel(owner, parcelName) {
+        return fetch("https://our-hull.appspot.com/rest/parcel/verify", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                owner: owner,
+                parcelName: parcelName
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('allParcels', text);
+            return text;
+        })
+    }
+
     listAllUsers() {
         return fetch("https://our-hull.appspot.com/rest/users/list", {
             method: 'GET',
@@ -726,7 +752,7 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
-            localStorage.setItem('AllRewards', text);
+            localStorage.setItem('allRewards', text);
             return text;
         })
     }
@@ -815,6 +841,7 @@ class restCalls {
             localStorage.removeItem('allUsers')
             localStorage.removeItem('allParcels')
             localStorage.removeItem('rewards')
+            localStorage.removeItem('allRewards');
             return text;
         })
     }

@@ -15,6 +15,7 @@ export default function ReviewParcels() {
     const [conc, setConc] = react.useState(null)
     const [freg, setFreg] = react.useState(null)
     const [description, setDescription] = react.useState("")
+    const [confirmed, setConfirmed] = react.useState(false)
     const [groundType, setGroundType] = react.useState("")
     const [currUsage, setCurrUsage] = react.useState("")
     const [prevUsage, setPrevUsage] = react.useState("")
@@ -22,77 +23,19 @@ export default function ReviewParcels() {
     const [allParcels, setAllParcels] = react.useState([])
     const [polygons, setPolygons] = react.useState([])
     const [polygonList, setPolygonList] = react.useState([])
-    const [markers, setMarkers] = react.useState([])
-    const [markersMem, setMarkersMem] = react.useState([])
-    const [allLats, setAllLats] = react.useState([])
-    const [allLngs, setAllLngs] = react.useState([])
-    const [allLatsMem, setAllLatsMem] = react.useState([])
-    const [allLngsMem, setAllLngsMem] = react.useState([])
-    const [parcel, setParcel] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
     const [isParcelVerified, setIsParcelVerified] = react.useState(false)
-    const [isParcelNotVerified, setIsParcelNotVerified] = react.useState(true)
+    const [isParcelNotVerified, setIsParcelNotVerified] = react.useState(false)
     const [displayMessage, setDisplayMessage] = react.useState(false)
+    const [displayError, setDisplayError] = react.useState(false)
     const [renderPolygons, setRenderPolygons] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('parcelsRep'))
 
     useEffect(() => {
         restCalls.getParcelsRep()
-            .then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('parcelsRep')); updatePolygons() })
+            .then(() => { parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons() })
     }, [])
-
-    useEffect(() => {
-        setParcelName(parcel.parcelName)
-        setOwner(parcel.owner)
-        setDist(parcel.district)
-        setConc(parcel.county)
-        setFreg(parcel.freguesia)
-        setDescription(parcel.description)
-        setGroundType(parcel.groundType)
-        setCurrUsage(parcel.currUsage)
-        setPrevUsage(parcel.prevUsage)
-        setArea(parcel.area)
-
-        setOwners("")
-        if (parcel.owners != null && parcel.owners.length > 0) {
-            var tempOwners = ""
-            for (let i = 0; i < parcel.owners.length; i++) {
-                if (tempOwners === "")
-                    tempOwners = parcel.owners[i]
-                else if (parcel.owners[i] !== "" && parcel.owners[i] != null)
-                    tempOwners = tempOwners + ", " + parcel.owners[i]
-            }
-            setOwners(tempOwners)
-        }
-
-        if (parcels != null && parcels.length > 0) {
-            var i = 0;
-            parcels.map((temp) => {
-                if (temp.parcelName === parcel.parcelName) {
-                    setParcelIndex(i)
-                    var tempMarkers = []
-                    var tempLats = []
-                    var tempLngs = []
-                    parcel.markers.map((marker) => {
-                        tempMarkers.push({
-                            lat: marker.latitude,
-                            lng: marker.longitude
-                        })
-                        tempLats.push(marker.latitude)
-                        tempLngs.push(marker.longitude)
-                    })
-                    setMarkers(tempMarkers)
-                    setMarkersMem(tempMarkers)
-                    setAllLats(tempLats)
-                    setAllLatsMem(tempLats)
-                    setAllLngs(tempLngs)
-                    setAllLngsMem(tempLngs)
-                }
-                i++
-            })
-        }
-    }, [parcel])
 
     useEffect(() => {
         var temp = []
@@ -103,6 +46,23 @@ export default function ReviewParcels() {
             setAllParcels(temp)
         }
     }, [loaded])
+
+    function updateInfo(parcelName) {
+        var index = allParcels.findIndex(parcel => parcel.parcelName === parcelName)
+        var parcel = parcels[index]
+        setParcelName(parcel.parcelName)
+        setOwner(parcel.owner)
+        setOwners(parcel.owners)
+        setDist(parcel.district)
+        setConc(parcel.county)
+        setFreg(parcel.freguesia)
+        setDescription(parcel.description)
+        setGroundType(parcel.groundType)
+        setCurrUsage(parcel.currUsage)
+        setPrevUsage(parcel.prevUsage)
+        setArea(parcel.area)
+        setConfirmed(parcel.confirmed)
+    }
 
     function updatePolygons() {
         var tempPolygons = []
@@ -115,21 +75,6 @@ export default function ReviewParcels() {
         else {
             setPolygons([])
         }
-    }
-
-    function updateInfo(id) {
-        var parcel = parcels[id]
-        setParcelName(parcel.parcelName)
-        setOwner(parcel.owner)
-        setOwners(parcel.owners)
-        setDist(parcel.district)
-        setConc(parcel.county)
-        setFreg(parcel.freguesia)
-        setDescription(parcel.description)
-        setGroundType(parcel.groundType)
-        setCurrUsage(parcel.currUsage)
-        setPrevUsage(parcel.prevUsage)
-        setArea(parcel.area)
     }
 
     useEffect(() => {
@@ -147,13 +92,13 @@ export default function ReviewParcels() {
                     list.push(mem)
                 })
 
-                var polygonMem = 
-                <Polygon
-                    onClick={(event) => updateInfo(id++)}
-                    path={list}
-                    options={{ strokeOpacity: 0.8, strokeColor: parcel.confirmed ? "#006600" : "#FF0606", fillColor: parcel.confirmed ? "#006600" : "#FF0606" }}
-                    key={id}
-                />
+                var polygonMem =
+                    <Polygon
+                        onClick={() => updateInfo(parcel.parcelName)}
+                        path={list}
+                        options={{ strokeOpacity: 0.8, strokeColor: parcel.confirmed ? "#006600" : "#FF0606", fillColor: parcel.confirmed ? "#006600" : "#FF0606" }}
+                        key={id}
+                    />
                 polygonListMem.push(polygonMem);
             })
             setPolygonList(polygonListMem)
@@ -163,6 +108,19 @@ export default function ReviewParcels() {
         }
         setRenderPolygons(true)
     }, [polygons])
+
+    function verifyParcel() {
+        if (parcelName !== "" && !confirmed) {
+            setDisplayError(false)
+            restCalls.verifyParcel(owner, parcelName)
+                .then(() => { restCalls.getParcelsRep(); setIsParcelVerified(true) })
+                .catch(() => { setIsParcelNotVerified(true)})
+            setDisplayMessage(true)
+        }
+        else {
+            setDisplayError(true)
+        }
+    }
 
     return (
         <>
@@ -231,20 +189,17 @@ export default function ReviewParcels() {
                     {(parcels != null) &&
                         <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "60%" }}
-                            center={{ lat: 	38.736946, lng: -9.142685 }}
+                            center={{ lat: 38.736946, lng: -9.142685 }}
                             zoom={7}
                         >
 
                             {renderPolygons && polygonList}
-
-                            {/*<Polygon
-                                paths={markers}
-                                onClick={() => this.handleClick()}
-                                options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
-                            />*/}
                         </GoogleMap>
                     }
                 </LoadScript>
+
+                <Button onClick={verifyParcel} variant="contained" size="large" color="success" sx={{ mt: 2, width: "80%" }}>Verificar Parcela</Button>
+                {displayError && <Typography p={0.5} color="error">Nenhuma parcela foi selecionada ou a parcela selecionada já foi verificada</Typography>}
 
                 {(isParcelVerified && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
