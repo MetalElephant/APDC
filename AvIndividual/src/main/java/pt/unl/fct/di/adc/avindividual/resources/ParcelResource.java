@@ -625,33 +625,17 @@ public class ParcelResource {
 			case MODERADOR:
 				return true;
 			case PROPRIETARIO:
-				if(e1.getKey().getName().equals(e2.getKey().getName()))
-					return true;
-				break;
+				return e1.getKey().getName().equals(e2.getKey().getName());
 			case REPRESENTANTE:
 			case COMERCIANTE:
+				return false;
 			default:
-				break;
+				return false;
 		}
-
-		return false;
 	}
 
 	public boolean canVerify(Entity e1) {
-		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
-
-		switch(e1Role) {
-			case SUPERUSER:
-			case MODERADOR:
-			case REPRESENTANTE:
-				return true;
-			case PROPRIETARIO:
-			case COMERCIANTE:
-			default:
-				break;
-		}
-
-		return false;
+		return Roles.valueOf(e1.getString(ROLE)) == Roles.REPRESENTANTE;
 	}
 
 	private String getArea(LatLng[] markers){

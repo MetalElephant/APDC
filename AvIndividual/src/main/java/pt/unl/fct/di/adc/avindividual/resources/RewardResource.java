@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -14,10 +15,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import com.google.gson.Gson;
+import com.google.cloud.datastore.Entity.Builder;
 
 import pt.unl.fct.di.adc.avindividual.util.RemoveObjectData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.RewardData;
+import pt.unl.fct.di.adc.avindividual.util.RewardRedeemData;
 import pt.unl.fct.di.adc.avindividual.util.RewardUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
@@ -43,9 +46,21 @@ public class RewardResource {
     private static final String DESCRIPTION = "description";
     private static final String PRICE = "points";
     private static final String NREDEEMED = "times redeemed";
+	private static final String NREWARDS = "number of rewards";
 
-    // Useful user info
-    private static final String ROLE = "role";
+	//User information
+	private static final String NAME = "name";
+	private static final String PASSWORD = "password";
+	private static final String EMAIL = "email";
+	private static final String ROLE = "role";
+	private static final String MPHONE = "mobile phone";
+	private static final String HPHONE = "home phone";
+	private static final String ADDRESS = "address";
+	private static final String NIF = "nif";
+	private static final String VISIBILITY = "visibility";
+	private static final String PHOTO = "photo";
+	private static final String SPEC = "specialization";
+	private static final String CTIME = "creation time";
 
     // Keys
 	private static final String USER = "User";
@@ -213,7 +228,7 @@ public class RewardResource {
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
-		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.username)).setKind(REWARD).newKey(data.objectName);
+		Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(REWARD).newKey(data.objectName);
 
         try {
             Entity user = tn.get(userKey);
@@ -238,7 +253,7 @@ public class RewardResource {
 			}
 
 			if (reward == null) {
-				LOG.warning("Reward " + data.username + " doesn't exist.");
+				LOG.warning("Reward " + data.objectName + " doesn't exist.");
 				tn.rollback();
 
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.objectName + " doesn't exists.").build();
@@ -260,6 +275,103 @@ public class RewardResource {
                 tn.rollback();
             }
         }
+    }
+
+    @PUT
+    @Path("/redeemReward")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response redeemReward(RewardRedeemData data) {
+	    LOG.info("Attempting to redeem reward " + data.reward);
+
+	    if(!data.isDataValid()){
+	    	return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+	    }
+
+	    Transaction tn = datastore.newTransaction();
+
+	    Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+	    Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+	    Key rewardKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, data.owner)).setKind(REWARD).newKey(data.reward);
+	
+	    try {
+		    Entity user = tn.get(userKey);
+		    Entity token = tn.get(tokenKey);
+		    Entity reward = tn.get(rewardKey);
+
+	    	if(user == null) {
+		    	LOG.warning("User " + data.username + " does not exist.");
+		    	tn.rollback();
+	    		return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
+		    }
+
+		    Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+	    	Entity secret = tn.get(secretKey);
+
+		    if (!ur.isLoggedIn(token, data.username)){
+		    	LOG.warning("User " + data.username + " not logged in.");
+		    	tn.rollback();
+	    		return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+	    	}
+
+		    if(reward == null) {
+	    	    LOG.warning("Reward " + data.reward + " does not exist.");
+	    		tn.rollback();
+	        	return Response.status(Status.BAD_REQUEST).entity("Reward " + data.reward + " does not exist.").build();
+	    	}
+
+	    	long length = user.getLong(NREWARDS);
+
+	    	long points = Integer.parseInt(user.getString(SPEC)) - reward.getLong(PRICE);
+
+	    	if(points < 0) {
+	    		LOG.warning("User " + data.username + " does not have enough points to redeem this reward.");
+	    		tn.rollback();
+	    		return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not have enough points to redeem this reward.").build();
+	    	}
+
+    		Builder builderUser = Entity.newBuilder(userKey)
+		    		.set(NAME, user.getString(NAME))
+	    			.set(PASSWORD, user.getString(PASSWORD))
+    				.set(EMAIL, user.getString(EMAIL))
+				    .set(ROLE, user.getString(ROLE))
+			    	.set(MPHONE, user.getString(MPHONE))
+		    		.set(HPHONE, user.getString(HPHONE))
+	    			.set(ADDRESS, user.getString(ADDRESS))
+    				.set(NIF, user.getString(NIF))
+				    .set(VISIBILITY, user.getString(VISIBILITY))
+			    	.set(PHOTO, user.getString(PHOTO))
+		    		.set(SPEC, String.valueOf(points))
+	    			.set(NREWARDS, length + 1)
+    				.set(CTIME, user.getTimestamp(CTIME));
+
+    		for(int i = 0; i < length; i++) {
+	    		builderUser.set(REWARD + i, user.getString(REWARD + i));
+	    	}
+
+	    	builderUser.set(REWARD + length, data.reward);
+
+	    	user = builderUser.build();
+
+	    	long nRedeemed = reward.getLong(NREDEEMED);
+
+		    Builder builderReward = Entity.newBuilder(rewardKey)
+		    		.set(OWNER, reward.getString(OWNER))
+	    			.set(REWARD_NAME, reward.getString(REWARD_NAME))
+    				.set(DESCRIPTION, reward.getString(DESCRIPTION))
+				    .set(PRICE, reward.getString(PRICE))
+			    	.set(NREDEEMED, nRedeemed + 1);
+
+		    reward = builderReward.build();
+
+		    tn.put(user, reward);
+
+		    tn.commit();
+
+	    	return Response.ok("Successful redeem.").build();
+    	} finally {
+		    if (tn.isActive())
+		    	tn.rollback();
+	    }
     }
 
     @POST
@@ -349,6 +461,25 @@ public class RewardResource {
         List<RewardData> rewardList = getQueries(data.username);
 
         return Response.ok(g.toJson(rewardList)).build();
+    }
+
+    @GET
+    @Path("/listAll")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response showAllRewards() {
+        LOG.info("Attempt to list all rewards");
+
+        Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
+
+        QueryResults<Entity> rewards = datastore.run(queryReward);
+
+		List<RewardData> rewardsList = new LinkedList<>();
+
+		rewards.forEachRemaining(reward -> {
+			rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE)));
+		});
+
+        return Response.ok(g.toJson(rewardsList)).build();
     }
 
     private boolean isUserValid(Entity user) {
