@@ -1,5 +1,6 @@
 import { Grid, Card, Box, Typography } from "@mui/material";
 import react, { useEffect } from "react";
+import restCalls from "../restCalls"
 
 export default function StatisticsPage() {
 
@@ -7,13 +8,17 @@ export default function StatisticsPage() {
     const [nParcels, setNParcels] = react.useState("")
     const [nForums, setNForums] = react.useState("")
     const [nMessages, setNMessages] = react.useState("")
+    const [avParcels, setAverageParcels] = react.useState("")
+    const [avForums, setAverageForums] = react.useState("")
+    const [avMessages, setAverageMessages] = react.useState("")
+    const [uMostParcels, setUMostParcels] = react.useState("")
+    const [uMostForums, setUMostForums] = react.useState("")
+    const [uMostMessages, setUMostMessages] = react.useState("")
 
-    
-
-    useEffect(() =>  {
+    useEffect(() => {
         var numberUsers = JSON.parse(localStorage.getItem('numberOfUsers'))
         setNUsers(numberUsers)
-    
+
         var numberParcels = JSON.parse(localStorage.getItem('numberOfParcels'))
         setNParcels(numberParcels)
 
@@ -22,7 +27,34 @@ export default function StatisticsPage() {
 
         var numberMessages = JSON.parse(localStorage.getItem('numberOfMessages'))
         setNMessages(numberMessages)
+
+        restCalls.averageParcelStatistics();
+        var averageParcels = JSON.parse(localStorage.getItem('averageParcels'))
+        setAverageParcels(averageParcels)
+
+        restCalls.averageForumStatistics();
+        var averageForums = JSON.parse(localStorage.getItem('averageForums'))
+        setAverageForums(averageForums)
+
+        restCalls.averageMessageStatistics();
+        var averageMessages = JSON.parse(localStorage.getItem('averageMessages'))
+        setAverageMessages(averageMessages)
+
     }, [])
+
+    useEffect(() => {
+        restCalls.userMostParcelsStatistics();
+        var userMostParcels = JSON.stringify(localStorage.getItem('userMostParcels'))
+        setUMostParcels(userMostParcels)
+
+        restCalls.userMostForumsStatistics();
+        var userMostForums = JSON.stringify(localStorage.getItem('userMostForums'))
+        setUMostForums(userMostForums)
+
+        restCalls.userMostMessagesStatistics();
+        var userMostMessages = JSON.stringify(localStorage.getItem('userMostMessages'))
+        setUMostMessages(userMostMessages)
+    })
 
     return (
         <Grid container spacing={2}>
@@ -44,21 +76,21 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Utilizador com maior número de parcelas registadas:
+                            Utilizador com maior número de parcelas registadas: {uMostParcels}
                         </Typography>
                     </Card>
                 </Box>
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Utilizador com maior número de forums registados:
+                            Utilizador com maior número de forums registados: {uMostForums}
                         </Typography>
                     </Card>
                 </Box>
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Utilizador com maior número de mensagens registadas:
+                            Utilizador com maior número de mensagens registadas: {uMostMessages}
                         </Typography>
                     </Card>
                 </Box>
@@ -81,7 +113,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número médio de parcelas registadas por utilizador:
+                            Número médio de parcelas registadas por utilizador: {avParcels}
                         </Typography>
                     </Card>
                 </Box>
@@ -104,7 +136,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número médio de forums registados por utilizador:
+                            Número médio de forums registados por utilizador: {avForums}
                         </Typography>
                     </Card>
                 </Box>
@@ -127,7 +159,7 @@ export default function StatisticsPage() {
                 <Box sx={{ p: 1 }}>
                     <Card raised sx={{ p: 1 }}>
                         <Typography variant="h5" sx={{ fontSize: 15 }}>
-                            Número médio de mensagens registadas por utilizador:
+                            Número médio de mensagens registadas por utilizador: {avMessages}
                         </Typography>
                     </Card>
                 </Box>

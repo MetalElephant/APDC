@@ -712,6 +712,132 @@ class restCalls {
         })
     }
 
+    averageParcelStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/averageParcels", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('averageParcels', text)
+            return text;
+        })
+    }
+
+    averageForumStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/averageForums", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('averageForums', text)
+            return text;
+        })
+    }
+
+    averageMessageStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/averageMessages", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('averageMessages', text)
+            return text;
+        })
+    }
+
+    userMostParcelsStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/userMostParcels", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('userMostParcels', text)
+            return text;
+        })
+    }
+
+    userMostForumsStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/userMostForums", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('userMostForums', text)
+            return text;
+        })
+    }
+
+    userMostMessagesStatistics() {
+        return fetch("https://our-hull.appspot.com/rest/stats/userMostMessages", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('userMostMessages', text)
+            return text;
+        })
+    }
+
     listUserRewards() {
         return fetch("https://our-hull.appspot.com/rest/reward/listRedeemable", {
             method: 'POST',
