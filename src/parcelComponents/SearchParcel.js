@@ -152,12 +152,12 @@ export default function SearchParcel() {
         if (markers.length === 4) {
             list = []
             if (option === "limits") {
-                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng).then(() => {updatePolygonMarkers()})
+                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng).then(() => { updatePolygonMarkers() })
             }
         }
         else if (type !== -1) {
             list = []
-            restCalls.getParcelsByRegion(region, type).then(() => {updatePolygonMarkers()})
+            restCalls.getParcelsByRegion(region, type).then(() => { updatePolygonMarkers() })
         }
     }
 
@@ -278,9 +278,11 @@ export default function SearchParcel() {
                 <Button color="error" onClick={deleteMarkers} >nova pesquisa</Button>
             </Grid>
             <Grid item xs={3}>
-                <Box>
+                <Box sx={{
+                    marginTop: 2
+                }}>
                     <FormControl>
-                        <FormLabel id="demo-radio-buttons-group-label"><Typography color="black" fontSize={20}>Pesquisa de parcelas por: </Typography></FormLabel>
+                        <FormLabel id="demo-radio-buttons-group-label"><Typography color="black" fontSize={20}>Pesquisa de parcelas: </Typography></FormLabel>
                         <RadioGroup
                             row
                             aria-labelledby="demo-radio-buttons-group-label"
@@ -294,12 +296,12 @@ export default function SearchParcel() {
                     </FormControl>
 
                     {option == "limits" ?
-                        <Box>
-                            <Typography color={first ? "darkgreen" : "error"}>1. Clique no mapa para definir o limite a norte</Typography>
-                            <Typography color={second ? "darkgreen" : "error"}>2. Clique no mapa para definir o limite a sul</Typography>
-                            <Typography color={third ? "darkgreen" : "error"}>3. Clique no mapa para definir o limite a este</Typography>
-                            <Typography color={fourth ? "darkgreen" : "error"}>4. Clique no mapa para definir o limite a oeste</Typography>
-                        </Box>
+                        <>
+                            <Typography mt={1} pl={9} align="left" color={first ? "darkgreen" : "error"}>1. Clique no mapa para definir o limite a norte</Typography>
+                            <Typography mt={1} pl={9} align="left" color={second ? "darkgreen" : "error"}>2. Clique no mapa para definir o limite a sul</Typography>
+                            <Typography mt={1} pl={9} align="left" color={third ? "darkgreen" : "error"}>3. Clique no mapa para definir o limite a este</Typography>
+                            <Typography mt={1} pl={9} align="left" color={fourth ? "darkgreen" : "error"}>4. Clique no mapa para definir o limite a oeste</Typography>
+                        </>
                         :
                         <Box>
                             <Typography>Selecione uma localização</Typography>
@@ -354,7 +356,7 @@ export default function SearchParcel() {
                         </Box>
                     }
 
-                    <Button variant="contained" color="success" size="large" onClick={getData} sx={{ mt: 3 }}> <Typography variant="h6" size="large"> Avançar </Typography> </Button>
+                    <Button variant="contained" color="success" size="large" onClick={getData} sx={{ mt: 2 }}> <Typography variant="h6" size="large"> Avançar </Typography> </Button>
                 </Box>
             </Grid>
         </>

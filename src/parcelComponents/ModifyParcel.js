@@ -276,7 +276,7 @@ export default function ModifyParcel() {
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { modifyParcelManager(e) }}
                             >
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> submit </Typography>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> modificar parcela </Typography>
                             </Button>
                         </Box>
                     </Box>

@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Paper} from "@mui/material";
+import { Box, Typography, Grid, Paper } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls"
@@ -13,7 +13,7 @@ export default function UserInfo() {
     const [mobilephone, setMobilephone] = react.useState("")
     const [address, setAddress] = react.useState("")
     const [nif, setNif] = react.useState("")
-    const [role,setRole] = react.useState("")
+    const [role, setRole] = react.useState("")
     const [image, setImage] = react.useState("")
 
     useEffect(() => {
@@ -33,62 +33,61 @@ export default function UserInfo() {
     }, [])
 
     return (
-        <>  
+        <>
             <Grid item xs={5} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18}}> Nome de Utilizador: {username} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome de Utilizador: {username} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Email: {email} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Email: {email} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Função: {role} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Função: {role} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Nome: {name} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Nome: {name} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Visibilidade: {visibility} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Visibilidade: {visibility} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Número de Telefone: {landphone} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Número de Telefone: {landphone} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Número de Telemóvel: {mobilephone} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Número de Telemóvel: {mobilephone} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> Morada: {address} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Morada: {address} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{fontFamily: 'Verdana', fontSize: 18}}> NIF: {nif} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> NIF: {nif} </Typography>
                     </Paper>
                 </Box>
             </Grid>
-            <Grid item xs={3.5} 
-                    container
-                    spacing={0}
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="center"
-            >       
-                <Box component="img" src = {image} sx={{height: "500px", width: "500px", objectFit: "contain"}}   />
+            <Grid item xs={5}
+                container
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <Box component="img" src={image} sx={{ height: "80%", width: "80%", objectFit: "contain" }} />
             </Grid>
         </>
     )
