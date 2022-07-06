@@ -165,6 +165,9 @@ public class UserResource {
 					.set(PHOTO, uploadPhoto(data.username, data.photo))
 					.set(SPEC, String.valueOf(points))
 					.set(NREWARDS, 0)
+					.set(NPARCELS, 0)
+					.set(NFORUMS, 0)
+					.set(NMSGS, 0)
 					.set(CTIME, Timestamp.now())
                     .build();
 
@@ -357,7 +360,7 @@ public class UserResource {
 			if (userToUpdate == null){
 				LOG.warning("User to be updated" + data.usernameToUpdate + " does not exist.");
 				tn.rollback();
-				return Response.status(Status.NOT_FOUND).entity("User to be updated" + data.usernameToUpdate + " does not exist.").build();
+				return Response.status(Status.NOT_FOUND).entity("User to be updated " + data.usernameToUpdate + " does not exist.").build();
 			}
 
 			if (!isLoggedIn(token, data.username)){
@@ -381,12 +384,15 @@ public class UserResource {
 			.set(ADDRESS, data.address)
 			.set(NIF, data.nif)
 			.set(VISIBILITY, data.visibility)
-			.set(PHOTO, user.getString(PHOTO))
+			.set(PHOTO, userToUpdate.getString(PHOTO))
 			.set(SPEC, userToUpdate.getString(SPEC))
-			.set(NREWARDS, user.getLong(NREWARDS))
+			.set(NREWARDS, 0)
+			.set(NPARCELS, 0)
+			.set(NFORUMS, 0)
+			.set(NMSGS, 0)
 			.set(CTIME, userToUpdate.getTimestamp(CTIME));
 		
-			for(int i = 0; i < Integer.parseInt(user.getString(NREWARDS)); i++) {
+			for(int i = 0; i < user.getLong(NREWARDS); i++) {
 				builder.set(REWARD + i, user.getString(REWARD + i));
 			}
 
@@ -464,6 +470,9 @@ public class UserResource {
 					.set(PHOTO, user.getString(PHOTO))
 					.set(SPEC, user.getString(SPEC))
 					.set(NREWARDS, user.getLong(NREWARDS))
+					.set(NPARCELS, user.getLong(NPARCELS))
+					.set(NFORUMS, user.getLong(NFORUMS))
+					.set(NMSGS, user.getLong(NMSGS))
 					.set(CTIME, user.getTimestamp(CTIME));
 				
 			for(int i = 0; i < user.getLong(NREWARDS); i++) {

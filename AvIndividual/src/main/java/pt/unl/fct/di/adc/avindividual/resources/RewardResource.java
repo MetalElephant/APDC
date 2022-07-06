@@ -61,6 +61,9 @@ public class RewardResource {
 	private static final String VISIBILITY = "visibility";
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
+	private static final String NPARCELS = "number of parcels";
+	private static final String NFORUMS = "number of forums";
+	private static final String NMSGS = "number of messages";
 	private static final String CTIME = "creation time";
 
     // Keys
@@ -349,6 +352,9 @@ public class RewardResource {
 			    	.set(PHOTO, user.getString(PHOTO))
 		    		.set(SPEC, String.valueOf(points))
 	    			.set(NREWARDS, length + 1)
+					.set(NPARCELS, user.getLong(NPARCELS))
+					.set(NFORUMS, user.getLong(NFORUMS))
+					.set(NMSGS, user.getLong(NMSGS))
     				.set(CTIME, user.getTimestamp(CTIME));
 
     		for(int i = 0; i < length; i++) {
@@ -586,7 +592,7 @@ public class RewardResource {
         List<RewardData> rewardsList = new LinkedList<>();
 		
         rewards.forEachRemaining(reward -> {
-            rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+            rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE)));
         });
 
         return rewardsList;

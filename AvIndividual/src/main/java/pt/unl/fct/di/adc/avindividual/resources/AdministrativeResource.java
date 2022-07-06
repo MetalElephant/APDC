@@ -57,6 +57,10 @@ public class AdministrativeResource {
 	private static final String SPEC = "specialization";
 	private static final String PHOTO = "photo";
 	private static final String CTIME = "creation time";
+	private static final String NREWARDS = "number of rewards";
+	private static final String NPARCELS = "number of parcels";
+	private static final String NFORUMS = "number of forums";
+	private static final String NMSGS = "number of messages";
 
 	private static final String PUBLIC = "Public";
 	private static final String UNDEFINED = "Undefined";
@@ -139,6 +143,10 @@ public class AdministrativeResource {
 						.set(VISIBILITY, data.visibility)
 						.set(PHOTO, UNDEFINED)
 						.set(SPEC, data.isRep ? data.freguesia : MOD)
+						.set(NREWARDS, 0)
+						.set(NPARCELS, 0)
+						.set(NFORUMS, 0)
+						.set(NMSGS, 0)
 						.set(CTIME, Timestamp.now())
 						.build();
 

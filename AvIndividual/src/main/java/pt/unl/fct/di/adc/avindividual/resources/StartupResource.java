@@ -52,6 +52,10 @@ public class StartupResource {
 	private static final String VISIBILITY = "visibility";
 	private static final String SPEC = "specialization";
     private static final String PHOTO = "photo";
+    private static final String NREWARDS = "number of rewards";
+    private static final String NPARCELS = "number of parcels";
+	private static final String NFORUMS = "number of forums";
+	private static final String NMSGS = "number of messages";
 	private static final String CTIME = "creation time";
 
 	private static final String SU_NAME = "Name";
@@ -96,6 +100,10 @@ public class StartupResource {
                     .set(VISIBILITY, SU_VISIBILITY)
                     .set(SPEC, SU_SPEC)
                     .set(PHOTO, SU_PHOTO)
+                    .set(NREWARDS, 0)
+                    .set(NPARCELS, 0)
+					.set(NFORUMS, 0)
+					.set(NMSGS, 0)
                     .set(CTIME, Timestamp.now())
                     .build();
             

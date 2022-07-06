@@ -7,6 +7,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import com.google.cloud.datastore.Entity.Builder;
 
 import com.google.cloud.datastore.*;
 
@@ -24,6 +25,26 @@ public class StatisticsResource {
 	private static final String FORUM = "Forum";
 	private static final String MESSAGE = "Message";
 	private static final String STAT = "Statistics";
+
+	//User information
+	private static final String NAME = "name";
+	private static final String PASSWORD = "password";
+	private static final String EMAIL = "email";
+	private static final String ROLE = "role";
+	private static final String MPHONE = "mobile phone";
+	private static final String HPHONE = "home phone";
+	private static final String ADDRESS = "address";
+	private static final String NIF = "nif";
+	private static final String VISIBILITY = "visibility";
+	private static final String PHOTO = "photo";
+	private static final String SPEC = "specialization";
+	private static final String CTIME = "creation time";
+	private static final String NPARCELS = "number of parcels";
+	private static final String NFORUMS = "number of forums";
+	private static final String NREWARDS = "number of rewards";
+	private static final String NMSGS = "number of messages";
+
+	private static final String REWARD = "Reward";
 
 	//Statistics information
 	private static final String VALUE = "Value";
@@ -44,6 +65,7 @@ public class StatisticsResource {
 		}
 	}
 
+	//For messages
 	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd, int counter){
 		long val = counter;
 		if (!isAdd)
@@ -56,6 +78,59 @@ public class StatisticsResource {
 				
 			tn.put(stat);
 		}
+	}
+
+	public void updateUserStats(Entity user, Transaction tn, boolean isAdd, int stat){
+		long val = 1L;
+
+		if (!isAdd)
+			val = -val;
+
+		long nParcels = user.getLong(NPARCELS);
+		long nForums = user.getLong(NFORUMS);
+		long nMsgs = user.getLong(NMSGS);
+
+		switch(stat){
+			case 1:
+				nParcels += val;
+			break;
+			case 2:
+				nForums += val;
+			break;
+			case 3:
+				nMsgs += val;
+			break;
+			default:
+			break;
+		}
+
+		
+		Builder builder = Entity.newBuilder(user.getKey())
+			.set(NAME, user.getString(NAME))
+			.set(PASSWORD, user.getString(PASSWORD))
+			.set(EMAIL, user.getString(EMAIL))
+			.set(ROLE, user.getString(ROLE))
+			.set(MPHONE, user.getString(MPHONE))
+			.set(HPHONE, user.getString(HPHONE))
+			.set(ADDRESS, user.getString(ADDRESS))
+			.set(NIF, user.getString(NIF))
+			.set(VISIBILITY, user.getString(VISIBILITY))
+			.set(PHOTO, user.getString(PHOTO))
+			.set(SPEC, user.getString(SPEC))
+			.set(NREWARDS, user.getLong(NREWARDS))
+			.set(NPARCELS, nParcels)
+			.set(NFORUMS, nForums)
+			.set(NMSGS, nMsgs)
+			.set(CTIME, user.getTimestamp(CTIME));
+		
+		for(int i = 0; i < user.getLong(NREWARDS); i++) {
+			builder.set(REWARD + i, user.getString(REWARD + i));
+		}
+
+		user = builder.build();
+				
+		tn.put(user);
+		
 	}
 
 	@GET

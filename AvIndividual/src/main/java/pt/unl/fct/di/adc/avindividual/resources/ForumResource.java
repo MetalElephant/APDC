@@ -113,6 +113,7 @@ public class ForumResource {
                     .build();
 
             sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+            sr.updateUserStats(user, tn, ADD, 2);
 
             tn.add(forum);
             tn.commit();
@@ -178,6 +179,7 @@ public class ForumResource {
             .build();
 
             sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+            sr.updateUserStats(user, tn, ADD, 3);
 
             tn.add(message);
             tn.commit();
@@ -242,6 +244,7 @@ public class ForumResource {
             sr.updateStats(statKeyM, tn.get(statKeyM), tn, !ADD, n);
 
             sr.updateStats(statKeyF, tn.get(statKeyF), tn, !ADD);
+            sr.updateUserStats(owner, tn, !ADD, 2);
 
             tn.delete(forumKey);
             tn.commit();
@@ -266,6 +269,7 @@ public class ForumResource {
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.forumOwner)).setKind(FORUM).newKey(data.forumName);
         Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
+        Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.msgOwner);
 
         Transaction tn = datastore.newTransaction();
 
@@ -273,6 +277,7 @@ public class ForumResource {
             Entity user = tn.get(userKey);
             Entity token = tn.get(tokenKey);
             Entity forum = tn.get(forumKey);
+            Entity owner = tn.get(ownerKey);
 
             if (user == null) {
                 LOG.warning("User does not exist");
@@ -302,6 +307,7 @@ public class ForumResource {
                 return Response.status(Status.NOT_FOUND).entity("Message does not exist.").build();
 
             sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+            sr.updateUserStats(owner, tn, !ADD, 3);
 
             tn.delete(messages.next().getKey());
             tn.commit();
@@ -607,7 +613,7 @@ public class ForumResource {
 			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE), msg.getLong(ORDER)));
 		});
 
-        //TODO Collections.sort(forumMsg, new SortByOrder());
+        Collections.sort(forumMsg, new SortByOrder());
 
 		return forumMsg;
     }

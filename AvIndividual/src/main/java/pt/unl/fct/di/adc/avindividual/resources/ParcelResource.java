@@ -322,8 +322,8 @@ public class ParcelResource {
 
 			if (parcel.getBoolean(CONFIRMED)){
 				tn.delete(forumKey);
-
 				sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+				sr.updateUserStats(owner, tn, !ADD, 1);
 			}
 
 			tn.delete(parcelKey);
@@ -544,6 +544,7 @@ public class ParcelResource {
 		Key statKeyP = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 		Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.parcelName);
         Key statKeyF = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+		Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(data.owner);
 
 		Transaction tn = datastore.newTransaction();
 
@@ -551,6 +552,7 @@ public class ParcelResource {
 			Entity user = datastore.get(userKey);
 			Entity token = datastore.get(tokenKey);
 			Entity parcel = tn.get(parcelKey);
+			Entity owner = tn.get(ownerKey);
 
 			if (user == null) {				
 				LOG.warning("User does not exist");
@@ -603,8 +605,9 @@ public class ParcelResource {
 
 			//Update statistics
 			sr.updateStats(statKeyP, tn.get(statKeyP), tn, ADD);
+			sr.updateUserStats(owner, tn, ADD, 1);
 
-			createForum(tn, forumKey, statKeyF);
+			createForum(tn, forumKey, statKeyF, owner);
 			
 			tn.put(parcel);
 			tn.commit();
@@ -683,7 +686,7 @@ public class ParcelResource {
 		return URL + name;
 	}
 
-	private void createForum(Transaction tn, Key forumKey, Key statKey){
+	private void createForum(Transaction tn, Key forumKey, Key statKey, Entity user){
 		Calendar cal = Calendar.getInstance();
             cal.add(Calendar.HOUR, 1);
 
@@ -693,6 +696,7 @@ public class ParcelResource {
                 .build();
 
         sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+		sr.updateUserStats(user, tn, ADD, 2);
 
         tn.add(forum);
 	}
