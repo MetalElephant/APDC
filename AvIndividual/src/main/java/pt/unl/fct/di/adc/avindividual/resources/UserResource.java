@@ -386,10 +386,10 @@ public class UserResource {
 			.set(VISIBILITY, data.visibility)
 			.set(PHOTO, userToUpdate.getString(PHOTO))
 			.set(SPEC, userToUpdate.getString(SPEC))
-			.set(NREWARDS, 0)
-			.set(NPARCELS, 0)
-			.set(NFORUMS, 0)
-			.set(NMSGS, 0)
+			.set(NREWARDS, user.getLong(NREWARDS))
+			.set(NPARCELS, user.getLong(NPARCELS))
+			.set(NFORUMS, user.getLong(NFORUMS))
+			.set(NMSGS, user.getLong(NMSGS))
 			.set(CTIME, userToUpdate.getTimestamp(CTIME));
 		
 			for(int i = 0; i < user.getLong(NREWARDS); i++) {

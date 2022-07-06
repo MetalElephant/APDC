@@ -8,6 +8,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import com.google.cloud.datastore.Entity.Builder;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+
+import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 import com.google.cloud.datastore.*;
 
@@ -262,10 +265,24 @@ public class StatisticsResource {
 	public Response userMostParcelsStatistics() {
 		LOG.info("Attempt to read user related statistics.");
 
-		//TODO
-		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(USER)
+										.setFilter(PropertyFilter.eq(ROLE, Roles.PROPRIETARIO.getRole()))
+										.build();
+							
+		long max = -1;
+		String username = "Username";
 
-		return Response.ok().build();
+		QueryResults<Entity> query = datastore.run(statsQuery);
+
+		query.forEachRemaining(user -> {
+			long nParcels = user.getLong(NPARCELS);
+
+			if (nParcels > max){
+				update(max, nParcels, username, user.getKey().getName());
+			}
+		});
+
+		return Response.ok(username).build();
 	}
 
 	@GET
@@ -274,10 +291,22 @@ public class StatisticsResource {
 	public Response userMostForumsStatistics() {
 		LOG.info("Attempt to read user related statistics.");
 
-		//TODO
-		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(USER).build();
+							
+		long max = -1;
+		String username = "Username";
 
-		return Response.ok().build();
+		QueryResults<Entity> query = datastore.run(statsQuery);
+
+		query.forEachRemaining(user -> {
+			long nForums = user.getLong(NFORUMS);
+
+			if (nForums > max){
+				update(max, nForums, username, user.getKey().getName());
+			}
+		});
+
+		return Response.ok(username).build();
 	}
 
 	@GET
@@ -286,9 +315,26 @@ public class StatisticsResource {
 	public Response userMostMessagesStatistics() {
 		LOG.info("Attempt to read user related statistics.");
 
-		//TODO
-		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(USER).build();
+							
+		long max = -1;
+		String username = "Test";
 
-		return Response.ok().build();
+		QueryResults<Entity> query = datastore.run(statsQuery);
+
+		query.forEachRemaining(user -> {
+			long nMsgs = user.getLong(NMSGS);
+
+			if (nMsgs > max){
+				update(max, nMsgs, username, user.getKey().getName());
+			}
+		});
+
+		return Response.ok(username).build();
+	}
+
+	private void update(long max, long newMax, String username, String newUsername){
+		max = newMax;
+		username = newUsername;
 	}
 }
