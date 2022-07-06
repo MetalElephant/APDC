@@ -82,17 +82,16 @@ export default function UserInfo() {
                     </Paper>
                 </Box>
             </Grid>
-            <Grid item xs={3.5}
+            <Grid item xs={5}
                 container
-                spacing={0}
                 direction="column"
                 alignItems="center"
                 justifyContent="center"
             >
                 {image !== "Undefined" ?
-                    <Box component="img" src={image} sx={{ height: "500px", width: "500px", objectFit: "contain" }} />
+                    <Box component="img" src={image} sx={{ height: "80%", width: "80%", objectFit: "contain" }} />
                     :
-                    <Box component="img" src={avatar} sx={{ height: "500px", width: "500px", objectFit: "contain" }} />
+                    <Box component="img" src={avatar} sx={{ height: "80%", width: "80%", objectFit: "contain" }} />
                 }
             </Grid>
         </>

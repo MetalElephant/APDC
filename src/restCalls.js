@@ -712,8 +712,8 @@ class restCalls {
         })
     }
 
-    listRewards() {
-        return fetch("https://our-hull.appspot.com/rest/reward/list", {
+    listUserRewards() {
+        return fetch("https://our-hull.appspot.com/rest/reward/listRedeemable", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -753,6 +753,31 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem('allRewards', text);
+            return text;
+        })
+    }
+
+    redeemReward(owner, reward) {
+        return fetch("https://our-hull.appspot.com/rest/reward/redeemReward", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                owner: owner,
+                reward: reward
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
             return text;
         })
     }

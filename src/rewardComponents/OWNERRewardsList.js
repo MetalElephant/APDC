@@ -2,15 +2,23 @@ import { Button, Grid, Typography, Box, Card, CardMedia, CardContent, CardAction
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
-export default function RewardsList() {
+export default function OWNERRewardsList() {
 
     const [loaded, setLoaded] = react.useState(false);
 
     var rewards = JSON.parse(localStorage.getItem('rewards'))
 
     useEffect(() => {
-        restCalls.listRewards().then(() => { setLoaded(true) })
+        restCalls.listUserRewards().then(() => { setLoaded(true) })
     })
+
+    function redeemReward(rewardName) {
+        console.log("here");
+        var i = rewards.findIndex(reward => reward.name === rewardName)
+        console.log(i);
+        restCalls.redeemReward(rewards[i].owner, rewards[i].name)
+        
+    }
 
     function generateRewards() {
         const rewardCards = []
@@ -21,17 +29,17 @@ export default function RewardsList() {
                 rewardCards.push(
                     <>
                         <Box sx={{ p: 2 }}>
-                            <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
+                            <Card variant="outlined" sx={{ width: 700, maxHeight: 300, p: 1 }}>
                                 <CardContent>
                                     <Typography gutterBottom align="left" variant="h5" component="div">
-                                        {rewards[i].name}
+                                        {rewards[i].name} ({rewards[i].owner})
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color="text.secondary" fontSize={15}>
                                         {rewards[i].description}
                                     </Typography>
                                 </CardContent>
                                 <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                                    <Button variant="outlined" color="success" size="small">Claim Reward: {rewards[i].price} pontos</Button>
+                                    <Button onClick={() => { console.log("fdlfasdj"); redeemReward(rewards[i].name) }} variant="outlined" color="success" size="small">Claim Reward: {rewards[i].price} pontos</Button>
                                 </CardActions>
                             </Card>
                         </Box>

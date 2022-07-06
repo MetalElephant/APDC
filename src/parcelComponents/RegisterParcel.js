@@ -398,7 +398,7 @@ export default function RegisterParcel() {
                                 fullWidth
                                 variant="outlined"
                                 color="success"
-                                sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
+                                sx={{ mt: 1.5, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { parcelRegisterManager(e) }}
                             >
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Submeter </Typography>
