@@ -16,6 +16,7 @@ export default function ReviewParcels() {
     const [freg, setFreg] = react.useState(null)
     const [description, setDescription] = react.useState("")
     const [confirmed, setConfirmed] = react.useState(false)
+    const [confirmation, setConfirmation] = react.useState("")
     const [groundType, setGroundType] = react.useState("")
     const [currUsage, setCurrUsage] = react.useState("")
     const [prevUsage, setPrevUsage] = react.useState("")
@@ -48,6 +49,7 @@ export default function ReviewParcels() {
     }, [loaded])
 
     function updateInfo(parcelName) {
+        console.log(parcelName)
         var index = allParcels.findIndex(parcel => parcel.parcelName === parcelName)
         var parcel = parcels[index]
         setParcelName(parcel.parcelName)
@@ -62,6 +64,7 @@ export default function ReviewParcels() {
         setPrevUsage(parcel.prevUsage)
         setArea(parcel.area)
         setConfirmed(parcel.confirmed)
+        setConfirmation(parcel.confirmation)
     }
 
     function updatePolygons() {
@@ -113,8 +116,8 @@ export default function ReviewParcels() {
         if (parcelName !== "" && !confirmed) {
             setDisplayError(false)
             restCalls.verifyParcel(owner, parcelName)
-                .then(() => { restCalls.getParcelsRep(); setIsParcelVerified(true) })
-                .catch(() => { setIsParcelNotVerified(true)})
+                .then(() => { restCalls.getParcelsRep().then(() => { setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons()}); setIsParcelVerified(true) })
+                .catch(() => { setIsParcelNotVerified(true) })
             setDisplayMessage(true)
         }
         else {
@@ -140,6 +143,13 @@ export default function ReviewParcels() {
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da parcela: {parcelName} </Typography>
                     </Paper>
                 </Box>
+                {confirmation !== "" &&
+                    <Box p={2.5} textAlign="center" >
+                        <Paper elevation={12}>
+                            <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}>Consulte o documento <a href={confirmation} target="_blank">aqui</a></Typography>
+                        </Paper>
+                    </Box>
+                }
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Distrito: {dist} </Typography>

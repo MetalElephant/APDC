@@ -252,6 +252,7 @@ export default function RegisterParcel() {
                             />
 
                             <Autocomplete
+                                multiple={true}
                                 selectOnFocus
                                 id="distritos"
                                 options={dist}
