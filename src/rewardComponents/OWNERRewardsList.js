@@ -5,12 +5,15 @@ import restCalls from "../restCalls";
 export default function OWNERRewardsList() {
 
     const [loaded, setLoaded] = react.useState(false);
+    const [points, setPoints] = react.useState();
 
     var rewards = JSON.parse(localStorage.getItem('rewards'))
+    var user = JSON.parse(localStorage.getItem('user'))
 
     useEffect(() => {
         restCalls.listUserRewards().then(() => { setLoaded(true) })
-    })
+        //setPoints(user.specialization)
+    }, [])
 
     function redeemReward(owner, name) {
         restCalls.redeemReward(owner, name)
@@ -46,25 +49,13 @@ export default function OWNERRewardsList() {
     }
 
     return (
-        <Grid item xs={8} container direction="column" justifyContent="flex-start" alignItems="center">
-            {loaded && generateRewards()}
-        </Grid>
+        <>
+            <Grid item xs={6} container direction="column" justifyContent="flex-start" alignItems="center">
+                {loaded && generateRewards()}
+            </Grid>
+            <Grid item xs={2} container direction="column" justifyContent="flex-start" alignItems="center">
+                <Typography>Pontos: </Typography>
+            </Grid>
+        </>
     )
 }
-
-{/*<Box sx={{ p: 1, width: "80%" }}>
-                            <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
-                                <CardContent >
-                                    <Typography gutterBottom align="left" variant="h5" component="div" sx={{ fontSize: 21 }}>
-                                        {rewards[i].name} ({rewards[i].owner})
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        - {forums[i].topic}
-                                    </Typography>
-                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
-                                        <Button variant="outlined" color="success" size="small">Aceder</Button>
-                                    </CardActions>
-                                </CardContent>
-                            </Card>
-                        </Box>
-*/}

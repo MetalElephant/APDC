@@ -28,6 +28,9 @@ export default function AboutUs() {
                         <Typography variant="body2" color="text.secondary">
                             - Porta-voz destas nozes
                         </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            - Maior cagada da FCT
+                        </Typography>
                     </CardContent>
                 </Card>
             </Grid>

@@ -28,8 +28,8 @@ export default function MessagesList() {
         const isMessageValid = messageErrorValidation();
         if (isMessageValid) {
             restCalls.postMessage(message)
-                .then(() => { setLoaded(false); setIsMessagePosted(true); setMessage(""); restCalls.listForumMessages().then(() => setLoaded(true)) })
-                .catch(() => {setLoaded(true); setIsMessageNotPosted(true)})
+                .then(() => { setLoaded(false); setIsMessagePosted(true); setIsMessageNotPosted(false); setMessage(""); restCalls.listForumMessages().then(() => setLoaded(true)) })
+                .catch(() => {setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false);})
             setMessageErr({})
             setDisplayMessage(true)
         }
@@ -117,7 +117,7 @@ export default function MessagesList() {
                     </Alert> : <></>}
                 {(isMessageNotPosted && displayMessage) ?
                     <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Erro ao enviar a mensagem</Typography>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Erro ao enviar a mensagem.</Typography>
                     </Alert> : <></>
                 }
 
