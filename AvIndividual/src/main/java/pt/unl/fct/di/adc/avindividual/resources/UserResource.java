@@ -65,7 +65,9 @@ public class UserResource {
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
-
+	private static final String NPARCELS = "number of parcels";
+	private static final String NFORUMS = "number of forums";
+	private static final String NMSGS = "number of messages";
 	private static final String UNDEFINED = "Undefined";
 
 	//Bucket information
@@ -162,6 +164,7 @@ public class UserResource {
 					.set(VISIBILITY, data.visibility)
 					.set(PHOTO, uploadPhoto(data.username, data.photo))
 					.set(SPEC, String.valueOf(points))
+					.set(NREWARDS, 0)
 					.set(CTIME, Timestamp.now())
                     .build();
 
@@ -380,7 +383,7 @@ public class UserResource {
 			.set(VISIBILITY, data.visibility)
 			.set(PHOTO, user.getString(PHOTO))
 			.set(SPEC, userToUpdate.getString(SPEC))
-			.set(NREWARDS, user.getString(NREWARDS))
+			.set(NREWARDS, user.getLong(NREWARDS))
 			.set(CTIME, userToUpdate.getTimestamp(CTIME));
 		
 			for(int i = 0; i < Integer.parseInt(user.getString(NREWARDS)); i++) {

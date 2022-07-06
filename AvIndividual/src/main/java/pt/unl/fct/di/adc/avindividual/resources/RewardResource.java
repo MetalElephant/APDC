@@ -1,5 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -277,7 +278,7 @@ public class RewardResource {
         }
     }
 
-    @PUT
+	@PUT
     @Path("/redeemReward")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response redeemReward(RewardRedeemData data) {
@@ -318,6 +319,12 @@ public class RewardResource {
 	    		tn.rollback();
 	        	return Response.status(Status.BAD_REQUEST).entity("Reward " + data.reward + " does not exist.").build();
 	    	}
+
+			if(!canUserRedeemReward(user, reward)) {
+				LOG.warning("User " + data.username + " has already redeemed the reward.");
+	    		tn.rollback();
+	        	return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " has already redeemed the reward.").build();
+			}
 
 	    	long length = user.getLong(NREWARDS);
 
@@ -463,23 +470,34 @@ public class RewardResource {
         return Response.ok(g.toJson(rewardList)).build();
     }
 
-    @GET
+	@GET
     @Path("/listAll")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response showAllRewards() {
         LOG.info("Attempt to list all rewards");
 
-        Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
+        return Response.ok(g.toJson(allRewards())).build();
+    }
 
-        QueryResults<Entity> rewards = datastore.run(queryReward);
+    @POST
+    @Path("/listRedeemable")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+	@Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response showUserRewards(RequestData data) {
+        LOG.info("Attempt to list redeemable rewards for " + data.username);
 
-		List<RewardData> rewardsList = new LinkedList<>();
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Entity user = datastore.get(userKey);
 
-		rewards.forEachRemaining(reward -> {
-			rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE)));
-		});
+        if(user == null) {
+            LOG.warning("User " + data.username + " does not exist");
+            
+            return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+        }
 
-        return Response.ok(g.toJson(rewardsList)).build();
+		List<RewardData> list = rewardsUserCanRedeem(user);
+
+        return Response.ok(g.toJson(list)).build();
     }
 
     private boolean isUserValid(Entity user) {
@@ -528,4 +546,49 @@ public class RewardResource {
 
 		return userRewards;
 	}
+
+	private boolean canUserRedeemReward(Entity user, Entity reward) {
+        List<RewardData> rewards = rewardsUserCanRedeem(user);
+
+        for (RewardData r : rewards) {
+            if(r.name.equals(reward.getString(REWARD_NAME))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private List<RewardData> rewardsUserCanRedeem(Entity user) {
+        List<RewardData> redeemableRewards = allRewards();
+ 
+        int nRewards = (int) user.getLong(NREWARDS);
+        List<String> userRewards = new ArrayList<>(nRewards);
+
+        for (int i = 0; i < nRewards; i++) {
+            userRewards.add(user.getString(REWARD + i));
+        }
+		
+        for (RewardData reward : redeemableRewards) {
+            if(userRewards.contains(reward.name)) {
+                redeemableRewards.remove(reward);
+            }
+        }
+
+        return redeemableRewards;
+    }
+
+	private List<RewardData> allRewards() {
+        Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
+
+        QueryResults<Entity> rewards = datastore.run(queryReward);
+
+        List<RewardData> rewardsList = new LinkedList<>();
+		
+        rewards.forEachRemaining(reward -> {
+            rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+        });
+
+        return rewardsList;
+    }
 }

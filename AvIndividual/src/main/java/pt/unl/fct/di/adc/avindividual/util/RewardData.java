@@ -1,14 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.util;
 
-import com.google.cloud.datastore.Entity;
-
 public class RewardData {
-
-    // Reward info
-    private static final String REWARD_NAME = "name";
-    private static final String DESCRIPTION = "description";
-    private static final String PRICE = "points";
-
     public String name, description, owner;
     public int price, timesRedeemed;
 
