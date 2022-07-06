@@ -12,12 +12,8 @@ export default function OWNERRewardsList() {
         restCalls.listUserRewards().then(() => { setLoaded(true) })
     })
 
-    function redeemReward(rewardName) {
-        console.log("here");
-        var i = rewards.findIndex(reward => reward.name === rewardName)
-        console.log(i);
-        restCalls.redeemReward(rewards[i].owner, rewards[i].name)
-        
+    function redeemReward(owner, name) {
+        restCalls.redeemReward(owner, name)
     }
 
     function generateRewards() {
@@ -25,27 +21,27 @@ export default function OWNERRewardsList() {
         if (rewards == null || rewards.length === 0)
             return <Typography> O utilizador não possui recompensas por reinvidicar.</Typography>
         else
-            for (var i = 0; i < rewards.length; i++) {
+            rewards.map((reward) => {
                 rewardCards.push(
                     <>
                         <Box sx={{ p: 2 }}>
                             <Card variant="outlined" sx={{ width: 700, maxHeight: 300, p: 1 }}>
                                 <CardContent>
                                     <Typography gutterBottom align="left" variant="h5" component="div">
-                                        {rewards[i].name} ({rewards[i].owner})
+                                        {reward.name} ({reward.owner})
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary" fontSize={15}>
-                                        {rewards[i].description}
+                                        {reward.description}
                                     </Typography>
                                 </CardContent>
                                 <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                                    <Button onClick={() => { console.log("fdlfasdj"); redeemReward(rewards[i].name) }} variant="outlined" color="success" size="small">Claim Reward: {rewards[i].price} pontos</Button>
+                                    <Button onClick={() => { redeemReward(reward.owner, reward.name) }} variant="outlined" color="success" size="small">Claim Reward: {reward.price} pontos</Button>
                                 </CardActions>
                             </Card>
                         </Box>
                     </>
                 )
-            }
+            })
         return rewardCards;
     }
 
