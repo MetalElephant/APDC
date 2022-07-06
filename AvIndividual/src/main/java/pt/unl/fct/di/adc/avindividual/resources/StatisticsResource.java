@@ -38,7 +38,6 @@ public class StatisticsResource {
 	private static final String HPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
-	private static final String VISIBILITY = "visibility";
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
@@ -117,7 +116,6 @@ public class StatisticsResource {
 			.set(HPHONE, user.getString(HPHONE))
 			.set(ADDRESS, user.getString(ADDRESS))
 			.set(NIF, user.getString(NIF))
-			.set(VISIBILITY, user.getString(VISIBILITY))
 			.set(PHOTO, user.getString(PHOTO))
 			.set(SPEC, user.getString(SPEC))
 			.set(NREWARDS, user.getLong(NREWARDS))
@@ -269,16 +267,17 @@ public class StatisticsResource {
 										.setFilter(PropertyFilter.eq(ROLE, Roles.PROPRIETARIO.getRole()))
 										.build();
 							
-		long max = -1;
-		String username = "Username";
+		long[] max = new long[] {-1};
+		String[] username = new String[] {"Username"};
 
 		QueryResults<Entity> query = datastore.run(statsQuery);
 
 		query.forEachRemaining(user -> {
 			long nParcels = user.getLong(NPARCELS);
 
-			if (nParcels > max){
-				update(max, nParcels, username, user.getKey().getName());
+			if (nParcels > max[0]){
+				max[0] = nParcels;
+				username[0] = user.getKey().getName();
 			}
 		});
 
@@ -293,16 +292,17 @@ public class StatisticsResource {
 
 		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(USER).build();
 							
-		long max = -1;
-		String username = "Username";
+		long[] max = new long[] {-1};
+		String[] username = new String[] {"Username"};
 
 		QueryResults<Entity> query = datastore.run(statsQuery);
 
 		query.forEachRemaining(user -> {
 			long nForums = user.getLong(NFORUMS);
 
-			if (nForums > max){
-				update(max, nForums, username, user.getKey().getName());
+			if (nForums > max[0]){
+				max[0] = nForums;
+				username[0] = user.getKey().getName();
 			}
 		});
 
@@ -317,24 +317,20 @@ public class StatisticsResource {
 
 		Query<Entity> statsQuery = Query.newEntityQueryBuilder().setKind(USER).build();
 							
-		long max = -1;
-		String username = "Test";
+		long[] max = new long[] {-1};
+		String[] username = new String[] {"Username"};
 
 		QueryResults<Entity> query = datastore.run(statsQuery);
 
 		query.forEachRemaining(user -> {
 			long nMsgs = user.getLong(NMSGS);
 
-			if (nMsgs > max){
-				update(max, nMsgs, username, user.getKey().getName());
+			if (nMsgs > max[0]){
+				max[0] = nMsgs;
+				username[0] = user.getKey().getName();
 			}
 		});
 
 		return Response.ok(username).build();
-	}
-
-	private void update(long max, long newMax, String username, String newUsername){
-		max = newMax;
-		username = newUsername;
 	}
 }

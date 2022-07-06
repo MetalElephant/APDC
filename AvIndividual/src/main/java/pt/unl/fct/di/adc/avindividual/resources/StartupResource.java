@@ -49,7 +49,6 @@ public class StartupResource {
 	private static final String HPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
-	private static final String VISIBILITY = "visibility";
 	private static final String SPEC = "specialization";
     private static final String PHOTO = "photo";
     private static final String NREWARDS = "number of rewards";
@@ -66,7 +65,6 @@ public class StartupResource {
 	private static final String SU_HPHONE = "112";
 	private static final String SU_ADDRESS = "FCT UNL";
 	private static final String SU_NIF = "0";
-	private static final String SU_VISIBILITY = "Public";
     private static final String SU_PHOTO = "Mirror";
 	private static final String SU_SPEC = "SU";
 
@@ -97,7 +95,6 @@ public class StartupResource {
                     .set(HPHONE, SU_HPHONE)
                     .set(ADDRESS, SU_ADDRESS)
                     .set(NIF, SU_NIF)
-                    .set(VISIBILITY, SU_VISIBILITY)
                     .set(SPEC, SU_SPEC)
                     .set(PHOTO, SU_PHOTO)
                     .set(NREWARDS, 0)

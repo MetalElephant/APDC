@@ -8,15 +8,15 @@ public class RegisterData {
 	public String username, password, pwdConfirmation, email, name, role;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, visibility, code;
+	public String profile, homePhone, mobilePhone, address,  nif, code;
 
 	public byte[] photo;
 	
-	private static final String UNDEFINED = "Undefined";
+	private static final String UNDEFINED = "Não Definido";
 	
 	public RegisterData() {}
 	
-	public RegisterData(String username, String password, String confirmation, String email, String name, String visibility,
+	public RegisterData(String username, String password, String confirmation, String email, String name,
 			String homePhone, String mobilePhone, String address, String nif, String code, byte[] photo, String role) {
 		//Mandatory information
 		this.username = username;
@@ -24,7 +24,6 @@ public class RegisterData {
 		this.pwdConfirmation = confirmation;
 		this.email = email;
 		this.name = name;
-		this.visibility = visibility;
 		this.role = role;
 
 		//Optional information
@@ -68,12 +67,12 @@ public class RegisterData {
 	public boolean validData(){
 		//Check missing info
 		if(this.username == null || this.password == null || this.email == null|| this.name == null 
-				|| this.pwdConfirmation == null || this.visibility == null || this.role == null)
+				|| this.pwdConfirmation == null || this.role == null)
 			return false;
 		
 		//Check empty data
 		if(this.username.length() == 0 || this.password.length() == 0 || this.email.length() == 0||
-			this.name.length() == 0	|| this.pwdConfirmation.length() == 0 || this.visibility.length() == 0 ||
+			this.name.length() == 0	|| this.pwdConfirmation.length() == 0 ||
 			this.role.length() == 0)
 			return false;
 		

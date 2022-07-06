@@ -10,17 +10,17 @@ public class RegisterModeratorData {
 	public String username, email, name;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, role, visibility, code, freguesia;
+	public String profile, homePhone, mobilePhone, address,  nif, role, freguesia;
 
 	public byte[] photo;
 
 	public boolean isRep;
 	
-	private static final String UNDEFINED = "UNDEFINED";
+	private static final String UNDEFINED = "Não Definido";
 	
 	public RegisterModeratorData() {}
 	
-	public RegisterModeratorData(String usernameReg, String username, String email, String name, String visibility,
+	public RegisterModeratorData(String usernameReg, String username, String email, String name,
 			String homePhone, String mobilePhone, String address, String nif, byte[] photo, boolean isRep, String freguesia) {
 		this.usernameReg = usernameReg;
         
@@ -28,7 +28,6 @@ public class RegisterModeratorData {
 		this.username = username;
 		this.email = email;
 		this.name = name;
-		this.visibility = visibility;
 		this.isRep = isRep;
 
 		//Optional information
@@ -36,7 +35,6 @@ public class RegisterModeratorData {
 		this.mobilePhone = mobilePhone;
 		this.address = address;
 		this.nif = nif;	
-		this.code = code;
 		this.photo = photo;
 		this.freguesia = freguesia;
 	}
@@ -48,7 +46,6 @@ public class RegisterModeratorData {
 		this.username = username;
 		this.email = email;
 		this.name = name;
-		this.code = code;
 		this.role = role;
 	}
 
@@ -71,13 +68,12 @@ public class RegisterModeratorData {
 	
 	public boolean validData() {
 		//Check missing info
-		if(this.username == null || this.email == null|| this.name == null || 
-		   this.visibility == null)
+		if(this.username == null || this.email == null|| this.name == null)
 			return false;
 		
 		//Check empty data
 		if(this.username.length() == 0 || this.email.length() == 0 ||
-				this.name.length() == 0 || this.visibility.length() == 0)
+				this.name.length() == 0)
 			return false;
 		
 		return true;	

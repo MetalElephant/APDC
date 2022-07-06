@@ -58,7 +58,6 @@ public class RewardResource {
 	private static final String HPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
-	private static final String VISIBILITY = "visibility";
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String NPARCELS = "number of parcels";
@@ -348,7 +347,6 @@ public class RewardResource {
 		    		.set(HPHONE, user.getString(HPHONE))
 	    			.set(ADDRESS, user.getString(ADDRESS))
     				.set(NIF, user.getString(NIF))
-				    .set(VISIBILITY, user.getString(VISIBILITY))
 			    	.set(PHOTO, user.getString(PHOTO))
 		    		.set(SPEC, String.valueOf(points))
 	    			.set(NREWARDS, length + 1)
@@ -372,7 +370,7 @@ public class RewardResource {
 	    			.set(REWARD_NAME, reward.getString(REWARD_NAME))
     				.set(DESCRIPTION, reward.getString(DESCRIPTION))
 				    .set(PRICE, reward.getString(PRICE))
-			    	.set(NREDEEMED, nRedeemed + 1);
+			    	.set(NREDEEMED, nRedeemed + 1L);
 
 		    reward = builderReward.build();
 

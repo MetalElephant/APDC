@@ -61,14 +61,13 @@ public class UserResource {
 	private static final String HPHONE = "home phone";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
-	private static final String VISIBILITY = "visibility";
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
 	private static final String NPARCELS = "number of parcels";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
-	private static final String UNDEFINED = "Undefined";
+	private static final String UNDEFINED = "Não Definido";
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
@@ -161,7 +160,6 @@ public class UserResource {
 					.set(HPHONE, data.homePhone)
 					.set(ADDRESS, data.address)
 					.set(NIF, data.nif)
-					.set(VISIBILITY, data.visibility)
 					.set(PHOTO, uploadPhoto(data.username, data.photo))
 					.set(SPEC, String.valueOf(points))
 					.set(NREWARDS, 0)
@@ -383,8 +381,7 @@ public class UserResource {
 			.set(HPHONE, data.homePhone)
 			.set(ADDRESS, data.address)
 			.set(NIF, data.nif)
-			.set(VISIBILITY, data.visibility)
-			.set(PHOTO, userToUpdate.getString(PHOTO))
+			.set(PHOTO, data.photo == null ? userToUpdate.getString(PHOTO) : uploadPhoto(data.username, data.photo))
 			.set(SPEC, userToUpdate.getString(SPEC))
 			.set(NREWARDS, user.getLong(NREWARDS))
 			.set(NPARCELS, user.getLong(NPARCELS))
@@ -466,7 +463,6 @@ public class UserResource {
 					.set(HPHONE, user.getString(HPHONE))
 					.set(ADDRESS, user.getString(ADDRESS))
 					.set(NIF, user.getString(NIF))
-					.set(VISIBILITY, user.getString(VISIBILITY))
 					.set(PHOTO, user.getString(PHOTO))
 					.set(SPEC, user.getString(SPEC))
 					.set(NREWARDS, user.getLong(NREWARDS))
@@ -549,11 +545,52 @@ public class UserResource {
 
 		usersRes.forEachRemaining(user -> {
 			usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
-									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(VISIBILITY), user.getString(PHOTO)));
+									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC)));
 		});
 
 		return Response.ok(g.toJson(usersList)).build();
 	}
+
+	@POST
+    @Path("/showAllExceptSelf")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response showAllExceptSelf(RequestData data) {
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+        
+        Entity userEntity = datastore.get(userKey);
+        Entity token = datastore.get(tokenKey);
+
+        if (userEntity == null) {
+            LOG.warning("User does not exist");
+            return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+        }
+
+		//TODO update with secret
+       	//Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+        //Entity secret = datastore.get(secretKey);
+
+        if (!isLoggedIn(token, data.username)){
+            LOG.warning("User " + data.username + " not logged in.");
+            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+        }
+
+		Query<Entity> queryUser = Query.newEntityQueryBuilder().setKind(USER).build();
+
+		QueryResults<Entity> usersRes = datastore.run(queryUser);
+
+		List<UserInfo> usersList = new LinkedList<>();
+
+		usersRes.forEachRemaining(user -> {
+			if (!user.getKey().getName().equals(data.username)){
+				usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
+									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC)));
+			}
+		});
+
+        return Response.ok(g.toJson(usersList)).build();
+    }
 
 	@POST
 	@Path("/info")
@@ -584,7 +621,7 @@ public class UserResource {
 
 		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME),
 						 user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-						 user.getString(ROLE), user.getString(VISIBILITY), user.getString(PHOTO));
+						 user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC));
 
 		return Response.ok(g.toJson(u)).build();
 	}
