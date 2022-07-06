@@ -18,7 +18,6 @@ export default function ListUsers() {
     const [nif, setNif] = react.useState("")
     const [allUsers, setAllUsers] = react.useState([])
     const [user, setUser] = react.useState([])
-    const [repeat, setRepeat] = react.useState(false)
     const [isUserRemoved, setIsUserRemoved] = react.useState(false)
     const [isUserNotRemoved, setIsUserNotRemoved] = react.useState(true)
     const [displayMessage, setDisplayMessage] = react.useState(false)

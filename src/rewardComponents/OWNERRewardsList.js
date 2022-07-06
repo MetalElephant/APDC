@@ -12,7 +12,7 @@ export default function OWNERRewardsList() {
 
     useEffect(() => {
         restCalls.listUserRewards().then(() => { setLoaded(true) })
-        //setPoints(user.specialization)
+        setPoints(user.specialization)
     }, [])
 
     function redeemReward(owner, name) {
@@ -53,8 +53,14 @@ export default function OWNERRewardsList() {
             <Grid item xs={6} container direction="column" justifyContent="flex-start" alignItems="center">
                 {loaded && generateRewards()}
             </Grid>
-            <Grid item xs={2} container direction="column" justifyContent="flex-start" alignItems="center">
-                <Typography>Pontos: </Typography>
+            <Grid item xs={2} container direction="column" justifyContent="flex-start" alignItems="left">
+                <Box display="flex" justifyContent="left" alignItems="left" sx={{ p: 2 }}>
+                    <Card variant="outlined" sx={{ p: 2, width: "100%", bgcolor: "#CCFF99", color: "darkgreen" }}>
+                        <Typography textAlign="center" variant="h5" sx={{ fontSize: 17 }}>
+                            Pontos: {points}
+                        </Typography>
+                    </Card>
+                </Box>
             </Grid>
         </>
     )

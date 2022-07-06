@@ -3,6 +3,7 @@ import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete, listClasses } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
+import { useParams } from 'react-router-dom';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
@@ -22,7 +23,7 @@ export default function RegisterParcel() {
     const [chosenFreg, setChosenFreg] = react.useState(null);
     const [chosenConc, setChosenConc] = react.useState(null);
     const [chosenDist, setChosenDist] = react.useState(null);
-    const [owners, setOwners] = react.useState("");
+    const [owners, setOwners] = react.useState([]);
     const [image, setImage] = react.useState();
     const [preview, setPreview] = react.useState();
     const fileInputRef = react.useRef();
@@ -32,11 +33,15 @@ export default function RegisterParcel() {
     const [disableConc, setDisableConc] = react.useState(true);
     const [disableFreg, setDisableFreg] = react.useState(true);
     const [type, setType] = react.useState(2);
+    const [allUsers, setAllUsers] = react.useState([])
 
     let index = 0;
     let split = [];
+    var users = JSON.parse(localStorage.getItem('allUsers'))
 
     useEffect(() => {
+        restCalls.listAllUsers().then(() => { users = JSON.parse(localStorage.getItem('allUsers')); setAllUsers(users) })
+
         let distToConc = new Map()
         let concToFreg = new Map()
         let distritos = [];
@@ -153,7 +158,7 @@ export default function RegisterParcel() {
         setChosenConc(null);
         setChosenFreg(null);
         setChosenDist(null);
-        setOwners("");
+        setOwners([]);
     }
 
     function resetValuesFail() {
@@ -164,7 +169,14 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
-        restCalls.parcelRegister(parcelName, owners, chosenDist, chosenConc, chosenFreg,
+        var tempOwners = []
+        if(owners.length > 0) {
+            owners.map((owner) => {
+                tempOwners.push(owner.username)
+            })
+        }
+        console.log(tempOwners)
+        restCalls.parcelRegister(parcelName, tempOwners, chosenDist, chosenConc, chosenFreg,
             description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, 2)
             .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); });
         setDisplayParcelMessage(true);
@@ -240,17 +252,29 @@ export default function RegisterParcel() {
                                 value={parcelName}
                                 onChange={parcelNameHandler}
                             />
-                            <TextField
-                                margin="normal"
-                                fullWidth
-                                name="nome"
-                                label="Outros proprietários (separados por vírgula)"
-                                id="owners"
-                                color="success"
+                            <Autocomplete
+                                multiple
+                                id="tags-standard"
+                                options={allUsers}
                                 value={owners}
-                                onChange={ownersHandler}
+                                getOptionLabel={(option) => option.username}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        variant="standard"
+                                        label="Outros Proprietários"
+                                        placeholder="Outros Proprietários"
+                                    />
+                                )}
+                                onChange={(event, newValue) => {
+                                    setOwners(newValue)
+                                    /*
+                                    setOwners([
+                                        ...owners,
+                                        ...newValue.filter((option) => owners.indexOf(option.username) === -1),
+                                    ]);*/
+                                }}
                             />
-
                             <Autocomplete
                                 selectOnFocus
                                 id="distritos"
