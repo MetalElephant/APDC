@@ -63,7 +63,7 @@ class restCalls {
         })
     }
 
-    registerUserSU(username, email, name, visibility, isRep, freguesia) {
+    registerUserSU(username, email, name, isRep, freguesia) {
         return fetch("https://our-hull.appspot.com/rest/admin/register", {
             method: 'POST',
             headers: {
@@ -74,7 +74,6 @@ class restCalls {
                 username: username,
                 email: email,
                 name: name,
-                visibility: visibility,
                 isRep: isRep,
                 freguesia: freguesia
             })

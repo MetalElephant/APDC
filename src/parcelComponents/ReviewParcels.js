@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, Autocomplete, TextField, Button, Alert, Paper } from "@mui/material";
+import { Box, Typography, Grid, CircularProgress, Button, Alert, Paper } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
@@ -30,6 +30,7 @@ export default function ReviewParcels() {
     const [displayMessage, setDisplayMessage] = react.useState(false)
     const [displayError, setDisplayError] = react.useState(false)
     const [renderPolygons, setRenderPolygons] = react.useState(false)
+    const [showProgress, setShowProgress] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('parcelsRep'))
 
@@ -52,6 +53,7 @@ export default function ReviewParcels() {
         console.log(parcelName)
         var index = allParcels.findIndex(parcel => parcel.parcelName === parcelName)
         var parcel = parcels[index]
+        console.log(parcel)
         setParcelName(parcel.parcelName)
         setOwner(parcel.owner)
         setOwners(parcel.owners)
@@ -114,10 +116,11 @@ export default function ReviewParcels() {
 
     function verifyParcel() {
         if (parcelName !== "" && !confirmed) {
+            setShowProgress(true)
             setDisplayError(false)
             restCalls.verifyParcel(owner, parcelName)
-                .then(() => { restCalls.getParcelsRep().then(() => { setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons()}); setIsParcelVerified(true) })
-                .catch(() => { setIsParcelNotVerified(true) })
+                .then(() => { restCalls.getParcelsRep().then(() => { setShowProgress(false); setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons()}); setIsParcelVerified(true) })
+                .catch(() => { setShowProgress(false); setIsParcelNotVerified(true) })
             setDisplayMessage(true)
         }
         else {
@@ -207,6 +210,8 @@ export default function ReviewParcels() {
                         </GoogleMap>
                     }
                 </LoadScript>
+
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "80%", overflow: "auto" }}/>}
 
                 <Button onClick={verifyParcel} variant="contained" size="large" color="success" sx={{ mt: 2, width: "80%" }}>Verificar Parcela</Button>
                 {displayError && <Typography p={0.5} color="error">Nenhuma parcela foi selecionada ou a parcela selecionada já foi verificada</Typography>}

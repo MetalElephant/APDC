@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, CircularProgress } from "@mui/material";
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
@@ -18,6 +18,7 @@ export default function ModifyPassword() {
     const [showOldPassword, setShowOldPassword] = react.useState(false);
     const [showNewPassword, setShowNewPassword] = react.useState(false);
     const [showConfirmNewPassword, setShowConfirmNewPassword] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function oldPasswordHandler(e) {
         setOldPassword(e.target.value);
@@ -39,7 +40,10 @@ export default function ModifyPassword() {
 
     function modifyPasswordManager(e) {
         e.preventDefault();
-        restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword).then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords() }).catch(() => { setIsModifyPwdNotSubmit(true); setDisplayMessage(1) });
+        setShowProgress(true)
+        restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword)
+            .then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords(); setShowProgress(false) })
+            .catch(() => { setIsModifyPwdNotSubmit(true); setDisplayMessage(1); setShowProgress(false) });
     }
 
     const toggleVisibilityFirstIcon = () => {
@@ -157,6 +161,8 @@ export default function ModifyPassword() {
                 alignItems="center"
                 sx={{ mt: "52px" }}
             >
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
+
                 {isModifyPwdSubmit && (displayMessage === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Password modificada com sucesso.</Typography>

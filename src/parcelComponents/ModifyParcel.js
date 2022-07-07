@@ -1,7 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import landAvatar from "../images/land-avatar.png";
-import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, MenuItem, ButtonGroup } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, CircularProgress, MenuItem, ButtonGroup } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import { Refresh } from '@mui/icons-material';
 
@@ -31,6 +31,7 @@ export default function ModifyParcel() {
     const [isDelete, setIsDelete] = react.useState(false);
     const [displayDeleteMessage, setDisplayDeleteMessage] = react.useState(false);
     const [markersErr, setMarkersErr] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false)
 
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
@@ -156,19 +157,25 @@ export default function ModifyParcel() {
     function modifyParcelManager(e) {
         e.preventDefault();
         if (markers.length >= 3) {
+            setShowProgress(true)
             restCalls.modifyParcel(owner, owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
-                .then(() => { modifySuccess() }).catch(() => { modifyUnsuccess() });
+                .then(() => { modifySuccess(); setShowProgress(false) })
+                .catch(() => { modifyUnsuccess(); setShowProgress(false) });
             setDisplayDeleteMessage(false);
             setDisplayMessage(true);
         }
         else {
             setMarkersErr(true)
+            setIsModifySubmit(false)
         }
     }
 
     function deleteParcelManager(e) {
         e.preventDefault();
-        restCalls.deleteParcel(parcelName, owner).then(() => { deleteSuccess() }).catch(() => { deleteUnsuccess() });
+        setShowProgress(true)
+        restCalls.deleteParcel(parcelName, owner)
+            .then(() => { deleteSuccess(); setShowProgress(false) })
+            .catch(() => { deleteUnsuccess(); setShowProgress(false) });
     }
 
     return (
@@ -182,11 +189,13 @@ export default function ModifyParcel() {
             >
 
                 <FormControl variant="standard">
-                    <InputLabel id="id">Parcels</InputLabel>
+                    <InputLabel id="id">Parcelas</InputLabel>
                     <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "150px" }}>
                         {loaded && generateSelects()}
                     </Select>
                 </FormControl>
+
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
 
                 <Button color="error" onClick={deleteParcelManager} variant="contained" sx={{ mt: "20px" }}> Remover parcela </Button>
 
@@ -224,7 +233,7 @@ export default function ModifyParcel() {
                         }}
                     >
                         <Typography component="h1" variant="h5">
-                            Parcel Modification
+                            Modificar Parcela
                         </Typography>
                         <Box component="form" sx={{ mt: 1 }}>
                             <TextField

@@ -1,6 +1,6 @@
 import react, { useRef, useCallback, useEffect } from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete, listClasses } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete, CircularProgress } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
 import { useParams } from 'react-router-dom';
@@ -17,6 +17,7 @@ export default function RegisterParcel() {
     const [isParcelSubmit, setIsParcelSubmit] = react.useState(false);
     const [isParcelNotSubmit, setIsParcelNotSubmit] = react.useState(false);
     const [displayParcelMessage, setDisplayParcelMessage] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
     const [freg, setFreg] = react.useState([]);
     const [conc, setConc] = react.useState([]);
     const [dist, setDist] = react.useState([]);
@@ -32,7 +33,7 @@ export default function RegisterParcel() {
     const [concFregState, setConcFregState] = react.useState();
     const [disableConc, setDisableConc] = react.useState(true);
     const [disableFreg, setDisableFreg] = react.useState(true);
-    const [type, setType] = react.useState(2);
+    const [type, setType] = react.useState();
     const [allUsers, setAllUsers] = react.useState([])
 
     let index = 0;
@@ -169,16 +170,17 @@ export default function RegisterParcel() {
 
     function parcelRegisterManager(e) {
         e.preventDefault();
+        setShowProgress(true)
         var tempOwners = []
-        if(owners.length > 0) {
+        if (owners.length > 0) {
             owners.map((owner) => {
                 tempOwners.push(owner.username)
             })
         }
-        console.log(tempOwners)
-        restCalls.parcelRegister(parcelName, tempOwners, chosenDist, chosenConc, chosenFreg,
-            description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, 2)
-            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues() }).catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); });
+        console.log(type)
+        restCalls.parcelRegister(parcelName, tempOwners, chosenDist, chosenConc, chosenFreg, description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, type)
+            .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues(); setShowProgress(false) })
+            .catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); setShowProgress(false) });
         setDisplayParcelMessage(true);
     }
 
@@ -205,6 +207,7 @@ export default function RegisterParcel() {
                             allLngs.push(event.latLng.lng())
                         }}
                     >
+                        {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
 
                         {markers.map(marker => (
                             <Marker

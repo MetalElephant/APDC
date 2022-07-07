@@ -8,7 +8,6 @@ export default function AddUser() {
     const [username, setUsername] = react.useState("");
     const [email, setEmail] = react.useState("");
     const [name, setName] = react.useState("");
-    const [visibility, setVisibility] = react.useState("Public");
     const [role, setRole] = react.useState("");
     const [isRep, setIsRep] = react.useState(false);
     const [freg, setFreg] = react.useState(null);
@@ -46,10 +45,6 @@ export default function AddUser() {
         setName(e.target.value)
     }
 
-    function visibilityHandler(e) {
-        setVisibility(e.target.value)
-    }
-
     function fregHandler(e) {
         setFreg(e.target.value)
     }
@@ -64,7 +59,7 @@ export default function AddUser() {
 
     function addUserManager(e) {
         e.preventDefault();
-        restCalls.registerUserSU(username, email, name, visibility, isRep, freg).then(() => { setIsUserRegistered(true); setDisplayMessage(0) }).catch(() => { setIsUserNotRegistered(true); setDisplayMessage(1) })
+        restCalls.registerUserSU(username, email, name, isRep, freg).then(() => { setIsUserRegistered(true); setDisplayMessage(0) }).catch(() => { setIsUserNotRegistered(true); setDisplayMessage(1) })
     }
 
     return (
@@ -118,19 +113,6 @@ export default function AddUser() {
                                 color="success"
                                 onChange={nameHandler}
                             />
-                            <FormControl sx={{ mt: "13px", pb: 1 }}>
-                                <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade de Perfil</Typography></FormLabel>
-                                <RadioGroup
-                                    aria-labelledby="demo-radio-buttons-group-label"
-                                    name="radio-buttons-group"
-                                    row
-                                    value={visibility}
-                                    onChange={visibilityHandler}
-                                >
-                                    <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
-                                    <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
-                                </RadioGroup>
-                            </FormControl>
 
                             <FormControl variant="standard">
                                 <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>

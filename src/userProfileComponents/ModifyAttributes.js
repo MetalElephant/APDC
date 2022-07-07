@@ -93,14 +93,14 @@ export default function ModifyAttributes() {
 
     function modifyAttributesManager(e) {
         e.preventDefault();
-        setShowProgress(true)
         const isModifyUserFormValid = modifyUserFormValidation();
 
         if (isModifyUserFormValid) {
+            setShowProgress(true)
             restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, address, homePhone, mobilePhone, nif, imageArray)
                 .then(() => { restCalls.userInfo().then(() => { setShowProgress(false); setUserModified(true); setDisplayMessage(0) }) })
+                .catch(() => setShowProgress(false))
         } else {
-            setShowProgress(false)
             setUserNotModified(true);
             setDisplayMessage(1);
         }
@@ -318,7 +318,7 @@ export default function ModifyAttributes() {
                     </form>
                 </div>
 
-                {showProgress && <CircularProgress />}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
 
                 <Box sx={{ mt: "50px" }}>
                     {userModified && (displayMessage === 0) ?

@@ -19,7 +19,7 @@ export default function ForumsCard(props) {
         setName(props.name);
         setOwner(props.owner);
         setTopic(props.topic);
-    })
+    }, [])
 
     function forumDiscussion() {
         history.push("/proprietario/forumDiscussion")
@@ -37,7 +37,7 @@ export default function ForumsCard(props) {
                         - {topic}
                     </Typography>
                     <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
-                        <Button onClick={() => { forumDiscussion() }} variant="outlined" color="success" size="small">Aceder</Button>
+                        <Button onClick={() => { props.onClickFun(props.number) }} variant="outlined" color="success" size="small">Aceder</Button>
                     </CardActions>
                 </CardContent>
             </Card>

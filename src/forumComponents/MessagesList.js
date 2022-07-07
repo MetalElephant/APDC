@@ -1,8 +1,9 @@
 import { Button, Box, Typography, Grid, Card, CardContent, CardActions, TextField, Alert } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-export default function MessagesList() {
+export default function MessagesList(props) {
 
     const [loaded, setLoaded] = react.useState(false)
     const [message, setMessage] = react.useState("");
@@ -29,7 +30,7 @@ export default function MessagesList() {
         if (isMessageValid) {
             restCalls.postMessage(message)
                 .then(() => { setLoaded(false); setIsMessagePosted(true); setIsMessageNotPosted(false); setMessage(""); restCalls.listForumMessages().then(() => setLoaded(true)) })
-                .catch(() => {setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false);})
+                .catch(() => { setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false); })
             setMessageErr({})
             setDisplayMessage(true)
         }
@@ -84,7 +85,10 @@ export default function MessagesList() {
 
     return (
         <>
-            <Grid item xs={8} container direction="column" justifyContent="flex-start" alignItems="center">
+            <Grid item xs={6} container direction="column" justifyContent="flex-start" alignItems="center">
+                <Button onClick={props.onClickFun} sx={{ position: "absolute", top: "20%", left: "18%", overflow: "auto" }}>
+                    <ArrowBackIcon />
+                </Button>
                 {loaded && generateMessages()}
             </Grid>
             <Grid item xs={2}>
@@ -106,7 +110,7 @@ export default function MessagesList() {
                     variant="outlined"
                     color="success"
                     sx={{ mt: 2, mb: 2, width: "90%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                    onClick={ postMessageManager}
+                    onClick={postMessageManager}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Enviar Mensagem </Typography>
                 </Button>
@@ -120,7 +124,6 @@ export default function MessagesList() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Erro ao enviar a mensagem.</Typography>
                     </Alert> : <></>
                 }
-
             </Grid>
         </>
     )

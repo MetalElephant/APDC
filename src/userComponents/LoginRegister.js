@@ -1,6 +1,6 @@
 import react from "react"
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, Card, Select, InputLabel, MenuItem } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, FormControl, Alert, Card, Select, InputLabel, MenuItem } from "@mui/material";
 import { useHistory } from "react-router-dom"
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -39,6 +39,7 @@ export default function LoginRegister() {
     const [showPasswordRegister, setShowPasswordRegister] = react.useState(false);
     const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
     const [showRoleErr, setShowRoleErr] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     const [image, setImage] = react.useState();
     const [preview, setPreview] = react.useState();
@@ -48,7 +49,7 @@ export default function LoginRegister() {
     const [nUsers, setNUsers] = react.useState("")
     const [nParcels, setNParcels] = react.useState("")
 
-    
+
     useEffect(() => {
         if (image) {
             const reader = new FileReader();
@@ -147,20 +148,20 @@ export default function LoginRegister() {
 
     function loginManager(e) {
         e.preventDefault();
-        restCalls.login(usernameLogin, passwordLogin).then(() => { restCalls.userInfo().then(() => { switchForRole() }) }).catch(() => { setIsLoginSubmit(false) })
+        setShowProgress(true)
+        restCalls.login(usernameLogin, passwordLogin)
+            .then(() => { restCalls.userInfo().then(() => { switchForRole() }) })
+            .catch(() => { setIsLoginSubmit(false); setShowProgress(false) })
     }
 
     function registerManager(e) {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
+            setShowProgress(true)
             restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif, imageArray, role)
-                .then(() => resetRegisterValues())
-            setIsRegisterSubmit(true)
-            setDisplayRegisterMessage(0)
-        } else {
-            setIsRegisterNotSubmit(true)
-            setDisplayRegisterMessage(1)
+                .then(() => { resetRegisterValues(); setShowProgress(false); setIsRegisterSubmit(true); setDisplayRegisterMessage(0) })
+                .catch(() => { setShowProgress(false); setIsRegisterNotSubmit(true); setDisplayRegisterMessage(1) })
         }
 
     }
@@ -387,6 +388,9 @@ export default function LoginRegister() {
                                 >
                                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Fazer Login </Typography>
                                 </Button>
+
+                                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
+
                             </Box>
                             {!isLoginSubmit ?
                                 <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>

@@ -3,17 +3,28 @@ import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import { useHistory } from "react-router-dom"
 import ForumCard from "./ForumCard"
+import MessagesList from "./MessagesList";
 
 export default function ForumsList() {
     let history = useHistory();
 
     const [loaded, setLoaded] = react.useState(false)
+    const [showMessages, setShowMessages] = react.useState(false)
 
     var forums = JSON.parse(localStorage.getItem('forumsAll'))
 
     useEffect(() => {
         restCalls.listAllForums().then(() => { setLoaded(true) })
     })
+
+    function onClickFun(number) {
+        localStorage.setItem('forum', JSON.stringify(forums[number]));
+        setShowMessages(true)
+    }
+
+    function goBack() {
+        setShowMessages(false)
+    }
 
     function generateForums() {
         const forumCards = []
@@ -26,6 +37,7 @@ export default function ForumsList() {
                     <>
                         <Box sx={{ p: 1, width: "100%" }} >
                             <ForumCard
+                                onClickFun={onClickFun}
                                 number={i}
                                 name={forums[i].name}
                                 owner={forums[i].owner}
@@ -40,7 +52,8 @@ export default function ForumsList() {
 
     return (
         <Grid item xs={8} container direction="column" justifyContent="flex-start" alignItems="center">
-            {loaded && generateForums()}
+            {(loaded && !showMessages) && generateForums()}
+            {(loaded && showMessages) && <MessagesList onClickFun={goBack} />}
         </Grid>
     )
 }
