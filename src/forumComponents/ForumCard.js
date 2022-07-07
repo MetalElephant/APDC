@@ -21,11 +21,6 @@ export default function ForumsCard(props) {
         setTopic(props.topic);
     }, [])
 
-    function forumDiscussion() {
-        history.push("/proprietario/forumDiscussion")
-        localStorage.setItem('forum', JSON.stringify(forums[number]));
-    }
-
     return (
         <Box sx={{ p: 1, width: "80%" }}>
             <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
