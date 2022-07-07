@@ -576,7 +576,9 @@ public class UserResource {
             return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
         }
 
-		Query<Entity> queryUser = Query.newEntityQueryBuilder().setKind(USER).build();
+		Query<Entity> queryUser = Query.newEntityQueryBuilder().setKind(USER)
+									   .setFilter(PropertyFilter.eq(ROLE, Roles.PROPRIETARIO.getRole()))
+									   .build();
 
 		QueryResults<Entity> usersRes = datastore.run(queryUser);
 
