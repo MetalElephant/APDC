@@ -510,7 +510,7 @@ export default function LoginRegister() {
                                     onChange={nameHandler}
                                 />
 
-                                <FormControl variant="standard">
+                                <FormControl sx={{mb: 2}} variant="standard">
                                     <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                     <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
                                         <MenuItem value="PROPRIETARIO" label="PROPRIETARIO">
