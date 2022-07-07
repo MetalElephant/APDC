@@ -11,7 +11,6 @@ export default function ListUsers() {
     const [role, setRole] = react.useState("")
     const [email, setEmail] = react.useState("")
     const [name, setName] = react.useState("")
-    const [visibility, setVisibility] = react.useState("")
     const [homePhone, setHomePhone] = react.useState("")
     const [mobilePhone, setMobilePhone] = react.useState("")
     const [address, setAddress] = react.useState("")
@@ -52,7 +51,6 @@ export default function ListUsers() {
         setRole(user.role)
         setName(user.name)
         setEmail(user.email)
-        setVisibility(user.visibility)
         setHomePhone(user.landphone)
         setMobilePhone(user.mobilephone)
         setAddress(user.address)
@@ -74,7 +72,7 @@ export default function ListUsers() {
 
     function modifyUserManager() {
         if (isValid()) {
-            restCalls.modifyUserAttributes(username, name, email, visibility, address, homePhone, mobilePhone, nif)
+            restCalls.modifyUserAttributes(username, name, email, address, homePhone, mobilePhone, nif)
                 .then(() => { restCalls.listAllUsers(); resetErrors(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
                 .catch(() => { setIsUserModified(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
             setDisplayMessage(false)
@@ -97,21 +95,21 @@ export default function ListUsers() {
         else
             setEmailErr(false)
 
-        if ((homePhone.length !== 9 && homePhone.toLocaleUpperCase() !== "UNDEFINED") || (isNaN(homePhone) && homePhone.toLocaleUpperCase() !== "UNDEFINED")) {
+        if ((homePhone !== "") && ((homePhone.length !== 9 && homePhone.toLocaleUpperCase() !== "NÃO DEFINIDO") || (isNaN(homePhone) && homePhone.toLocaleUpperCase() !== "NÃO DEFINIDO"))) {
             isValid = false;
             setHomePhoneErr(true)
         }
         else
             setHomePhoneErr(false)
 
-        if ((mobilePhone.length !== 9 && mobilePhone.toLocaleUpperCase() !== "UNDEFINED") || (isNaN(mobilePhone) && mobilePhone.toLocaleUpperCase() !== "UNDEFINED")) {
+        if ((mobilePhone !== "") && ((mobilePhone.length !== 9 && mobilePhone.toLocaleUpperCase() !== "NÃO DEFINIDO") || (isNaN(mobilePhone) && mobilePhone.toLocaleUpperCase() !== "NÃO DEFINIDO"))) {
             isValid = false;
             setMobilePhoneErr(true)
         }
         else
             setMobilePhoneErr(false)
 
-        if ((nif.length !== 9 && nif.toLocaleUpperCase() !== "UNDEFINED") || (isNaN(nif) && nif.toLocaleUpperCase() !== "UNDEFINED")) {
+        if ((nif !== "") && ((nif.length !== 9 && nif.toLocaleUpperCase() !== "NÃO DEFINIDO") || (isNaN(nif) && nif.toLocaleUpperCase() !== "NÃO DEFINIDO"))) {
             isValid = false;
             setNifErr(true)
         }
@@ -193,21 +191,6 @@ export default function ListUsers() {
                         color="success"
                         onChange={(event) => { setName(event.target.value) }}
                     />
-                </Box>
-                <Box p={0} pl={3} pr={3} textAlign="center">
-                    <FormControl>
-                        <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade de Perfil</Typography></FormLabel>
-                        <RadioGroup
-                            aria-labelledby="demo-radio-buttons-group-label"
-                            name="radio-buttons-group"
-                            row
-                            value={visibility}
-                            onChange={(event) => { setVisibility(event.target.value) }}
-                        >
-                            <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
-                            <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
-                        </RadioGroup>
-                    </FormControl>
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <TextField

@@ -29,7 +29,7 @@ class restCalls {
     }
 
 
-    register(username, password, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, photo, role) {
+    register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif, photo, role) {
         return fetch("https://our-hull.appspot.com/rest/users/register", {
             method: 'POST',
             headers: {
@@ -42,7 +42,6 @@ class restCalls {
                 pwdConfirmation: pwdConfirmation,
                 email: email,
                 name: name,
-                visibility: visibility,
                 homePhone: homePhone,
                 mobilePhone: mobilePhone,
                 address: address,
@@ -262,7 +261,7 @@ class restCalls {
         })
     }
 
-    modifyUserAttributes(usernameToUpdate, name, email, visibility, address, homePhone, mobilePhone, nif) {
+    modifyUserAttributes(usernameToUpdate, name, email, address, homePhone, mobilePhone, nif, photo) {
         return fetch("https://our-hull.appspot.com/rest/users/update", {
             method: 'PUT',
             headers: {
@@ -273,11 +272,11 @@ class restCalls {
                 usernameToUpdate: usernameToUpdate,
                 name: name,
                 email: email,
-                visibility: visibility,
                 address: address,
                 homePhone: homePhone,
                 mobilePhone: mobilePhone,
-                nif: nif
+                nif: nif,
+                photo: photo
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -483,6 +482,30 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem('allUsers', text);
+            return text;
+        })
+    }
+
+    listAllProps() {
+        return fetch("https://our-hull.appspot.com/rest/users/showAllExceptSelf", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('allProps', text);
             return text;
         })
     }

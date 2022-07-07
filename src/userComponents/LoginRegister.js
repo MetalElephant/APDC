@@ -15,7 +15,6 @@ export default function LoginRegister() {
     const [passwordRegister, setPasswordRegister] = react.useState("");
     const [pwdConfirmation, setPwdConfirmation] = react.useState("");
     const [email, setEmail] = react.useState("");
-    const [visibility, setVisibility] = react.useState("Public");
     const [name, setName] = react.useState("");
     const [homePhone, setHomePhone] = react.useState("");
     const [mobilePhone, setMobilePhone] = react.useState("");
@@ -49,6 +48,7 @@ export default function LoginRegister() {
     const [nUsers, setNUsers] = react.useState("")
     const [nParcels, setNParcels] = react.useState("")
 
+    
     useEffect(() => {
         if (image) {
             const reader = new FileReader();
@@ -96,10 +96,6 @@ export default function LoginRegister() {
 
     function emailHandler(e) {
         setEmail(e.target.value);
-    }
-
-    function visibilityHandler(e) {
-        setVisibility(e.target.value);
     }
 
     function nameHandler(e) {
@@ -158,7 +154,7 @@ export default function LoginRegister() {
         e.preventDefault();
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
-            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, visibility, name, homePhone, mobilePhone, address, nif, imageArray, role)
+            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif, imageArray, role)
                 .then(() => resetRegisterValues())
             setIsRegisterSubmit(true)
             setDisplayRegisterMessage(0)
@@ -192,7 +188,6 @@ export default function LoginRegister() {
         setPwdConfirmation("");
         setEmail("");
         setName("");
-        setVisibility("Public");
         setHomePhone("");
         setMobilePhone("");
         setAddress("");
@@ -523,23 +518,7 @@ export default function LoginRegister() {
                                     </Select>
                                 </FormControl>
 
-                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt: 1 }}>Por favor, selecione o seu papel.</Typography>}
-
-                                <FormControl sx={{ mt: "13px", pb: 1 }}>
-                                    <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade de Perfil</Typography></FormLabel>
-                                    <RadioGroup
-                                        aria-labelledby="demo-radio-buttons-group-label"
-                                        name="radio-buttons-group"
-                                        row
-                                        value={visibility}
-                                        onChange={visibilityHandler}
-                                    >
-                                        <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
-                                        <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
-                                    </RadioGroup>
-                                </FormControl>
-
-
+                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt: 1 }}>É obrigatório selecionar um papel.</Typography>}
 
                                 <div>
                                     <form>

@@ -9,7 +9,6 @@ export default function UserInfo() {
     const [username, setUsername] = react.useState("")
     const [email, setEmail] = react.useState("")
     const [name, setName] = react.useState("")
-    const [visibility, setVisibility] = react.useState("")
     const [landphone, setLandphone] = react.useState("")
     const [mobilephone, setMobilephone] = react.useState("")
     const [address, setAddress] = react.useState("")
@@ -24,7 +23,6 @@ export default function UserInfo() {
         setUsername(user.username)
         setEmail(user.email)
         setName(user.name)
-        setVisibility(user.visibility)
         setLandphone(user.landphone)
         setMobilephone(user.mobilephone)
         setAddress(user.address)
@@ -58,11 +56,6 @@ export default function UserInfo() {
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Visibilidade: {visibility} </Typography>
-                    </Paper>
-                </Box>
-                <Box p={2.5} textAlign="center">
-                    <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Número de Telefone: {landphone} </Typography>
                     </Paper>
                 </Box>
@@ -88,7 +81,7 @@ export default function UserInfo() {
                 alignItems="center"
                 justifyContent="center"
             >
-                {image !== "Undefined" ?
+                {image.toLocaleUpperCase() !== "NÃO DEFINIDO" ?
                     <Box component="img" src={image} sx={{ height: "80%", width: "80%", objectFit: "contain" }} />
                     :
                     <Box component="img" src={avatar} sx={{ height: "80%", width: "80%", objectFit: "contain" }} />

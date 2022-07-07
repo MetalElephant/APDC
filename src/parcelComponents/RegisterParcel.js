@@ -40,7 +40,7 @@ export default function RegisterParcel() {
     var users = JSON.parse(localStorage.getItem('allUsers'))
 
     useEffect(() => {
-        restCalls.listAllUsers().then(() => { users = JSON.parse(localStorage.getItem('allUsers')); setAllUsers(users) })
+        restCalls.listAllProps().then(() => { users = JSON.parse(localStorage.getItem('allProps')); setAllUsers(users) })
 
         let distToConc = new Map()
         let concToFreg = new Map()

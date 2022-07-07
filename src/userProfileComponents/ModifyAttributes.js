@@ -1,38 +1,71 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, Alert } from "@mui/material";
 
 export default function ModifyAttributes() {
 
     const [name, setName] = react.useState("");
     const [email, setEmail] = react.useState("");
-    const [visibility, setVisibility] = react.useState("");
     const [homePhone, setHomePhone] = react.useState("");
     const [mobilePhone, setMobilePhone] = react.useState("");
     const [address, setAddress] = react.useState("");
     const [nif, setNif] = react.useState("");
+    const [image, setImage] = react.useState();
+    const [preview, setPreview] = react.useState();
+    const [imageArray, setImageArray] = react.useState();
+    const fileInputRef = react.useRef();
 
     const [emailErr, setEmailErr] = react.useState({});
     const [homePhoneErr, setHomePhoneErr] = react.useState({});
     const [mobilePhoneErr, setMobilePhoneErr] = react.useState({});
     const [nifErr, setNifErr] = react.useState({});
-    
+
 
     const [displayMessage, setDisplayMessage] = react.useState(0);
     const [userModified, setUserModified] = react.useState(false);
     const [userNotModified, setUserNotModified] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     var user = JSON.parse(localStorage.getItem('user'))
 
     useEffect(() => {
         setEmail(user.email);
         setName(user.name);
-        setVisibility(user.visibility);
         setHomePhone(user.landphone);
         setMobilePhone(user.mobilephone);
         setAddress(user.address);
         setNif(user.nif);
     }, [])
+
+
+    useEffect(() => {
+        if (image) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreview(reader.result);
+            }
+            reader.readAsDataURL(image);
+        } else {
+            setPreview(null);
+        }
+    }, [image]);
+
+    function loadPhoto(f) {
+        const reader = new FileReader();
+        const fileByteArray = [];
+
+        reader.readAsArrayBuffer(f);
+        reader.onloadend = (evt) => {
+            if (evt.target.readyState === FileReader.DONE) {
+                const arrayBuffer = evt.target.result,
+                    array = new Uint8Array(arrayBuffer);
+                for (const a of array) {
+                    fileByteArray.push(a);
+                }
+                setImageArray(fileByteArray)
+            }
+        }
+    }
 
     function nameHandler(e) {
         setName(e.target.value);
@@ -40,10 +73,6 @@ export default function ModifyAttributes() {
 
     function emailHandler(e) {
         setEmail(e.target.value);
-    }
-
-    function visibilityHandler(e) {
-        setVisibility(e.target.value);
     }
 
     function homePhoneHandler(e) {
@@ -64,11 +93,14 @@ export default function ModifyAttributes() {
 
     function modifyAttributesManager(e) {
         e.preventDefault();
+        setShowProgress(true)
         const isModifyUserFormValid = modifyUserFormValidation();
 
         if (isModifyUserFormValid) {
-            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, visibility, address, homePhone, mobilePhone, nif).then(() => { restCalls.userInfo().then(() => { setUserModified(true); setDisplayMessage(0) }) })
+            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, address, homePhone, mobilePhone, nif, imageArray)
+                .then(() => { restCalls.userInfo().then(() => { setShowProgress(false); setUserModified(true); setDisplayMessage(0) }) })
         } else {
+            setShowProgress(false)
             setUserNotModified(true);
             setDisplayMessage(1);
         }
@@ -87,37 +119,37 @@ export default function ModifyAttributes() {
             setEmailErr(emailErr)
         }
 
-        if((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone.toUpperCase() !== "UNDEFINED"))  {
+        if ((homePhone.length > 0) && (homePhone.length !== 9) && (homePhone.toUpperCase() !== "NÃO DEFINIDO")) {
             homePhoneErr.not9Digits = "Este número não é composto por 9 dígitos"
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
 
-        if(((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (homePhone.toUpperCase() !== "UNDEFINED"))  {
+        if (((homePhone.match(/[a-zA-Z]/) != null) || (homePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (homePhone.toUpperCase() !== "NÃO DEFINIDO")) {
             homePhoneErr.onlyNumbers = "Este número não pode conter letras ou caracteres especiais"
             isValid = false;
             setHomePhoneErr(homePhoneErr)
         }
-
-        if((mobilePhone.length > 0) && (mobilePhone.length !== 9) && (mobilePhone.toUpperCase() !== "UNDEFINED")) {
+        if ((mobilePhone.length > 0) && (mobilePhone.length !== 9) && (mobilePhone.toUpperCase() !== "NÃO DEFINIDO")) {
             mobilePhoneErr.not9Digits = "Este número não é composto por 9 dígitos"
             isValid = false;
             setMobilePhoneErr(mobilePhoneErr)
         }
 
-        if(((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (mobilePhone.toUpperCase() !== "UNDEFINED"))  {
+        if (((mobilePhone.match(/[a-zA-Z]/) != null) || (mobilePhone.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && (mobilePhone.toUpperCase() !== "NÃO DEFINIDO")) {
             mobilePhoneErr.onlyNumbers = "Este número não pode conter letras ou caracteres especiais"
             isValid = false;
             setMobilePhoneErr(mobilePhoneErr)
         }
 
-        if((nif.length > 0) && (nif.length !== 9) && nif.toUpperCase() !== "UNDEFINED") {
+
+        if ((nif.length > 0) && (nif.length !== 9) && nif.toUpperCase() !== "NÃO DEFINIDO") {
             nifErr.not9Digits = "Este NIF não é composto por 9 dígitos"
             isValid = false;
             setNifErr(nifErr)
         }
 
-        if(((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && nif.toUpperCase() !== "UNDEFINED")  {
+        if (((nif.match(/[a-zA-Z]/) != null) || (nif.match(/[$&+,:;=?@#|'<>.*()%!-]/) != null)) && nif.toUpperCase() !== "NÃO DEFINIDO") {
             nifErr.onlyNumbers = "O NIF não pode conter letras ou caracteres especiais"
             isValid = false;
             setNifErr(nifErr)
@@ -173,19 +205,6 @@ export default function ModifyAttributes() {
                                 color="success"
                                 onChange={nameHandler}
                             />
-                            <FormControl align="left" sx={{ mt: "13px" }}>
-                                <FormLabel id="demo-radio-buttons-group-label" ><Typography color="green">Visibilidade do Perfil</Typography></FormLabel>
-                                <RadioGroup
-                                    aria-labelledby="demo-radio-buttons-group-label"
-                                    name="radio-buttons-group"
-                                    row
-                                    value={visibility}
-                                    onChange={visibilityHandler}
-                                >
-                                    <FormControlLabel value="Public" control={<Radio color="success" />} label="Público" sx={{ color: "black" }} />
-                                    <FormControlLabel value="Private" control={<Radio color="success" />} label="Privado" sx={{ color: "black" }} />
-                                </RadioGroup>
-                            </FormControl>
 
                             <TextField
                                 margin="normal"
@@ -256,19 +275,63 @@ export default function ModifyAttributes() {
                 container
                 spacing={0}
                 direction="column"
-                alignItems="center"
-                sx={{ mt: "55px" }}
+                alignItems="left"
+                sx={{ mt: "50px" }}
             >
-                {userModified && (displayMessage === 0) ?
-                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador modificado com sucesso.</Typography>
-                    </Alert> : <></>
-                }
-                {userNotModified && (displayMessage === 1) ?
-                    <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar o utilizador. Por favor, verifique os seus dados.</Typography>
-                    </Alert> : <></>
-                }
+                <div>
+                    <form>
+                        {preview ? (
+                            <img
+                                src={preview}
+                                style={{ objectFit: "cover", width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                onClick={() => {
+                                    setImage();
+                                }}
+                            />
+                        ) : (
+                            <button
+                                style={{ width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    fileInputRef.current.click();
+                                }}
+                            >
+                                Alterar Foto de Perfil
+                            </button>
+                        )}
+                        <input
+                            type="file"
+                            style={{ display: "none" }}
+                            ref={fileInputRef}
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file && file.type.substring(0, 5) === "image") {
+                                    setImage(file);
+                                    loadPhoto(file);
+                                } else {
+                                    setImage(null);
+                                }
+                            }}
+                        />
+
+                    </form>
+                </div>
+
+                {showProgress && <CircularProgress />}
+
+                <Box sx={{ mt: "50px" }}>
+                    {userModified && (displayMessage === 0) ?
+                        <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador modificado com sucesso.</Typography>
+                        </Alert> : <></>
+                    }
+                    {userNotModified && (displayMessage === 1) ?
+                        <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
+                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar o utilizador. Por favor, verifique os seus dados.</Typography>
+                        </Alert> : <></>
+                    }
+                </Box>
             </Grid>
         </>
     )
