@@ -4,7 +4,6 @@ import NavbarLR from "./mainFixedComponents/NavbarLR"
 import NavbarOps from "./mainFixedComponents/NavbarOps";
 import AdministrationPage from "./mainFixedComponents/AdministrationPage";
 import LoginRegister from "./userComponents/LoginRegister"
-import ForumMessagesPage from "./forumComponents/ForumMessagesPage";
 import NavbarMessages from "./mainFixedComponents/NavbarMessages";
 import REPnavbar from "./mainFixedComponents/REPnavbar";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
@@ -41,10 +40,6 @@ export default function App() {
                     </Route>
                     <Route exact path="/proprietario">
                         <NavbarOps />
-                    </Route>
-                    <Route path="/proprietario/forumDiscussion">
-                        <NavbarMessages />
-                        <ForumMessagesPage />
                     </Route>
                     <Route exact path="/comerciante">
                         <NavbarMerchants />

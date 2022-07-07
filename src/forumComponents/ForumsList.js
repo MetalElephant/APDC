@@ -51,7 +51,7 @@ export default function ForumsList() {
     }
 
     return (
-        <Grid item xs={8} container direction="column" justifyContent="flex-start" alignItems="center">
+        <Grid item xs={8} container>
             {(loaded && !showMessages) && generateForums()}
             {(loaded && showMessages) && <MessagesList onClickFun={goBack} />}
         </Grid>

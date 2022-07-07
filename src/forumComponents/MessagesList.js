@@ -85,13 +85,13 @@ export default function MessagesList(props) {
 
     return (
         <>
-            <Grid item xs={6} container direction="column" justifyContent="flex-start" alignItems="center">
+            <Grid item xs={9} direction="column" justifyContent="flex-start" alignItems="center">
                 <Button onClick={props.onClickFun} sx={{ position: "absolute", top: "20%", left: "18%", overflow: "auto" }}>
                     <ArrowBackIcon />
                 </Button>
                 {loaded && generateMessages()}
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={3} >
                 <TextField
                     sx={{ width: "90%", pt: 1 }}
                     color="success"

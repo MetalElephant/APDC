@@ -70,11 +70,9 @@ export default function ForumPage() {
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                 </Button>
             </Grid>
-            <Grid item xs={8}>
                 {(display === 0) ? <ForumsList /> : <></>}
                 {(display === 1) ? <UserForums /> : <></>}
                 {(display === 2) ? <CreateForum /> : <></>}
-            </Grid>
         </Grid>
 
     )
