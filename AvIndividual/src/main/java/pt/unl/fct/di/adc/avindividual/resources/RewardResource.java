@@ -349,7 +349,7 @@ public class RewardResource {
     				.set(NIF, user.getString(NIF))
 			    	.set(PHOTO, user.getString(PHOTO))
 		    		.set(SPEC, String.valueOf(points))
-	    			.set(NREWARDS, length + 1)
+	    			.set(NREWARDS, length + 1L)
 					.set(NPARCELS, user.getLong(NPARCELS))
 					.set(NFORUMS, user.getLong(NFORUMS))
 					.set(NMSGS, user.getLong(NMSGS))
@@ -369,7 +369,7 @@ public class RewardResource {
 		    		.set(OWNER, reward.getString(OWNER))
 	    			.set(REWARD_NAME, reward.getString(REWARD_NAME))
     				.set(DESCRIPTION, reward.getString(DESCRIPTION))
-				    .set(PRICE, reward.getString(PRICE))
+				    .set(PRICE, reward.getLong(PRICE))
 			    	.set(NREDEEMED, nRedeemed + 1L);
 
 		    reward = builderReward.build();
