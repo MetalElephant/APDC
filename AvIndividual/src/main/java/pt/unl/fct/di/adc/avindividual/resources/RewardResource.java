@@ -47,7 +47,6 @@ public class RewardResource {
     private static final String DESCRIPTION = "description";
     private static final String PRICE = "points";
     private static final String NREDEEMED = "times redeemed";
-	private static final String NREWARDS = "number of rewards";
 
 	//User information
 	private static final String NAME = "name";
@@ -179,9 +178,10 @@ public class RewardResource {
             Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
 		    Entity secret = tn.get(secretKey);
 				
-            if (!ur.isLoggedIn(token, data.username)){
-				LOG.warning("User " + data.username + " not logged in.");
+			if (!ur.isLoggedIn(token, data.username)){
+				LOG.warning("User " + data.owner + " not logged in.");
 				tn.rollback();
+				
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
@@ -203,7 +203,8 @@ public class RewardResource {
                     .set(REWARD_NAME, data.name)
                     .set(DESCRIPTION, data.description)
                     .set(PRICE, data.price)
-                    .set(NREDEEMED, reward.getLong(NREDEEMED)).build();
+                    .set(NREDEEMED, reward.getLong(NREDEEMED))
+                    .build();
 
             tn.put(reward);
             tn.commit();
@@ -249,7 +250,7 @@ public class RewardResource {
             Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
 		    Entity secret = tn.get(secretKey);
 				
-            if (!ur.isLoggedIn(token, data.username)){
+			if (!ur.isLoggedIn(token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
@@ -281,7 +282,7 @@ public class RewardResource {
     }
 
 	@PUT
-    @Path("/redeemReward")
+    @Path("/redeem")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response redeemReward(RewardRedeemData data) {
 	    LOG.info("Attempting to redeem reward " + data.reward);
@@ -304,7 +305,7 @@ public class RewardResource {
 	    	if(user == null) {
 		    	LOG.warning("User " + data.username + " does not exist.");
 		    	tn.rollback();
-	    		return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
+	    		return Response.status(Status.NOT_FOUND).entity("User " + data.username + " does not exist.").build();
 		    }
 
 		    Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
@@ -319,16 +320,14 @@ public class RewardResource {
 		    if(reward == null) {
 	    	    LOG.warning("Reward " + data.reward + " does not exist.");
 	    		tn.rollback();
-	        	return Response.status(Status.BAD_REQUEST).entity("Reward " + data.reward + " does not exist.").build();
+	        	return Response.status(Status.NOT_FOUND).entity("Reward " + data.reward + " does not exist.").build();
 	    	}
 
-			if(!canUserRedeemReward(user, reward)) {
+			if(!canUserRedeemReward(data.username, reward)) {
 				LOG.warning("User " + data.username + " has already redeemed the reward.");
 	    		tn.rollback();
 	        	return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " has already redeemed the reward.").build();
 			}
-
-	    	long length = user.getLong(NREWARDS);
 
 	    	long points = Integer.parseInt(user.getString(SPEC)) - reward.getLong(PRICE);
 
@@ -349,28 +348,27 @@ public class RewardResource {
     				.set(NIF, user.getString(NIF))
 			    	.set(PHOTO, user.getString(PHOTO))
 		    		.set(SPEC, String.valueOf(points))
-	    			.set(NREWARDS, length + 1L)
 					.set(NPARCELS, user.getLong(NPARCELS))
 					.set(NFORUMS, user.getLong(NFORUMS))
 					.set(NMSGS, user.getLong(NMSGS))
     				.set(CTIME, user.getTimestamp(CTIME));
 
-    		for(int i = 0; i < length; i++) {
-	    		builderUser.set(REWARD + i, user.getString(REWARD + i));
-	    	}
-
-	    	builderUser.set(REWARD + length, data.reward);
-
 	    	user = builderUser.build();
 
-	    	long nRedeemed = reward.getLong(NREDEEMED);
+			long length = reward.getLong(NREDEEMED);
 
 		    Builder builderReward = Entity.newBuilder(rewardKey)
 		    		.set(OWNER, reward.getString(OWNER))
 	    			.set(REWARD_NAME, reward.getString(REWARD_NAME))
     				.set(DESCRIPTION, reward.getString(DESCRIPTION))
 				    .set(PRICE, reward.getLong(PRICE))
-			    	.set(NREDEEMED, nRedeemed + 1L);
+			    	.set(NREDEEMED, length + 1L);
+
+			for(int i = 0; i < length; i++) {
+				builderUser.set(USER + i, reward.getString(USER + i));
+			}
+
+			builderReward.set(USER + length, data.username);
 
 		    reward = builderReward.build();
 
@@ -413,7 +411,7 @@ public class RewardResource {
         Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
 		Entity secret = datastore.get(secretKey);
 
-		if (!ur.isLoggedIn(token, data.username)){
+        if (!ur.isLoggedIn(token, data.username)){
             LOG.warning("User " + data.username + " not logged in.");
             return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
         }
@@ -433,7 +431,7 @@ public class RewardResource {
             return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
         }
 
-        RewardData r = new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE));
+        RewardData r = new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED));
 
         return Response.ok(g.toJson(r)).build();
     }
@@ -483,7 +481,7 @@ public class RewardResource {
         return Response.ok(g.toJson(allRewards())).build();
     }
 
-    @POST
+	@POST
     @Path("/listRedeemable")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -499,7 +497,28 @@ public class RewardResource {
             return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
         }
 
-		List<RewardData> list = rewardsUserCanRedeem(user);
+		List<RewardData> list = rewardsUserCanRedeem(data.username);
+
+        return Response.ok(g.toJson(list)).build();
+    }
+
+	@POST
+    @Path("/listRedeemed")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response showRedeemedRewards(RequestData data) {
+        LOG.info("Attempt to list redeemable rewards for " + data.username);
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Entity user = datastore.get(userKey);
+
+        if(user == null) {
+            LOG.warning("User " + data.username + " does not exist");
+            
+            return Response.status(Status.NOT_FOUND).entity("User " + data.username + " does not exist").build();
+        }
+
+        List<RewardData> list = rewardsUserHasRedeemed(data.username);
 
         return Response.ok(g.toJson(list)).build();
     }
@@ -545,54 +564,79 @@ public class RewardResource {
 		List<RewardData> userRewards = new LinkedList<>();
 
 		rewards.forEachRemaining(reward -> {
-			userRewards.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE)));
+			userRewards.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
 		});
 
 		return userRewards;
 	}
 
-	private boolean canUserRedeemReward(Entity user, Entity reward) {
-        List<RewardData> rewards = rewardsUserCanRedeem(user);
-
-        for (RewardData r : rewards) {
-            if(r.name.equals(reward.getString(REWARD_NAME))) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private List<RewardData> rewardsUserCanRedeem(Entity user) {
-        List<RewardData> redeemableRewards = allRewards();
- 
-        int nRewards = (int) user.getLong(NREWARDS);
-        List<String> userRewards = new ArrayList<>(nRewards);
-
-        for (int i = 0; i < nRewards; i++) {
-            userRewards.add(user.getString(REWARD + i));
-        }
-		
-        for (RewardData reward : redeemableRewards) {
-            if(userRewards.contains(reward.name)) {
-                redeemableRewards.remove(reward);
-            }
-        }
-
-        return redeemableRewards;
-    }
-
 	private List<RewardData> allRewards() {
+		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
+
+        QueryResults<Entity> rewards = datastore.run(queryReward);
+
+		List<RewardData> rewardsList = new LinkedList<>();
+
+		rewards.forEachRemaining(reward -> {
+			rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+		});
+
+		return rewardsList;
+	}
+
+	private boolean canUserRedeemReward(String user, Entity reward) {
+		List<RewardData> rewards = rewardsUserCanRedeem(user);
+
+		for (RewardData r : rewards) {
+			if(r.name.equals(reward.getString(REWARD_NAME))) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private List<RewardData> rewardsUserCanRedeem(String username) {
+		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
+
+        QueryResults<Entity> rewards = datastore.run(queryReward);
+
+		List<RewardData> rewardsList = new LinkedList<>();
+
+		rewards.forEachRemaining(reward -> {
+			if(!hasRedeemed(username, reward)) {
+				rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+			}
+		});
+
+		return rewardsList;
+	}
+
+	private List<RewardData> rewardsUserHasRedeemed(String username) {
         Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
 
         QueryResults<Entity> rewards = datastore.run(queryReward);
 
         List<RewardData> rewardsList = new LinkedList<>();
-		
+
         rewards.forEachRemaining(reward -> {
-            rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE)));
+            if(hasRedeemed(username, reward)) {
+                rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+            }
         });
 
         return rewardsList;
     }
+
+	private boolean hasRedeemed(String username, Entity reward) {
+		long nUsers = reward.getLong(NREDEEMED);
+
+		for(long i = 0; i < nUsers; i++) {
+			if(reward.getString(USER + i).equals(username)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
