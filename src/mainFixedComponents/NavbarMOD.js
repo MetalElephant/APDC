@@ -8,9 +8,9 @@ import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
-import MODUsers from "../MODcomponents/MODUsers";
-import MODParcels from "../MODcomponents/MODParcels";
-import MODRewards from "../MODcomponents/MODRewards";
+import AdminUsers from "../admins/AdminUsers";
+import AdminParcels from "../admins/AdminParcels";
+import AdminRewards from "../admins/AdminRewards";
 
 export default function NavbarMOD() {
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
@@ -47,16 +47,10 @@ export default function NavbarMOD() {
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
-            {selectedLeftTab === 1 && <MODUsers />}
-            {selectedLeftTab === 2 && <MODParcels />}
-            {selectedLeftTab === 3 && <MODRewards />}
+            {selectedLeftTab === 1 && <AdminUsers />}
+            {selectedLeftTab === 2 && <AdminParcels />}
+            {selectedLeftTab === 3 && <AdminRewards />}
             {selectedLeftTab === 4 && <StatisticsPage />}
-
-            {/*
-            {selectedLeftTab === 3 && <ForumPage />}
-            {selectedLeftTab === 4 && <AboutUs />}
-            {selectedLeftTab === 5 && <StatisticsPage />}
-            */}
 
         </>
     )

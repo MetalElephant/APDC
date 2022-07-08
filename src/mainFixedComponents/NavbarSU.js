@@ -5,9 +5,9 @@ import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
 import UserPage from "../userProfileComponents/UserPage";
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
-import SUUsers from "../SUcomponents/SUUsers";
-import SUParcels from "../SUcomponents/SUParcels";
-import SURewards from "../SUcomponents/SURewards";
+import AdminUsers from "../admins/AdminUsers";
+import AdminParcels from "../admins/AdminParcels";
+import AdminRewards from "../admins/AdminRewards";
 
 export default function NavbarSU() {
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
@@ -44,9 +44,9 @@ export default function NavbarSU() {
                 </Grid>
             </Grid>
             {selectedLeftTab === 0 && <UserPage />}
-            {selectedLeftTab === 1 && <SUUsers />}
-            {selectedLeftTab === 2 && <SUParcels />}
-            {selectedLeftTab === 3 && <SURewards />}
+            {selectedLeftTab === 1 && <AdminUsers />}
+            {selectedLeftTab === 2 && <AdminParcels />}
+            {selectedLeftTab === 3 && <AdminRewards />}
             {selectedLeftTab === 4 && <StatisticsPage />}
 
             {/*
