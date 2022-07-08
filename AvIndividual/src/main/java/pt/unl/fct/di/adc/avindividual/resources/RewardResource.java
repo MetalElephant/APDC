@@ -365,7 +365,7 @@ public class RewardResource {
 			    	.set(NREDEEMED, length + 1L);
 
 			for(int i = 0; i < length; i++) {
-				builderUser.set(USER + i, reward.getString(USER + i));
+				builderReward.set(USER + i, reward.getString(USER + i));
 			}
 
 			builderReward.set(USER + length, data.username);
