@@ -1,5 +1,5 @@
 import react from "react"
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, CircularProgress, Grid, Typography } from "@mui/material";
 import restCalls from "../restCalls"
 import { useHistory } from "react-router-dom";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
@@ -12,9 +12,11 @@ import ManageRewards from "../rewardComponents/ManageRewards"
 
 export default function SURewards() {
     let history = useHistory();
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function logoutManager() {
-        restCalls.logout().then(() => { history.push("/") })
+        setShowProgress(true)
+        restCalls.logout().then(() => { history.push("/"); setShowProgress(false) })
     }
 
     return (
@@ -46,6 +48,7 @@ export default function SURewards() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }}/>}
                 <ManageRewards />
             </Grid>
         </Grid>

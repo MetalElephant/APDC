@@ -1,7 +1,7 @@
 import react from "react"
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import restCalls from "../restCalls"
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -12,9 +12,11 @@ export default function SUUsers() {
     let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function logoutManager() {
-        restCalls.logout().then(() => { history.push("/") })
+        setShowProgress(true)
+        restCalls.logout().then(() => { history.push("/"); setShowProgress(false) })
     }
 
     return (
@@ -51,13 +53,14 @@ export default function SUUsers() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        startIcon={<LogoutIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { logoutManager()}}
+                        onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
                 {(display === 0) ? <ListUsers /> : <></>}
                 {(display === 1) ? <AddUser /> : <></>}
             </Grid>
