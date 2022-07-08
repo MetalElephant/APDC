@@ -1,5 +1,5 @@
 import react from "react"
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import ForumIcon from '@mui/icons-material/Forum';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import CreateForum from "./CreateForum";
@@ -13,9 +13,11 @@ export default function ForumPage() {
     let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function logoutManager() {
-        restCalls.logout().then(() => { history.push("/") })
+        setShowProgress(true)
+        restCalls.logout().then(() => { history.push("/"); setShowProgress(false) })
     }
 
     return (
@@ -70,6 +72,7 @@ export default function ForumPage() {
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                 </Button>
             </Grid>
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
                 {(display === 0) ? <ForumsList /> : <></>}
                 {(display === 1) ? <UserForums /> : <></>}
                 {(display === 2) ? <CreateForum /> : <></>}

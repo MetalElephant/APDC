@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, CircularProgress } from "@mui/material";
 
 export default function CreateForum() {
 
@@ -10,6 +10,7 @@ export default function CreateForum() {
     const [displayMessage, setDisplayMessage] = react.useState();
     const [isForumCreated, setIsForumCreated] = react.useState(false);
     const [isForumNotCreated, setIsForumNotCreated] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function forumNameHandler(e) {
         setForumName(e.target.value);
@@ -21,7 +22,10 @@ export default function CreateForum() {
 
     function createForumManager(e) {
         e.preventDefault();
-        restCalls.createForum(forumName, topic).then(() => { setIsForumCreated(true); setDisplayMessage(0)}).catch(() => { setIsForumNotCreated(true); setDisplayMessage(1) })
+        setShowProgress(true)
+        restCalls.createForum(forumName, topic)
+            .then(() => { setIsForumCreated(true); setDisplayMessage(0); setShowProgress(false) })
+            .catch(() => { setIsForumNotCreated(true); setDisplayMessage(1); setShowProgress(false) })
     }
 
     return (
@@ -38,7 +42,7 @@ export default function CreateForum() {
                         }}
                     >
                         <Typography component="h1" variant="h5">
-                            Forum Creation
+                            Criar Fórum
                         </Typography>
                         <Box component="form" sx={{ mt: 1 }}>
                             <TextField
@@ -75,7 +79,7 @@ export default function CreateForum() {
                                 sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
                                 onClick={(e) => { createForumManager(e) }}
                             >
-                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> create </Typography>
+                                <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Criar </Typography>
                             </Button>
                         </Box>
                     </Box>
@@ -88,6 +92,8 @@ export default function CreateForum() {
                 alignItems="center"
                 sx={{ mt: "52px" }}
             >
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
+
                 {isForumCreated && (displayMessage === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Forum criado com sucesso.</Typography>

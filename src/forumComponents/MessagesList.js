@@ -45,7 +45,7 @@ export default function MessagesList(props) {
 
         while (isValid && i < forbiddenWords.length) {
             if (message.toLowerCase().match(forbiddenWords[i]) != null) {
-                messageErr.wordsNotAllowed = "A mensagem que está a tentar enviar contém uma ou mais palavras não permitidas. Por favor, verifique o seu texto."
+                messageErr.wordsNotAllowed = "A mensagem que está a tentar enviar contém uma ou mais palavras que não são permitidas. Por favor verifique a sua mensagem."
                 isValid = false;
                 setMessageErr(messageErr)
                 setMessage("")

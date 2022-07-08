@@ -1,5 +1,5 @@
 import react from "react"
-import { Button, Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import UserInfo from "./UserInfo"
 import ModifyPassword from "./ModifyPassword";
 import restCalls from "../restCalls"
@@ -14,9 +14,11 @@ export default function Main() {
     let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function logoutManager() {
-        restCalls.logout().then(() => { history.push("/") })
+        setShowProgress(true)
+        restCalls.logout().then(() => { history.push("/"); setShowProgress(false) })
     }
 
     return (
@@ -72,6 +74,7 @@ export default function Main() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
                 {(display === 0) ? <UserInfo /> : <></>}
                 {(display === 1) ? <ModifyPassword /> : <></>}
                 {(display === 2) ? <ModifyAttributes /> : <></>}

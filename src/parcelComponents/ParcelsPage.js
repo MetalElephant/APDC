@@ -1,11 +1,11 @@
 import react from "react"
-import {Button, Grid, Typography} from "@mui/material";
+import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import RegisterParcel from "./RegisterParcel";
 import ModifyParcel from "./ModifyParcel";
 import SearchParcel from "./SearchParcel";
 import restCalls from "../restCalls"
 import ParcelInfo from "./ParcelInfo";
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FeedIcon from '@mui/icons-material/Feed';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
@@ -16,9 +16,12 @@ export default function Main() {
     let history = useHistory();
 
     const [display, setDisplay] = react.useState(0);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function logoutManager() {
-        restCalls.logout().then(() => {history.push("/")})
+        setShowProgress(true)
+        restCalls.logout()
+            .then(() => { history.push("/"); setShowProgress(false) })
     }
 
     return (
@@ -31,7 +34,7 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<AddCircleIcon sx={{color:"black"}}/>}
+                        startIcon={<AddCircleIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(0) }}
                     >
@@ -43,7 +46,7 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<FeedIcon sx={{color:"black"}}/>}
+                        startIcon={<FeedIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(1) }}
                     >
@@ -55,7 +58,7 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<ChangeCircleIcon sx={{color:"black"}}/>}
+                        startIcon={<ChangeCircleIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(2) }}
                     >
@@ -67,7 +70,7 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<SearchIcon sx={{color:"black"}}/>}
+                        startIcon={<SearchIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { setDisplay(3) }}
                     >
@@ -79,17 +82,18 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        startIcon={<LogoutIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "8%", left: "50%", overflow: "auto" }} />}
                 {(display === 0) ? <RegisterParcel /> : <></>}
-                {(display === 1) ? <ParcelInfo />: <></>}
-                {(display === 2) ? <ModifyParcel />: <></>}
-                {(display === 3) ? <SearchParcel />: <></>}
+                {(display === 1) ? <ParcelInfo /> : <></>}
+                {(display === 2) ? <ModifyParcel /> : <></>}
+                {(display === 3) ? <SearchParcel /> : <></>}
 
             </Grid>
         </Grid>

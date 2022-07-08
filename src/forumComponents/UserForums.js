@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions } from "@mui/material";
+import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import ForumCard from "./ForumCard"
@@ -46,39 +46,11 @@ export default function UserForums() {
                 )
             }
         return forumCards;
-
-        /*
-        const forumCards = []
-        if (forums == null || forums.length === 0)
-            return <Typography> O utilizador não possui fórums criados.</Typography>
-        else
-            for (var i = 0; i < forums.length; i++) {
-                forumCards.push(
-                    <>
-                        <Box sx={{ p: 1, width: "80%" }}>
-                            <Card variant="outlined" sx={{ maxWidth: 700, maxHeight: 300, p: 1 }}>
-                                <CardContent >
-                                    <Typography gutterBottom align="left" variant="h5" component="div" sx={{ fontSize: 21 }}>
-                                        {forums[i].name} ({forums[i].owner})
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        - {forums[i].topic}
-                                    </Typography>
-                                    <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
-                                        <Button variant="outlined" color="success" size="small">Aceder</Button>
-                                    </CardActions>
-                                </CardContent>
-                            </Card>
-                        </Box>
-                    </>
-                )
-            }
-        return forumCards;
-        */
     }
 
     return (
         <Grid item xs={8} container>
+            {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/> }
             {(loaded && !showMessages) && generateForums()}
             {(loaded && showMessages) && <MessagesList onClickFun={goBack} />}
         </Grid>
