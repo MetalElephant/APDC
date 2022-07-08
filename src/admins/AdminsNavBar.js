@@ -1,18 +1,14 @@
 import react from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
-import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
-import ParcelsPage from "../parcelComponents/ParcelsPage";
 import UserPage from "../userProfileComponents/UserPage";
-import AboutUs from "./AboutUs"
-import ForumPage from "../forumComponents/ForumPage"
 import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import AdminUsers from "../admins/AdminUsers";
 import AdminParcels from "../admins/AdminParcels";
 import AdminRewards from "../admins/AdminRewards";
 
-export default function NavbarMOD() {
+export default function NavbarSU() {
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
 
     const handleChangeLeft = (event, newValue) => {
@@ -51,7 +47,6 @@ export default function NavbarMOD() {
             {selectedLeftTab === 2 && <AdminParcels />}
             {selectedLeftTab === 3 && <AdminRewards />}
             {selectedLeftTab === 4 && <StatisticsPage />}
-
         </>
     )
 }

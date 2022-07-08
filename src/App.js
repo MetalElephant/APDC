@@ -2,15 +2,14 @@ import React from "react"
 import { useEffect } from "react";
 import NavbarLR from "./mainFixedComponents/NavbarLR"
 import NavbarOps from "./mainFixedComponents/NavbarOps";
-import AdministrationPage from "./mainFixedComponents/AdministrationPage";
 import LoginRegister from "./userComponents/LoginRegister"
-import NavbarMessages from "./mainFixedComponents/NavbarMessages";
 import REPnavbar from "./mainFixedComponents/REPnavbar";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import './style.css';
 import NavbarMerchants from "./mainFixedComponents/NavbarMerchants";
-import NavbarSU from "./mainFixedComponents/NavbarSU";
-import NavbarMOD from "./mainFixedComponents/NavbarMOD";
+//import NavbarSU from "./mainFixedComponents/NavbarSU";
+//import NavbarMOD from "./mainFixedComponents/NavbarMOD";
+import AdminsNavBar from "./admins/AdminsNavBar";
 import restCalls from "./restCalls"
 
 
@@ -48,10 +47,10 @@ export default function App() {
                         <REPnavbar />
                     </Route>
                     <Route exact path="/moderador">
-                        <NavbarMOD />
+                        <AdminsNavBar />
                     </Route>
                     <Route exact path="/superuser">
-                        <NavbarSU />
+                        <AdminsNavBar />
                     </Route>
                 </Switch>
             </div>
