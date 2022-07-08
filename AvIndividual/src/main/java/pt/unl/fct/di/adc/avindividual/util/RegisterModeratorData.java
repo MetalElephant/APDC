@@ -68,12 +68,11 @@ public class RegisterModeratorData {
 	
 	public boolean validData() {
 		//Check missing info
-		if(this.username == null || this.email == null|| this.name == null)
+		if(this.usernameReg == null || this.username == null || this.email == null|| this.name == null)
 			return false;
 		
 		//Check empty data
-		if(this.username.length() == 0 || this.email.length() == 0 ||
-				this.name.length() == 0)
+		if(this.usernameReg.length() == 0 ||this.username.length() == 0 || this.email.length() == 0 || this.name.length() == 0)
 			return false;
 		
 		return true;	
