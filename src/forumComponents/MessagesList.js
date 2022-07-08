@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Grid, Card, CardContent, CardActions, TextField, Alert } from "@mui/material";
+import { Button, Box, Typography, Grid, Card, CardContent, CardActions, TextField, Alert, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -11,6 +11,7 @@ export default function MessagesList(props) {
     const [isMessagePosted, setIsMessagePosted] = react.useState(false)
     const [isMessageNotPosted, setIsMessageNotPosted] = react.useState(false)
     const [displayMessage, setDisplayMessage] = react.useState(false)
+    const [showProgress, setShowProgress] = react.useState(false)
 
     const forbiddenWords = ["puta", "caralho", "cona", "obesa", "obeso", "merda", "cabrão", "cabrao", "rabo", "pila",
         "porra", "foda", "fodido", "larapio", "rego", "peido"];
@@ -28,9 +29,10 @@ export default function MessagesList(props) {
     function postMessageManager() {
         const isMessageValid = messageErrorValidation();
         if (isMessageValid) {
+            setShowProgress(true)
             restCalls.postMessage(message)
-                .then(() => { setLoaded(false); setIsMessagePosted(true); setIsMessageNotPosted(false); setMessage(""); restCalls.listForumMessages().then(() => setLoaded(true)) })
-                .catch(() => { setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false); })
+                .then(() => { setLoaded(false); setIsMessagePosted(true); setIsMessageNotPosted(false); setShowProgress(false); setMessage(""); restCalls.listForumMessages().then(() => setLoaded(true)) })
+                .catch(() => { setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false); setShowProgress(false)})
             setMessageErr({})
             setDisplayMessage(true)
         }
@@ -90,10 +92,11 @@ export default function MessagesList(props) {
                     <ArrowBackIcon />
                 </Button>
                 {loaded && generateMessages()}
+                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "40%", overflow: "auto" }}/>}
             </Grid>
             <Grid item xs={3} >
                 <TextField
-                    sx={{ width: "90%", pt: 1 }}
+                    sx={{ width: "100%", pt: 1 }}
                     color="success"
                     variant="outlined"
                     placeholder="Escreva aqui a sua mensagem..."

@@ -860,7 +860,55 @@ class restCalls {
         })
     }
 
-    listUserRewards() {
+    listComRewards() {
+        return fetch("https://our-hull.appspot.com/rest/reward/list", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('comRewards', text);
+            return text;
+        })
+    }
+
+    listUserRedeemedRewards() {
+        return fetch("https://our-hull.appspot.com/rest/reward/listRedeemed", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('redeemedRewards', text);
+            return text;
+        })
+    }
+
+    listUserRedeemableRewards() {
         return fetch("https://our-hull.appspot.com/rest/reward/listRedeemable", {
             method: 'POST',
             headers: {
@@ -879,7 +927,7 @@ class restCalls {
             }
             return response.text()
         }).then(function (text) {
-            localStorage.setItem('rewards', text);
+            localStorage.setItem('redeemableRewards', text);
             return text;
         })
     }
@@ -906,7 +954,7 @@ class restCalls {
     }
 
     redeemReward(owner, reward) {
-        return fetch("https://our-hull.appspot.com/rest/reward/redeemReward", {
+        return fetch("https://our-hull.appspot.com/rest/reward/redeem", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1013,8 +1061,10 @@ class restCalls {
             localStorage.removeItem('messages')
             localStorage.removeItem('allUsers')
             localStorage.removeItem('allParcels')
-            localStorage.removeItem('rewards')
             localStorage.removeItem('allRewards');
+            localStorage.removeItem('redeemableRewards');
+            localStorage.removeItem('redeemedRewards');
+            localStorage.removeItem('comRewards');
             return text;
         })
     }

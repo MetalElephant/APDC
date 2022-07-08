@@ -2,11 +2,11 @@ import react from "react"
 import restCalls from "../restCalls"
 import {useHistory} from "react-router-dom";
 import { Button, Grid, Typography } from "@mui/material";
-import OWNERRewardsList from "./OWNERRewardsList"
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
-import RewardsList from "./OWNERRewardsList";
+import OWNERRedeemableRewards from "./OWNERRedeemableRewards";
 import LogoutIcon from '@mui/icons-material/Logout';
+import OWNERRedeemedRewards from "./OWNERRedeemedRewards";
 
 export default function RewardsOWNERPage() {
     let history = useHistory();
@@ -57,8 +57,8 @@ export default function RewardsOWNERPage() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {(display === 0) ? <OWNERRewardsList /> : <></>}
-                {(display === 1) ? <></>: <></>}
+                {(display === 0) && <OWNERRedeemableRewards />}
+                {(display === 1) && <OWNERRedeemedRewards />}
             </Grid>
         </Grid>
     )

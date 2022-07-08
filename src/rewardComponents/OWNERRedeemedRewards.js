@@ -2,22 +2,18 @@ import { Button, Grid, Typography, Box, Card, CardMedia, CardContent, CardAction
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
-export default function OWNERRewardsList() {
+export default function OWNERRedeemedRewards() {
 
     const [loaded, setLoaded] = react.useState(false);
     const [points, setPoints] = react.useState();
 
-    var rewards = JSON.parse(localStorage.getItem('rewards'))
+    var rewards = JSON.parse(localStorage.getItem('redeemedRewards'))
     var user = JSON.parse(localStorage.getItem('user'))
 
     useEffect(() => {
-        restCalls.listUserRewards().then(() => { setLoaded(true) })
+        restCalls.listUserRedeemedRewards().then(() => { setLoaded(true) })
         setPoints(user.specialization)
     }, [])
-
-    function redeemReward(owner, name) {
-        restCalls.redeemReward(owner, name)
-    }
 
     function generateRewards() {
         const rewardCards = []
@@ -38,7 +34,7 @@ export default function OWNERRewardsList() {
                                     </Typography>
                                 </CardContent>
                                 <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                                    <Button onClick={() => { redeemReward(reward.owner, reward.name) }} variant="outlined" color="success" size="small">Claim Reward: {reward.price} pontos</Button>
+                                    <Button disabled variant="outlined" color="success" size="small">Claim Reward: {reward.price} pontos</Button>
                                 </CardActions>
                             </Card>
                         </Box>
@@ -55,7 +51,7 @@ export default function OWNERRewardsList() {
             </Grid>
             <Grid item xs={2} container direction="column" justifyContent="flex-start" alignItems="left">
                 <Box display="flex" justifyContent="left" alignItems="left" sx={{ p: 2 }}>
-                    <Card variant="outlined" sx={{ p: 2, width: "100%", bgcolor: "#CCFF99", color: "darkgreen" }}>
+                    <Card variant="outlined" sx={{ p: 2, width: "100%", bgcolor: "whitesmoke", color: "darkgreen" }}>
                         <Typography textAlign="center" variant="h5" sx={{ fontSize: 17 }}>
                             Pontos: {points}
                         </Typography>

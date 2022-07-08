@@ -20,10 +20,10 @@ export default function COMManageRewards() {
     const [isNotDeleteReward, setIsNotDeleteReward] = react.useState(false)
     const [displayMessageDelete, setDisplayMessageDelete] = react.useState(false)
 
-    var rewards = JSON.parse(localStorage.getItem('rewards'))
+    var rewards = JSON.parse(localStorage.getItem('comRewards'))
 
     useEffect(() => {
-        restCalls.listRewards().then(() => { setLoaded(true); rewards = JSON.parse(localStorage.getItem('rewards')) })
+        restCalls.listComRewards().then(() => { setLoaded(true); rewards = JSON.parse(localStorage.getItem('comRewards')) })
     }, [])
 
     useEffect(() => {

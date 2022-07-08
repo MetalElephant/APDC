@@ -1,4 +1,4 @@
-import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions } from "@mui/material";
+import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import { useHistory } from "react-router-dom"
@@ -52,6 +52,7 @@ export default function ForumsList() {
 
     return (
         <Grid item xs={8} container>
+            {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
             {(loaded && !showMessages) && generateForums()}
             {(loaded && showMessages) && <MessagesList onClickFun={goBack} />}
         </Grid>
