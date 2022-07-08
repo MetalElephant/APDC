@@ -51,7 +51,6 @@ public class StartupResource {
 	private static final String NIF = "nif";
 	private static final String SPEC = "specialization";
     private static final String PHOTO = "photo";
-    private static final String NREWARDS = "number of rewards";
     private static final String NPARCELS = "number of parcels";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
@@ -97,7 +96,6 @@ public class StartupResource {
                     .set(NIF, SU_NIF)
                     .set(SPEC, SU_SPEC)
                     .set(PHOTO, SU_PHOTO)
-                    .set(NREWARDS, 0)
                     .set(NPARCELS, 0)
 					.set(NFORUMS, 0)
 					.set(NMSGS, 0)

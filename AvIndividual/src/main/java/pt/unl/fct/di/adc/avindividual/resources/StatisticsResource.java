@@ -43,7 +43,6 @@ public class StatisticsResource {
 	private static final String CTIME = "creation time";
 	private static final String NPARCELS = "number of parcels";
 	private static final String NFORUMS = "number of forums";
-	private static final String NREWARDS = "number of rewards";
 	private static final String NMSGS = "number of messages";
 
 	private static final String REWARD = "Reward";
@@ -118,15 +117,10 @@ public class StatisticsResource {
 			.set(NIF, user.getString(NIF))
 			.set(PHOTO, user.getString(PHOTO))
 			.set(SPEC, user.getString(SPEC))
-			.set(NREWARDS, user.getLong(NREWARDS))
 			.set(NPARCELS, nParcels)
 			.set(NFORUMS, nForums)
 			.set(NMSGS, nMsgs)
 			.set(CTIME, user.getTimestamp(CTIME));
-		
-		for(int i = 0; i < user.getLong(NREWARDS); i++) {
-			builder.set(REWARD + i, user.getString(REWARD + i));
-		}
 
 		user = builder.build();
 				
