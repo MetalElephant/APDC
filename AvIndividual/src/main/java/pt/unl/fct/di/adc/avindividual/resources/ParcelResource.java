@@ -242,6 +242,22 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this parcel.").build();
 			}
 
+			if (!validUsers(data.owners, tn)){
+				LOG.warning("Username of owners invalid.");
+				tn.rollback();
+				return Response.status(Status.BAD_REQUEST).entity("Username of one or more owners invalid.").build();
+			}
+
+			if (parcel.getBoolean(CONFIRMED)){
+				List<String> ownersAdded = ownersUpdated(parcel, data.owners, tn);
+
+				String parcelInfo = data.owner + ":" + data.parcelName;
+
+				for(String added: ownersAdded){
+					addOwner(added, parcelInfo, tn);
+				}
+			}
+
 			LatLng[] markers = new LatLng[data.allLats.length];
 
 			for(int i = 0; i< data.allLats.length; i++) {
@@ -281,7 +297,7 @@ public class ParcelResource {
 			tn.put(parcel);
 			tn.commit();
 		
-			return Response.ok("Parcel updated.").build();
+			return Response.ok("Parcel sucessfully updated.").build();
 		}finally{
 			if (tn.isActive())
 				tn.rollback();
@@ -608,8 +624,10 @@ public class ParcelResource {
                     .set(NMARKERS, parcel.getString(NMARKERS))
 					.set(NOWNERS, parcel.getString(NOWNERS));
 
+			
 			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
 			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
+			
 			String parcelInfo = data.owner + ":" + data.parcelName;
 			String aux;
 
@@ -708,6 +726,89 @@ public class ParcelResource {
 		tn.put(user);
 	}
 
+	private void removeOwner(String owner, String parcelName, Transaction tn){
+		Key userKey= datastore.newKeyFactory().setKind(USER).newKey(owner);
+		Entity user = tn.get(userKey);
+
+		long nParcels = user.getLong(NPARCELS);
+
+		Builder build = Entity.newBuilder(userKey)
+				.set(NAME, user.getString(NAME))
+				.set(PASSWORD, user.getString(PASSWORD))
+				.set(EMAIL, user.getString(EMAIL))
+				.set(ROLE, user.getString(ROLE))
+				.set(MPHONE, user.getString(MPHONE))
+				.set(HPHONE, user.getString(HPHONE))
+				.set(ADDRESS, user.getString(ADDRESS))
+				.set(NIF, user.getString(NIF))
+				.set(PHOTO, user.getString(PHOTO))
+				.set(SPEC, user.getString(SPEC))
+				.set(NPARCELS, nParcels - 1L)
+				.set(NFORUMS, user.getLong(NFORUMS))
+				.set(NMSGS, user.getLong(NMSGS))
+				.set(CTIME, user.getTimestamp(CTIME));
+
+		for(long j = 0; j < nParcels; j++){
+			String parcelInfo = user.getString(PARCEL+j);
+			String pName = parcelInfo.substring(parcelInfo.indexOf(":")+1);
+
+			if (pName.equals(parcelName)){
+				if(j == nParcels-1)
+					break;
+
+				build.set(PARCEL+j, user.getString(PARCEL+(nParcels-1)));
+				nParcels--;
+				j--;
+			}else
+				build.set(PARCEL+j, user.getString(PARCEL+j));
+		}
+	
+		user = build.build();
+
+		tn.put(user);		
+	}
+
+	private List<String> ownersUpdated(Entity parcel, String[] owners, Transaction tn){
+		List<String> added = new LinkedList<>();
+
+		removeOwnersUpdated(parcel, owners, tn);
+
+		for(int i = 0; i < owners.length; i++){
+			if (!containsOwner(parcel, owners[i]))
+				added.add(owners[i]);
+		}
+
+		return added;
+	}
+
+	private void removeOwnersUpdated(Entity parcel, String[] owners, Transaction tn){
+		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+		for(int i = 0; i < nOwners; i++){
+			if (!isStillOwner(parcel.getString(OWNER+i), owners))
+				removeOwner(parcel.getString(OWNER+i) , parcel.getKey().getName(), tn);
+		}
+
+	}
+
+	private boolean isStillOwner(String username, String[] owners){
+		for(int i = 0; i < owners.length; i++){
+			if (owners[i].equals(username))
+				return true;
+		}
+
+		return false;
+	}
+
+	private boolean containsOwner(Entity parcel, String owner){
+		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+		for(int i = 0; i < nOwners; i++){
+			if (owner.equals(parcel.getString(OWNER+i)))
+				return true;
+		}
+		return false;
+	}
 
 	private String getArea(LatLng[] markers){
 		double area = 0.0;
@@ -756,17 +857,17 @@ public class ParcelResource {
 
 	private void createForum(Transaction tn, Key forumKey, Key statKey, Entity user){
 		Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.HOUR, 1);
+		cal.add(Calendar.HOUR, 1);
 
-        Entity forum = Entity.newBuilder(forumKey)
-                .set(TOPIC, PARCEL_TOPIC)
-                .set(CRT_DATE, cal.getTime().toString())
-                .build();
+		Entity forum = Entity.newBuilder(forumKey)
+				.set(TOPIC, PARCEL_TOPIC)
+				.set(CRT_DATE, cal.getTime().toString())
+				.build();
 
-        sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+		sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 		sr.updateUserStats(user, tn, ADD, 2);
 
-        tn.add(forum);
+		tn.add(forum);
 	}
 
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
@@ -877,7 +978,6 @@ public class ParcelResource {
 
 		return userParcels;
 	}
-	
 
     //Run through every parcel and verify that they don't overlap with the given one
     private boolean isOverlapped(LatLng[] markers){
