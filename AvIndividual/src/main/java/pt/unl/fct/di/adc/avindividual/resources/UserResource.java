@@ -68,6 +68,22 @@ public class UserResource {
 
 	private static final String UNDEFINED = "Não Definido";
 
+	//Parcel info
+	private static final String OWNER = "Owner";
+	private static final String NOWNERS = "number of co-owners";
+	private static final String COUNTY = "County";
+	private static final String DISTRICT = "District";
+	private static final String FREGUESIA = "Freguesia";
+	private static final String DESCRIPTION = "description";
+	private static final String GROUND_COVER_TYPE = "ground cover type";
+	private static final String CURR_USAGE = "current usage";
+	private static final String PREV_USAGE = "previous usage";
+	private static final String AREA = "area";
+	private static final String CONFIRMATION = "Confirmation";
+	private static final String CONFIRMED = "Confirmed";
+    private static final String NMARKERS = "number of markers";
+	private static final String MARKER = "marker";
+
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
 	private static final String BUCKET_NAME = "our-hull.appspot.com";
@@ -92,7 +108,6 @@ public class UserResource {
 	private static final String PARCEL = "Parcel";
 	private static final String FORUM = "Forum";
     private static final String MESSAGE = "Message";
-	private static final String OWNER = "Owner";
 
 	private static final boolean ADD = true;
 	
@@ -310,6 +325,8 @@ public class UserResource {
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+
+			removeFromParcels(user, tn);
 
 			tn.delete(userToRemoveKey);
 			tn.commit();
@@ -726,5 +743,55 @@ public class UserResource {
 		res.forEachRemaining(e -> {
 			tn.delete(e.getKey());
 		});
+	}
+
+	private void removeFromParcels(Entity user, Transaction tn){
+		long nParcelsCo = user.getLong(NPARCELSCO);
+		String username = user.getKey().getName();
+
+		Key parcelKey;
+		Entity parcel;
+
+		for(int i = 0; i < nParcelsCo; i++){
+			String parcelInfo = user.getString(PARCEL+i);
+			String parcelOwner = parcelInfo.substring(0, parcelInfo.indexOf(":"));
+			String parcelName = parcelInfo.substring(parcelInfo.indexOf(":")+1);
+
+			parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, parcelOwner)).setKind(PARCEL).newKey(parcelName);
+			parcel = tn.get(parcelKey);
+
+			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
+			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
+
+			Builder builder = Entity.newBuilder(parcelKey)
+					.set(COUNTY, parcel.getString(COUNTY))
+					.set(DISTRICT, parcel.getString(DISTRICT))
+					.set(FREGUESIA, parcel.getString(FREGUESIA))
+					.set(DESCRIPTION, parcel.getString(DESCRIPTION))
+					.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
+					.set(CURR_USAGE, parcel.getString(CURR_USAGE))
+					.set(PREV_USAGE, parcel.getString(PREV_USAGE))
+					.set(AREA, parcel.getString(AREA))
+					.set(CONFIRMATION, parcel.getString(CONFIRMATION))
+					.set(CONFIRMED, parcel.getBoolean(CONFIRMED))
+                    .set(NMARKERS, parcel.getString(NMARKERS))
+					.set(NOWNERS, parcel.getString(NOWNERS));
+
+			int aux = 0;
+
+			for(int j = 0; j < n1; j++){
+				String owner = parcel.getString(OWNER+j);
+				if (!owner.equals(username))
+					builder.set(OWNER+(aux++), owner);
+			}
+					
+			for(int j = 0; j < n2; j++) {
+				builder.set(MARKER+j, parcel.getLatLng(MARKER+j));
+			}
+
+			parcel = builder.build();
+
+			tn.put(parcel);
+		}
 	}
 }

@@ -630,7 +630,6 @@ public class ParcelResource {
 					.set(CONFIRMED, true)
                     .set(NMARKERS, parcel.getString(NMARKERS))
 					.set(NOWNERS, parcel.getString(NOWNERS));
-
 			
 			int n1 = Integer.parseInt(parcel.getString(NOWNERS));
 			int n2 = Integer.parseInt(parcel.getString(NMARKERS));
