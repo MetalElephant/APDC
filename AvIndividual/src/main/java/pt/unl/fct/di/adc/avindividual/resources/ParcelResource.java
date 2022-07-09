@@ -864,17 +864,21 @@ public class ParcelResource {
 	}
 
 	private void createForum(Transaction tn, Key forumKey, Key statKey, Entity user){
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.HOUR, 1);
+		Entity forum = tn.get(forumKey);
 
-		Entity forum = Entity.newBuilder(forumKey)
-				.set(TOPIC, PARCEL_TOPIC)
-				.set(CRT_DATE, cal.getTime().toString())
-				.build();
-
-		sr.updateStats(statKey, tn.get(statKey), tn, ADD);
-
-		tn.add(forum);
+		if(forum == null){
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, 1);
+	
+			forum = Entity.newBuilder(forumKey)
+					.set(TOPIC, PARCEL_TOPIC)
+					.set(CRT_DATE, cal.getTime().toString())
+					.build();
+	
+			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
+	
+			tn.add(forum);
+		}
 	}
 
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
