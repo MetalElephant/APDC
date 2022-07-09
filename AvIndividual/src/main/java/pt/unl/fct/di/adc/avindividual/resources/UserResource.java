@@ -41,14 +41,11 @@ import com.google.cloud.storage.StorageOptions;
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource {
-	//TODO have a function create user rather than doing it manually everytime (same for parcel)
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
 
 	private final Gson g = new Gson();
 
-	//private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
-	//private ParcelResource pr = new ParcelResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
@@ -64,7 +61,8 @@ public class UserResource {
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
-	private static final String NPARCELS = "number of parcels";
+	private static final String NPARCELSCRT = "number of parcels created";
+	private static final String NPARCELSCO = "number of parcels with co-ownership";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
 
@@ -159,7 +157,8 @@ public class UserResource {
 					.set(NIF, data.nif)
 					.set(PHOTO, uploadPhoto(data.username, data.photo))
 					.set(SPEC, String.valueOf(points))
-					.set(NPARCELS, 0)
+					.set(NPARCELSCRT, 0)
+					.set(NPARCELSCO, 0)
 					.set(NFORUMS, 0)
 					.set(NMSGS, 0)
 					.set(CTIME, Timestamp.now())
@@ -368,7 +367,7 @@ public class UserResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
 			}
 
-			long nParcels = user.getLong(NPARCELS);
+			long nParcelsCo = user.getLong(NPARCELSCO);
 
 			Builder build = Entity.newBuilder(userUpdateKey)
 			.set(NAME, data.name)
@@ -381,12 +380,13 @@ public class UserResource {
 			.set(NIF, data.nif)
 			.set(PHOTO, data.photo == null ? userToUpdate.getString(PHOTO) : uploadPhoto(data.username, data.photo))
 			.set(SPEC, userToUpdate.getString(SPEC))
-			.set(NPARCELS, nParcels)
+			.set(NPARCELSCRT, userToUpdate.getLong(NPARCELSCRT))
+			.set(NPARCELSCO, nParcelsCo)
 			.set(NFORUMS, user.getLong(NFORUMS))
 			.set(NMSGS, user.getLong(NMSGS))
 			.set(CTIME, userToUpdate.getTimestamp(CTIME));
 
-			for(long i = 0; i < nParcels; i++){
+			for(long i = 0; i < nParcelsCo; i++){
 				build.set(PARCEL+i, userToUpdate.getString(PARCEL+i));
 			}
 
@@ -451,7 +451,7 @@ public class UserResource {
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
 			}
 
-			long nParcels = user.getLong(NPARCELS);
+			long nParcelsCo = user.getLong(NPARCELSCO);
 
 			Builder build = Entity.newBuilder(userKey)
 					.set(NAME, user.getString(NAME))
@@ -464,12 +464,13 @@ public class UserResource {
 					.set(NIF, user.getString(NIF))
 					.set(PHOTO, user.getString(PHOTO))
 					.set(SPEC, user.getString(SPEC))
-					.set(NPARCELS, nParcels)
+					.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
+					.set(NPARCELSCO, nParcelsCo)
 					.set(NFORUMS, user.getLong(NFORUMS))
 					.set(NMSGS, user.getLong(NMSGS))
 					.set(CTIME, user.getTimestamp(CTIME));
 
-			for(long i = 0; i < nParcels; i++){
+			for(long i = 0; i < nParcelsCo; i++){
 				build.set(PARCEL+i, user.getString(PARCEL+i));
 			}
 

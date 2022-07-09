@@ -59,7 +59,8 @@ public class RewardResource {
 	private static final String NIF = "nif";
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
-	private static final String NPARCELS = "number of parcels";
+	private static final String NPARCELSCRT = "number of parcels created";
+	private static final String NPARCELSCO = "number of parcels with co-ownership";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
 	private static final String CTIME = "creation time";
@@ -348,7 +349,8 @@ public class RewardResource {
     				.set(NIF, user.getString(NIF))
 			    	.set(PHOTO, user.getString(PHOTO))
 		    		.set(SPEC, String.valueOf(points))
-					.set(NPARCELS, user.getLong(NPARCELS))
+					.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
+					.set(NPARCELSCO, user.getLong(NPARCELSCO))
 					.set(NFORUMS, user.getLong(NFORUMS))
 					.set(NMSGS, user.getLong(NMSGS))
     				.set(CTIME, user.getTimestamp(CTIME));

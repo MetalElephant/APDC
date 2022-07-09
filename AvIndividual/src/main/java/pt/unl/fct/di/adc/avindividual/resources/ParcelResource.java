@@ -65,13 +65,14 @@ public class ParcelResource {
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
-	private static final String NPARCELS = "number of parcels";
+	private static final String NPARCELSCRT = "number of parcels created";
+	private static final String NPARCELSCO = "number of parcels with co-ownership";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
 
 	//Parcel info
 	private static final String OWNER = "Owner";
-	private static final String NOWNERS = "number of owners";
+	private static final String NOWNERS = "number of co-owners";
 	private static final String COUNTY = "County";
 	private static final String DISTRICT = "District";
 	private static final String FREGUESIA = "Freguesia";
@@ -356,8 +357,14 @@ public class ParcelResource {
 
 			if (parcel.getBoolean(CONFIRMED)){
 				tn.delete(forumKey);
+
+				int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+				for(int i = 0; i < nOwners; i++)
+					removeOwner(parcel.getString(OWNER+i) , data.objectName, tn);
+
 				sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
-				sr.updateUserStats(owner, tn, !ADD, 1);
+				sr.updateParcelForumStats(owner, !ADD, tn);
 			}
 
 			tn.delete(parcelKey);
@@ -645,7 +652,7 @@ public class ParcelResource {
 
 			//Update statistics
 			sr.updateStats(statKeyP, tn.get(statKeyP), tn, ADD);
-			sr.updateUserStats(owner, tn, ADD, 1);
+			sr.updateParcelForumStats(owner, ADD, tn);
 
 			createForum(tn, forumKey, statKeyF, owner);
 			
@@ -697,7 +704,7 @@ public class ParcelResource {
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
 		Entity user = tn.get(userKey);
 
-		long nParcels = user.getLong(NPARCELS);
+		long nParcelsCo = user.getLong(NPARCELSCO);
 
 		Builder build = Entity.newBuilder(userKey)
 				.set(NAME, user.getString(NAME))
@@ -710,16 +717,17 @@ public class ParcelResource {
 				.set(NIF, user.getString(NIF))
 				.set(PHOTO, user.getString(PHOTO))
 				.set(SPEC, user.getString(SPEC))
-				.set(NPARCELS, nParcels + 1L)
+				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
+				.set(NPARCELSCO, nParcelsCo + 1L)
 				.set(NFORUMS, user.getLong(NFORUMS))
 				.set(NMSGS, user.getLong(NMSGS))
 				.set(CTIME, user.getTimestamp(CTIME));
 
-		for(long j = 0; j < nParcels; j++){
+		for(long j = 0; j < nParcelsCo; j++){
 			build.set(PARCEL+j, user.getString(PARCEL+j));
 		}
 
-		build.set(PARCEL+nParcels, parcelInfo);
+		build.set(PARCEL+nParcelsCo, parcelInfo);
 
 		user = build.build();
 
@@ -727,10 +735,10 @@ public class ParcelResource {
 	}
 
 	private void removeOwner(String owner, String parcelName, Transaction tn){
-		Key userKey= datastore.newKeyFactory().setKind(USER).newKey(owner);
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(owner);
 		Entity user = tn.get(userKey);
 
-		long nParcels = user.getLong(NPARCELS);
+		long nParcelsCo = user.getLong(NPARCELSCO);
 
 		Builder build = Entity.newBuilder(userKey)
 				.set(NAME, user.getString(NAME))
@@ -743,21 +751,22 @@ public class ParcelResource {
 				.set(NIF, user.getString(NIF))
 				.set(PHOTO, user.getString(PHOTO))
 				.set(SPEC, user.getString(SPEC))
-				.set(NPARCELS, nParcels - 1L)
+				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
+				.set(NPARCELSCO, nParcelsCo - 1L)
 				.set(NFORUMS, user.getLong(NFORUMS))
 				.set(NMSGS, user.getLong(NMSGS))
 				.set(CTIME, user.getTimestamp(CTIME));
 
-		for(long j = 0; j < nParcels; j++){
+		for(long j = 0; j < nParcelsCo; j++){
 			String parcelInfo = user.getString(PARCEL+j);
 			String pName = parcelInfo.substring(parcelInfo.indexOf(":")+1);
 
 			if (pName.equals(parcelName)){
-				if(j == nParcels-1)
+				if(j == nParcelsCo-1)
 					break;
 
-				build.set(PARCEL+j, user.getString(PARCEL+(nParcels-1)));
-				nParcels--;
+				build.set(PARCEL+j, user.getString(PARCEL+(nParcelsCo-1)));
+				nParcelsCo--;
 				j--;
 			}else
 				build.set(PARCEL+j, user.getString(PARCEL+j));
@@ -765,7 +774,7 @@ public class ParcelResource {
 	
 		user = build.build();
 
-		tn.put(user);		
+		tn.put(user);
 	}
 
 	private List<String> ownersUpdated(Entity parcel, String[] owners, Transaction tn){
@@ -865,7 +874,6 @@ public class ParcelResource {
 				.build();
 
 		sr.updateStats(statKey, tn.get(statKey), tn, ADD);
-		sr.updateUserStats(user, tn, ADD, 2);
 
 		tn.add(forum);
 	}
@@ -944,17 +952,20 @@ public class ParcelResource {
 			userParcels.add(parcelInfoBuilder(parcel));
 		});
 
-		long n = user.getLong(NPARCELS);
+		long n = user.getLong(NPARCELSCO);
 
 		Key parcelKey;
 		String parcelOwner, parcelName, parcelInfo;
 		int endPos;
 
 		for (long i = 0; i < n; i++){
+			if (user.getString(PARCEL+i) == null)
+				break;
+			
 			parcelInfo = user.getString(PARCEL+i);
-			endPos = parcelInfo.indexOf(":");
+			endPos = parcelInfo.indexOf(":")+1;
 			parcelOwner = parcelInfo.substring(0, endPos);
-			parcelName = parcelInfo.substring(endPos+1, parcelInfo.length());
+			parcelName = parcelInfo.substring(endPos, parcelInfo.length());
 
 			parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, parcelOwner)).setKind(PARCEL).newKey(parcelName);
 			userParcels.add(parcelInfoBuilder(datastore.get(parcelKey)));

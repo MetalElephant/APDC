@@ -241,7 +241,7 @@ public class ForumResource {
 
             int n = deleteForumMessages(data.name, tn);
 
-            sr.updateStats(statKeyM, tn.get(statKeyM), tn, !ADD, n);
+            sr.removeMsgStats(statKeyM, tn.get(statKeyM), tn, n);
 
             sr.updateStats(statKeyF, tn.get(statKeyF), tn, !ADD);
             sr.updateUserStats(owner, tn, !ADD, 2);

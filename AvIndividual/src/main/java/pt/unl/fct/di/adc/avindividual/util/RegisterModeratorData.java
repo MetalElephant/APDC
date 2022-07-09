@@ -22,10 +22,10 @@ public class RegisterModeratorData {
 	
 	public RegisterModeratorData(String usernameReg, String username, String email, String name,
 			String homePhone, String mobilePhone, String address, String nif, byte[] photo, boolean isRep, String freguesia) {
+		
+		//Mandatory information
 		this.usernameReg = usernameReg;
-        
-        //Mandatory information
-		this.username = username;
+        this.username = username;
 		this.email = email;
 		this.name = name;
 		this.isRep = isRep;

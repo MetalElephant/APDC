@@ -41,11 +41,10 @@ public class StatisticsResource {
 	private static final String PHOTO = "photo";
 	private static final String SPEC = "specialization";
 	private static final String CTIME = "creation time";
-	private static final String NPARCELS = "number of parcels";
+	private static final String NPARCELSCRT = "number of parcels created";
+	private static final String NPARCELSCO = "number of parcels with co-ownership";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
-
-	private static final String REWARD = "Reward";
 
 	//Statistics information
 	private static final String VALUE = "Value";
@@ -66,11 +65,8 @@ public class StatisticsResource {
 		}
 	}
 
-	//For messages
-	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd, int counter){
-		long val = counter;
-		if (!isAdd)
-			val = -val;
+	public void removeMsgStats(Key statKey, Entity stat, Transaction tn, int counter){
+		long val = -counter;
 		
 		if (stat != null){
 			stat = Entity.newBuilder(statKey)
@@ -87,13 +83,13 @@ public class StatisticsResource {
 		if (!isAdd)
 			val = -val;
 
-		long nParcels = user.getLong(NPARCELS);
+		long nParcelsCrt = user.getLong(NPARCELSCRT);
 		long nForums = user.getLong(NFORUMS);
 		long nMsgs = user.getLong(NMSGS);
 
 		switch(stat){
 			case 1:
-				nParcels += val;
+				nParcelsCrt += val;
 			break;
 			case 2:
 				nForums += val;
@@ -104,28 +100,67 @@ public class StatisticsResource {
 			default:
 			break;
 		}
-
 		
-		Builder builder = Entity.newBuilder(user.getKey())
-			.set(NAME, user.getString(NAME))
-			.set(PASSWORD, user.getString(PASSWORD))
-			.set(EMAIL, user.getString(EMAIL))
-			.set(ROLE, user.getString(ROLE))
-			.set(MPHONE, user.getString(MPHONE))
-			.set(HPHONE, user.getString(HPHONE))
-			.set(ADDRESS, user.getString(ADDRESS))
-			.set(NIF, user.getString(NIF))
-			.set(PHOTO, user.getString(PHOTO))
-			.set(SPEC, user.getString(SPEC))
-			.set(NPARCELS, nParcels)
-			.set(NFORUMS, nForums)
-			.set(NMSGS, nMsgs)
-			.set(CTIME, user.getTimestamp(CTIME));
+		long nParcelsCo = user.getLong(NPARCELSCO);
 
-		user = builder.build();
+		Builder build = Entity.newBuilder(user.getKey())
+				.set(NAME, user.getString(NAME))
+				.set(PASSWORD, user.getString(PASSWORD))
+				.set(EMAIL, user.getString(EMAIL))
+				.set(ROLE, user.getString(ROLE))
+				.set(MPHONE, user.getString(MPHONE))
+				.set(HPHONE, user.getString(HPHONE))
+				.set(ADDRESS, user.getString(ADDRESS))
+				.set(NIF, user.getString(NIF))
+				.set(PHOTO, user.getString(PHOTO))
+				.set(SPEC, user.getString(SPEC))
+				.set(NPARCELSCRT, nParcelsCrt)
+				.set(NPARCELSCO, nParcelsCo)
+				.set(NFORUMS, nForums)
+				.set(NMSGS, nMsgs)
+				.set(CTIME, user.getTimestamp(CTIME));
+
+		for(long i = 0; i < nParcelsCo; i++){
+			build.set(PARCEL+i, user.getString(PARCEL+i));
+		}
+
+		user = build.build();
 				
 		tn.put(user);
-		
+	}
+
+	public void updateParcelForumStats(Entity user, boolean isAdd, Transaction tn){	
+		long val = 1L;
+
+		if (!isAdd)
+			val = -1L;
+
+		long nParcelsCo = user.getLong(NPARCELSCO);
+
+		Builder build = Entity.newBuilder(user.getKey())
+				.set(NAME, user.getString(NAME))
+				.set(PASSWORD, user.getString(PASSWORD))
+				.set(EMAIL, user.getString(EMAIL))
+				.set(ROLE, user.getString(ROLE))
+				.set(MPHONE, user.getString(MPHONE))
+				.set(HPHONE, user.getString(HPHONE))
+				.set(ADDRESS, user.getString(ADDRESS))
+				.set(NIF, user.getString(NIF))
+				.set(PHOTO, user.getString(PHOTO))
+				.set(SPEC, user.getString(SPEC))
+				.set(NPARCELSCRT, user.getLong(NPARCELSCRT) + val)
+				.set(NPARCELSCO, nParcelsCo)
+				.set(NFORUMS, user.getLong(NFORUMS) + val)
+				.set(NMSGS, user.getLong(NMSGS))
+				.set(CTIME, user.getTimestamp(CTIME));
+
+		for(long i = 0; i < nParcelsCo; i++){
+			build.set(PARCEL+i, user.getString(PARCEL+i));
+		}
+
+		user = build.build();
+				
+		tn.put(user);
 	}
 
 	@GET
@@ -267,7 +302,7 @@ public class StatisticsResource {
 		QueryResults<Entity> query = datastore.run(statsQuery);
 
 		query.forEachRemaining(user -> {
-			long nParcels = user.getLong(NPARCELS);
+			long nParcels = user.getLong(NPARCELSCRT) + user.getLong(NPARCELSCO);
 
 			if (nParcels > max[0]){
 				max[0] = nParcels;

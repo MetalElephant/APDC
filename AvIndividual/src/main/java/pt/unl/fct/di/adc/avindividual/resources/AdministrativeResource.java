@@ -56,7 +56,8 @@ public class AdministrativeResource {
 	private static final String SPEC = "specialization";
 	private static final String PHOTO = "photo";
 	private static final String CTIME = "creation time";
-	private static final String NPARCELS = "number of parcels";
+	private static final String NPARCELSCRT = "number of parcels created";
+	private static final String NPARCELSCO = "number of parcels with co-ownership";
 	private static final String NFORUMS = "number of forums";
 	private static final String NMSGS = "number of messages";
 
@@ -139,7 +140,8 @@ public class AdministrativeResource {
 						.set(NIF, data.nif)
 						.set(PHOTO, UNDEFINED)
 						.set(SPEC, data.isRep ? data.freguesia : MOD)
-						.set(NPARCELS, 0)
+						.set(NPARCELSCRT, 0)
+						.set(NPARCELSCO, 0)
 						.set(NFORUMS, 0)
 						.set(NMSGS, 0)
 						.set(CTIME, Timestamp.now())
