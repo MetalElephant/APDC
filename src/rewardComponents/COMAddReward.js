@@ -12,6 +12,7 @@ export default function COMAddReward() {
     const [isRewardCreated, setIsRewardCreated] = react.useState(false);
     const [isRewardNotCreated, setIsRewardNotCreated] = react.useState(false);
     const [showProgress, setShowProgress] = react.useState(false);
+    const [ShowPriceErr, setShowPriceErr] = react.useState(false);
 
     function nameHandler(e) {
         setName(e.target.value);
@@ -27,10 +28,15 @@ export default function COMAddReward() {
 
     function createRewardManager(e) {
         e.preventDefault();
-        setShowProgress(true)
-        restCalls.createReward(name, description, price)
-            .then(() => { setIsRewardCreated(true); setDisplayMessage(0); setShowProgress(false) })
-            .catch(() => { setIsRewardNotCreated(true); setDisplayMessage(1); setShowProgress(false) })
+        if (price < 1000) {
+            setShowPriceErr(true)
+        } else {
+            setShowPriceErr(false)
+            setShowProgress(true)
+            restCalls.createReward(name, description, price)
+                .then(() => { setIsRewardCreated(true); setDisplayMessage(0); setShowProgress(false) })
+                .catch(() => { setIsRewardNotCreated(true); setDisplayMessage(1); setShowProgress(false) })
+        }
     }
 
     return (
@@ -81,6 +87,7 @@ export default function COMAddReward() {
                                 color="success"
                                 onChange={priceHandler}
                             />
+                            {ShowPriceErr && <Typography color="error"> O preço tem de ser igual ou superior a 1000 pontos </Typography>}
                             <Button
                                 type="submit"
                                 fullWidth
