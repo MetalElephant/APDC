@@ -21,6 +21,7 @@ export default function ParcelInfo() {
     const [chosenParcel, setChosenParcel] = react.useState("")
     const [markers, setMarkers] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
+    const [confirmation, setConfirmation] = react.useState("")
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
@@ -49,6 +50,7 @@ export default function ParcelInfo() {
                 setCurrUsage(parcel.currUsage);
                 setPrevUsage(parcel.prevUsage);
                 setArea(parcel.area);
+                setConfirmation(parcel.confirmation)
             }
         }
 
@@ -104,7 +106,7 @@ export default function ParcelInfo() {
         <>
             <Grid item xs={1.5} >
                 <FormControl variant="standard">
-                    <InputLabel id="id">Parcels</InputLabel>
+                    <InputLabel id="id">Parcelas</InputLabel>
                     <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "150px" }}>
                         {loaded && generateSelects()}
                     </Select>
@@ -114,6 +116,11 @@ export default function ParcelInfo() {
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Nome da parcela: {parcelName} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center" >
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> {confirmation === "" ? "Documento de verificação" : <a href={confirmation} target="_blank">Documento de verificação</a>} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">

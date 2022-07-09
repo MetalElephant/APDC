@@ -1,6 +1,6 @@
 import react from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, CircularProgress } from "@mui/material";
 
 export default function COMAddReward() {
 
@@ -11,6 +11,7 @@ export default function COMAddReward() {
     const [displayMessage, setDisplayMessage] = react.useState();
     const [isRewardCreated, setIsRewardCreated] = react.useState(false);
     const [isRewardNotCreated, setIsRewardNotCreated] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     function nameHandler(e) {
         setName(e.target.value);
@@ -26,9 +27,11 @@ export default function COMAddReward() {
 
     function createRewardManager(e) {
         e.preventDefault();
-        restCalls.createReward(name, description, price).then(() => { setIsRewardCreated(true); setDisplayMessage(0) }).catch(() => { setIsRewardNotCreated(true); setDisplayMessage(1) })
+        setShowProgress(true)
+        restCalls.createReward(name, description, price)
+            .then(() => { setIsRewardCreated(true); setDisplayMessage(0); setShowProgress(false) })
+            .catch(() => { setIsRewardNotCreated(true); setDisplayMessage(1); setShowProgress(false) })
     }
-
 
     return (
         <>
@@ -99,6 +102,8 @@ export default function COMAddReward() {
                 alignItems="center"
                 sx={{ mt: "2%" }}
             >
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
+
                 {isRewardCreated && (displayMessage === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa criada com sucesso.</Typography>

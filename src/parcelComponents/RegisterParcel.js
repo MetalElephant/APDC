@@ -177,7 +177,6 @@ export default function RegisterParcel() {
                 tempOwners.push(owner.username)
             })
         }
-        console.log(type)
         restCalls.parcelRegister(parcelName, tempOwners, chosenDist, chosenConc, chosenFreg, description, groundType, currUsage, prevUsage, allLats, allLngs, imageArray, type)
             .then(() => { setIsParcelSubmit(true); setIsParcelNotSubmit(false); resetValues(); setShowProgress(false) })
             .catch(() => { setIsParcelSubmit(false); setIsParcelNotSubmit(true); setShowProgress(false) });

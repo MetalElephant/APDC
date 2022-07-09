@@ -257,7 +257,6 @@ export default function ListParcels() {
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <Autocomplete
-                        disabled={parcelName === "" && true}
                         selectOnFocus
                         id="distritos"
                         options={allDist}

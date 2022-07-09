@@ -1,10 +1,11 @@
-import { Button, Grid, Typography, Box, Card, CardMedia, CardContent, CardActions, Divider, TextField } from "@mui/material";
+import { Button, Grid, Typography, Box, Card, CardMedia, CardContent, CardActions, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 
 export default function OWNERRedeemableRewards() {
 
     const [loaded, setLoaded] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
     const [points, setPoints] = react.useState();
 
     var rewards = JSON.parse(localStorage.getItem('redeemableRewards'))
@@ -12,12 +13,15 @@ export default function OWNERRedeemableRewards() {
 
     useEffect(() => {
         restCalls.listUserRedeemableRewards().then(() => { setLoaded(true) })
-        setPoints(user.specialization)
+        restCalls.userInfo().then(() => { setPoints(user.specialization) })
     }, [])
 
     function redeemReward(owner, name) {
+        setShowProgress(true)
+        setLoaded(false)
         restCalls.redeemReward(owner, name)
-            .then(() => { restCalls.listUserRedeemableRewards().then(() => { generateRewards() }) })
+            .then(() => { restCalls.listUserRedeemableRewards()
+                .then(() => { restCalls.userInfo().then(() => {user = JSON.parse(localStorage.getItem('user')); setPoints(user.specialization); setLoaded(true); setShowProgress(false); }) }) })
     }
 
     function generateRewards() {
@@ -52,6 +56,7 @@ export default function OWNERRedeemableRewards() {
     return (
         <>
             <Grid item xs={6} container direction="column" justifyContent="flex-start" alignItems="center">
+                {(showProgress || !loaded) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
                 {loaded && generateRewards()}
             </Grid>
             <Grid item xs={2} container direction="column" justifyContent="flex-start" alignItems="left">
