@@ -961,14 +961,11 @@ public class ParcelResource {
 		String parcelOwner, parcelName, parcelInfo;
 		int endPos;
 
-		for (long i = 0; i < n; i++){
-			if (user.getString(PARCEL+i) == null)
-				break;
-			
+		for (long i = 0; i < n; i++){		
 			parcelInfo = user.getString(PARCEL+i);
-			endPos = parcelInfo.indexOf(":")+1;
+			endPos = parcelInfo.indexOf(":");
 			parcelOwner = parcelInfo.substring(0, endPos);
-			parcelName = parcelInfo.substring(endPos, parcelInfo.length());
+			parcelName = parcelInfo.substring(endPos+1, parcelInfo.length());
 
 			parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, parcelOwner)).setKind(PARCEL).newKey(parcelName);
 			userParcels.add(parcelInfoBuilder(datastore.get(parcelKey)));
