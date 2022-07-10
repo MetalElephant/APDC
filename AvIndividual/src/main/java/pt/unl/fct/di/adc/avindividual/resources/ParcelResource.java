@@ -237,7 +237,7 @@ public class ParcelResource {
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
-			if(!canModifyOrRemove(user, owner)) {
+			if(!canModify(user, owner, parcel)) {
 				LOG.warning("User " + data.username + " can't modify this.");
 				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this parcel.").build();
@@ -348,7 +348,7 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
-			if(!canModifyOrRemove(user, owner)) {
+			if(!canRemove(user, owner)) {
 				LOG.warning("User " + data.username + " unathourized to remove parcel.");
 				tn.rollback();
 
@@ -666,21 +666,50 @@ public class ParcelResource {
 		}
 	}
 
-	private boolean canModifyOrRemove(Entity e1, Entity e2) {
-		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
+	private boolean canModify(Entity user, Entity owner, Entity parcel) {
+		Roles userRole = Roles.valueOf(user.getString(ROLE));
 
-		switch(e1Role) {
+		switch(userRole) {
 			case SUPERUSER:
 			case MODERADOR:
 				return true;
 			case PROPRIETARIO:
-				return e1.getKey().getName().equals(e2.getKey().getName());
+				return user.getKey().getName().equals(owner.getKey().getName()) || isCoOwner(user, parcel);
 			case REPRESENTANTE:
 			case COMERCIANTE:
 				return false;
 			default:
 				return false;
 		}
+	}
+
+	private boolean canRemove(Entity user, Entity owner) {
+		Roles userRole = Roles.valueOf(user.getString(ROLE));
+
+		switch(userRole) {
+			case SUPERUSER:
+			case MODERADOR:
+				return true;
+			case PROPRIETARIO:
+				return user.getKey().getName().equals(owner.getKey().getName());
+			case REPRESENTANTE:
+			case COMERCIANTE:
+				return false;
+			default:
+				return false;
+		}
+	}
+
+	private boolean isCoOwner(Entity user, Entity parcel){
+		String username = user.getKey().getName();
+		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+		for(int i = 0; i < nOwners; i++){
+			if (username.equals(parcel.getString(OWNER+i)))
+				return true;
+		}
+
+		return false;
 	}
 
 	private boolean validUsers(String[] owners, Transaction tn){
