@@ -250,12 +250,17 @@ public class ParcelResource {
 			}
 
 			if (parcel.getBoolean(CONFIRMED)){
-				List<String> ownersAdded = ownersUpdated(parcel, data.owners, tn);
+				List<String> ownersAdded = ownersAdded(parcel, data.owners, tn);
+				List<String> ownersRemoved = ownersRemoved(parcel, data.owners, tn);
 
 				String parcelInfo = data.owner + ":" + data.parcelName;
 
 				for(String added: ownersAdded){
 					addOwner(added, parcelInfo, tn);
+				}
+
+				for(String removed: ownersRemoved){
+					removeOwner(removed, data.parcelName, tn);
 				}
 			}
 
@@ -728,6 +733,48 @@ public class ParcelResource {
 		return Roles.valueOf(e1.getString(ROLE)) == Roles.REPRESENTANTE;
 	}
 
+	private List<String> ownersAdded(Entity parcel, String[] owners, Transaction tn){
+		List<String> added = new LinkedList<>();
+
+		for(int i = 0; i < owners.length; i++){
+			if (!containsOwner(parcel, owners[i]))
+				added.add(owners[i]);
+		}
+
+		return added;
+	}
+
+	private List<String> ownersRemoved(Entity parcel, String[] owners, Transaction tn){
+		List<String> removed = new LinkedList<>();
+		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+		for(int i = 0; i < nOwners; i++){
+			if (!isStillOwner(parcel.getString(OWNER+i), owners))
+				removed.add(parcel.getString(OWNER+i));
+		}
+
+		return removed;
+	}
+
+	private boolean isStillOwner(String username, String[] owners){
+		for(int i = 0; i < owners.length; i++){
+			if (owners[i].equals(username))
+				return true;
+		}
+
+		return false;
+	}
+
+	private boolean containsOwner(Entity parcel, String owner){
+		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+		for(int i = 0; i < nOwners; i++){
+			if (owner.equals(parcel.getString(OWNER+i)))
+				return true;
+		}
+		return false;
+	}
+
 	private void addOwner(String username, String parcelInfo, Transaction tn){
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
 		Entity user = tn.get(userKey);
@@ -803,48 +850,6 @@ public class ParcelResource {
 		user = build.build();
 
 		tn.put(user);
-	}
-
-	private List<String> ownersUpdated(Entity parcel, String[] owners, Transaction tn){
-		List<String> added = new LinkedList<>();
-
-		removeOwnersUpdated(parcel, owners, tn);
-
-		for(int i = 0; i < owners.length; i++){
-			if (!containsOwner(parcel, owners[i]))
-				added.add(owners[i]);
-		}
-
-		return added;
-	}
-
-	private void removeOwnersUpdated(Entity parcel, String[] owners, Transaction tn){
-		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
-
-		for(int i = 0; i < nOwners; i++){
-			if (!isStillOwner(parcel.getString(OWNER+i), owners))
-				removeOwner(parcel.getString(OWNER+i) , parcel.getKey().getName(), tn);
-		}
-
-	}
-
-	private boolean isStillOwner(String username, String[] owners){
-		for(int i = 0; i < owners.length; i++){
-			if (owners[i].equals(username))
-				return true;
-		}
-
-		return false;
-	}
-
-	private boolean containsOwner(Entity parcel, String owner){
-		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
-
-		for(int i = 0; i < nOwners; i++){
-			if (owner.equals(parcel.getString(OWNER+i)))
-				return true;
-		}
-		return false;
 	}
 
 	private String getArea(LatLng[] markers){
