@@ -1,6 +1,5 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -55,6 +54,7 @@ public class RewardResource {
 	private static final String ROLE = "role";
 	private static final String MPHONE = "mobile phone";
 	private static final String HPHONE = "home phone";
+	private static final String COUNTY = "county";
 	private static final String ADDRESS = "address";
 	private static final String NIF = "nif";
 	private static final String PHOTO = "photo";
@@ -97,24 +97,19 @@ public class RewardResource {
 
 			if(user == null) {
 				LOG.warning("User " + data.owner + " does not exist");
-				tn.rollback();
-
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 
-            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-		    Entity secret = tn.get(secretKey);
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
 
-            if (!ur.isLoggedIn(token, data.owner)){
+			if (!ur.isLoggedIn(secret, token, data.owner, tn)){
 				LOG.warning("User " + data.owner + " not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
             if(!isUserValid(user)) {
                 LOG.warning("User " + data.owner + " isn't a merchant.");
-				tn.rollback();
-
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " isn't a merchant.").build();
             }
 
@@ -171,31 +166,24 @@ public class RewardResource {
 
             if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
-				tn.rollback();
-
 				return Response.status(Status.NOT_FOUND).entity("User " + data.username + " does not exist").build();
 			}
 
-            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-		    Entity secret = tn.get(secretKey);
-				
-			if (!ur.isLoggedIn(token, data.username)){
-				LOG.warning("User " + data.owner + " not logged in.");
-				tn.rollback();
-				
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!ur.isLoggedIn(secret, token, data.username, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if (reward == null) {
 				LOG.warning("Reward " + data.name + " doesn't exist.");
-				tn.rollback();
-
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
 			}
 
             if(!canModifyOrRemove(user, owner)) {
                 LOG.warning("User " + data.username + " can't modify this.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this reward.").build();
             }
 
@@ -243,31 +231,24 @@ public class RewardResource {
 
             if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
-				tn.rollback();
-
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username+ " does not exist").build();
 			}
 
-            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-		    Entity secret = tn.get(secretKey);
-				
-			if (!ur.isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!ur.isLoggedIn(secret, token, data.username, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if (reward == null) {
 				LOG.warning("Reward " + data.objectName + " doesn't exist.");
-				tn.rollback();
-
 				return Response.status(Status.NOT_FOUND).entity("Reward " + data.objectName + " doesn't exists.").build();
 			}
 
             if(!canModifyOrRemove(user, owner)) {
                 LOG.warning("User " + data.username + " can't remove this reward.");
-                tn.rollback();
-
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't remove this reward.").build();
             }
 
@@ -305,28 +286,24 @@ public class RewardResource {
 
 	    	if(user == null) {
 		    	LOG.warning("User " + data.username + " does not exist.");
-		    	tn.rollback();
 	    		return Response.status(Status.NOT_FOUND).entity("User " + data.username + " does not exist.").build();
 		    }
 
-		    Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-	    	Entity secret = tn.get(secretKey);
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
 
-		    if (!ur.isLoggedIn(token, data.username)){
-		    	LOG.warning("User " + data.username + " not logged in.");
-		    	tn.rollback();
-	    		return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-	    	}
+			if (!ur.isLoggedIn(secret, token, data.username, tn)){
+				LOG.warning("User " + data.username + " not logged in.");
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+			}
 
 		    if(reward == null) {
 	    	    LOG.warning("Reward " + data.reward + " does not exist.");
-	    		tn.rollback();
 	        	return Response.status(Status.NOT_FOUND).entity("Reward " + data.reward + " does not exist.").build();
 	    	}
 
-			if(!canUserRedeemReward(data.username, reward)) {
+			if(!canUserRedeemReward(data.username, user.getString(COUNTY), reward)) {
 				LOG.warning("User " + data.username + " has already redeemed the reward.");
-	    		tn.rollback();
 	        	return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " has already redeemed the reward.").build();
 			}
 
@@ -334,7 +311,6 @@ public class RewardResource {
 
 	    	if(points < 0) {
 	    		LOG.warning("User " + data.username + " does not have enough points to redeem this reward.");
-	    		tn.rollback();
 	    		return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not have enough points to redeem this reward.").build();
 	    	}
 
@@ -406,17 +382,16 @@ public class RewardResource {
 
         if (user == null) {
 			LOG.warning("User " + data.username + " does not exist.");
-	
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
-        Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
 		Entity secret = datastore.get(secretKey);
 
-        if (!ur.isLoggedIn(token, data.username)){
-            LOG.warning("User " + data.username + " not logged in.");
-            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-        }
+		if (!ur.isLoggedIn(secret, token, data.username, datastore.newTransaction())){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
 
         /*
          * It may not make sense for a user to be a merchant to see the rewards since normal users have access to them.
@@ -429,7 +404,6 @@ public class RewardResource {
 
         if (reward == null) {
             LOG.warning("Reward " + data.name + " doesn't exist.");
-
             return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
         }
 
@@ -457,17 +431,16 @@ public class RewardResource {
 
         if (user == null) {				
 			LOG.warning("User " + data.username + " does not exist");
-			
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
         Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
 		Entity secret = datastore.get(secretKey);
 
-		if (!ur.isLoggedIn(token, data.username)){
-            LOG.warning("User " + data.username + " not logged in.");
-            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-        }
+		if (!ur.isLoggedIn(secret, token, data.username, datastore.newTransaction())){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
 
         List<RewardData> rewardList = getQueries(data.username);
 
@@ -479,7 +452,6 @@ public class RewardResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response showAllRewards() {
         LOG.info("Attempt to list all rewards");
-
         return Response.ok(g.toJson(allRewards())).build();
     }
 
@@ -487,7 +459,7 @@ public class RewardResource {
     @Path("/listRedeemable")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	@Consumes(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response showUserRewards(RequestData data) {
+    public Response showRedeemableRewards(RequestData data) {
         LOG.info("Attempt to list redeemable rewards for " + data.username);
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
@@ -495,11 +467,10 @@ public class RewardResource {
 
         if(user == null) {
             LOG.warning("User " + data.username + " does not exist");
-            
-            return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+            return Response.status(Status.NOT_FOUND).entity("User " + data.username + " does not exist").build();
         }
 
-		List<RewardData> list = rewardsUserCanRedeem(data.username);
+		List<RewardData> list = rewardsUserCanRedeem(data.username, user.getString(COUNTY));
 
         return Response.ok(g.toJson(list)).build();
     }
@@ -516,7 +487,6 @@ public class RewardResource {
 
         if(user == null) {
             LOG.warning("User " + data.username + " does not exist");
-            
             return Response.status(Status.NOT_FOUND).entity("User " + data.username + " does not exist").build();
         }
 
@@ -586,8 +556,8 @@ public class RewardResource {
 		return rewardsList;
 	}
 
-	private boolean canUserRedeemReward(String user, Entity reward) {
-		List<RewardData> rewards = rewardsUserCanRedeem(user);
+	private boolean canUserRedeemReward(String user, String county, Entity reward) {
+		List<RewardData> rewards = rewardsUserCanRedeem(user, county);
 
 		for (RewardData r : rewards) {
 			if(r.name.equals(reward.getString(REWARD_NAME))) {
@@ -598,7 +568,7 @@ public class RewardResource {
 		return false;
 	}
 
-	private List<RewardData> rewardsUserCanRedeem(String username) {
+	private List<RewardData> rewardsUserCanRedeem(String username, String county) {
 		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
 
         QueryResults<Entity> rewards = datastore.run(queryReward);
@@ -606,13 +576,24 @@ public class RewardResource {
 		List<RewardData> rewardsList = new LinkedList<>();
 
 		rewards.forEachRemaining(reward -> {
-			if(!hasRedeemed(username, reward)) {
+			if(!hasRedeemed(username, reward) && sameCounty(county, reward)) {
 				rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
 			}
 		});
 
 		return rewardsList;
 	}
+
+	private boolean sameCounty(String county, Entity reward) {
+		Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(reward.getString(OWNER));
+		Entity owner = datastore.get(ownerKey);
+
+		if(county.equals(owner.getString(COUNTY))) {
+				return true;
+		}
+
+		return false;
+}
 
 	private List<RewardData> rewardsUserHasRedeemed(String username) {
         Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();

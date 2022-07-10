@@ -6,7 +6,6 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;		
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -63,17 +62,11 @@ public class AdministrativeResource {
 
 	private static final String UNDEFINED = "Não Definido";
 
-	//Token information
-	private static final String TOKENID = "token ID";
-	private static final String TOKENUSER = "token user";
-	private static final String TOKENCREATION = "token creation";
-	private static final String TOKENEXPIRATION = "token expiration";
-
 	//Keys
 	private static final String USER = "User";
     private static final String TOKEN = "Token";
-	private static final String CODE = "Code";
 	private static final String MOD = "Mod";
+	private static final String SECRET = "Secret";
     
     public AdministrativeResource() {}
 
@@ -109,15 +102,17 @@ public class AdministrativeResource {
 			//Check if user registering exists
 			if(userReg == null) {
 				LOG.warning("User registering doesn't exist: " + data.usernameReg);
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User registering doesn't exist").build();
 			}
 
 			//Check if user registering is logged in
-			if(!ur.isLoggedIn(token, data.usernameReg)) {
-				LOG.warning("User " + data.usernameReg + " not logged in.");
-				return Response.status(Status.FORBIDDEN).entity("User " + data.usernameReg + " not logged in.").build();
-			}
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+            Entity secret = datastore.get(secretKey);
+    
+            if (!ur.isLoggedIn(secret, token, data.username, tn)){
+                LOG.warning("User " + data.username + " not logged in.");
+                return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+            }
             
 			//Check if user already exists
 			if (user != null) {

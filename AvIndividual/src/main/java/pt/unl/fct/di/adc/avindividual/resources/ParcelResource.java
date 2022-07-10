@@ -97,6 +97,7 @@ public class ParcelResource {
 	private static final String FORUM = "Forum";
 	private static final String PARCEL = "Parcel";
 	private static final String STAT = "Statistics";
+	private static final String SECRET = "Secret";
 
 	private static final boolean ADD = true;
 
@@ -130,24 +131,24 @@ public class ParcelResource {
 
 			if (user == null) {
 				LOG.warning("User " + data.owner + " does not exist");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.owner + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, data.owner)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!ur.isLoggedIn(secret, token, data.owner, tn)){
 				LOG.warning("User " + data.owner + " not logged in.");
 				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
 			}
 
 			if (parcel != null) {
 				LOG.warning("Parcel name already exists.");
-				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel name already exists.").build();
 			}
 
 			if (!validUsers(data.owners, tn)){
 				LOG.warning("Username of owners invalid.");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Username of one or more owners invalid.").build();
 			}
 
@@ -159,7 +160,6 @@ public class ParcelResource {
 			
 			if(isOverlapped(markers)){
 				LOG.warning("Parcel overlaps with another parcel.");
-				tn.rollback();
 				return Response.status(Status.CONFLICT).entity("Parcel overlaps with another parcel.").build();
 			}
 			
@@ -222,31 +222,41 @@ public class ParcelResource {
 			
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 				
-			if (!ur.isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!ur.isLoggedIn(secret, token, data.username, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				return Response.status(Status.FORBIDDEN).entity("User " + data.owner + " not logged in.").build();
+				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if (parcel == null) {
 				LOG.warning("Parcel doesn't exists.");
-				tn.rollback();
 				return Response.status(Status.NOT_FOUND).entity("Parcel doesn't exists.").build();
 			}
 
 			if(!canModify(user, owner, parcel)) {
 				LOG.warning("User " + data.username + " can't modify this.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this parcel.").build();
 			}
 
 			if (!validUsers(data.owners, tn)){
 				LOG.warning("Username of owners invalid.");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Username of one or more owners invalid.").build();
+			}
+
+			LatLng[] markers = new LatLng[data.allLats.length];
+
+			for(int i = 0; i< data.allLats.length; i++) {
+				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
+			}
+
+			if(isOverlappedUpdate(markers, data.parcelName)){
+				LOG.warning("Parcel overlaps with another parcel.");
+				return Response.status(Status.CONFLICT).entity("New parcel markers overlap with other parcels markers.").build();
 			}
 
 			if (parcel.getBoolean(CONFIRMED)){
@@ -271,18 +281,6 @@ public class ParcelResource {
 				for(String removed: ownersRemoved){
 					removeOwner(removed, data.parcelName, tn);
 				}
-			}
-
-			LatLng[] markers = new LatLng[data.allLats.length];
-
-			for(int i = 0; i< data.allLats.length; i++) {
-				markers[i] = LatLng.of(data.allLats[i], data.allLngs[i]);
-			}
-
-			if(isOverlappedUpdate(markers, data.parcelName)){
-				LOG.warning("Parcel overlaps with another parcel.");
-				tn.rollback();
-				return Response.status(Status.CONFLICT).entity("New parcel markers overlap with other parcels markers.").build();
 			}
 
 			Builder builder = Entity.newBuilder(parcelKey)
@@ -346,26 +344,24 @@ public class ParcelResource {
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (parcel == null){
 				LOG.warning("Parcel to be removed " + data.objectName + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.NOT_FOUND).entity("Parcel to be removed " + data.objectName + " does not exist.").build();
 			}
 
-			if (!ur.isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!ur.isLoggedIn(secret, token, data.username, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if(!canRemove(user, owner)) {
 				LOG.warning("User " + data.username + " unathourized to remove parcel.");
-				tn.rollback();
-
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove parcel.").build();
 			}
 
@@ -413,17 +409,18 @@ public class ParcelResource {
 
 		if (user == null) {
 			LOG.warning("User " + data.username + " does not exist.");
-	
 			return Response.status(Status.FORBIDDEN).build();
 		}
 
 		if(parcel == null) {
 			LOG.warning("Parcel does not exist");
-				
 			return Response.status(Status.BAD_REQUEST).entity("Parcel does not exist").build();
 		}
 	
-		if (!ur.isLoggedIn(token, data.username)){
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -475,7 +472,10 @@ public class ParcelResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -507,7 +507,10 @@ public class ParcelResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -539,7 +542,10 @@ public class ParcelResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -573,7 +579,10 @@ public class ParcelResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -614,7 +623,10 @@ public class ParcelResource {
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 			}
 
-			if (!ur.isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = datastore.get(secretKey);
+	
+			if (!ur.isLoggedIn(secret, token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}

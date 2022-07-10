@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,6 +19,12 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.gson.Gson;
 import com.google.cloud.datastore.Entity.Builder;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import pt.unl.fct.di.adc.avindividual.util.AuthToken;
 import pt.unl.fct.di.adc.avindividual.util.LoginData;
@@ -92,8 +99,7 @@ public class UserResource {
 	//Token information
 	private static final String TOKENID = "token ID";
 	private static final String TOKENUSER = "token user";
-	private static final String TOKENCREATION = "token creation";
-	private static final String TOKENEXPIRATION = "token expiration";
+	public static final long EXPIRATION_TIME = 1000 * 60 * 60 * 2; // 2h
 
 	//Code info
 	private static final String EXPTIME = "expiration time";
@@ -103,6 +109,7 @@ public class UserResource {
     private static final String TOKEN = "Token";
 	private static final String STAT = "Statistics";
 	private static final String CODE = "Code";
+	private static final String SECRET = "Secret";
 
 	//Forums
 	private static final String PARCEL = "Parcel";
@@ -220,42 +227,48 @@ public class UserResource {
 		Transaction tn = datastore.newTransaction();
 
 		try{
-			Entity user = datastore.get(userKey);
+			Entity user = tn.get(userKey);
 			
 			if (user != null){
 				String hashedPwd = user.getString(PASSWORD);
 
 				if(hashedPwd.equals(DigestUtils.sha512Hex(data.password))) {						
-						Entity tokenEntity = tn.get(tokenKey);
-						
-						//Guarantee user isn't already logged in
-						if (!canLogin(tokenEntity, tn)) {
-							LOG.warning("User " + data.username + " already logged in.");
-							tn.rollback();
-							return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
-						}              
-						
-						AuthToken token = new AuthToken(data.username);
-		
-						tokenEntity = Entity.newBuilder(tokenKey)
-								.set(TOKENID, token.tokenID)
-								.set(TOKENUSER, token.username)
-								.set(TOKENCREATION, token.validFrom)
-								.set(TOKENEXPIRATION, token.validTo)
-								.build();
-						
-						tn.add(tokenEntity);
-						tn.commit();
-						
-						LOG.info("User logged in: "+data.username);
-						
-						return Response.ok(g.toJson(token)).build();
+					Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+					Entity secret = tn.get(secretKey);
+					Entity tokenEntity = tn.get(tokenKey);
+					
+					//Guarantee user isn't already logged in
+					if (!canLogin(secret, tokenEntity, tn)) {
+						LOG.warning("User " + data.username + " already logged in.");
+						return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
+					}         
+					
+					String token = createToken(secret);
 
-					}else {
-						LOG.warning("Wrong password for user:" + data.username);
-						tn.rollback();
-						return Response.status(Status.FORBIDDEN).entity("Wrong password.").build();
+					if(token.equals("null")) {
+						LOG.warning("Error creating token.");
+						return Response.status(Status.EXPECTATION_FAILED).entity("Error creating token.").build();
 					}
+
+					AuthToken tokenObj = new AuthToken(data.username, token);
+	
+					tokenEntity = Entity.newBuilder(tokenKey)
+							.set(TOKENID, tokenObj.tokenID)
+							.set(TOKENUSER, tokenObj.username)
+							.build();
+					
+					tn.add(tokenEntity);
+					tn.commit();
+					
+					LOG.info("User logged in: " + data.username);
+					
+					return Response.ok(g.toJson(tokenObj)).build();
+
+				}else {
+					LOG.warning("Wrong password for user:" + data.username);
+					tn.rollback();
+					return Response.status(Status.FORBIDDEN).entity("Wrong password.").build();
+				}
 			}else{
 				LOG.warning("User: " + data.username +" does not exist");
 				tn.rollback();
@@ -295,25 +308,24 @@ public class UserResource {
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (userToRemove == null){
 				LOG.warning("User to be removed" + data.name + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.NOT_FOUND).entity("User to be removed " + data.name + " does not exist.").build();
 			}
 
-			if (!isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!isLoggedIn(secret, token, data.username, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 
 			if(!canUpdate(user, userToRemove)) {
 				LOG.warning("User " + data.username + " unathourized to remove other User");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " unathourized to remove other User").build();
 			}
 			
@@ -363,24 +375,23 @@ public class UserResource {
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (userToUpdate == null){
 				LOG.warning("User to be updated" + data.usernameToUpdate + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.NOT_FOUND).entity("User to be updated " + data.usernameToUpdate + " does not exist.").build();
 			}
 
-			if (!isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!isLoggedIn(secret, token, data.username, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
 			if(!canUpdate(user, userToUpdate)) {
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change one or more attributes.").build();
 			}
 
@@ -445,26 +456,25 @@ public class UserResource {
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist.");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if(!user.getString(PASSWORD).equals(DigestUtils.sha512Hex(data.oldPwd))) {
 				LOG.warning("Wrong password for :" + data.username);
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("Original password is incorrect.").build();
 			}
 
-			if (!isLoggedIn(token, data.username)){
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Entity secret = tn.get(secretKey);
+
+			if (!isLoggedIn(secret, token, data.username, tn)){
 				LOG.warning("User " + data.username + " not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 	
 			String newPwd = DigestUtils.sha512Hex(data.newPwd);
 			if(user.getString(PASSWORD).equals(newPwd)) {
 					LOG.warning("Old password can't be the same as new password.");
-					tn.rollback();
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
 			}
 
@@ -526,13 +536,11 @@ public class UserResource {
 
 			if (user == null) {
 				LOG.warning("User " + data.username + " does not exist");
-				tn.rollback();
 				return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist.").build();
 			}
 
 			if (token == null) {
 				LOG.warning("User " + data.username + " is not logged in.");
-				tn.rollback();
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 			}
 			
@@ -583,14 +591,13 @@ public class UserResource {
             return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
         }
 
-		//TODO update with secret
-       	//Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-        //Entity secret = datastore.get(secretKey);
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(userEntity.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
 
-        if (!isLoggedIn(token, data.username)){
-            LOG.warning("User " + data.username + " not logged in.");
-            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-        }
+		if (!isLoggedIn(secret, token, data.username)){
+			LOG.warning("User " + data.username + " not logged in.");
+			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+		}
 
 		Query<Entity> queryUser = Query.newEntityQueryBuilder().setKind(USER)
 									   .setFilter(PropertyFilter.eq(ROLE, Roles.PROPRIETARIO.getRole()))
@@ -632,7 +639,10 @@ public class UserResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!isLoggedIn(token, data.username)){
+		Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -642,6 +652,84 @@ public class UserResource {
 						 user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC));
 
 		return Response.ok(g.toJson(u)).build();
+	}
+
+	private String createToken(Entity secret) {
+		try {
+			Algorithm alg = Algorithm.HMAC256(secret.getString(SECRET));
+			long expirationTime = (new Date().getTime()) + EXPIRATION_TIME;
+			Date expirationDate = new Date(expirationTime);
+
+			return JWT.create()
+					.withIssuer("landit")
+					.withExpiresAt(expirationDate)
+					.sign(alg);
+		} catch(JWTCreationException exception) {
+			return "null";
+		}
+	}
+
+	//Verify if token exists and is valid
+	private boolean canLogin(Entity secret, Entity token, Transaction tn){
+		if (token == null)
+			return true;
+		
+		if (!verifyToken(secret.getString(SECRET), token.getString(TOKENID))){
+			tn.delete(token.getKey());
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean verifyToken(String secret, String token) {
+		try {
+			Algorithm alg = Algorithm.HMAC256(secret);
+			JWTVerifier verifier = JWT.require(alg)
+							.withIssuer("landit")
+							.acceptExpiresAt(EXPIRATION_TIME / 1000)
+							.build();
+			verifier.verify(token);
+			
+			return true;
+		} catch(JWTVerificationException exception) {
+			return false;
+		}
+	}
+
+	public boolean isLoggedIn(Entity secret, Entity token, String username, Transaction tn){
+		if (token == null)
+			return false;
+		
+		if (!verifyToken(secret.getString(SECRET), token.getString(TOKENID))){
+			tn.delete(token.getKey());
+			tn.commit();
+			return false;
+		}
+
+		return true;
+	}
+
+	public boolean isLoggedIn(Entity secret, Entity token, String username){
+		if (token == null)
+			return false;
+		
+		Transaction tn = datastore.newTransaction();
+
+		if (!verifyToken(secret.getString(SECRET), token.getString(TOKENID))){
+			try{
+				tn.delete(token.getKey());
+				tn.commit();
+
+				return false;
+
+			}finally{
+				if (tn.isActive())
+					tn.rollback();;
+			}
+			
+		}
+		return true;
 	}
 
 	public boolean canUpdate(Entity e1, Entity e2) {
@@ -660,31 +748,6 @@ public class UserResource {
 			default:
 				return false;
 		}
-	}
-
-	//Verify if token exists and is valid
-	private boolean canLogin(Entity token, Transaction tn){
-		if (token == null)
-			return true;
-
-		if (token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()){
-			tn.delete(token.getKey());
-			return true;
-		}
-
-		return false;	
-	}
-
-	public boolean isLoggedIn(Entity token, String username){
-		if (token == null)
-			return false;
-	
-		if(token.getLong(TOKENEXPIRATION) < System.currentTimeMillis()) {
-			doLogout(new RequestData(username));
-			return false;
-		}
-				
-		return true;
 	}
 
 	private String uploadPhoto(String name, byte[] data){

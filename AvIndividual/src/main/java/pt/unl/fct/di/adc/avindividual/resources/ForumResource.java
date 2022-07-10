@@ -58,6 +58,7 @@ public class ForumResource {
     private static final String OWNER = "Owner";
     private static final String ORDER = "Order";
     private static final String STAT = "Statistics";
+    private static final String SECRET = "Secret";
 
     private static final boolean ADD = true;
 
@@ -88,19 +89,19 @@ public class ForumResource {
 
             if (user == null) {
                 LOG.warning("User does not exist");
-                tn.rollback();
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, data.username)){
+            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+            Entity secret = datastore.get(secretKey);
+    
+            if (!ur.isLoggedIn(secret, token, data.username, tn)){
                 LOG.warning("User " + data.username + " not logged in.");
-                tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
             }
 
             if (forum != null){
                 LOG.warning("Forum " + data.forumName + " already exists.");
-                tn.rollback();
                 return Response.status(Status.CONFLICT).entity("Forum " + data.forumName + " already exists.").build();
             }
 
@@ -152,19 +153,19 @@ public class ForumResource {
 
             if (user == null) {
                 LOG.warning("User does not exist");
-                tn.rollback();
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, data.username)){
+            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+            Entity secret = datastore.get(secretKey);
+    
+            if (!ur.isLoggedIn(secret, token, data.username, tn)){
                 LOG.warning("User " + data.username + " not logged in.");
-                tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
             }
 
             if (forum == null){
                 LOG.warning("Forum " + data.forum + " doesn't exists.");
-                tn.rollback();
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.forum + " doesn't exists.").build();
             }
 
@@ -221,21 +222,21 @@ public class ForumResource {
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, data.username)){
+            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+            Entity secret = datastore.get(secretKey);
+    
+            if (!ur.isLoggedIn(secret, token, data.username, tn)){
                 LOG.warning("User " + data.username + " not logged in.");
-                tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
             }
 
             if (forum == null){
                 LOG.warning("Forum " + data.name + " doesn't exists.");
-                tn.rollback();
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
             }
 
             if(!canRemove(user, owner)) {
                 LOG.warning("User " + data.username + " can't be removed by the user.");
-                tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't be removed by the user.").build();
             }
 
@@ -281,19 +282,19 @@ public class ForumResource {
 
             if (user == null) {
                 LOG.warning("User does not exist");
-                tn.rollback();
                 return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
             }
     
-            if (!ur.isLoggedIn(token, data.username)){
+            Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+            Entity secret = datastore.get(secretKey);
+    
+            if (!ur.isLoggedIn(secret, token, data.username, tn)){
                 LOG.warning("User " + data.username + " not logged in.");
-                tn.rollback();
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
             }
 
             if (forum == null){
                 LOG.warning("Forum " + data.forumName + " doesn't exists.");
-                tn.rollback();
                 return Response.status(Status.NOT_FOUND).entity("Forum " + data.forumName + " doesn't exists.").build();
             }
 
@@ -359,7 +360,10 @@ public class ForumResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+        Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -390,7 +394,10 @@ public class ForumResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+        Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -421,7 +428,10 @@ public class ForumResource {
 			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
 		}
 
-		if (!ur.isLoggedIn(token, data.username)){
+        Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+		Entity secret = datastore.get(secretKey);
+
+		if (!ur.isLoggedIn(secret, token, data.username)){
 			LOG.warning("User " + data.username + " not logged in.");
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
@@ -484,26 +494,6 @@ public class ForumResource {
 
 		return Response.ok(g.toJson(parcelList)).build();
     }
-
-    private boolean canModify(Entity e1, Entity e2) {
-		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
-
-		switch(e1Role) {
-			case SUPERUSER:
-				return true;
-			case MODERADOR:
-			case PROPRIETARIO:
-			case REPRESENTANTE:
-			case COMERCIANTE:
-				if(e1 == e2)
-					return true;
-				break;
-			default:
-				break;
-		}
-
-		return false;
-	}
 
 	private boolean canRemove(Entity e1, Entity e2) {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
