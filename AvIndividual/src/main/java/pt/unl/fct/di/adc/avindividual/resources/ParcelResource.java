@@ -253,6 +253,15 @@ public class ParcelResource {
 				List<String> ownersAdded = ownersAdded(parcel, data.owners, tn);
 				List<String> ownersRemoved = ownersRemoved(parcel, data.owners, tn);
 
+				boolean cantUpdateOwners = !canRemove(user, owner) && (ownersAdded.size() != 0 || ownersRemoved.size() != 0);
+        		boolean isRemovingSelf = ownersRemoved.size() == 1 && ownersRemoved.contains(data.username) && ownersAdded.size() == 0;
+
+       			//If the user isn't the owner who created the parcel they can't edit the owners list, unless to remove themselves
+        		if (cantUpdateOwners && !isRemovingSelf){
+					LOG.warning("User does not have permission to update list of co-owners.");
+					tn.rollback();
+					return Response.status(Status.BAD_REQUEST).entity("User does not have permission to update list of co-owners.").build();
+				}
 				String parcelInfo = data.owner + ":" + data.parcelName;
 
 				for(String added: ownersAdded){
