@@ -35,7 +35,6 @@ export default function Navbar() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórums" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Sobre Nós" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
 
                     </Tabs>
                 </Grid>
@@ -47,7 +46,6 @@ export default function Navbar() {
             {selectedLeftTab === 1 && <REPparcels />}
             {selectedLeftTab === 2 && <ForumPage />}
             {selectedLeftTab === 3 && <AboutUs />}
-            {selectedLeftTab === 4 && <StatisticsPage />}
         </>
     )
 }

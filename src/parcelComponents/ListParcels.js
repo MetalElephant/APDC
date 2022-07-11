@@ -1,4 +1,4 @@
-import { Box, Typography, Grid, ButtonGroup, Autocomplete, TextField, Button, Alert } from "@mui/material";
+import { Box, Typography, Grid, ButtonGroup, Autocomplete, TextField, Button, Alert, CircularProgress } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
@@ -42,6 +42,7 @@ export default function ListParcels() {
     const [displayModifyMessage, setDisplayModifyMessage] = react.useState(false)
     const [loadButtons, setLoadButtons] = react.useState(false)
     const [loaded, setLoaded] = react.useState(false)
+    const [showProgress, setShowProgress] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('allParcels'))
 
@@ -108,7 +109,6 @@ export default function ListParcels() {
                 var temp = distToConcState.get(dist)
                 setAllConc(temp)
             }
-
             if (concToFregState.has(conc)) {
                 var temp = concToFregState.get(conc)
                 setAllFreg(temp)
@@ -176,9 +176,10 @@ export default function ListParcels() {
 
     function parcelRemoval() {
         if (chosenParcel != null) {
+            setShowProgress(true)
             restCalls.deleteParcel(chosenParcel, owner)
-                .then(() => { restCalls.listAllParcels(); setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) })
-                .catch(() => { setIsParcelRemoved(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
+                .then(() => { restCalls.listAllParcels(); setShowProgress(false); setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) })
+                .catch(() => { setIsParcelRemoved(false); setShowProgress(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
             setDisplayModifyMessage(false)
         } else {
             setIsParcelRemoved(false);
@@ -188,9 +189,10 @@ export default function ListParcels() {
     }
 
     function modifyParcelManager() {
+        setShowProgress(true)
         restCalls.modifyParcel(owner, owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
-            .then(() => { setIsParcelModified(true); setIsParcelNotModified(false); setDisplayModifyMessage(true) })
-            .catch(() => { setIsParcelModified(false); setIsParcelNotModified(true); setDisplayModifyMessage(true) })
+            .then(() => { setIsParcelModified(true); setShowProgress(false); setIsParcelNotModified(false); setDisplayModifyMessage(true) })
+            .catch(() => { setIsParcelModified(false); setShowProgress(false); setIsParcelNotModified(true); setDisplayModifyMessage(true) })
         setDisplayMessage(false)
     }
 
@@ -449,6 +451,7 @@ export default function ListParcels() {
                     </Alert> : <></>
                 }
 
+                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
                 {(isParcelModified && displayModifyMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela modificada com sucesso.</Typography>

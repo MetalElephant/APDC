@@ -5,7 +5,7 @@ class restCalls {
     //depois alterar url https://land--it.appspot.com/rest/users/login
     login(username, password) {
         return fetch("https://landit-app.appspot.com/rest/user/login", {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -265,7 +265,7 @@ class restCalls {
         })
     }
 
-    modifyUserAttributes(usernameToUpdate, name, email, address, homePhone, mobilePhone, nif, photo) {
+    modifyUserAttributes(usernameToUpdate, name, email, street, homePhone, mobilePhone, nif, photo, district, county, autarchy) {
         return fetch("https://landit-app.appspot.com/rest/user/update", {
             method: 'PUT',
             headers: {
@@ -276,7 +276,10 @@ class restCalls {
                 usernameToUpdate: usernameToUpdate,
                 name: name,
                 email: email,
-                address: address,
+                street: street,
+                district: district,
+                county: county,
+                autarchy: autarchy,
                 homePhone: homePhone,
                 mobilePhone: mobilePhone,
                 nif: nif,
@@ -443,7 +446,7 @@ class restCalls {
         })
     }
 
-    verifyParcel(owner, parcelName) {
+    verifyParcel(owner, parcelName, confirmation, reason) {
         return fetch("https://landit-app.appspot.com/rest/parcel/verify", {
             method: 'POST',
             headers: {
@@ -452,7 +455,9 @@ class restCalls {
             body: JSON.stringify({
                 username: JSON.parse(localStorage.getItem('token')).username,
                 owner: owner,
-                parcelName: parcelName
+                parcelName: parcelName,
+                confirmation: confirmation,
+                reason: reason
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -631,6 +636,31 @@ class restCalls {
             return response.text()
         }).then(function (text) {
             localStorage.setItem("messages", text)
+            return text;
+        })
+    }
+
+    ownerInfo(name) {
+        return fetch("https://landit-app.appspot.com/rest/parcel/ownerInfo", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                name: name
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem("owner", text)
             return text;
         })
     }

@@ -1,6 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, Alert } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, Alert, Autocomplete } from "@mui/material";
+import locais from "../locais/distritos.txt"
 
 export default function ModifyAttributes() {
 
@@ -20,13 +21,66 @@ export default function ModifyAttributes() {
     const [mobilePhoneErr, setMobilePhoneErr] = react.useState({});
     const [nifErr, setNifErr] = react.useState({});
 
-
     const [displayMessage, setDisplayMessage] = react.useState(0);
     const [userModified, setUserModified] = react.useState(false);
     const [userNotModified, setUserNotModified] = react.useState(false);
     const [showProgress, setShowProgress] = react.useState(false);
+    
+    const [freg, setFreg] = react.useState([]);
+    const [conc, setConc] = react.useState([]);
+    const [dist, setDist] = react.useState([]);
+    const [chosenFreg, setChosenFreg] = react.useState(null);
+    const [chosenConc, setChosenConc] = react.useState(null);
+    const [chosenDist, setChosenDist] = react.useState(null);
+    const [distConcState, setDistConcState] = react.useState();
+    const [concFregState, setConcFregState] = react.useState();
+    const [disableConc, setDisableConc] = react.useState(false);
+    const [disableFreg, setDisableFreg] = react.useState(false);
 
     var user = JSON.parse(localStorage.getItem('user'))
+
+    useEffect(() => {
+        let split = [];
+        let distToConc = new Map()
+        let concToFreg = new Map()
+        let distritos = [];
+        let concelhos = [];
+        let freguesias = [];
+        fetch(locais)
+            .then(r => r.text())
+            .then(text => {
+                split = text.split(";")
+
+                for (let i = 0; i < split.length; i++) {
+                    var elem = split[i]
+                    if (i % 3 == 0) {
+                        if (!distToConc.has(elem)) {
+                            distToConc.set(elem, [])
+                            distritos.push(elem)
+                        }
+                        if (distToConc.get(elem).indexOf(split[i + 1]) == -1)
+                            distToConc.get(elem).push(split[i + 1])
+                    }
+                    else if (i % 3 == 1) {
+                        if (!concToFreg.has(elem)) {
+                            concToFreg.set(elem, [])
+                            concelhos.push(elem)
+                        }
+                        if (concToFreg.get(elem).indexOf(split[i + 1]) == -1)
+                            concToFreg.get(elem).push(split[i + 1])
+                    }
+                    else {
+                        if (freguesias.indexOf(elem) == -1)
+                            freguesias.push(elem)
+                    }
+                }
+                setDist(distritos)
+                setConc(concelhos)
+                setFreg(freguesias)
+                setDistConcState(distToConc)
+                setConcFregState(concToFreg)
+            });
+    }, [])
 
     useEffect(() => {
         setEmail(user.email);
@@ -35,6 +89,9 @@ export default function ModifyAttributes() {
         setMobilePhone(user.mobilephone);
         setStreet(user.street);
         setNif(user.nif);
+        setChosenDist(user.district)
+        setChosenConc(user.county)
+        setChosenFreg(user.autarchy)
     }, [])
 
 
@@ -97,7 +154,7 @@ export default function ModifyAttributes() {
 
         if (isModifyUserFormValid) {
             setShowProgress(true)
-            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, street, homePhone, mobilePhone, nif, imageArray)
+            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, street, homePhone, mobilePhone, nif, imageArray, chosenDist, chosenConc, chosenFreg)
                 .then(() => { restCalls.userInfo().then(() => { setShowProgress(false); setUserModified(true); setDisplayMessage(0) }) })
                 .catch(() => { setShowProgress(false); setUserNotModified(true); setDisplayMessage(1) })
         } else {
@@ -205,7 +262,61 @@ export default function ModifyAttributes() {
                                 color="success"
                                 onChange={nameHandler}
                             />
-
+                            <Autocomplete
+                                selectOnFocus
+                                id="distritos"
+                                options={dist}
+                                getOptionLabel={option => option}
+                                value={chosenDist}
+                                onChange={(_event, newDistrict) => {
+                                    setChosenDist(newDistrict);
+                                    setChosenConc(null)
+                                    setChosenFreg(null)
+                                    if (dist.length > 0) {
+                                        if (distConcState.has(newDistrict)) {
+                                            var temp = distConcState.get(newDistrict)
+                                            setConc(temp)
+                                            setDisableConc(false)
+                                        }
+                                    }
+                                }}
+                                sx={{ width: 400, mt: 1 }}
+                                renderInput={(params) => <TextField {...params} label="Distrito *" />}
+                            />
+                            <Autocomplete
+                                disabled={disableConc}
+                                selectOnFocus
+                                id="concelhos"
+                                options={conc}
+                                getOptionLabel={option => option}
+                                value={chosenConc}
+                                onChange={(_event, newConc) => {
+                                    setChosenConc(newConc);
+                                    setChosenFreg(null)
+                                    if (dist.length > 0) {
+                                        if (concFregState.has(newConc)) {
+                                            var temp = concFregState.get(newConc)
+                                            setFreg(temp)
+                                            setDisableFreg(false)
+                                        }
+                                    }
+                                }}
+                                sx={{ width: 400, mt: 2 }}
+                                renderInput={(params) => <TextField {...params} label="Concelho *" />}
+                            />
+                            <Autocomplete
+                                disabled={disableFreg}
+                                selectOnFocus
+                                id="freguesias"
+                                options={freg}
+                                getOptionLabel={option => option}
+                                value={chosenFreg}
+                                onChange={(_event, newFreg) => {
+                                    setChosenFreg(newFreg);
+                                }}
+                                sx={{ width: 400, mt: 2 }}
+                                renderInput={(params) => <TextField {...params} label="Freguesia *" />}
+                            />
                             <TextField
                                 margin="normal"
                                 fullWidth

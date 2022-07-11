@@ -30,8 +30,8 @@ export default function NavbarSU() {
                         variant="scrollable"
                         scrollButtons
                     >
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizador" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Users" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Perfil" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />

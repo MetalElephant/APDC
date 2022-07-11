@@ -37,7 +37,7 @@ export default function SearchParcel() {
     const [allSearchedParcels, setAllSearchedParcels] = react.useState([])
     const [owner, setOwner] = react.useState("")
     const [email, setEmail] = react.useState("")
-    const [center, setCenter] = react.useState({lat:39.417 , lng:-8.33})
+    const [center, setCenter] = react.useState({ lat: 39.417, lng: -8.33 })
 
 
     var temp;
@@ -150,6 +150,9 @@ export default function SearchParcel() {
         setLngMin(0);
         setPolygonMarkers([]);
         setRenderPolygons(false);
+        setOwner("")
+        setEmail("")
+        setChosenParcel("")
     }
 
     function getData() {
@@ -249,14 +252,18 @@ export default function SearchParcel() {
         setFourthAux([]);
         setPolygonMarkers([]);
         setPolygonList([]);
+        setOwner("")
+        setEmail("")
+        setChosenParcel("")
     }
 
     function setAttributes(event) {
+        var ownerInfo;
         var parcel = allSearchedParcels[event.target.value]
+        restCalls.ownerInfo(parcel.owner).then(() => { ownerInfo = JSON.parse(localStorage.getItem("owner")); setEmail(ownerInfo.email) })
         setChosenParcel(event.target.value)
         setOwner(parcel.owner)
-        setEmail(parcel.email)
-        setCenter({lat: parcel.markers[0].latitude, lng: parcel.markers[0].longitude})
+        setCenter({ lat: parcel.markers[0].latitude, lng: parcel.markers[0].longitude })
     }
 
     return (
@@ -416,7 +423,7 @@ export default function SearchParcel() {
                             </Box>
                             <Box p={2.5} textAlign="center" >
                                 <Paper elevation={12}>
-                                    <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 14 }}> Email: </Typography>
+                                    <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 14 }}> Email: {email}</Typography>
                                 </Paper>
                             </Box>
                         </div>

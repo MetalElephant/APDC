@@ -1,7 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import landAvatar from "../images/land-avatar.png";
-import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, CircularProgress, MenuItem, ButtonGroup } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, Autocomplete, CircularProgress, MenuItem, ButtonGroup } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import { Refresh } from '@mui/icons-material';
 
@@ -18,7 +18,7 @@ export default function ModifyParcel() {
     const [allLngsMem, setAllLngsMem] = react.useState([]);
     const [allLats, setAllLats] = react.useState([]);
     const [allLngs, setAllLngs] = react.useState([]);
-    const [owners, setOwners] = react.useState("");
+    //const [owners, setOwners] = react.useState("");
     const [owner, setOwner] = react.useState("");
     const [chosenParcel, setChosenParcel] = react.useState("");
 
@@ -32,13 +32,17 @@ export default function ModifyParcel() {
     const [displayDeleteMessage, setDisplayDeleteMessage] = react.useState(false);
     const [markersErr, setMarkersErr] = react.useState(false);
     const [showProgress, setShowProgress] = react.useState(false)
+    const [allUsers, setAllUsers] = react.useState([])
+    const [owners, setOwners] = react.useState([]);
 
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
+    var users = JSON.parse(localStorage.getItem('allUsers'))
 
     useEffect(() => {
+        restCalls.listAllProps().then(() => { users = JSON.parse(localStorage.getItem('allProps')); setAllUsers(users) })
         restCalls.parcelInfo().then(() => { setLoaded(true) })
-    })
+    }, [])
 
     useEffect(() => {
         const temp = []
@@ -107,10 +111,6 @@ export default function ModifyParcel() {
                 )
             }
         return views;
-    }
-
-    function parcelNameHandler(e) {
-        setParcelName(e.target.value);
     }
 
     function descriptionHandler(e) {
@@ -236,6 +236,23 @@ export default function ModifyParcel() {
                             Modificar Parcela
                         </Typography>
                         <Box component="form" sx={{ mt: 1 }}>
+                            <Autocomplete
+                                multiple
+                                id="tags-filled"
+                                options={allUsers.map((user) => user.username)}
+                                value={owners}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        variant="standard"
+                                        label="Outros Proprietários"
+                                        placeholder="Outros Proprietários"
+                                    />
+                                )}
+                                onChange={(event, newValue) => {
+                                    setOwners(newValue)
+                                }}
+                            />
                             <TextField
                                 margin="normal"
                                 fullWidth

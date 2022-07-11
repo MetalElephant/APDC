@@ -6,6 +6,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useEffect } from "react";
 import locais from "../locais/distritos.txt"
+import OTModifyPassword from "../userProfileComponents/OTModifyPassword"
 
 export default function LoginRegister() {
     let history = useHistory();
@@ -52,6 +53,7 @@ export default function LoginRegister() {
     const [showPasswordConfirmation, setShowPasswordConfirmation] = react.useState(false);
     const [showRoleErr, setShowRoleErr] = react.useState(false);
     const [showProgress, setShowProgress] = react.useState(false);
+    const [modifyPassword, setModifyPassword] = react.useState(false);
 
     const [image, setImage] = react.useState();
     const [preview, setPreview] = react.useState();
@@ -205,11 +207,21 @@ export default function LoginRegister() {
         }
     }
 
+    function hasToModifyPassword() {
+        var points = JSON.parse(localStorage.getItem('user')).points
+        if (points < 0) {
+            setModifyPassword(true)
+        }
+        else {
+            switchForRole()
+        }
+    }
+
     function loginManager(e) {
         e.preventDefault();
         setShowProgress(true)
         restCalls.login(usernameLogin, passwordLogin)
-            .then(() => { restCalls.userInfo().then(() => { switchForRole() }) })
+            .then(() => { restCalls.userInfo().then(() => { hasToModifyPassword(); setShowProgress(false) }) })
             .catch(() => { setIsLoginSubmit(false); setShowProgress(false) })
     }
 
@@ -378,402 +390,408 @@ export default function LoginRegister() {
 
     return (
         <Grid container spacing={2} direction="column" bgcolor="white">
-            <Grid item xs={12} container >
-                <Grid item xs={2.5} align="center">
-                    <Box sx={{ p: 4 }}>
-                        <Card raised sx={{ p: 1 }}>
-                            <Typography variant="h5" sx={{ fontSize: 12 }}>
-                                Número de utilizadores registados no sistema: {nUsers}
-                            </Typography>
-                        </Card>
-                    </Box>
-                    <Box sx={{ p: 4 }}>
-                        <Card raised sx={{ p: 1 }} >
-                            <Typography variant="h5" sx={{ fontSize: 12 }}>
-                                Número de parcelas registadas no sistema: {nParcels}
-                            </Typography>
-                        </Card>
-                    </Box>
-                </Grid>
-                <Grid item xs={3}>
-                    <Container component="main" maxWidth="xs">
-                        <Box
-                            sx={{
-                                marginTop: 4,
-                                marginBottom: 4,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
-                                Login
-                            </Typography>
-                            <Box component="form" sx={{ mt: 1 }}>
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="username"
-                                    label="Nome de Utilizador"
-                                    name="username"
-                                    color="success"
-                                    onChange={usernameLoginHandler}
-                                />
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="password"
-                                    label="Palavra-passe"
-                                    type={showPasswordLogin ? "text" : "password"}
-                                    id="password"
-                                    color="success"
-                                    InputProps={showPasswordLogin ? {
-                                        endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
-                                            <RemoveRedEyeIcon sx={{ color: "black" }} />
-                                        </Button>
-                                    } : {
-                                        endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
-                                            <VisibilityOffIcon sx={{ color: "black" }} />
-                                        </Button>
-                                    }}
-                                    onChange={passwordLoginHandler}
-                                />
-
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="outlined"
-                                    color="success"
-                                    sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
-                                    onClick={(e) => { loginManager(e) }}
-                                >
-                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Fazer Login </Typography>
-                                </Button>
-
-                                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
-
+            {modifyPassword ?
+                <OTModifyPassword onClickFun={switchForRole} />
+                :
+                <div>
+                    <Grid item xs={12} container >
+                        <Grid item xs={2.5} align="center">
+                            <Box sx={{ p: 4 }}>
+                                <Card raised sx={{ p: 1 }}>
+                                    <Typography variant="h5" sx={{ fontSize: 12 }}>
+                                        Número de utilizadores registados no sistema: {nUsers}
+                                    </Typography>
+                                </Card>
                             </Box>
-                            {!isLoginSubmit ?
-                                <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Login não efetuado. Username ou password incorretos.</Typography>
-                                </Alert> : <></>}
-                        </Box>
-                    </Container>
-                </Grid>
-                <Grid item xs={1} />
-                <Grid item xs={3}>
-                    <Container component="main" maxWidth="xs">
-                        <Box
-                            sx={{
-                                marginTop: 4,
-                                marginBottom: 4,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
-                                Registo de Utilizador
-                            </Typography>
-                            <Box component="form" sx={{ mt: 1 }}>
-
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="username"
-                                    label="Nome de Utilizador"
-                                    name="username"
-                                    value={usernameRegister}
-                                    autoFocus
-                                    color="success"
-                                    onChange={usernameRegisterHandler}
-                                />
-                                {Object.keys(usernameErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {usernameErr[key]}</Typography>
-                                })}
-
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="password"
-                                    label="Palavra-passe"
-                                    value={passwordRegister}
-                                    type={showPasswordRegister ? "text" : "password"}
-                                    id="password"
-                                    color="success"
-                                    InputProps={showPasswordRegister ? {
-                                        endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
-                                            <RemoveRedEyeIcon sx={{ color: "black" }} />
-                                        </Button>
-                                    } : {
-                                        endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
-                                            <VisibilityOffIcon sx={{ color: "black" }} />
-                                        </Button>
+                            <Box sx={{ p: 4 }}>
+                                <Card raised sx={{ p: 1 }} >
+                                    <Typography variant="h5" sx={{ fontSize: 12 }}>
+                                        Número de parcelas registadas no sistema: {nParcels}
+                                    </Typography>
+                                </Card>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <Container component="main" maxWidth="xs">
+                                <Box
+                                    sx={{
+                                        marginTop: 4,
+                                        marginBottom: 4,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
                                     }}
-                                    onChange={passwordRegisterHandler}
-                                />
-                                {Object.keys(passwordErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordErr[key]}</Typography>
-                                })}
-
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="passwordConfirmation"
-                                    label="Confirmação Palavra-passe"
-                                    value={pwdConfirmation}
-                                    type={showPasswordConfirmation ? "text" : "password"}
-                                    id="passwordConfirmation"
-                                    color="success"
-                                    InputProps={showPasswordConfirmation ? {
-                                        endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
-                                            <RemoveRedEyeIcon sx={{ color: "black" }} />
-                                        </Button>
-                                    } : {
-                                        endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
-                                            <VisibilityOffIcon sx={{ color: "black" }} />
-                                        </Button>
-                                    }}
-                                    onChange={pwdConfirmationHandler}
-                                />
-                                {Object.keys(passwordConfirmationErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordConfirmationErr[key]}</Typography>
-                                })}
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="email"
-                                    label="Email"
-                                    type="email"
-                                    value={email}
-                                    id="email"
-                                    color="success"
-                                    onChange={emailHandler}
-                                />
-                                {Object.keys(emailErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {emailErr[key]}</Typography>
-                                })}
-
-                                <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="name"
-                                    label="Nome"
-                                    value={name}
-                                    type="name"
-                                    id="name"
-                                    color="success"
-                                    onChange={nameHandler}
-                                />
-
-                                <FormControl sx={{ mb: 2 }} variant="standard">
-                                    <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
-                                    <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
-                                        <MenuItem value="PROPRIETARIO" label="PROPRIETARIO">
-                                            Proprietário
-                                        </MenuItem >
-                                        <MenuItem value="COMERCIANTE" label="COMERCIANTE">
-                                            Comerciante
-                                        </MenuItem>
-                                    </Select>
-                                </FormControl>
-
-                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, mb: 2 }}>É obrigatório selecionar um papel.</Typography>}
-
-                                <div>
-                                    <form>
-                                        {preview ? (
-                                            <img
-                                                src={preview}
-                                                style={{ objectFit: "cover", width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
-                                                onClick={() => {
-                                                    setImage(null);
-                                                }}
-                                            />
-                                        ) : (
-                                            <button
-                                                style={{ width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    fileInputRef.current.click();
-                                                }}
-                                            >
-                                                Adicionar Foto de Perfil
-                                            </button>
-                                        )}
-                                        <input
-                                            type="file"
-                                            style={{ display: "none" }}
-                                            ref={fileInputRef}
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (file && file.type.substring(0, 5) === "image") {
-                                                    setImage(file);
-                                                    loadPhoto(file);
-                                                } else {
-                                                    setImage(null);
-                                                }
+                                >
+                                    <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
+                                        Login
+                                    </Typography>
+                                    <Box component="form" sx={{ mt: 1 }}>
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            id="username"
+                                            label="Nome de Utilizador"
+                                            name="username"
+                                            color="success"
+                                            onChange={usernameLoginHandler}
+                                        />
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            name="password"
+                                            label="Palavra-passe"
+                                            type={showPasswordLogin ? "text" : "password"}
+                                            id="password"
+                                            color="success"
+                                            InputProps={showPasswordLogin ? {
+                                                endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
+                                                    <RemoveRedEyeIcon sx={{ color: "black" }} />
+                                                </Button>
+                                            } : {
+                                                endAdornment: <Button onClick={toggleVisibilityLoginIcon}>
+                                                    <VisibilityOffIcon sx={{ color: "black" }} />
+                                                </Button>
                                             }}
+                                            onChange={passwordLoginHandler}
                                         />
 
-                                    </form>
-                                </div>
+                                        <Button
+                                            type="submit"
+                                            fullWidth
+                                            variant="outlined"
+                                            color="success"
+                                            sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
+                                            onClick={(e) => { loginManager(e) }}
+                                        >
+                                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Fazer Login </Typography>
+                                        </Button>
 
-                                <Autocomplete
-                                    selectOnFocus
-                                    id="distritos"
-                                    options={dist}
-                                    getOptionLabel={option => option}
-                                    value={chosenDist}
-                                    onChange={(_event, newDistrict) => {
-                                        setChosenDist(newDistrict);
-                                        setChosenConc(null)
-                                        setChosenFreg(null)
-                                        if (dist.length > 0) {
-                                            if (distConcState.has(newDistrict)) {
-                                                var temp = distConcState.get(newDistrict)
-                                                setConc(temp)
-                                                setDisableConc(false)
-                                            }
-                                        }
+                                        {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
+
+                                    </Box>
+                                    {!isLoginSubmit ?
+                                        <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Login não efetuado. Username ou password incorretos.</Typography>
+                                        </Alert> : <></>}
+                                </Box>
+                            </Container>
+                        </Grid>
+                        <Grid item xs={1} />
+                        <Grid item xs={3}>
+                            <Container component="main" maxWidth="xs">
+                                <Box
+                                    sx={{
+                                        marginTop: 4,
+                                        marginBottom: 4,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
                                     }}
-                                    sx={{ width: 400, mt: 1 }}
-                                    renderInput={(params) => <TextField {...params} label="Distrito *" />}
-                                />
-                                <Autocomplete
-                                    disabled={disableConc}
-                                    selectOnFocus
-                                    id="concelhos"
-                                    options={conc}
-                                    getOptionLabel={option => option}
-                                    value={chosenConc}
-                                    onChange={(_event, newConc) => {
-                                        setChosenConc(newConc);
-                                        setChosenFreg(null)
-                                        if (dist.length > 0) {
-                                            if (concFregState.has(newConc)) {
-                                                var temp = concFregState.get(newConc)
-                                                setFreg(temp)
-                                                setDisableFreg(false)
-                                            }
-                                        }
-                                    }}
-                                    sx={{ width: 400, mt: 2 }}
-                                    renderInput={(params) => <TextField {...params} label="Concelho *" />}
-                                />
-                                <Autocomplete
-                                    disabled={disableFreg}
-                                    selectOnFocus
-                                    id="freguesias"
-                                    options={freg}
-                                    getOptionLabel={option => option}
-                                    value={chosenFreg}
-                                    onChange={(_event, newFreg) => {
-                                        setChosenFreg(newFreg);
-                                    }}
-                                    sx={{ width: 400, mt: 2 }}
-                                    renderInput={(params) => <TextField {...params} label="Freguesia *" />}
-                                />
-
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="street"
-                                    label="Morada"
-                                    type="street"
-                                    value={street}
-                                    id="street"
-                                    color="success"
-                                    onChange={streetHandler}
-                                />
-
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="mobilePhone"
-                                    label="Número de telemóvel"
-                                    type="mobilePhone"
-                                    value={mobilePhone}
-                                    id="mobilePhone"
-                                    color="success"
-                                    onChange={mobilePhoneHandler}
-                                />
-                                {Object.keys(mobilePhoneErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {mobilePhoneErr[key]}</Typography>
-                                })}
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="homePhone"
-                                    label="Número de telefone"
-                                    value={homePhone}
-                                    type="homePhone"
-                                    id="homePhone"
-                                    color="success"
-                                    onChange={homePhoneHandler}
-                                />
-                                {Object.keys(homePhoneErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {homePhoneErr[key]}</Typography>
-                                })}
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="nif"
-                                    label="NIF"
-                                    value={nif}
-                                    type="nif"
-                                    id="nif"
-                                    color="success"
-                                    onChange={nifHandler}
-                                />
-                                {Object.keys(nifErr).map((key) => {
-                                    return <Typography sx={{ color: "red", fontSize: 14 }}> {nifErr[key]}</Typography>
-                                })}
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="code"
-                                    label="Código Promocional"
-                                    value={code}
-                                    type="code"
-                                    id="code"
-                                    color="success"
-                                    onChange={codeHandler}
-                                />
-
-                                <Button
-                                    type="submit"
-                                    fullWidth
-                                    variant="outlined"
-                                    color="success"
-                                    sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
-                                    onClick={(e) => { registerManager(e) }}
                                 >
-                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Criar Utilizador </Typography>
-                                </Button>
-                            </Box>
-                        </Box>
-                    </Container>
-                </Grid>
-                <Grid item xs={2.5}>
-                    {isRegisterSubmit && (displayRegisterMessage === 0) ?
-                        (<Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador Registado com sucesso!</Typography>
-                        </Alert>) : <></>}
-                    {isRegisterNotSubmit && (displayRegisterMessage === 1) ?
-                        (<Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de utilizador não efetuado. Por favor, verifique os seus dados.</Typography>
-                        </Alert>) : <></>}
-                </Grid>
-            </Grid>
+                                    <Typography component="h1" variant="h5" sx={{ fontSize: 28 }}>
+                                        Registo de Utilizador
+                                    </Typography>
+                                    <Box component="form" sx={{ mt: 1 }}>
+
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            id="username"
+                                            label="Nome de Utilizador"
+                                            name="username"
+                                            value={usernameRegister}
+                                            autoFocus
+                                            color="success"
+                                            onChange={usernameRegisterHandler}
+                                        />
+                                        {Object.keys(usernameErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {usernameErr[key]}</Typography>
+                                        })}
+
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            name="password"
+                                            label="Palavra-passe"
+                                            value={passwordRegister}
+                                            type={showPasswordRegister ? "text" : "password"}
+                                            id="password"
+                                            color="success"
+                                            InputProps={showPasswordRegister ? {
+                                                endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
+                                                    <RemoveRedEyeIcon sx={{ color: "black" }} />
+                                                </Button>
+                                            } : {
+                                                endAdornment: <Button onClick={toggleVisibilityFirstRegisterIcon}>
+                                                    <VisibilityOffIcon sx={{ color: "black" }} />
+                                                </Button>
+                                            }}
+                                            onChange={passwordRegisterHandler}
+                                        />
+                                        {Object.keys(passwordErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordErr[key]}</Typography>
+                                        })}
+
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            name="passwordConfirmation"
+                                            label="Confirmação Palavra-passe"
+                                            value={pwdConfirmation}
+                                            type={showPasswordConfirmation ? "text" : "password"}
+                                            id="passwordConfirmation"
+                                            color="success"
+                                            InputProps={showPasswordConfirmation ? {
+                                                endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
+                                                    <RemoveRedEyeIcon sx={{ color: "black" }} />
+                                                </Button>
+                                            } : {
+                                                endAdornment: <Button onClick={toggleVisibilitySecondRegisterIcon}>
+                                                    <VisibilityOffIcon sx={{ color: "black" }} />
+                                                </Button>
+                                            }}
+                                            onChange={pwdConfirmationHandler}
+                                        />
+                                        {Object.keys(passwordConfirmationErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {passwordConfirmationErr[key]}</Typography>
+                                        })}
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            name="email"
+                                            label="Email"
+                                            type="email"
+                                            value={email}
+                                            id="email"
+                                            color="success"
+                                            onChange={emailHandler}
+                                        />
+                                        {Object.keys(emailErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {emailErr[key]}</Typography>
+                                        })}
+
+                                        <TextField
+                                            margin="normal"
+                                            required
+                                            fullWidth
+                                            name="name"
+                                            label="Nome"
+                                            value={name}
+                                            type="name"
+                                            id="name"
+                                            color="success"
+                                            onChange={nameHandler}
+                                        />
+
+                                        <FormControl sx={{ mb: 2 }} variant="standard">
+                                            <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
+                                            <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
+                                                <MenuItem value="PROPRIETARIO" label="PROPRIETARIO">
+                                                    Proprietário
+                                                </MenuItem >
+                                                <MenuItem value="COMERCIANTE" label="COMERCIANTE">
+                                                    Comerciante
+                                                </MenuItem>
+                                            </Select>
+                                        </FormControl>
+
+                                        {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, mb: 2 }}>É obrigatório selecionar um papel.</Typography>}
+
+                                        <div>
+                                            <form>
+                                                {preview ? (
+                                                    <img
+                                                        src={preview}
+                                                        style={{ objectFit: "cover", width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                                        onClick={() => {
+                                                            setImage(null);
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <button
+                                                        style={{ width: "200px", height: "200px", borderRadius: "70%", cursor: "pointer" }}
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            fileInputRef.current.click();
+                                                        }}
+                                                    >
+                                                        Adicionar Foto de Perfil
+                                                    </button>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    style={{ display: "none" }}
+                                                    ref={fileInputRef}
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file && file.type.substring(0, 5) === "image") {
+                                                            setImage(file);
+                                                            loadPhoto(file);
+                                                        } else {
+                                                            setImage(null);
+                                                        }
+                                                    }}
+                                                />
+
+                                            </form>
+                                        </div>
+
+                                        <Autocomplete
+                                            selectOnFocus
+                                            id="distritos"
+                                            options={dist}
+                                            getOptionLabel={option => option}
+                                            value={chosenDist}
+                                            onChange={(_event, newDistrict) => {
+                                                setChosenDist(newDistrict);
+                                                setChosenConc(null)
+                                                setChosenFreg(null)
+                                                if (dist.length > 0) {
+                                                    if (distConcState.has(newDistrict)) {
+                                                        var temp = distConcState.get(newDistrict)
+                                                        setConc(temp)
+                                                        setDisableConc(false)
+                                                    }
+                                                }
+                                            }}
+                                            sx={{ width: 400, mt: 1 }}
+                                            renderInput={(params) => <TextField {...params} label="Distrito *" />}
+                                        />
+                                        <Autocomplete
+                                            disabled={disableConc}
+                                            selectOnFocus
+                                            id="concelhos"
+                                            options={conc}
+                                            getOptionLabel={option => option}
+                                            value={chosenConc}
+                                            onChange={(_event, newConc) => {
+                                                setChosenConc(newConc);
+                                                setChosenFreg(null)
+                                                if (dist.length > 0) {
+                                                    if (concFregState.has(newConc)) {
+                                                        var temp = concFregState.get(newConc)
+                                                        setFreg(temp)
+                                                        setDisableFreg(false)
+                                                    }
+                                                }
+                                            }}
+                                            sx={{ width: 400, mt: 2 }}
+                                            renderInput={(params) => <TextField {...params} label="Concelho *" />}
+                                        />
+                                        <Autocomplete
+                                            disabled={disableFreg}
+                                            selectOnFocus
+                                            id="freguesias"
+                                            options={freg}
+                                            getOptionLabel={option => option}
+                                            value={chosenFreg}
+                                            onChange={(_event, newFreg) => {
+                                                setChosenFreg(newFreg);
+                                            }}
+                                            sx={{ width: 400, mt: 2 }}
+                                            renderInput={(params) => <TextField {...params} label="Freguesia *" />}
+                                        />
+
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            name="street"
+                                            label="Morada"
+                                            type="street"
+                                            value={street}
+                                            id="street"
+                                            color="success"
+                                            onChange={streetHandler}
+                                        />
+
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            name="mobilePhone"
+                                            label="Número de telemóvel"
+                                            type="mobilePhone"
+                                            value={mobilePhone}
+                                            id="mobilePhone"
+                                            color="success"
+                                            onChange={mobilePhoneHandler}
+                                        />
+                                        {Object.keys(mobilePhoneErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {mobilePhoneErr[key]}</Typography>
+                                        })}
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            name="homePhone"
+                                            label="Número de telefone"
+                                            value={homePhone}
+                                            type="homePhone"
+                                            id="homePhone"
+                                            color="success"
+                                            onChange={homePhoneHandler}
+                                        />
+                                        {Object.keys(homePhoneErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {homePhoneErr[key]}</Typography>
+                                        })}
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            name="nif"
+                                            label="NIF"
+                                            value={nif}
+                                            type="nif"
+                                            id="nif"
+                                            color="success"
+                                            onChange={nifHandler}
+                                        />
+                                        {Object.keys(nifErr).map((key) => {
+                                            return <Typography sx={{ color: "red", fontSize: 14 }}> {nifErr[key]}</Typography>
+                                        })}
+                                        <TextField
+                                            margin="normal"
+                                            fullWidth
+                                            name="code"
+                                            label="Código Promocional"
+                                            value={code}
+                                            type="code"
+                                            id="code"
+                                            color="success"
+                                            onChange={codeHandler}
+                                        />
+
+                                        <Button
+                                            type="submit"
+                                            fullWidth
+                                            variant="outlined"
+                                            color="success"
+                                            sx={{ mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
+                                            onClick={(e) => { registerManager(e) }}
+                                        >
+                                            <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Criar Utilizador </Typography>
+                                        </Button>
+                                    </Box>
+                                </Box>
+                            </Container>
+                        </Grid>
+                        <Grid item xs={2.5}>
+                            {isRegisterSubmit && (displayRegisterMessage === 0) ?
+                                (<Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador Registado com sucesso!</Typography>
+                                </Alert>) : <></>}
+                            {isRegisterNotSubmit && (displayRegisterMessage === 1) ?
+                                (<Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Registo de utilizador não efetuado. Por favor, verifique os seus dados.</Typography>
+                                </Alert>) : <></>}
+                        </Grid>
+                    </Grid>
+                </div>
+            }
         </Grid>
     )
 }

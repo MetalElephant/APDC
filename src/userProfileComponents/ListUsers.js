@@ -1,8 +1,8 @@
-import { SendToMobile } from "@mui/icons-material";
-import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel } from "@mui/material";
+import { Box, Typography, Grid, Autocomplete, TextField, Button, Alert, CircularProgress } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
+import locais from "../locais/distritos.txt"
 
 export default function ListUsers() {
 
@@ -13,7 +13,7 @@ export default function ListUsers() {
     const [name, setName] = react.useState("")
     const [homePhone, setHomePhone] = react.useState("")
     const [mobilePhone, setMobilePhone] = react.useState("")
-    const [address, setAddress] = react.useState("")
+    const [street, setStreet] = react.useState("")
     const [nif, setNif] = react.useState("")
     const [allUsers, setAllUsers] = react.useState([])
     const [user, setUser] = react.useState([])
@@ -28,12 +28,77 @@ export default function ListUsers() {
     const [mobilePhoneErr, setMobilePhoneErr] = react.useState(false)
     const [homePhoneErr, setHomePhoneErr] = react.useState(false)
     const [nifErr, setNifErr] = react.useState(false)
+    const [showProgress, setShowProgress] = react.useState(false)
+
+    const [distToConcState, setDistToConc] = react.useState()
+    const [concToFregState, setConcToFreg] = react.useState()
+    const [dist, setDist] = react.useState(null)
+    const [conc, setConc] = react.useState(null)
+    const [freg, setFreg] = react.useState(null)
+    const [allDist, setAllDist] = react.useState([])
+    const [allConc, setAllConc] = react.useState([])
+    const [allFreg, setAllFreg] = react.useState([])
 
     var users = JSON.parse(localStorage.getItem('allUsers'))
 
     useEffect(() => {
         restCalls.listAllUsers().then(() => { setLoaded(true); users = JSON.parse(localStorage.getItem('allUsers')) })
+        var split = []
+        let distToConc = new Map()
+        let concToFreg = new Map()
+        let distritos = [];
+        let concelhos = [];
+        let freguesias = [];
+        fetch(locais)
+            .then(r => r.text())
+            .then(text => {
+                split = text.split(";")
+
+                for (let i = 0; i < split.length; i++) {
+                    var elem = split[i]
+                    if (i % 3 == 0) {
+                        if (!distToConc.has(elem)) {
+                            distToConc.set(elem, [])
+                            distritos.push(elem)
+                        }
+                        if (distToConc.get(elem).indexOf(split[i + 1]) == -1)
+                            distToConc.get(elem).push(split[i + 1])
+                    }
+                    else if (i % 3 == 1) {
+                        if (!concToFreg.has(elem)) {
+                            concToFreg.set(elem, [])
+                            concelhos.push(elem)
+                        }
+                        if (concToFreg.get(elem).indexOf(split[i + 1]) == -1)
+                            concToFreg.get(elem).push(split[i + 1])
+                    }
+                    else {
+                        if (freguesias.indexOf(elem) == -1)
+                            freguesias.push(elem)
+                    }
+                }
+
+                setAllDist(distritos)
+                setAllConc(concelhos)
+                setAllFreg(freguesias)
+                setDistToConc(distToConc)
+                setConcToFreg(concToFreg)
+            });
     }, [])
+
+    useEffect(() => {
+        if (distToConcState != null && concToFregState != null) {
+            if (distToConcState.has(dist)) {
+                var temp = distToConcState.get(dist)
+                setAllConc(temp)
+            }
+
+            if (concToFregState.has(conc)) {
+                var temp = concToFregState.get(conc)
+                setAllFreg(temp)
+            }
+        }
+    }, [dist, conc])
 
     useEffect(() => {
         var temp = []
@@ -53,15 +118,19 @@ export default function ListUsers() {
         setEmail(user.email)
         setHomePhone(user.landphone)
         setMobilePhone(user.mobilephone)
-        setAddress(user.address)
+        setStreet(user.street)
         setNif(user.nif)
+        setDist(user.district)
+        setConc(user.county)
+        setFreg(user.autarchy)
     }, [user])
 
     function userToBeRemovedManager() {
         if (chosenUser != null) {
+            setShowProgress(true)
             restCalls.deleteUser(chosenUser)
-                .then(() => { restCalls.listAllUsers(); setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true) })
-                .catch(() => { setIsUserRemoved(false); setIsUserNotRemoved(true); setDisplayMessage(true) })
+                .then(() => { restCalls.listAllUsers(); setShowProgress(false); setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true) })
+                .catch(() => { setIsUserRemoved(false); setShowProgress(false); setIsUserNotRemoved(true); setDisplayMessage(true) })
             setDisplayModifyMessage(false)
         } else {
             setIsUserRemoved(false);
@@ -72,9 +141,10 @@ export default function ListUsers() {
 
     function modifyUserManager() {
         if (isValid()) {
-            restCalls.modifyUserAttributes(username, name, email, address, homePhone, mobilePhone, nif)
-                .then(() => { restCalls.listAllUsers(); resetErrors(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
-                .catch(() => { setIsUserModified(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
+            setShowProgress(true)
+            restCalls.modifyUserAttributes(username, name, email, street, homePhone, mobilePhone, nif, null, dist, conc, freg)
+                .then(() => { restCalls.listAllUsers(); setShowProgress(false); resetErrors(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
+                .catch(() => { setIsUserModified(false); setShowProgress(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
             setDisplayMessage(false)
         }
     }
@@ -219,15 +289,73 @@ export default function ListUsers() {
                 </Box>
                 {mobilePhoneErr && <Typography sx={{ color: "red", fontSize: 14 }}> Formato de número de telemóvel incorreto </Typography>}
                 <Box p={0} pl={3} pr={3} textAlign="center">
+                    <Autocomplete
+                        selectOnFocus
+                        id="distritos"
+                        options={allDist}
+                        getOptionLabel={option => option}
+                        value={dist}
+                        onChange={(_event, newDistrict) => {
+                            setDist(newDistrict);
+                            setConc(null)
+                            setFreg(null)
+                            if (dist.length > 0) {
+                                if (distToConcState.has(newDistrict)) {
+                                    var temp = distToConcState.get(newDistrict)
+                                    setAllConc(temp)
+                                }
+                            }
+                        }}
+                        getOptionSelected={(option, value) => option === value}
+                        sx={{ width: 400, mt: 1 }}
+                        renderInput={(params) => <TextField {...params} label="Distrito" />}
+                    />
+                </Box>
+                <Box p={0} pl={3} pr={3} textAlign="center">
+                    <Autocomplete
+                        selectOnFocus
+                        id="concelhos"
+                        options={allConc}
+                        getOptionLabel={option => option}
+                        value={conc}
+                        onChange={(_event, newConc) => {
+                            setConc(newConc);
+                            setFreg(null)
+                            if (dist.length > 0) {
+                                if (concToFregState.has(newConc)) {
+                                    var temp = concToFregState.get(newConc)
+                                    setAllFreg(temp)
+                                }
+                            }
+                        }}
+                        sx={{ width: 400, mt: 2 }}
+                        renderInput={(params) => <TextField {...params} label="Concelho" />}
+                    />
+                </Box>
+                <Box p={0} pl={3} pr={3} textAlign="center">
+                    <Autocomplete
+                        selectOnFocus
+                        id="freguesias"
+                        options={allFreg}
+                        getOptionLabel={option => option}
+                        value={freg}
+                        onChange={(_event, newFreg) => {
+                            setFreg(newFreg);
+                        }}
+                        sx={{ width: 400, mt: 2 }}
+                        renderInput={(params) => <TextField {...params} label="Freguesia" />}
+                    />
+                </Box>
+                <Box p={0} pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
                         fullWidth
-                        name="address"
+                        name="street"
                         label="Morada"
-                        value={address}
-                        id="address"
+                        value={street}
+                        id="street"
                         color="success"
-                        onChange={(event) => { setAddress(event.target.value) }}
+                        onChange={(event) => { setStreet(event.target.value) }}
                     />
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -254,6 +382,8 @@ export default function ListUsers() {
                 </Button>
             </Grid>
             <Grid item xs={4}>
+
+                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
                 {(isUserRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador removido com sucesso.</Typography>

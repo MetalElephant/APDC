@@ -270,11 +270,6 @@ export default function RegisterParcel() {
                                 )}
                                 onChange={(event, newValue) => {
                                     setOwners(newValue)
-                                    /*
-                                    setOwners([
-                                        ...owners,
-                                        ...newValue.filter((option) => owners.indexOf(option.username) === -1),
-                                    ]);*/
                                 }}
                             />
                             <Autocomplete
@@ -395,7 +390,7 @@ export default function RegisterParcel() {
                                                 fileInputRef.current.click();
                                             }}
                                         >
-                                            Foto do documento
+                                            Documento de verificação
                                         </button>
                                     )}
                                     <input

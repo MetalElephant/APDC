@@ -1,8 +1,8 @@
-import { Box, Typography, Grid, CircularProgress, Button, Alert, Paper } from "@mui/material";
+import { Box, Typography, Grid, CircularProgress, Button, Alert, Paper, TextField, ButtonGroup } from "@mui/material";
 import react from 'react';
 import { useEffect } from "react";
 import restCalls from "../restCalls";
-import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Polygon } from '@react-google-maps/api';
 
 export default function ReviewParcels() {
 
@@ -27,16 +27,22 @@ export default function ReviewParcels() {
     const [loaded, setLoaded] = react.useState(false)
     const [isParcelVerified, setIsParcelVerified] = react.useState(false)
     const [isParcelNotVerified, setIsParcelNotVerified] = react.useState(false)
-    const [displayMessage, setDisplayMessage] = react.useState(false)
+    const [displayMessage, setDisplayMessage] = react.useState(0)
+    const [isParcelRejected, setIsParcelRejected] = react.useState(false)
+    const [isParcelNotRejected, setIsParcelNotRejected] = react.useState(false)
     const [displayError, setDisplayError] = react.useState(false)
     const [renderPolygons, setRenderPolygons] = react.useState(false)
     const [showProgress, setShowProgress] = react.useState(false)
+    const [center, setCenter] = react.useState({ lat: 38.736946, lng: -9.142685 })
+    const [zoom, setZoom] = react.useState(7)
+    const [reason, setReason] = react.useState("");
+    const [messageErr, setMessageErr] = react.useState(false)
 
     var parcels = JSON.parse(localStorage.getItem('parcelsRep'))
 
     useEffect(() => {
         restCalls.getParcelsRep()
-            .then(() => { parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons() })
+            .then(() => { parcels = JSON.parse(localStorage.getItem('parcelsRep')); updatePolygons(); setLoaded(true) })
     }, [])
 
     useEffect(() => {
@@ -50,10 +56,8 @@ export default function ReviewParcels() {
     }, [loaded])
 
     function updateInfo(parcelName) {
-        console.log(parcelName)
         var index = allParcels.findIndex(parcel => parcel.parcelName === parcelName)
         var parcel = parcels[index]
-        console.log(parcel)
         setParcelName(parcel.parcelName)
         setOwner(parcel.owner)
         setOwners(parcel.owners)
@@ -67,6 +71,8 @@ export default function ReviewParcels() {
         setArea(parcel.area)
         setConfirmed(parcel.confirmed)
         setConfirmation(parcel.confirmation)
+        setCenter({ lat: parcel.markers[0].latitude, lng: parcel.markers[0].longitude })
+        setZoom(12)
     }
 
     function updatePolygons() {
@@ -115,16 +121,36 @@ export default function ReviewParcels() {
     }, [polygons])
 
     function verifyParcel() {
+        setMessageErr(false)
         if (parcelName !== "" && !confirmed) {
             setShowProgress(true)
             setDisplayError(false)
-            restCalls.verifyParcel(owner, parcelName)
-                .then(() => { restCalls.getParcelsRep().then(() => { setShowProgress(false); setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons()}); setIsParcelVerified(true) })
-                .catch(() => { setShowProgress(false); setIsParcelNotVerified(true) })
+            restCalls.verifyParcel(owner, parcelName, true, "")
+                .then(() => { restCalls.getParcelsRep().then(() => { setShowProgress(false); setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons() }); setIsParcelVerified(true); setDisplayMessage(0) })
+                .catch(() => { setShowProgress(false); setIsParcelNotVerified(true); setDisplayMessage(1) })
             setDisplayMessage(true)
         }
         else {
             setDisplayError(true)
+        }
+    }
+
+    function rejectParcel() {
+        if(reason !== "") {
+            setMessageErr(false)
+            if (parcelName !== "" && !confirmed) {
+                setShowProgress(true)
+                setDisplayError(false)
+                restCalls.verifyParcel(owner, parcelName, false, reason)
+                    .then(() => { restCalls.getParcelsRep().then(() => { setShowProgress(false); setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons() }); setIsParcelRejected(true); setDisplayMessage(2) })
+                    .catch(() => { setShowProgress(false); setIsParcelNotRejected(true); setDisplayMessage(3) })
+            }
+            else {
+                setDisplayError(true)
+            }
+        }
+        else {
+            setMessageErr(true)
         }
     }
 
@@ -202,8 +228,8 @@ export default function ReviewParcels() {
                     {(parcels != null) &&
                         <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "60%" }}
-                            center={{ lat: 38.736946, lng: -9.142685 }}
-                            zoom={7}
+                            center={center}
+                            zoom={zoom}
                         >
 
                             {renderPolygons && polygonList}
@@ -211,20 +237,49 @@ export default function ReviewParcels() {
                     }
                 </LoadScript>
 
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "80%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "80%", overflow: "auto" }} />}
 
-                <Button onClick={verifyParcel} variant="contained" size="large" color="success" sx={{ mt: 2, width: "80%" }}>Verificar Parcela</Button>
+
+
+                <ButtonGroup variant="outlined" aria-label="outlined button group" sx={{ width: "80%" }}>
+                    <Button onClick={verifyParcel} variant="contained" color="success" sx={{ mt: 2, width: "50%" }}>Verificar Parcela</Button>
+                    <Button onClick={rejectParcel} variant="contained" color="error" sx={{ mt: 2, width: "50%" }}>Rejeitar Parcela</Button>
+                </ButtonGroup>
+
+
                 {displayError && <Typography p={0.5} color="error">Nenhuma parcela foi selecionada ou a parcela selecionada já foi verificada</Typography>}
 
-                {(isParcelVerified && displayMessage) ?
+                {(isParcelVerified && displayMessage === 0) &&
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela verificada com sucesso.</Typography>
-                    </Alert> : <></>}
-                {(isParcelNotVerified && displayMessage) ?
+                    </Alert>}
+                {(isParcelNotVerified && displayMessage === 1) &&
                     <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na verificação da parcela.</Typography>
-                    </Alert> : <></>
+                    </Alert>
                 }
+
+                {(isParcelRejected && displayMessage === 2) &&
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Parcela rejeitada com sucesso.</Typography>
+                    </Alert>}
+                {(isParcelNotRejected && displayMessage === 3) &&
+                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao rejeitar a parcela.</Typography>
+                    </Alert>
+                }
+
+                <TextField
+                    sx={{ width: "80%", pt: 1 }}
+                    color="success"
+                    variant="outlined"
+                    placeholder="Escreva aqui a razão no caso de rejeitar a parcela"
+                    multiline
+                    value={reason}
+                    rows={5}
+                    onChange={(event) => setReason(event.target.value)}
+                />
+                {messageErr && <Typography p={0.5} color="error">É obrigatório dar uma justificação da rejeição da parcela</Typography>}
             </Grid>
         </>
     )
