@@ -252,7 +252,7 @@ public class UserResource {
 					if (!canLogin(secret, tokenEntity, tn)) {
 						LOG.warning("User " + data.username + " already logged in.");
 						return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
-					} 
+					}
 					
 					String token = createToken(secret);
 

@@ -150,7 +150,7 @@ public class AdministrativeResource {
 
 				String subject = "Bem-vindo ao LANDIT, " + data.username + " !";
 				Content content = new Content("text/plain", 
-											"Por favor use as seguintes credenciais para fazer login. Será indicado que altere a password após o fazer.\n" 
+											"Por favor use as seguintes credenciais para fazer login. Será indicado que altere a password após o fazer.\n\n" 
 											+ "Username: " + data.username + "\n"
 											+ "Password: " + password);
 

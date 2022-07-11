@@ -30,6 +30,7 @@ import pt.unl.fct.di.adc.avindividual.util.ParcelSearchPositionData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelSearchRegionData;
 import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
+import pt.unl.fct.di.adc.avindividual.util.Info.OwnerInfo;
 import pt.unl.fct.di.adc.avindividual.util.Info.ParcelInfo;
 
 import com.google.cloud.datastore.*;
@@ -698,6 +699,50 @@ public class ParcelResource {
 		}
 	}
 
+	@POST
+    @Path("/ownerInfo")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response showInfo(RequestData data) {
+        LOG.info("Attempting to show user " + data.name);
+
+        if(!data.isDataValid()){
+            return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
+        }
+
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
+        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
+
+        Entity user = datastore.get(userKey);
+        Entity token = datastore.get(tokenKey);
+
+        Entity owner = datastore.get(userKey);
+
+        if (user == null) {
+            LOG.warning("User does not exist");
+            return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
+        }
+
+        if (owner == null) {
+            LOG.warning("User does not exist");
+            return Response.status(Status.BAD_REQUEST).entity("User " + data.name + " does not exist").build();
+        }
+
+        Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+        Entity secret = datastore.get(secretKey);
+
+        if (!ur.isLoggedIn(secret, token, data.username)){
+            LOG.warning("User " + data.username + " not logged in.");
+            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+        }
+
+        OwnerInfo u = new OwnerInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), 
+                        user.getString(DISTRICT), user.getString(COUNTY), user.getString(AUTARCHY), user.getString(STREET), 
+                        user.getString(HPHONE), user.getString(MPHONE));
+
+        return Response.ok(g.toJson(u)).build();
+    }
+
 	private boolean canModify(Entity user, Entity owner, Entity parcel) {
 		Roles userRole = Roles.valueOf(user.getString(ROLE));
 
@@ -1160,16 +1205,138 @@ public class ParcelResource {
 	}
 
 	private boolean contains(LatLng[] markers, LatLng[] auxMarkers){
-		boolean overlaps = false;
-
-		//TODO
-		return overlaps;
+		for(int i = 0; i < auxMarkers.length; i++){
+			if (!isInside(markers, markers.length, auxMarkers[i]))
+				return false;
+		}
+		
+		return true;
 	}
 
-	private void sendEmailToOwners(Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
-        long nOwners = parcel.getLong(NOWNERS);
+	    // Returns true if the point p lies
+    	// inside the polygon[] with n vertices
+    private boolean isInside(LatLng[] polygon, int n, LatLng p)
+    {
 
-        for(long i = 0; i < nOwners; i++) {
+        // Create a point for line segment from p to infinite
+        LatLng extreme = LatLng.of(60.0, p.getLongitude());
+
+        // Count intersections of the above line
+        // with sides of polygon
+        int count = 0, i = 0;
+        do
+        {
+            int next = (i + 1) % n;
+
+            // Check if the line segment from 'p' to
+            // 'extreme' intersects with the line
+            // segment from 'polygon[i]' to 'polygon[next]'
+            if (doIntersect(polygon[i], polygon[next], p, extreme))
+            {
+                // If the point 'p' is collinear with line
+                // segment 'i-next', then check if it lies
+                // on segment. If it lies, return true, otherwise false
+                if (orientation(polygon[i], p, polygon[next]) == 0)
+                {
+                    return onSegment(polygon[i], p,
+                            polygon[next]);
+                }
+
+                count++;
+            }
+            i = next;
+        } while (i != 0);
+
+        // Return true if count is odd, false otherwise
+        return (count % 2 == 1); // Same as (count%2 == 1)
+    }
+
+	// Given three collinear points p, q, r,
+    // the function checks if point q lies
+    // on line segment 'pr'
+    private boolean onSegment(LatLng p, LatLng q, LatLng r)
+    {
+        if (q.getLatitude() <= Math.max(p.getLatitude(), r.getLatitude()) &&
+            q.getLatitude() >= Math.min(p.getLatitude(), r.getLatitude()) &&
+            q.getLongitude() <= Math.max(p.getLongitude(), r.getLongitude()) &&
+            q.getLongitude() >= Math.min(p.getLongitude(), r.getLongitude()))
+        {
+            return true;
+        }
+        return false;
+    }
+ 
+    // To find orientation of ordered triplet (p, q, r).
+    // The function returns following values
+    // 0 --> p, q and r are collinear
+    // 1 --> Clockwise
+    // 2 --> Counterclockwise
+    static int orientation(LatLng p, LatLng q, LatLng r)
+    {
+        double val = (q.getLongitude() - p.getLongitude()) * (r.getLatitude() - q.getLatitude())
+                - (q.getLatitude() - p.getLatitude()) * (r.getLongitude() - q.getLongitude());
+ 
+        if (val == 0.0)
+        {
+            return 0; // collinear
+        }
+        return (val > 0) ? 1 : 2; // clock or counterclock wise
+    }
+ 
+    // The function that returns true if
+    // line segment 'p1q1' and 'p2q2' intersect.
+    private boolean doIntersect(LatLng p1, LatLng q1, LatLng p2, LatLng q2)
+    {
+        // Find the four orientations needed for
+        // general and special cases
+        int o1 = orientation(p1, q1, p2);
+        int o2 = orientation(p1, q1, q2);
+        int o3 = orientation(p2, q2, p1);
+        int o4 = orientation(p2, q2, q1);
+ 
+        // General case
+        if (o1 != o2 && o3 != o4)
+        {
+            return true;
+        }
+ 
+        // Special Cases
+        // p1, q1 and p2 are collinear and
+        // p2 lies on segment p1q1
+        if (o1 == 0 && onSegment(p1, p2, q1))
+        {
+            return true;
+        }
+ 
+        // p1, q1 and p2 are collinear and
+        // q2 lies on segment p1q1
+        if (o2 == 0 && onSegment(p1, q2, q1))
+        {
+            return true;
+        }
+ 
+        // p2, q2 and p1 are collinear and
+        // p1 lies on segment p2q2
+        if (o3 == 0 && onSegment(p2, p1, q2))
+        {
+            return true;
+        }
+ 
+        // p2, q2 and q1 are collinear and
+        // q1 lies on segment p2q2
+        if (o4 == 0 && onSegment(p2, q1, q2))
+        {
+            return true;
+        }
+ 
+        // Doesn't fall in any of the above cases
+        return false;
+    }
+
+	private void sendEmailToOwners(Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
+        int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+
+        for(int i = 0; i < nOwners; i++) {
             Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(parcel.getString(OWNER + i));
             Entity owner = tn.get(ownerKey);
 
@@ -1179,11 +1346,12 @@ public class ParcelResource {
             if(confirmation) {
                 content = new Content("text/plain", 
                                     "É com agrado que o informamos que a sua parcela, " + parcel.getString(NAME) + ", foi verificada com sucesso.\n" +
-                                    "Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n" +
+                                    "Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n\n" +
                                     "Obrigado por utilizar o nosso serviço!");
             } else {
                 content = new Content("text/plain", 
                                     "Infelizmente não foi possível verificar a sua parcela, " + parcel.getString(NAME) + ", como legítima.\n" +
+									"Por favor altere a informação necessária da parcela de acordo com o feedback dado de seguida.\n\n" +
                                     "Razão:\n" +
                                     reason);
             }
