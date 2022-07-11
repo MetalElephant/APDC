@@ -33,11 +33,10 @@ export default function NavbarMerchants() {
                         variant="scrollable"
                         scrollButtons
                     >
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Perfil" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórums" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Sobre Nós" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
 
                     </Tabs>
                 </Grid>
@@ -49,7 +48,6 @@ export default function NavbarMerchants() {
             {selectedLeftTab === 1 && <RewardsCOMPage />}
             {selectedLeftTab === 2 && <ForumPage />}
             {selectedLeftTab === 3 && <AboutUs />}
-            {selectedLeftTab === 4 && <StatisticsPage />}
 
         </>
     )

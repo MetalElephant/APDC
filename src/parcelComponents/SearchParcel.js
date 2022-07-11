@@ -1,8 +1,9 @@
 import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
-import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, RadioGroup, Typography, Button, TextField, Autocomplete } from "@mui/material";
+import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, Select, InputLabel, MenuItem, RadioGroup, Paper, Typography, Button, TextField, Autocomplete } from "@mui/material";
 import { Data, GoogleMap, LoadScript, Polyline, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
+import { SettingsSystemDaydreamOutlined } from '@mui/icons-material';
 
 export default function SearchParcel() {
 
@@ -31,10 +32,15 @@ export default function SearchParcel() {
     const [chosenFreg, setChosenFreg] = react.useState(null);
     const [type, setType] = react.useState(-1);
     const [region, setRegion] = react.useState(null);
+    const [loaded, setLoaded] = react.useState(true)
+    const [chosenParcel, setChosenParcel] = react.useState("")
+    const [allSearchedParcels, setAllSearchedParcels] = react.useState([])
+    const [owner, setOwner] = react.useState("")
+    const [email, setEmail] = react.useState("")
+    const [center, setCenter] = react.useState({lat:39.417 , lng:-8.33})
 
 
     var temp;
-
     const maxLatPt = 42.1543;
     const minLatPt = 36.9597;
     const maxLngPt = -6.1890;
@@ -152,12 +158,12 @@ export default function SearchParcel() {
         if (markers.length === 4) {
             list = []
             if (option === "limits") {
-                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng).then(() => { updatePolygonMarkers() })
+                restCalls.getParcelsByPosition(latMax, latMin, lngMax, markers[3].lng).then(() => { updatePolygonMarkers(); setLoaded(true) })
             }
         }
         else if (type !== -1) {
             list = []
-            restCalls.getParcelsByRegion(region, type).then(() => { updatePolygonMarkers() })
+            restCalls.getParcelsByRegion(region, type).then(() => { updatePolygonMarkers(); setLoaded(true) })
         }
     }
 
@@ -178,6 +184,9 @@ export default function SearchParcel() {
 
 
     useEffect(() => {
+        var searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+        setAllSearchedParcels(searchedParcels)
+        generateSelects()
         var list = [];
         var polygonListMem = [];
         var id = 0;
@@ -206,6 +215,25 @@ export default function SearchParcel() {
         }
     }, [polygonMarkers])
 
+    function generateSelects() {
+        var searchedParcels = JSON.parse(localStorage.getItem("parcelsSearch"))
+        const views = []
+        if (searchedParcels == null || searchedParcels.length === 0)
+            return <Typography> Não existem parcelas </Typography>
+        else
+            for (var i = 0; i < searchedParcels.length; i++) {
+                views.push(
+                    <MenuItem
+                        key={i}
+                        value={i}
+                    >
+                        {searchedParcels[i].parcelName}
+                    </MenuItem>
+                )
+            }
+        return views;
+    }
+
     function optionHandler(e) {
         if (e.target.value === "limits") {
             setType(-1)
@@ -223,15 +251,31 @@ export default function SearchParcel() {
         setPolygonList([]);
     }
 
+    function setAttributes(event) {
+        var parcel = allSearchedParcels[event.target.value]
+        setChosenParcel(event.target.value)
+        setOwner(parcel.owner)
+        setEmail(parcel.email)
+        setCenter({lat: parcel.markers[0].latitude, lng: parcel.markers[0].longitude})
+    }
+
     return (
         <>
-            <Grid item xs={7}>
+            <Grid item xs={1.5} >
+                <FormControl variant="standard">
+                    <InputLabel id="id">Parcelas</InputLabel>
+                    <Select label="parcels" value={chosenParcel} onChange={setAttributes} sx={{ width: "150px" }}>
+                        {loaded && generateSelects()}
+                    </Select>
+                </FormControl>
+            </Grid>
+            <Grid item xs={5.5}>
                 <LoadScript
                     googleMapsApiKey="AIzaSyAyGEjLRK5TFI9UvrLir2sFIvh5_d8VXEs"
                 >
                     <GoogleMap
                         mapContainerStyle={{ width: "100%", height: "600px" }}
-                        center={{ lat: 39.639538, lng: -8.088107 }}
+                        center={{ lat: center.lat, lng: center.lng }}
                         zoom={7}
                         onClick={(event) => {
                             if (option == "limits" && markers.length < 4) {
@@ -317,6 +361,8 @@ export default function SearchParcel() {
                                     setChosenFreg(null);
                                     setRegion(newDistrict)
                                     setType(2)
+                                    setOwner("")
+                                    setEmail("")
                                 }}
                                 sx={{ width: 400, mt: 1 }}
                                 renderInput={(params) => <TextField {...params} label="Distrito" />}
@@ -333,6 +379,8 @@ export default function SearchParcel() {
                                     setChosenFreg(null);
                                     setRegion(newConc)
                                     setType(1)
+                                    setOwner("")
+                                    setEmail("")
                                 }}
                                 sx={{ width: 400, mt: 2 }}
                                 renderInput={(params) => <TextField {...params} label="Concelho" />}
@@ -347,6 +395,8 @@ export default function SearchParcel() {
                                     setChosenFreg(newFreg);
                                     setChosenConc(null);
                                     setChosenDist(null);
+                                    setOwner("")
+                                    setEmail("")
                                     setRegion(newFreg)
                                     setType(3)
                                 }}
@@ -357,6 +407,20 @@ export default function SearchParcel() {
                     }
 
                     <Button variant="contained" color="success" size="large" onClick={getData} sx={{ mt: 2 }}> <Typography variant="h6" size="large"> Avançar </Typography> </Button>
+                    {(email !== "" && owner !== "") &&
+                        <div>
+                            <Box p={2.5} textAlign="center" >
+                                <Paper elevation={12}>
+                                    <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 14 }}> Dono da Parcela: {allSearchedParcels[chosenParcel].owner}  </Typography>
+                                </Paper>
+                            </Box>
+                            <Box p={2.5} textAlign="center" >
+                                <Paper elevation={12}>
+                                    <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 14 }}> Email: </Typography>
+                                </Paper>
+                            </Box>
+                        </div>
+                    }
                 </Box>
             </Grid>
         </>

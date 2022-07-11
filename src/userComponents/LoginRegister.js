@@ -158,6 +158,10 @@ export default function LoginRegister() {
         setName(e.target.value);
     }
 
+    function codeHandler(e) {
+        setCode(e.target.value);
+    }
+
     function homePhoneHandler(e) {
         setHomePhone(e.target.value);
     }
@@ -249,6 +253,10 @@ export default function LoginRegister() {
         setStreet("");
         setNif("");
         setRole("");
+        setCode("");
+        setChosenDist(null)
+        setChosenConc(null)
+        setChosenFreg(null)
     }
 
     const registerFormValidation = () => {
@@ -729,6 +737,17 @@ export default function LoginRegister() {
                                 {Object.keys(nifErr).map((key) => {
                                     return <Typography sx={{ color: "red", fontSize: 14 }}> {nifErr[key]}</Typography>
                                 })}
+                                <TextField
+                                    margin="normal"
+                                    fullWidth
+                                    name="code"
+                                    label="Código Promocional"
+                                    value={code}
+                                    type="code"
+                                    id="code"
+                                    color="success"
+                                    onChange={codeHandler}
+                                />
 
                                 <Button
                                     type="submit"

@@ -1,4 +1,4 @@
-import react from "react"
+import react, { useEffect } from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
@@ -31,7 +31,7 @@ export default function Navbar() {
                         variant="scrollable"
                         scrollButtons
                     >
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Perfil" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórums" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Sobre Nós" />

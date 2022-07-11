@@ -5,7 +5,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 
-export default function ModifyPassword() {
+export default function ModifyPassword(props) {
 
     const [oldPassword, setOldPassword] = react.useState("");
     const [newPassword, setNewPassword] = react.useState("");
@@ -42,7 +42,7 @@ export default function ModifyPassword() {
         e.preventDefault();
         setShowProgress(true)
         restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword)
-            .then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords(); setShowProgress(false) })
+            .then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords(); setShowProgress(false); restCalls.userInfo(); props.onClickFun() })
             .catch(() => { setIsModifyPwdNotSubmit(true); setDisplayMessage(1); setShowProgress(false) });
     }
 
@@ -167,7 +167,7 @@ export default function ModifyPassword() {
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Password modificada com sucesso.</Typography>
                     </Alert> : <></>}
-                {isModifyPwdNotSubmit && (displayMessage === 1) ?
+                {isModifyPwdNotSubmit && (displayMessage === 1) ? 
                     <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a password. Por favor, verifique os seus dados.</Typography>
                     </Alert> : <></>}

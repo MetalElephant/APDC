@@ -35,12 +35,11 @@ export default function NavbarOps() {
                         variant="scrollable"
                         scrollButtons
                     >
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Perfil" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fórums" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Sobre Nós" />
-                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
 
                     </Tabs>
                 </Grid>
@@ -53,7 +52,6 @@ export default function NavbarOps() {
             {selectedLeftTab === 2 && <RewardsOWNERPage />}
             {selectedLeftTab === 3 && <ForumPage />}
             {selectedLeftTab === 4 && <AboutUs />}
-            {selectedLeftTab === 5 && <StatisticsPage />}
 
         </>
     )

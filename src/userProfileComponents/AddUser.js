@@ -1,7 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import locais from "../locais/distritos.txt"
-import { Box, Container, Typography, TextField, Button, Grid, Radio, FormControl, FormLabel, RadioGroup, FormControlLabel, Alert, Autocomplete, Select, InputLabel, MenuItem } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, FormControl, Alert, Autocomplete, Select, InputLabel, MenuItem, CircularProgress } from "@mui/material";
 
 export default function AddUser() {
 
@@ -10,27 +10,63 @@ export default function AddUser() {
     const [name, setName] = react.useState("");
     const [role, setRole] = react.useState("");
     const [isRep, setIsRep] = react.useState(false);
-    const [freg, setFreg] = react.useState(null);
-    const [allFregs, setAllFregs] = react.useState([]);
+    const [freg, setFreg] = react.useState([]);
+    const [conc, setConc] = react.useState([]);
+    const [dist, setDist] = react.useState([]);
+    const [chosenFreg, setChosenFreg] = react.useState(null);
+    const [chosenConc, setChosenConc] = react.useState(null);
+    const [chosenDist, setChosenDist] = react.useState(null);
+    const [distConcState, setDistConcState] = react.useState();
+    const [concFregState, setConcFregState] = react.useState();
+    const [disableConc, setDisableConc] = react.useState(true);
+    const [disableFreg, setDisableFreg] = react.useState(true);
 
     const [displayMessage, setDisplayMessage] = react.useState();
     const [isUserRegistered, setIsUserRegistered] = react.useState(false);
     const [isUserNotRegistered, setIsUserNotRegistered] = react.useState(false);
+    const [showProgress, setShowProgress] = react.useState(false);
 
     useEffect(() => {
-        var split = []
-        var temp = []
+        let split = [];
+        let distToConc = new Map()
+        let concToFreg = new Map()
+        let distritos = [];
+        let concelhos = [];
+        let freguesias = [];
         fetch(locais)
             .then(r => r.text())
             .then(text => {
                 split = text.split(";")
-                for (let i = 2; i < split.length; i += 3) {
+
+                for (let i = 0; i < split.length; i++) {
                     var elem = split[i]
-                    if (temp.indexOf(elem) === -1)
-                        temp.push(elem)
+                    if (i % 3 == 0) {
+                        if (!distToConc.has(elem)) {
+                            distToConc.set(elem, [])
+                            distritos.push(elem)
+                        }
+                        if (distToConc.get(elem).indexOf(split[i + 1]) == -1)
+                            distToConc.get(elem).push(split[i + 1])
+                    }
+                    else if (i % 3 == 1) {
+                        if (!concToFreg.has(elem)) {
+                            concToFreg.set(elem, [])
+                            concelhos.push(elem)
+                        }
+                        if (concToFreg.get(elem).indexOf(split[i + 1]) == -1)
+                            concToFreg.get(elem).push(split[i + 1])
+                    }
+                    else {
+                        if (freguesias.indexOf(elem) == -1)
+                            freguesias.push(elem)
+                    }
                 }
-                setAllFregs(temp)
-            })
+                setDist(distritos)
+                setConc(concelhos)
+                setFreg(freguesias)
+                setDistConcState(distToConc)
+                setConcFregState(concToFreg)
+            });
     }, [])
 
     function usernameHandler(e) {
@@ -59,7 +95,10 @@ export default function AddUser() {
 
     function addUserManager(e) {
         e.preventDefault();
-        restCalls.registerUserSU(username, email, name, isRep, freg).then(() => { setIsUserRegistered(true); setDisplayMessage(0) }).catch(() => { setIsUserNotRegistered(true); setDisplayMessage(1) })
+        setShowProgress(true)
+        restCalls.registerUserSU(username, email, name, isRep, chosenDist, chosenConc, chosenFreg)
+            .then(() => { setShowProgress(false); setIsUserRegistered(true); setDisplayMessage(0) })
+            .catch(() => { setShowProgress(false); setIsUserNotRegistered(true); setDisplayMessage(1) })
     }
 
     return (
@@ -114,6 +153,63 @@ export default function AddUser() {
                                 onChange={nameHandler}
                             />
 
+                            <Autocomplete
+                                selectOnFocus
+                                id="distritos"
+                                options={dist}
+                                getOptionLabel={option => option}
+                                value={chosenDist}
+                                onChange={(_event, newDistrict) => {
+                                    setChosenDist(newDistrict);
+                                    setChosenConc(null)
+                                    setChosenFreg(null)
+                                    if (dist.length > 0) {
+                                        if (distConcState.has(newDistrict)) {
+                                            var temp = distConcState.get(newDistrict)
+                                            setConc(temp)
+                                            setDisableConc(false)
+                                        }
+                                    }
+                                }}
+                                sx={{ width: 400, mt: 1 }}
+                                renderInput={(params) => <TextField {...params} label="Distrito *" />}
+                            />
+                            <Autocomplete
+                                disabled={disableConc}
+                                selectOnFocus
+                                id="concelhos"
+                                options={conc}
+                                getOptionLabel={option => option}
+                                value={chosenConc}
+                                onChange={(_event, newConc) => {
+                                    setChosenConc(newConc);
+                                    setChosenFreg(null)
+                                    if (dist.length > 0) {
+                                        if (concFregState.has(newConc)) {
+                                            var temp = concFregState.get(newConc)
+                                            setFreg(temp)
+                                            setDisableFreg(false)
+                                        }
+                                    }
+                                }}
+                                sx={{ width: 400, mt: 2 }}
+                                renderInput={(params) => <TextField {...params} label="Concelho *" />}
+                            />
+                            <Autocomplete
+                                disabled={disableFreg}
+                                selectOnFocus
+                                id="freguesias"
+                                options={freg}
+                                getOptionLabel={option => option}
+                                value={chosenFreg}
+                                onChange={(_event, newFreg) => {
+                                    setChosenFreg(newFreg);
+                                }}
+                                sx={{ width: 400, mt: 2 }}
+                                renderInput={(params) => <TextField {...params} label="Freguesia *" />}
+                            />
+
+
                             <FormControl variant="standard">
                                 <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                 <Select label="papel" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
@@ -126,21 +222,6 @@ export default function AddUser() {
                                 </Select>
                             </FormControl>
 
-                            {isRep &&
-                                <Autocomplete
-                                    selectOnFocus
-                                    id="freguesias"
-                                    options={allFregs}
-                                    getOptionLabel={option => option}
-                                    value={freg}
-                                    onChange={(_event, newFreg) => {
-                                        setFreg(newFreg);
-                                    }}
-                                    sx={{ width: 400, mt: 2 }}
-                                    renderInput={(params) => <TextField {...params} label="Freguesia *" />}
-                                />
-                            }
-
                             <Button
                                 type="submit"
                                 fullWidth
@@ -152,6 +233,8 @@ export default function AddUser() {
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> criar utilizador </Typography>
                             </Button>
                         </Box>
+                        {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
+
                         {isUserRegistered && (displayMessage === 0) ?
                             <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                                 <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador registado com sucesso.</Typography>

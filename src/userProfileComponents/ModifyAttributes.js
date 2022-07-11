@@ -8,7 +8,7 @@ export default function ModifyAttributes() {
     const [email, setEmail] = react.useState("");
     const [homePhone, setHomePhone] = react.useState("");
     const [mobilePhone, setMobilePhone] = react.useState("");
-    const [address, setAddress] = react.useState("");
+    const [street, setStreet] = react.useState("");
     const [nif, setNif] = react.useState("");
     const [image, setImage] = react.useState();
     const [preview, setPreview] = react.useState();
@@ -33,7 +33,7 @@ export default function ModifyAttributes() {
         setName(user.name);
         setHomePhone(user.landphone);
         setMobilePhone(user.mobilephone);
-        setAddress(user.address);
+        setStreet(user.street);
         setNif(user.nif);
     }, [])
 
@@ -83,8 +83,8 @@ export default function ModifyAttributes() {
         setMobilePhone(e.target.value);
     }
 
-    function addressHandler(e) {
-        setAddress(e.target.value);
+    function streetHandler(e) {
+        setStreet(e.target.value);
     }
 
     function nifHandler(e) {
@@ -97,9 +97,9 @@ export default function ModifyAttributes() {
 
         if (isModifyUserFormValid) {
             setShowProgress(true)
-            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, address, homePhone, mobilePhone, nif, imageArray)
+            restCalls.modifyUserAttributes(JSON.parse(localStorage.getItem('token')).username, name, email, street, homePhone, mobilePhone, nif, imageArray)
                 .then(() => { restCalls.userInfo().then(() => { setShowProgress(false); setUserModified(true); setDisplayMessage(0) }) })
-                .catch(() => setShowProgress(false))
+                .catch(() => { setShowProgress(false); setUserNotModified(true); setDisplayMessage(1) })
         } else {
             setUserNotModified(true);
             setDisplayMessage(1);
@@ -236,12 +236,12 @@ export default function ModifyAttributes() {
                             <TextField
                                 margin="normal"
                                 fullWidth
-                                name="address"
+                                name="street"
                                 label="Morada"
-                                value={address}
-                                id="address"
+                                value={street}
+                                id="street"
                                 color="success"
-                                onChange={addressHandler}
+                                onChange={streetHandler}
                             />
                             <TextField
                                 margin="normal"
@@ -318,7 +318,7 @@ export default function ModifyAttributes() {
                     </form>
                 </div>
 
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
 
                 <Box sx={{ mt: "50px" }}>
                     {userModified && (displayMessage === 0) ?

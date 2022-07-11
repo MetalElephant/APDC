@@ -66,7 +66,7 @@ class restCalls {
         })
     }
 
-    registerUserSU(username, email, name, isRep, freguesia) {
+    registerUserSU(username, email, name, isRep, district, county, autarchy) {
         return fetch("https://landit-app.appspot.com/rest/admin/register", {
             method: 'POST',
             headers: {
@@ -78,7 +78,9 @@ class restCalls {
                 email: email,
                 name: name,
                 isRep: isRep,
-                autarchy: freguesia
+                district: district,
+                county: county,
+                autarchy: autarchy
             })
         }).then(function (response) {
             if (!response.ok) {

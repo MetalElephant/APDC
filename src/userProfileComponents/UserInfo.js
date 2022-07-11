@@ -11,7 +11,7 @@ export default function UserInfo() {
     const [name, setName] = react.useState("")
     const [landphone, setLandphone] = react.useState("")
     const [mobilephone, setMobilephone] = react.useState("")
-    const [address, setAddress] = react.useState("")
+    const [street, setStreet] = react.useState("")
     const [nif, setNif] = react.useState("")
     const [role, setRole] = react.useState("")
     const [image, setImage] = react.useState("")
@@ -25,7 +25,7 @@ export default function UserInfo() {
         setName(user.name)
         setLandphone(user.landphone)
         setMobilephone(user.mobilephone)
-        setAddress(user.address)
+        setStreet(user.street)
         setNif(user.nif)
         setImage(user.photo)
         setRole(user.role)
@@ -66,7 +66,7 @@ export default function UserInfo() {
                 </Box>
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
-                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Morada: {address} </Typography>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Morada: {street} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">
