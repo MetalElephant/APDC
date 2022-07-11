@@ -766,7 +766,7 @@ public class UserResource {
 				return true;
 			case MODERADOR:
 				Roles e2Role = Roles.valueOf(e2.getString(ROLE));
-				return (e2Role != Roles.SUPERUSER && e2Role != Roles.MODERADOR );
+				return (e1 == e2 || (e2Role != Roles.SUPERUSER && e2Role != Roles.MODERADOR));
 			case PROPRIETARIO:
 			case REPRESENTANTE:
 			case COMERCIANTE:
