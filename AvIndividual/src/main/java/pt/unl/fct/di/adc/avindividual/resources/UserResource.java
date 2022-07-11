@@ -794,7 +794,7 @@ public class UserResource {
 	private int redeemCode(Entity code, Entity newUser, Entity codeOwner){
 		Timestamp expDate = code.getTimestamp(EXPTIME);
 
-		int bonus = 1000;
+		int bonus = 0;
 		 
 		if (Timestamp.now().compareTo(expDate) < 0)
 			bonus += 500;

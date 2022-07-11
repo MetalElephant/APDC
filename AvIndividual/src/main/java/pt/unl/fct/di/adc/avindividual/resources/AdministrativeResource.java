@@ -104,23 +104,23 @@ public class AdministrativeResource {
 			//Check if user registering exists
 			if(userReg == null) {
 				LOG.warning("User registering doesn't exist: " + data.usernameReg);
-				return Response.status(Status.FORBIDDEN).entity("User registering doesn't exist").build();
+				return Response.status(Status.NOT_FOUND).entity("User registering doesn't exist").build();
 			}
 
 			//Check if user registering is logged in
 			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
             Entity secret = datastore.get(secretKey);
     
-            if (!ur.isLoggedIn(secret, token, data.username, tn)){
-                LOG.warning("User " + data.username + " not logged in.");
-                return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
+            if (!ur.isLoggedIn(secret, token, data.usernameReg, tn)){
+                LOG.warning("User " + data.usernameReg + " not logged in.");
+                return Response.status(Status.FORBIDDEN).entity("User " + data.usernameReg + " not logged in.").build();
             }
             
 			//Check if user already exists
 			if (user != null) {
 				LOG.warning("User already exists:" + data.username);
 				tn.rollback();
-				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
+				return Response.status(Status.CONFLICT).entity("User already exists.").build();
 			}
 
 			String password = generatePassword(12);
