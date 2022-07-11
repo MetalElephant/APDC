@@ -4,9 +4,11 @@ import fotoRafa from "../images/fotoRafa.PNG";
 import fotoAlex from "../images/fotoAlex.jpeg";
 import fotoKiara from "../images/fotoKiara.jpg";
 import instaLogo from "../images/insta.png";
+import facebookLogo from "../images/facebook.png";
 
 
 import { Grid, Typography, Card, CardContent, CardMedia } from "@mui/material";
+import { Box } from "@mui/system";
 
 export default function AboutUs() {
     return (
@@ -25,9 +27,6 @@ export default function AboutUs() {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             - Responsável pela parte de Frontend
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            - Porta-voz destas nozes
                         </Typography>
                     </CardContent>
                 </Card>
@@ -104,15 +103,16 @@ export default function AboutUs() {
                     </CardContent>
                 </Card>
             </Grid>
-            <CardMedia sx={{position: "absolute", top: "84%", left: "80%", overflow: "auto"}}>
-                <Typography mb={1} variant="h6">
-                    Segue-nos nas redes sociais aqui!
-                </Typography>
+            <Box sx={{ position: "absolute", top: "85%", mr: "4%" }}>
                 <a href="https://www.instagram.com/landit.pt/" target="_blank">
                     <img src={instaLogo} margin-top="10px" height="60px" width="60px" />
                 </a>
-            </CardMedia>
+            </Box>
+            <Box sx={{ position: "absolute", top: "85%", ml: "4%" }}>
+                <a href="https://www.facebook.com/Land-It-100985179358578" target="_blank">
+                    <img src={facebookLogo} margin-top="10px" height="60px" width="60px" />
+                </a>
+            </Box>
         </Grid>
-
     )
 }

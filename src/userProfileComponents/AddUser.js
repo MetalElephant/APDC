@@ -21,6 +21,9 @@ export default function AddUser() {
     const [disableConc, setDisableConc] = react.useState(true);
     const [disableFreg, setDisableFreg] = react.useState(true);
 
+    const [emailErr, setEmailErr] = react.useState({});
+    const [showRoleErr, setShowRoleErr] = react.useState(false);
+
     const [displayMessage, setDisplayMessage] = react.useState();
     const [isUserRegistered, setIsUserRegistered] = react.useState(false);
     const [isUserNotRegistered, setIsUserNotRegistered] = react.useState(false);
@@ -95,10 +98,33 @@ export default function AddUser() {
 
     function addUserManager(e) {
         e.preventDefault();
-        setShowProgress(true)
-        restCalls.registerUserSU(username, email, name, isRep, chosenDist, chosenConc, chosenFreg)
-            .then(() => { setShowProgress(false); setIsUserRegistered(true); setDisplayMessage(0) })
-            .catch(() => { setShowProgress(false); setIsUserNotRegistered(true); setDisplayMessage(1) })
+        if (registerFormValidation) {
+            setShowProgress(true)
+            restCalls.registerUserSU(username, email, name, isRep, chosenDist, chosenConc, chosenFreg)
+                .then(() => { setShowProgress(false); setIsUserRegistered(true); setDisplayMessage(0) })
+                .catch(() => { setShowProgress(false); setIsUserNotRegistered(true); setDisplayMessage(1) })
+        }
+    }
+
+    const registerFormValidation = () => {
+        const emailErr = {};
+        let isValid = true;
+
+        if (email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/) == null) {
+            emailErr.emailWithoutValidFormat = "O e-mail deve possuir um formato válido.";
+            isValid = false;
+            setEmailErr(emailErr)
+        }
+
+        if (role == "") {
+            setShowRoleErr(true)
+            isValid = false;
+        } else {
+            setShowRoleErr(false)
+        }
+
+        setEmailErr(emailErr)
+        return isValid;
     }
 
     return (
@@ -141,6 +167,9 @@ export default function AddUser() {
                                 color="success"
                                 onChange={emailHandler}
                             />
+                            {Object.keys(emailErr).map((key) => {
+                                return <Typography sx={{ color: "red", fontSize: 14 }}> {emailErr[key]}</Typography>
+                            })}
                             <TextField
                                 required
                                 margin="normal"
@@ -209,8 +238,7 @@ export default function AddUser() {
                                 renderInput={(params) => <TextField {...params} label="Freguesia *" />}
                             />
 
-
-                            <FormControl variant="standard">
+                            <FormControl sx={{ mb: 2 }} variant="standard">
                                 <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                 <Select label="papel" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
                                     <MenuItem value="REPRESENTANTE" label="REPRESENTANTE">
@@ -221,6 +249,8 @@ export default function AddUser() {
                                     </MenuItem>
                                 </Select>
                             </FormControl>
+
+                            {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, mb: 2 }}>É obrigatório selecionar um papel.</Typography>}
 
                             <Button
                                 type="submit"

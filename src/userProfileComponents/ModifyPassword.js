@@ -5,7 +5,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 
-export default function ModifyPassword(props) {
+export default function ModifyPassword() {
 
     const [oldPassword, setOldPassword] = react.useState("");
     const [newPassword, setNewPassword] = react.useState("");
@@ -42,7 +42,7 @@ export default function ModifyPassword(props) {
         e.preventDefault();
         setShowProgress(true)
         restCalls.modifyPassword(oldPassword, newPassword, confirmNewPassword)
-            .then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords(); setShowProgress(false); restCalls.userInfo(); props.onClickFun() })
+            .then(() => { setIsModifyPwdSubmit(true); setDisplayMessage(0); resetPasswords(); setShowProgress(false); })
             .catch(() => { setIsModifyPwdNotSubmit(true); setDisplayMessage(1); setShowProgress(false) });
     }
 
