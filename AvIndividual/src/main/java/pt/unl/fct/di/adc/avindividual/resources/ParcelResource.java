@@ -1125,6 +1125,9 @@ public class ParcelResource {
 
 			if (contains(markers, auxMarkers))
 				return true;
+
+			if (contains(auxMarkers, markers))
+				return true;
 		}
 		return false;
 	}
