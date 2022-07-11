@@ -3,6 +3,7 @@ import fotoGui from "../images/fotoGui.PNG";
 import fotoRafa from "../images/fotoRafa.PNG";
 import fotoAlex from "../images/fotoAlex.jpeg";
 import fotoKiara from "../images/fotoKiara.jpg";
+import instaLogo from "../images/insta.png";
 
 
 import { Grid, Typography, Card, CardContent, CardMedia } from "@mui/material";
@@ -27,9 +28,6 @@ export default function AboutUs() {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                             - Porta-voz destas nozes
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            - Maior cagada da FCT
                         </Typography>
                     </CardContent>
                 </Card>
@@ -106,6 +104,14 @@ export default function AboutUs() {
                     </CardContent>
                 </Card>
             </Grid>
+            <CardMedia sx={{position: "absolute", top: "84%", left: "80%", overflow: "auto"}}>
+                <Typography mb={1} variant="h6">
+                    Segue-nos nas redes sociais aqui!
+                </Typography>
+                <a href="https://www.instagram.com/landit.pt/" target="_blank">
+                    <img src={instaLogo} margin-top="10px" height="60px" width="60px" />
+                </a>
+            </CardMedia>
         </Grid>
 
     )

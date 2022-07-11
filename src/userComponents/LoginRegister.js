@@ -1,10 +1,11 @@
 import react from "react"
 import restCalls from "../restCalls"
-import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, FormControl, Alert, Card, Select, InputLabel, MenuItem } from "@mui/material";
+import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, FormControl, Alert, Autocomplete, Card, Select, InputLabel, MenuItem } from "@mui/material";
 import { useHistory } from "react-router-dom"
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { useEffect } from "react";
+import locais from "../locais/distritos.txt"
 
 export default function LoginRegister() {
     let history = useHistory();
@@ -21,6 +22,16 @@ export default function LoginRegister() {
     const [address, setAddress] = react.useState("");
     const [nif, setNif] = react.useState("");
     const [role, setRole] = react.useState("");
+    const [freg, setFreg] = react.useState([]);
+    const [conc, setConc] = react.useState([]);
+    const [dist, setDist] = react.useState([]);
+    const [chosenFreg, setChosenFreg] = react.useState(null);
+    const [chosenConc, setChosenConc] = react.useState(null);
+    const [chosenDist, setChosenDist] = react.useState(null);
+    const [distConcState, setDistConcState] = react.useState();
+    const [concFregState, setConcFregState] = react.useState();
+    const [disableConc, setDisableConc] = react.useState(true);
+    const [disableFreg, setDisableFreg] = react.useState(true);
 
     const [usernameErr, setUsernameErr] = react.useState({});
     const [passwordErr, setPasswordErr] = react.useState({});
@@ -49,6 +60,49 @@ export default function LoginRegister() {
     const [nUsers, setNUsers] = react.useState("")
     const [nParcels, setNParcels] = react.useState("")
 
+
+    useEffect(() => {
+        let split = [];
+        let distToConc = new Map()
+        let concToFreg = new Map()
+        let distritos = [];
+        let concelhos = [];
+        let freguesias = [];
+        fetch(locais)
+            .then(r => r.text())
+            .then(text => {
+                split = text.split(";")
+
+                for (let i = 0; i < split.length; i++) {
+                    var elem = split[i]
+                    if (i % 3 == 0) {
+                        if (!distToConc.has(elem)) {
+                            distToConc.set(elem, [])
+                            distritos.push(elem)
+                        }
+                        if (distToConc.get(elem).indexOf(split[i + 1]) == -1)
+                            distToConc.get(elem).push(split[i + 1])
+                    }
+                    else if (i % 3 == 1) {
+                        if (!concToFreg.has(elem)) {
+                            concToFreg.set(elem, [])
+                            concelhos.push(elem)
+                        }
+                        if (concToFreg.get(elem).indexOf(split[i + 1]) == -1)
+                            concToFreg.get(elem).push(split[i + 1])
+                    }
+                    else {
+                        if (freguesias.indexOf(elem) == -1)
+                            freguesias.push(elem)
+                    }
+                }
+                setDist(distritos)
+                setConc(concelhos)
+                setFreg(freguesias)
+                setDistConcState(distToConc)
+                setConcFregState(concToFreg)
+            });
+    }, [])
 
     useEffect(() => {
         if (image) {
@@ -510,7 +564,7 @@ export default function LoginRegister() {
                                     onChange={nameHandler}
                                 />
 
-                                <FormControl sx={{mb: 2}} variant="standard">
+                                <FormControl sx={{ mb: 2 }} variant="standard">
                                     <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                     <Select label="role" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
                                         <MenuItem value="PROPRIETARIO" label="PROPRIETARIO">
@@ -564,6 +618,74 @@ export default function LoginRegister() {
                                     </form>
                                 </div>
 
+                                <Autocomplete
+                                    selectOnFocus
+                                    id="distritos"
+                                    options={dist}
+                                    getOptionLabel={option => option}
+                                    value={chosenDist}
+                                    onChange={(_event, newDistrict) => {
+                                        setChosenDist(newDistrict);
+                                        setChosenConc(null)
+                                        setChosenFreg(null)
+                                        if (dist.length > 0) {
+                                            if (distConcState.has(newDistrict)) {
+                                                var temp = distConcState.get(newDistrict)
+                                                setConc(temp)
+                                                setDisableConc(false)
+                                            }
+                                        }
+                                    }}
+                                    sx={{ width: 400, mt: 1 }}
+                                    renderInput={(params) => <TextField {...params} label="Distrito *" />}
+                                />
+                                <Autocomplete
+                                    disabled={disableConc}
+                                    selectOnFocus
+                                    id="concelhos"
+                                    options={conc}
+                                    getOptionLabel={option => option}
+                                    value={chosenConc}
+                                    onChange={(_event, newConc) => {
+                                        setChosenConc(newConc);
+                                        setChosenFreg(null)
+                                        if (dist.length > 0) {
+                                            if (concFregState.has(newConc)) {
+                                                var temp = concFregState.get(newConc)
+                                                setFreg(temp)
+                                                setDisableFreg(false)
+                                            }
+                                        }
+                                    }}
+                                    sx={{ width: 400, mt: 2 }}
+                                    renderInput={(params) => <TextField {...params} label="Concelho *" />}
+                                />
+                                <Autocomplete
+                                    disabled={disableFreg}
+                                    selectOnFocus
+                                    id="freguesias"
+                                    options={freg}
+                                    getOptionLabel={option => option}
+                                    value={chosenFreg}
+                                    onChange={(_event, newFreg) => {
+                                        setChosenFreg(newFreg);
+                                    }}
+                                    sx={{ width: 400, mt: 2 }}
+                                    renderInput={(params) => <TextField {...params} label="Freguesia *" />}
+                                />
+
+                                <TextField
+                                    margin="normal"
+                                    fullWidth
+                                    name="address"
+                                    label="Morada"
+                                    type="address"
+                                    value={address}
+                                    id="address"
+                                    color="success"
+                                    onChange={addressHandler}
+                                />
+
                                 <TextField
                                     margin="normal"
                                     fullWidth
@@ -592,17 +714,6 @@ export default function LoginRegister() {
                                 {Object.keys(homePhoneErr).map((key) => {
                                     return <Typography sx={{ color: "red", fontSize: 14 }}> {homePhoneErr[key]}</Typography>
                                 })}
-                                <TextField
-                                    margin="normal"
-                                    fullWidth
-                                    name="address"
-                                    label="Morada"
-                                    type="address"
-                                    value={address}
-                                    id="address"
-                                    color="success"
-                                    onChange={addressHandler}
-                                />
                                 <TextField
                                     margin="normal"
                                     fullWidth
