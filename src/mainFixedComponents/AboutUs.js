@@ -109,7 +109,7 @@ export default function AboutUs() {
                 </a>
             </Box>
             <Box sx={{ position: "absolute", top: "85%", ml: "4%" }}>
-                <a href="https://www.facebook.com/" target="_blank">
+                <a href="https://www.facebook.com/Land-It-100985179358578" target="_blank">
                     <img src={facebookLogo} margin-top="10px" height="60px" width="60px" />
                 </a>
             </Box>
