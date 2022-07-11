@@ -97,7 +97,7 @@ public class UserResource {
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
     private static final String BUCKET_NAME = "landit-app.appspot.com";
-    private static final String URL =  "https://storage.googleapis.com/landit-app.appspot.com/";
+    private static final String URL = "https://storage.googleapis.com/landit-app.appspot.com/";
 
 	//Token information
 	private static final String TOKENID = "ID";
@@ -169,7 +169,7 @@ public class UserResource {
 			//TODO Should also verify this in another method for frontend
 			if (redeemCodeEntity != null) {
 				points = redeemCode(redeemCodeEntity, user, codeOwner);
-				addPointsToOwner(codeOwnerKey, codeOwner, points, tn);	
+				addPointsToOwner(codeOwner, points, tn);	
 			}
 			
 			//call some function to verify code and reward points, extra rewards for the first 3 months
@@ -248,12 +248,11 @@ public class UserResource {
 					Entity secret = tn.get(secretKey);
 					Entity tokenEntity = tn.get(tokenKey);
 					
-					/*Guarantee user isn't already logged in
+					//Guarantee user isn't already logged in
 					if (!canLogin(secret, tokenEntity, tn)) {
 						LOG.warning("User " + data.username + " already logged in.");
 						return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
-					}
-					*/  
+					} 
 					
 					String token = createToken(secret);
 
@@ -883,10 +882,10 @@ public class UserResource {
 		}
 	}
 
-	private void addPointsToOwner(Key codeOwnerKey, Entity codeOwner, int points, Transaction tn) {
+	private void addPointsToOwner(Entity codeOwner, int points, Transaction tn) {
 		long nParcelsCo = codeOwner.getLong(NPARCELSCO);
 		
-		Builder builder = Entity.newBuilder(codeOwnerKey)
+		Builder builder = Entity.newBuilder(codeOwner.getKey())
 			.set(NAME, codeOwner.getString(NAME))
 			.set(PASSWORD, codeOwner.getString(PASSWORD))
 			.set(EMAIL, codeOwner.getString(EMAIL))
