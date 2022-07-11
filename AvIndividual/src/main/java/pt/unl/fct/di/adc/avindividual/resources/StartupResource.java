@@ -1,5 +1,6 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
+import java.util.Calendar;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -37,6 +38,7 @@ public class StartupResource {
     private static final String STAT = "Estatística";
     private static final String VALUE = "Valor";
     private static final String SECRET = "Segredo";
+    private static final String CODE = "Código";
 
     private static final int SECRET_LENGTH = 64;
 
@@ -68,8 +70,12 @@ public class StartupResource {
     private static final String SU_COUNTY = "Lisboa";
     private static final String SU_AUTARCHY = "Odivelas";
 	private static final int SU_POINTS = 100000;
+    private static final String SU_CODE = "WLCM2LNDT";
 
     private static final String UNDEFINED = "Não Definido";
+
+    //Code info
+	private static final String EXPTIME = "Tempo de expiração";
 
 	public StartupResource() {}
 
@@ -81,6 +87,7 @@ public class StartupResource {
         Transaction tn = datastore.newTransaction();
 
         Key userKey = datastore.newKeyFactory().setKind(USER).newKey(SU_USERNAME);
+        Key codeKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, SU_USERNAME)).setKind(CODE).newKey(SU_CODE);
 
         try {
             Entity SU = tn.get(userKey);
@@ -90,27 +97,36 @@ public class StartupResource {
             }
 
             SU = Entity.newBuilder(userKey)
-                    .set(NAME, SU_NAME)
-                    .set(PASSWORD, DigestUtils.sha512Hex(SU_PASSWORD))
-                    .set(EMAIL, SU_EMAIL)
-                    .set(ROLE, Roles.SUPERUSER.getRole())
-                    .set(DISTRICT, SU_DISTRICT)
-                    .set(COUNTY, SU_COUNTY)
-                    .set(AUTARCHY, SU_AUTARCHY)
-                    .set(STREET, UNDEFINED)
-                    .set(MPHONE, UNDEFINED)
-                    .set(HPHONE, UNDEFINED)
-                    .set(NIF, UNDEFINED)
-                    .set(PHOTO, UNDEFINED)
-                    .set(POINTS, SU_POINTS)
-                    .set(NPARCELSCRT, 0)
-                    .set(NPARCELSCO, 0)
-					.set(NFORUMS, 0)
-					.set(NMSGS, 0)
-                    .set(CTIME, Timestamp.now())
-                    .build();
+                .set(NAME, SU_NAME)
+                .set(PASSWORD, DigestUtils.sha512Hex(SU_PASSWORD))
+                .set(EMAIL, SU_EMAIL)
+                .set(ROLE, Roles.SUPERUSER.getRole())
+                .set(DISTRICT, SU_DISTRICT)
+                .set(COUNTY, SU_COUNTY)
+                .set(AUTARCHY, SU_AUTARCHY)
+                .set(STREET, UNDEFINED)
+                .set(MPHONE, UNDEFINED)
+                .set(HPHONE, UNDEFINED)
+                .set(NIF, UNDEFINED)
+                .set(PHOTO, UNDEFINED)
+                .set(POINTS, SU_POINTS)
+                .set(NPARCELSCRT, 0)
+                .set(NPARCELSCO, 0)
+                .set(NFORUMS, 0)
+                .set(NMSGS, 0)
+                .set(CTIME, Timestamp.now())
+                .build();
             
-            tn.add(SU);
+            //Date for 3 months from now, when code loses bonus
+			Calendar expDate = Calendar.getInstance();
+			expDate.add(Calendar.MONTH, 3);
+
+            Entity code = Entity.newBuilder(codeKey)
+                .set(EXPTIME, Timestamp.of(expDate.getTime()))
+                .build();
+
+
+            tn.add(SU, code);
             tn.commit();
 
             return Response.ok("Super User created.").build();

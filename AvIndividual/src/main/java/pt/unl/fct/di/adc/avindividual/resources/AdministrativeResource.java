@@ -139,7 +139,7 @@ public class AdministrativeResource {
 						.set(HPHONE, data.homePhone)
 						.set(NIF, data.nif)
 						.set(PHOTO, UNDEFINED)
-						.set(POINTS, 0)
+						.set(POINTS, -1)
 						.set(NPARCELSCRT, 0)
 						.set(NPARCELSCO, 0)
 						.set(NFORUMS, 0)

@@ -160,12 +160,17 @@ public class UserResource {
 				return Response.status(Status.CONFLICT).entity("User Already Exists").build();
 			}
 
-			Entity redeemCodeEntity = tn.get(redeemCodeKey);
+			Entity codeOwner = tn.get(codeOwnerKey);
 
+			Entity redeemCodeEntity = tn.get(redeemCodeKey);
+			
 			int points = 0;
+
 			//TODO Should also verify this in another method for frontend
-			if (redeemCodeEntity != null)
-				points = redeemCode(redeemCodeEntity, user, tn.get(codeOwnerKey));
+			if (redeemCodeEntity != null) {
+				points = redeemCode(redeemCodeEntity, user, codeOwner);
+				addPointsToOwner(codeOwnerKey, codeOwner, points, tn);	
+			}
 			
 			//call some function to verify code and reward points, extra rewards for the first 3 months
 			//If indeed implements a points system update the other persons points as well
@@ -197,19 +202,19 @@ public class UserResource {
 			expDate.add(Calendar.MONTH, 3);
 
 			Entity generatedCodeEntity = Entity.newBuilder(generatedCodeKey)
-			.set(EXPTIME, Timestamp.of(expDate.getTime()))
-			.build();
+				.set(EXPTIME, Timestamp.of(expDate.getTime()))
+				.build();
 
 			//Update statistics
 			sr.updateStats(statKey, tn.get(statKey), tn, ADD);
 
 			tn.add(user, generatedCodeEntity);
 
-			tn.commit(); 
+			tn.commit();
 
 			LOG.fine("Registered user: " + data.username);
-			return Response.ok(g.toJson(null)).build();
 
+			return Response.ok(g.toJson(null)).build();
 		} finally {
 			if (tn.isActive())
 				tn.rollback();
@@ -222,7 +227,7 @@ public class UserResource {
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 	public Response doLogin(LoginData data) {	
 		LOG.info("Attempt to login user: " + data.username);
-	
+		
         //Check if data was input correctly
         if (!data.validData())
                 return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
@@ -243,11 +248,12 @@ public class UserResource {
 					Entity secret = tn.get(secretKey);
 					Entity tokenEntity = tn.get(tokenKey);
 					
-					//Guarantee user isn't already logged in
+					/*Guarantee user isn't already logged in
 					if (!canLogin(secret, tokenEntity, tn)) {
 						LOG.warning("User " + data.username + " already logged in.");
 						return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
-					}         
+					}
+					*/  
 					
 					String token = createToken(secret);
 
@@ -482,9 +488,16 @@ public class UserResource {
 			}
 	
 			String newPwd = DigestUtils.sha512Hex(data.newPwd);
+
 			if(user.getString(PASSWORD).equals(newPwd)) {
 					LOG.warning("Old password can't be the same as new password.");
 					return Response.status(Status.CONFLICT).entity("Old password can't be the same as new password.").build();
+			}
+
+			long points = user.getLong(POINTS);
+
+			if(points < 0) {
+				points = 0;
 			}
 
 			long nParcelsCo = user.getLong(NPARCELSCO);
@@ -502,7 +515,7 @@ public class UserResource {
 					.set(HPHONE, user.getString(HPHONE))
 					.set(NIF, user.getString(NIF))
 					.set(PHOTO, user.getString(PHOTO))
-					.set(POINTS, user.getLong(POINTS))
+					.set(POINTS, points)
 					.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
 					.set(NPARCELSCO, nParcelsCo)
 					.set(NFORUMS, user.getLong(NFORUMS))
@@ -785,8 +798,6 @@ public class UserResource {
 		 
 		if (Timestamp.now().compareTo(expDate) < 0)
 			bonus += 500;
-		
-		//TODO add the bonus to the owner of the code	
 
 		return bonus;
 	}
@@ -870,5 +881,37 @@ public class UserResource {
 
 			tn.put(parcel);
 		}
+	}
+
+	private void addPointsToOwner(Key codeOwnerKey, Entity codeOwner, int points, Transaction tn) {
+		long nParcelsCo = codeOwner.getLong(NPARCELSCO);
+		
+		Builder builder = Entity.newBuilder(codeOwnerKey)
+			.set(NAME, codeOwner.getString(NAME))
+			.set(PASSWORD, codeOwner.getString(PASSWORD))
+			.set(EMAIL, codeOwner.getString(EMAIL))
+			.set(ROLE, codeOwner.getString(ROLE))
+			.set(DISTRICT, codeOwner.getString(DISTRICT))
+			.set(COUNTY, codeOwner.getString(COUNTY))
+			.set(AUTARCHY, codeOwner.getString(AUTARCHY))
+			.set(STREET, codeOwner.getString(STREET))
+			.set(MPHONE, codeOwner.getString(MPHONE))
+			.set(HPHONE, codeOwner.getString(HPHONE))
+			.set(NIF, codeOwner.getString(NIF))
+			.set(PHOTO, codeOwner.getString(PHOTO))
+			.set(POINTS, codeOwner.getLong(POINTS) + points)
+			.set(NPARCELSCRT, codeOwner.getLong(NPARCELSCRT))
+			.set(NPARCELSCO, nParcelsCo)
+			.set(NFORUMS, codeOwner.getLong(NFORUMS))
+			.set(NMSGS, codeOwner.getLong(NMSGS))
+			.set(CTIME, codeOwner.getTimestamp(CTIME));
+
+		for(long i = 0; i < nParcelsCo; i++) {
+			builder.set(PARCEL+i, codeOwner.getString(PARCEL+i));
+		}
+
+		codeOwner = builder.build();
+
+		tn.put(codeOwner);
 	}
 }
