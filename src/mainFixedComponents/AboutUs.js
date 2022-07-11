@@ -103,15 +103,16 @@ export default function AboutUs() {
                     </CardContent>
                 </Card>
             </Grid>
-            <Box sx={{position: "absolute", top: "85%"}}>
+            <Box sx={{ position: "absolute", top: "85%", mr: "4%" }}>
                 <a href="https://www.instagram.com/landit.pt/" target="_blank">
                     <img src={instaLogo} margin-top="10px" height="60px" width="60px" />
                 </a>
+            </Box>
+            <Box sx={{ position: "absolute", top: "85%", ml: "4%" }}>
                 <a href="https://www.facebook.com/" target="_blank">
                     <img src={facebookLogo} margin-top="10px" height="60px" width="60px" />
                 </a>
             </Box>
         </Grid>
-
     )
 }

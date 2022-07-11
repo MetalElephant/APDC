@@ -577,7 +577,7 @@ export default function LoginRegister() {
                                     </Select>
                                 </FormControl>
 
-                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, pt: 1 }}>É obrigatório selecionar um papel.</Typography>}
+                                {showRoleErr && <Typography sx={{ color: "red", fontSize: 14, mb: 2 }}>É obrigatório selecionar um papel.</Typography>}
 
                                 <div>
                                     <form>
