@@ -108,7 +108,7 @@ public class AdministrativeResource {
 			}
 
 			//Check if user registering is logged in
-			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
+			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(userReg.getString(ROLE));
             Entity secret = datastore.get(secretKey);
     
             if (!ur.isLoggedIn(secret, token, data.usernameReg, tn)){
