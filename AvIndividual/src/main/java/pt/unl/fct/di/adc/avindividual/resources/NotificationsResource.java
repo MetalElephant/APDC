@@ -29,11 +29,11 @@ public class NotificationsResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 	//Keys
-	private static final String NOTIFICATION = "Notification";
-    private static final String USER = "User";
+	private static final String NOTIFICATION = "Notificação";
+    private static final String USER = "Utilizador";
 
 	//Notification information
-	private static final String MESSAGE = "Message";
+	private static final String MESSAGE = "Mensagem";
 
 	public NotificationsResource() {}
 

@@ -41,35 +41,37 @@ public class RewardResource {
     //private AdministrativeResource ar = new AdministrativeResource();
     
     // Reward info
-    private static final String OWNER = "owner";
-    private static final String REWARD_NAME = "name";
-    private static final String DESCRIPTION = "description";
-    private static final String PRICE = "points";
-    private static final String NREDEEMED = "times redeemed";
+    private static final String OWNER = "Dono";
+    //private static final String REWARD_NAME = "Nome";
+    private static final String DESCRIPTION = "Descrição";
+    private static final String PRICE = "Preço";
+    private static final String NREDEEMED = "Vezes resgatado";
 
 	//User information
-	private static final String NAME = "name";
-	private static final String PASSWORD = "password";
-	private static final String EMAIL = "email";
-	private static final String ROLE = "role";
-	private static final String MPHONE = "mobile phone";
-	private static final String HPHONE = "home phone";
-	private static final String COUNTY = "county";
-	private static final String ADDRESS = "address";
-	private static final String NIF = "nif";
-	private static final String PHOTO = "photo";
-	private static final String SPEC = "specialization";
-	private static final String NPARCELSCRT = "number of parcels created";
-	private static final String NPARCELSCO = "number of parcels with co-ownership";
-	private static final String NFORUMS = "number of forums";
-	private static final String NMSGS = "number of messages";
-	private static final String CTIME = "creation time";
+	private static final String NAME = "Nome";
+	private static final String PASSWORD = "Password";
+	private static final String EMAIL = "Email";
+	private static final String ROLE = "Papel";
+	private static final String MPHONE = "Telemóvel";
+	private static final String HPHONE = "Telefone";
+	private static final String DISTRICT = "Distrito";
+	private static final String COUNTY = "Concelho";
+	private static final String AUTARCHY = "Freguesia";
+	private static final String STREET = "Rua";
+	private static final String NIF = "NIF";
+	private static final String POINTS = "Pontos";
+	private static final String PHOTO = "Foto";
+	private static final String NPARCELSCRT = "Núm de parcelas criadas";
+	private static final String NPARCELSCO = "Núm de parcelas co-propriedade";
+	private static final String NFORUMS = "Número de fóruns";
+	private static final String NMSGS = "Número de mensagens";
+	private static final String CTIME = "Tempo da criação";
 
     // Keys
-	private static final String USER = "User";
+	private static final String USER = "Utilizador";
     private static final String TOKEN = "Token";
-	private static final String REWARD = "Reward";
-    private static final String SECRET = "Secret";
+	private static final String REWARD = "Recompensa";
+    private static final String SECRET = "Segredo";
     
     public RewardResource() { }
 
@@ -122,7 +124,7 @@ public class RewardResource {
 
             reward = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
-                    .set(REWARD_NAME, data.name)
+                    .set(NAME, data.name)
                     .set(DESCRIPTION, data.description)
                     .set(PRICE, data.price)
                     .set(NREDEEMED, 0)
@@ -187,13 +189,20 @@ public class RewardResource {
 				return Response.status(Status.FORBIDDEN).entity("User " + data.username + " does not have authorization to change this reward.").build();
             }
 
-            reward = Entity.newBuilder(rewardKey)
+            Builder builder = Entity.newBuilder(rewardKey)
                     .set(OWNER, data.owner)
-                    .set(REWARD_NAME, data.name)
+                    .set(NAME, data.name)
                     .set(DESCRIPTION, data.description)
                     .set(PRICE, data.price)
-                    .set(NREDEEMED, reward.getLong(NREDEEMED))
-                    .build();
+                    .set(NREDEEMED, reward.getLong(NREDEEMED));
+
+			for(int i = 0; i < reward.getLong(NREDEEMED); i++) {
+				builder.set(USER + i, reward.getString(USER + i));
+			}
+
+			builder.set(USER + reward.getLong(NREDEEMED), data.username);
+
+			reward = builder.build();
 
             tn.put(reward);
             tn.commit();
@@ -307,7 +316,7 @@ public class RewardResource {
 	        	return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " has already redeemed the reward.").build();
 			}
 
-	    	long points = Integer.parseInt(user.getString(SPEC)) - reward.getLong(PRICE);
+	    	long points = user.getLong(POINTS) - reward.getLong(PRICE);
 
 	    	if(points < 0) {
 	    		LOG.warning("User " + data.username + " does not have enough points to redeem this reward.");
@@ -315,21 +324,24 @@ public class RewardResource {
 	    	}
 
     		Builder builderUser = Entity.newBuilder(userKey)
-		    		.set(NAME, user.getString(NAME))
-	    			.set(PASSWORD, user.getString(PASSWORD))
-    				.set(EMAIL, user.getString(EMAIL))
-				    .set(ROLE, user.getString(ROLE))
-			    	.set(MPHONE, user.getString(MPHONE))
-		    		.set(HPHONE, user.getString(HPHONE))
-	    			.set(ADDRESS, user.getString(ADDRESS))
-    				.set(NIF, user.getString(NIF))
-			    	.set(PHOTO, user.getString(PHOTO))
-		    		.set(SPEC, String.valueOf(points))
-					.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
-					.set(NPARCELSCO, user.getLong(NPARCELSCO))
-					.set(NFORUMS, user.getLong(NFORUMS))
-					.set(NMSGS, user.getLong(NMSGS))
-    				.set(CTIME, user.getTimestamp(CTIME));
+				.set(NAME, user.getString(NAME))
+				.set(PASSWORD, user.getString(PASSWORD))
+				.set(EMAIL, user.getString(EMAIL))
+				.set(ROLE, user.getString(ROLE))
+				.set(DISTRICT, user.getString(DISTRICT))
+				.set(COUNTY, user.getString(COUNTY))
+				.set(AUTARCHY, user.getString(AUTARCHY))
+				.set(STREET, user.getString(STREET))
+				.set(MPHONE, user.getString(MPHONE))
+				.set(HPHONE, user.getString(HPHONE))
+				.set(NIF, user.getString(NIF))
+				.set(PHOTO, user.getString(PHOTO))
+				.set(POINTS, user.getLong(POINTS))
+				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
+				.set(NPARCELSCO, user.getLong(NPARCELSCO))
+				.set(NFORUMS, user.getLong(NFORUMS))
+				.set(NMSGS, user.getLong(NMSGS))
+				.set(CTIME, user.getTimestamp(CTIME));
 
 	    	user = builderUser.build();
 
@@ -337,7 +349,7 @@ public class RewardResource {
 
 		    Builder builderReward = Entity.newBuilder(rewardKey)
 		    		.set(OWNER, reward.getString(OWNER))
-	    			.set(REWARD_NAME, reward.getString(REWARD_NAME))
+	    			.set(NAME, reward.getString(NAME))
     				.set(DESCRIPTION, reward.getString(DESCRIPTION))
 				    .set(PRICE, reward.getLong(PRICE))
 			    	.set(NREDEEMED, length + 1L);
@@ -407,7 +419,7 @@ public class RewardResource {
             return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
         }
 
-        RewardData r = new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED));
+        RewardData r = new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED));
 
         return Response.ok(g.toJson(r)).build();
     }
@@ -536,7 +548,7 @@ public class RewardResource {
 		List<RewardData> userRewards = new LinkedList<>();
 
 		rewards.forEachRemaining(reward -> {
-			userRewards.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+			userRewards.add(new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
 		});
 
 		return userRewards;
@@ -550,7 +562,7 @@ public class RewardResource {
 		List<RewardData> rewardsList = new LinkedList<>();
 
 		rewards.forEachRemaining(reward -> {
-			rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+			rewardsList.add(new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
 		});
 
 		return rewardsList;
@@ -560,7 +572,7 @@ public class RewardResource {
 		List<RewardData> rewards = rewardsUserCanRedeem(user, county);
 
 		for (RewardData r : rewards) {
-			if(r.name.equals(reward.getString(REWARD_NAME))) {
+			if(r.name.equals(reward.getString(NAME))) {
 				return true;
 			}
 		}
@@ -577,7 +589,7 @@ public class RewardResource {
 
 		rewards.forEachRemaining(reward -> {
 			if(!hasRedeemed(username, reward) && sameCounty(county, reward)) {
-				rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+				rewardsList.add(new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
 			}
 		});
 
@@ -604,7 +616,7 @@ public class RewardResource {
 
         rewards.forEachRemaining(reward -> {
             if(hasRedeemed(username, reward)) {
-                rewardsList.add(new RewardData(reward.getString(REWARD_NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+                rewardsList.add(new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
             }
         });
 

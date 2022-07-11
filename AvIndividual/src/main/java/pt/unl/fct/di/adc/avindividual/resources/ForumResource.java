@@ -39,31 +39,29 @@ public class ForumResource {
 	private final Gson g = new Gson();
 
 	private UserResource ur = new UserResource();
+    private StatisticsResource sr = new StatisticsResource();
 
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     //User information
-    private static final String ROLE = "role";
+    private static final String ROLE = "Papel";
 
     //Forum information
-    private static final String TOPIC = "Topic";
-    private static final String CRT_DATE = "Creation date";
+    private static final String TOPIC = "Tópico";
+    private static final String CRT_DATE = "Data de criação";
 
     //Keys
-	private static final String USER = "User";
+	private static final String USER = "Utilizador";
     private static final String TOKEN = "Token";
-	private static final String FORUM = "Forum";
-    private static final String PARCEL = "Parcel";
-    private static final String MESSAGE = "Message";
-    private static final String OWNER = "Owner";
-    private static final String ORDER = "Order";
-    private static final String STAT = "Statistics";
-    private static final String SECRET = "Secret";
+	private static final String FORUM = "Fórum";
+    private static final String PARCEL = "Parcela";
+    private static final String MESSAGE = "Mensagem";
+    private static final String OWNER = "Dono";
+    private static final String ORDER = "Ordem";
+    private static final String STAT = "Estatística";
+    private static final String SECRET = "Segredo";
 
     private static final boolean ADD = true;
-
-    private StatisticsResource sr = new StatisticsResource();
-
 
     public ForumResource() {}
 

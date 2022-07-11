@@ -23,31 +23,34 @@ public class StatisticsResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 	//Keys
-	private static final String USER = "User";
-	private static final String PARCEL = "Parcel";
-	private static final String FORUM = "Forum";
-	private static final String MESSAGE = "Message";
-	private static final String STAT = "Statistics";
+	private static final String USER = "Utilizador";
+	private static final String PARCEL = "Parcela";
+	private static final String FORUM = "Fórum";
+	private static final String MESSAGE = "Mensagem";
+	private static final String STAT = "Estatística";
 
 	//User information
-	private static final String NAME = "name";
-	private static final String PASSWORD = "password";
-	private static final String EMAIL = "email";
-	private static final String ROLE = "role";
-	private static final String MPHONE = "mobile phone";
-	private static final String HPHONE = "home phone";
-	private static final String ADDRESS = "address";
-	private static final String NIF = "nif";
-	private static final String PHOTO = "photo";
-	private static final String SPEC = "specialization";
-	private static final String CTIME = "creation time";
-	private static final String NPARCELSCRT = "number of parcels created";
-	private static final String NPARCELSCO = "number of parcels with co-ownership";
-	private static final String NFORUMS = "number of forums";
-	private static final String NMSGS = "number of messages";
+	private static final String NAME = "Nome";
+	private static final String PASSWORD = "Password";
+	private static final String EMAIL = "Email";
+	private static final String ROLE = "Papel";
+	private static final String MPHONE = "Telemóvel";
+	private static final String HPHONE = "Telefone";
+	private static final String DISTRICT = "Distrito";
+	private static final String COUNTY = "Concelho";
+	private static final String AUTARCHY = "Freguesia";
+	private static final String STREET = "Rua";
+	private static final String NIF = "NIF";
+	private static final String POINTS = "Pontos";
+	private static final String PHOTO = "Foto";
+	private static final String NPARCELSCRT = "Núm de parcelas criadas";
+	private static final String NPARCELSCO = "Núm de parcelas co-propriedade";
+	private static final String NFORUMS = "Número de fóruns";
+	private static final String NMSGS = "Número de mensagens";
+	private static final String CTIME = "Tempo da criação";
 
 	//Statistics information
-	private static final String VALUE = "Value";
+	private static final String VALUE = "Valor";
 
 	public StatisticsResource() {}
 
@@ -104,21 +107,24 @@ public class StatisticsResource {
 		long nParcelsCo = user.getLong(NPARCELSCO);
 
 		Builder build = Entity.newBuilder(user.getKey())
-				.set(NAME, user.getString(NAME))
-				.set(PASSWORD, user.getString(PASSWORD))
-				.set(EMAIL, user.getString(EMAIL))
-				.set(ROLE, user.getString(ROLE))
-				.set(MPHONE, user.getString(MPHONE))
-				.set(HPHONE, user.getString(HPHONE))
-				.set(ADDRESS, user.getString(ADDRESS))
-				.set(NIF, user.getString(NIF))
-				.set(PHOTO, user.getString(PHOTO))
-				.set(SPEC, user.getString(SPEC))
-				.set(NPARCELSCRT, nParcelsCrt)
-				.set(NPARCELSCO, nParcelsCo)
-				.set(NFORUMS, nForums)
-				.set(NMSGS, nMsgs)
-				.set(CTIME, user.getTimestamp(CTIME));
+			.set(NAME, user.getString(NAME))
+			.set(PASSWORD, user.getString(PASSWORD))
+			.set(EMAIL, user.getString(EMAIL))
+			.set(ROLE, user.getString(ROLE))
+			.set(DISTRICT, user.getString(DISTRICT))
+			.set(COUNTY, user.getString(COUNTY))
+			.set(AUTARCHY, user.getString(AUTARCHY))
+			.set(STREET, user.getString(STREET))
+			.set(MPHONE, user.getString(MPHONE))
+			.set(HPHONE, user.getString(HPHONE))
+			.set(NIF, user.getString(NIF))
+			.set(PHOTO, user.getString(PHOTO))
+			.set(POINTS, user.getLong(POINTS))
+			.set(NPARCELSCRT, nParcelsCrt)
+			.set(NPARCELSCO, nParcelsCo)
+			.set(NFORUMS, nForums)
+			.set(NMSGS, nMsgs)
+			.set(CTIME, user.getTimestamp(CTIME));
 
 		for(long i = 0; i < nParcelsCo; i++){
 			build.set(PARCEL+i, user.getString(PARCEL+i));
@@ -138,21 +144,24 @@ public class StatisticsResource {
 		long nParcelsCo = user.getLong(NPARCELSCO);
 
 		Builder build = Entity.newBuilder(user.getKey())
-				.set(NAME, user.getString(NAME))
-				.set(PASSWORD, user.getString(PASSWORD))
-				.set(EMAIL, user.getString(EMAIL))
-				.set(ROLE, user.getString(ROLE))
-				.set(MPHONE, user.getString(MPHONE))
-				.set(HPHONE, user.getString(HPHONE))
-				.set(ADDRESS, user.getString(ADDRESS))
-				.set(NIF, user.getString(NIF))
-				.set(PHOTO, user.getString(PHOTO))
-				.set(SPEC, user.getString(SPEC))
-				.set(NPARCELSCRT, user.getLong(NPARCELSCRT) + val)
-				.set(NPARCELSCO, nParcelsCo)
-				.set(NFORUMS, user.getLong(NFORUMS) + val)
-				.set(NMSGS, user.getLong(NMSGS))
-				.set(CTIME, user.getTimestamp(CTIME));
+			.set(NAME, user.getString(NAME))
+			.set(PASSWORD, user.getString(PASSWORD))
+			.set(EMAIL, user.getString(EMAIL))
+			.set(ROLE, user.getString(ROLE))
+			.set(DISTRICT, user.getString(DISTRICT))
+			.set(COUNTY, user.getString(COUNTY))
+			.set(AUTARCHY, user.getString(AUTARCHY))
+			.set(STREET, user.getString(STREET))
+			.set(MPHONE, user.getString(MPHONE))
+			.set(HPHONE, user.getString(HPHONE))
+			.set(NIF, user.getString(NIF))
+			.set(PHOTO, user.getString(PHOTO))
+			.set(POINTS, user.getLong(POINTS))
+			.set(NPARCELSCRT, user.getLong(NPARCELSCRT) + val)
+			.set(NPARCELSCO, nParcelsCo)
+			.set(NFORUMS, user.getLong(NFORUMS) + val)
+			.set(NMSGS, user.getLong(NMSGS))
+			.set(CTIME, user.getTimestamp(CTIME));
 
 		for(long i = 0; i < nParcelsCo; i++){
 			build.set(PARCEL+i, user.getString(PARCEL+i));

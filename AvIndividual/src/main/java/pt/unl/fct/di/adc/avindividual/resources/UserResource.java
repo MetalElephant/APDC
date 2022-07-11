@@ -45,7 +45,7 @@ import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.storage.StorageOptions;
 
-@Path("/users")
+@Path("/user")
 @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
 public class UserResource {
 	private static final Logger LOG = Logger.getLogger(UserResource.class.getName());
@@ -57,64 +57,67 @@ public class UserResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
 	//User information
-	private static final String NAME = "name";
-	private static final String PASSWORD = "password";
-	private static final String EMAIL = "email";
-	private static final String ROLE = "role";
-	private static final String MPHONE = "mobile phone";
-	private static final String HPHONE = "home phone";
-	private static final String ADDRESS = "address";
-	private static final String NIF = "nif";
-	private static final String PHOTO = "photo";
-	private static final String SPEC = "specialization";
-	private static final String CTIME = "creation time";
-	private static final String NPARCELSCRT = "number of parcels created";
-	private static final String NPARCELSCO = "number of parcels with co-ownership";
-	private static final String NFORUMS = "number of forums";
-	private static final String NMSGS = "number of messages";
+	private static final String NAME = "Nome";
+	private static final String PASSWORD = "Password";
+	private static final String EMAIL = "Email";
+	private static final String ROLE = "Papel";
+	private static final String MPHONE = "Telemóvel";
+	private static final String HPHONE = "Telefone";
+	private static final String DISTRICT = "Distrito";
+	private static final String COUNTY = "Concelho";
+	private static final String AUTARCHY = "Freguesia";
+	private static final String STREET = "Rua";
+	private static final String NIF = "NIF";
+	private static final String POINTS = "Pontos";
+	private static final String PHOTO = "Foto";
+	private static final String NPARCELSCRT = "Núm de parcelas criadas";
+	private static final String NPARCELSCO = "Núm de parcelas co-propriedade";
+	private static final String NFORUMS = "Número de fóruns";
+	private static final String NMSGS = "Número de mensagens";
+	private static final String CTIME = "Tempo da criação";
 
 	private static final String UNDEFINED = "Não Definido";
 
 	//Parcel info
-	private static final String OWNER = "Owner";
-	private static final String NOWNERS = "number of co-owners";
-	private static final String COUNTY = "County";
-	private static final String DISTRICT = "District";
-	private static final String FREGUESIA = "Freguesia";
-	private static final String DESCRIPTION = "description";
-	private static final String GROUND_COVER_TYPE = "ground cover type";
-	private static final String CURR_USAGE = "current usage";
-	private static final String PREV_USAGE = "previous usage";
-	private static final String AREA = "area";
-	private static final String CONFIRMATION = "Confirmation";
-	private static final String CONFIRMED = "Confirmed";
-    private static final String NMARKERS = "number of markers";
-	private static final String MARKER = "marker";
+	private static final String OWNER = "Dono";
+	private static final String NOWNERS = "Número de co-donos";
+	//private static final String DISTRICT = "Distrito";
+	//private static final String COUNTY = "Concelho";
+	//private static final String AUTARCHY = "Freguesia";
+	private static final String DESCRIPTION = "Descrição";
+	private static final String GROUND_COVER_TYPE = "Tipo de solo";
+	private static final String CURR_USAGE = "Uso atual";
+	private static final String PREV_USAGE = "Uso prévio";
+	private static final String AREA = "Área";
+	private static final String CONFIRMATION = "Confirmação";
+	private static final String CONFIRMED = "Confirmado";
+    private static final String NMARKERS = "Número de marcadores";
+	private static final String MARKER = "Marcador";
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull.appspot.com";
-	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
+    private static final String BUCKET_NAME = "landit-app.appspot.com";
+    private static final String URL =  "https://storage.googleapis.com/landit-app.appspot.com/";
 
 	//Token information
-	private static final String TOKENID = "token ID";
-	private static final String TOKENUSER = "token user";
+	private static final String TOKENID = "ID";
+	//private static final String TOKENUSER = "Utilizador";
 	public static final long EXPIRATION_TIME = 1000 * 60 * 60 * 2; // 2h
 
 	//Code info
-	private static final String EXPTIME = "expiration time";
+	private static final String EXPTIME = "Tempo de expiração";
 
 	//Keys
-	private static final String USER = "User";
+	private static final String USER = "Utilizador";
     private static final String TOKEN = "Token";
-	private static final String STAT = "Statistics";
-	private static final String CODE = "Code";
-	private static final String SECRET = "Secret";
+	private static final String STAT = "Estatística";
+	private static final String CODE = "Código";
+	private static final String SECRET = "Segredo";
 
 	//Forums
-	private static final String PARCEL = "Parcel";
-	private static final String FORUM = "Forum";
-    private static final String MESSAGE = "Message";
+	private static final String PARCEL = "Parcela";
+	private static final String FORUM = "Fórum";
+    private static final String MESSAGE = "Mensagem";
 
 	private static final boolean ADD = true;
 	
@@ -169,22 +172,25 @@ public class UserResource {
 			
 			//Create User and Code entity
 			user = Entity.newBuilder(userKey)
-					.set(NAME, data.name)
-					.set(PASSWORD, DigestUtils.sha512Hex(data.password))
-					.set(EMAIL, data.email)
-					.set(ROLE, data.role)
-					.set(MPHONE, data.mobilePhone)
-					.set(HPHONE, data.homePhone)
-					.set(ADDRESS, data.address)
-					.set(NIF, data.nif)
-					.set(PHOTO, uploadPhoto(data.username, data.photo))
-					.set(SPEC, String.valueOf(points))
-					.set(NPARCELSCRT, 0)
-					.set(NPARCELSCO, 0)
-					.set(NFORUMS, 0)
-					.set(NMSGS, 0)
-					.set(CTIME, Timestamp.now())
-                    .build();
+				.set(NAME, data.name)
+				.set(PASSWORD, DigestUtils.sha512Hex(data.password))
+				.set(EMAIL, data.email)
+				.set(ROLE, data.role)
+				.set(DISTRICT, data.district)
+				.set(COUNTY, data.county)
+				.set(AUTARCHY, data.autarchy)
+				.set(STREET, data.street)
+				.set(MPHONE, data.mobilePhone)
+				.set(HPHONE, data.homePhone)
+				.set(NIF, data.nif)
+				.set(PHOTO, uploadPhoto(data.username, data.photo))
+				.set(POINTS, points)
+				.set(NPARCELSCRT, 0)
+				.set(NPARCELSCO, 0)
+				.set(NFORUMS, 0)
+				.set(NMSGS, 0)
+				.set(CTIME, Timestamp.now())
+				.build();
 
 			//Date for 3 months from now, when code loses bonus
 			Calendar expDate = Calendar.getInstance();
@@ -254,7 +260,7 @@ public class UserResource {
 	
 					tokenEntity = Entity.newBuilder(tokenKey)
 							.set(TOKENID, tokenObj.tokenID)
-							.set(TOKENUSER, tokenObj.username)
+							.set(USER, tokenObj.username)
 							.build();
 					
 					tn.add(tokenEntity);
@@ -398,21 +404,24 @@ public class UserResource {
 			long nParcelsCo = user.getLong(NPARCELSCO);
 
 			Builder build = Entity.newBuilder(userUpdateKey)
-			.set(NAME, data.name)
-			.set(PASSWORD, userToUpdate.getString(PASSWORD))
-			.set(EMAIL, data.email)
-			.set(ROLE, userToUpdate.getString(ROLE))
-			.set(MPHONE, data.mobilePhone)
-			.set(HPHONE, data.homePhone)
-			.set(ADDRESS, data.address)
-			.set(NIF, data.nif)
-			.set(PHOTO, data.photo == null ? userToUpdate.getString(PHOTO) : uploadPhoto(data.username, data.photo))
-			.set(SPEC, userToUpdate.getString(SPEC))
-			.set(NPARCELSCRT, userToUpdate.getLong(NPARCELSCRT))
-			.set(NPARCELSCO, nParcelsCo)
-			.set(NFORUMS, user.getLong(NFORUMS))
-			.set(NMSGS, user.getLong(NMSGS))
-			.set(CTIME, userToUpdate.getTimestamp(CTIME));
+				.set(NAME, data.name)
+				.set(PASSWORD, userToUpdate.getString(PASSWORD))
+				.set(EMAIL, data.email)
+				.set(ROLE, userToUpdate.getString(ROLE))
+				.set(DISTRICT, data.district)
+				.set(COUNTY, data.county)
+				.set(AUTARCHY, data.autarchy)
+				.set(STREET, data.street)
+				.set(MPHONE, data.mobilePhone)
+				.set(HPHONE, data.homePhone)
+				.set(NIF, data.nif)
+				.set(PHOTO, data.photo == null ? userToUpdate.getString(PHOTO) : uploadPhoto(data.username, data.photo))
+				.set(POINTS, userToUpdate.getLong(POINTS))
+				.set(NPARCELSCRT, userToUpdate.getLong(NPARCELSCRT))
+				.set(NPARCELSCO, nParcelsCo)
+				.set(NFORUMS, user.getLong(NFORUMS))
+				.set(NMSGS, user.getLong(NMSGS))
+				.set(CTIME, userToUpdate.getTimestamp(CTIME));
 
 			for(long i = 0; i < nParcelsCo; i++){
 				build.set(PARCEL+i, userToUpdate.getString(PARCEL+i));
@@ -485,12 +494,15 @@ public class UserResource {
 					.set(PASSWORD, newPwd)
 					.set(EMAIL, user.getString(EMAIL))
 					.set(ROLE, user.getString(ROLE))
+					.set(DISTRICT, user.getString(DISTRICT))
+					.set(COUNTY, user.getString(COUNTY))
+					.set(AUTARCHY, user.getString(AUTARCHY))
+					.set(STREET, user.getString(STREET))
 					.set(MPHONE, user.getString(MPHONE))
 					.set(HPHONE, user.getString(HPHONE))
-					.set(ADDRESS, user.getString(ADDRESS))
 					.set(NIF, user.getString(NIF))
 					.set(PHOTO, user.getString(PHOTO))
-					.set(SPEC, user.getString(SPEC))
+					.set(POINTS, user.getLong(POINTS))
 					.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
 					.set(NPARCELSCO, nParcelsCo)
 					.set(NFORUMS, user.getLong(NFORUMS))
@@ -568,8 +580,9 @@ public class UserResource {
 		List<UserInfo> usersList = new LinkedList<>();
 
 		usersRes.forEachRemaining(user -> {
-			usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
-									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC)));
+			usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), 
+							user.getString(DISTRICT), user.getString(COUNTY), user.getString(AUTARCHY), user.getString(STREET), 
+							user.getString(HPHONE), user.getString(MPHONE), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), (int) user.getLong(POINTS)));
 		});
 
 		return Response.ok(g.toJson(usersList)).build();
@@ -609,8 +622,9 @@ public class UserResource {
 
 		usersRes.forEachRemaining(user -> {
 			if (!user.getKey().getName().equals(data.username)){
-				usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), user.getString(HPHONE), user.getString(MPHONE), 
-									  user.getString(ADDRESS), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC)));
+				usersList.add(new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), 
+								user.getString(DISTRICT), user.getString(COUNTY), user.getString(AUTARCHY), user.getString(STREET), 
+								user.getString(HPHONE), user.getString(MPHONE), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), (int) user.getLong(POINTS)));
 			}
 		});
 
@@ -647,9 +661,9 @@ public class UserResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME),
-						 user.getString(HPHONE), user.getString(MPHONE), user.getString(ADDRESS), user.getString(NIF),
-						 user.getString(ROLE), user.getString(PHOTO), user.getString(SPEC));
+		UserInfo u = new UserInfo(user.getKey().getName(), user.getString(EMAIL), user.getString(NAME), 
+						user.getString(DISTRICT), user.getString(COUNTY), user.getString(AUTARCHY), user.getString(STREET), 
+						user.getString(HPHONE), user.getString(MPHONE), user.getString(NIF), user.getString(ROLE), user.getString(PHOTO), (int) user.getLong(POINTS));
 
 		return Response.ok(g.toJson(u)).build();
 	}
@@ -829,7 +843,7 @@ public class UserResource {
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
 					.set(DISTRICT, parcel.getString(DISTRICT))
-					.set(FREGUESIA, parcel.getString(FREGUESIA))
+					.set(AUTARCHY, parcel.getString(AUTARCHY))
 					.set(DESCRIPTION, parcel.getString(DESCRIPTION))
 					.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
 					.set(CURR_USAGE, parcel.getString(CURR_USAGE))

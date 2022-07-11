@@ -44,29 +44,31 @@ public class AdministrativeResource {
 	private static final Random r = new Random();
 	
 	//User information
-	private static final String NAME = "name";
-	private static final String PASSWORD = "password";
-	private static final String EMAIL = "email";
-	private static final String ROLE = "role";
-	private static final String MPHONE = "mobile phone";
-	private static final String HPHONE = "home phone";
-	private static final String ADDRESS = "address";
-	private static final String NIF = "nif";
-	private static final String SPEC = "specialization";
-	private static final String PHOTO = "photo";
-	private static final String CTIME = "creation time";
-	private static final String NPARCELSCRT = "number of parcels created";
-	private static final String NPARCELSCO = "number of parcels with co-ownership";
-	private static final String NFORUMS = "number of forums";
-	private static final String NMSGS = "number of messages";
+	private static final String NAME = "Nome";
+	private static final String PASSWORD = "Password";
+	private static final String EMAIL = "Email";
+	private static final String ROLE = "Papel";
+	private static final String MPHONE = "Telemóvel";
+	private static final String HPHONE = "Telefone";
+	private static final String DISTRICT = "Distrito";
+	private static final String COUNTY = "Concelho";
+	private static final String AUTARCHY = "Freguesia";
+	private static final String STREET = "Rua";
+	private static final String NIF = "NIF";
+	private static final String POINTS = "Pontos";
+	private static final String PHOTO = "Foto";
+	private static final String NPARCELSCRT = "Núm de parcelas criadas";
+	private static final String NPARCELSCO = "Núm de parcelas co-propriedade";
+	private static final String NFORUMS = "Número de fóruns";
+	private static final String NMSGS = "Número de mensagens";
+	private static final String CTIME = "Tempo da criação";
 
 	private static final String UNDEFINED = "Não Definido";
 
 	//Keys
-	private static final String USER = "User";
+	private static final String USER = "Utilizador";
     private static final String TOKEN = "Token";
-	private static final String MOD = "Mod";
-	private static final String SECRET = "Secret";
+	private static final String SECRET = "Segredo";
     
     public AdministrativeResource() {}
 
@@ -128,13 +130,16 @@ public class AdministrativeResource {
 						.set(NAME, data.name)
 						.set(PASSWORD, DigestUtils.sha512Hex(password))
 						.set(EMAIL, data.email)
-						.set(ROLE, data.isRep ? Roles.REPRESENTANTE.getRole() : Roles.MODERADOR.getRole())		
+						.set(ROLE, data.isRep ? Roles.REPRESENTANTE.getRole() : Roles.MODERADOR.getRole())
+						.set(DISTRICT, data.district)
+						.set(COUNTY, data.county)
+						.set(AUTARCHY, data.autarchy)
+						.set(STREET, data.street)
 						.set(MPHONE, data.mobilePhone)
 						.set(HPHONE, data.homePhone)
-						.set(ADDRESS, data.address)
 						.set(NIF, data.nif)
 						.set(PHOTO, UNDEFINED)
-						.set(SPEC, data.isRep ? data.freguesia : MOD)
+						.set(POINTS, 0)
 						.set(NPARCELSCRT, 0)
 						.set(NPARCELSCO, 0)
 						.set(NFORUMS, 0)
@@ -143,9 +148,9 @@ public class AdministrativeResource {
 						.build();
 
 
-				String subject = "Welcome to Land It, " + data.username + " !";
+				String subject = "Bem-vindo ao LANDIT, " + data.username + " !";
 				Content content = new Content("text/plain", 
-											"Please use these credentials to login. You will be prompted to change the password.\n" 
+											"Por favor use as seguintes credenciais para fazer login. Será indicado que altera a password após o fazer.\n" 
 											+ "Username: " + data.username + "\n"
 											+ "Password: " + password);
 
@@ -171,7 +176,7 @@ public class AdministrativeResource {
 		return (userReg.getString(ROLE).equals(Roles.SUPERUSER.getRole()) || userReg.getString(ROLE).equals(Roles.MODERADOR.getRole()));
 	}
 
-	private void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
+	public void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
 		// Set content for request.
 		Email to = new Email(to_user);
 		Email from = new Email(SENDGRID_SENDER);

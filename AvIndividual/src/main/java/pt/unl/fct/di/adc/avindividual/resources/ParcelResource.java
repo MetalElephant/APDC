@@ -1,6 +1,7 @@
 package pt.unl.fct.di.adc.avindividual.resources;
 
 import java.awt.geom.Line2D;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +20,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
+import com.sendgrid.helpers.mail.objects.Content;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelVerifyData;
@@ -50,60 +52,63 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
-	//private AdministrativeResource ar = new AdministrativeResource();
+	private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 	
 	//User information
-	private static final String NAME = "name";
-	private static final String PASSWORD = "password";
-	private static final String EMAIL = "email";
-	private static final String ROLE = "role";
-	private static final String MPHONE = "mobile phone";
-	private static final String HPHONE = "home phone";
-	private static final String ADDRESS = "address";
-	private static final String NIF = "nif";
-	private static final String PHOTO = "photo";
-	private static final String SPEC = "specialization";
-	private static final String CTIME = "creation time";
-	private static final String NPARCELSCRT = "number of parcels created";
-	private static final String NPARCELSCO = "number of parcels with co-ownership";
-	private static final String NFORUMS = "number of forums";
-	private static final String NMSGS = "number of messages";
+	private static final String NAME = "Nome";
+	private static final String PASSWORD = "Password";
+	private static final String EMAIL = "Email";
+	private static final String ROLE = "Papel";
+	private static final String MPHONE = "Telemóvel";
+	private static final String HPHONE = "Telefone";
+	private static final String DISTRICT = "Distrito";
+	private static final String COUNTY = "Concelho";
+	private static final String AUTARCHY = "Freguesia";
+	private static final String STREET = "Rua";
+	private static final String NIF = "NIF";
+	private static final String POINTS = "Pontos";
+	private static final String PHOTO = "Foto";
+	private static final String NPARCELSCRT = "Núm de parcelas criadas";
+	private static final String NPARCELSCO = "Núm de parcelas co-propriedade";
+	private static final String NFORUMS = "Número de fóruns";
+	private static final String NMSGS = "Número de mensagens";
+	private static final String CTIME = "Tempo da criação";
 
 	//Parcel info
-	private static final String OWNER = "Owner";
-	private static final String NOWNERS = "number of co-owners";
-	private static final String COUNTY = "County";
-	private static final String DISTRICT = "District";
-	private static final String FREGUESIA = "Freguesia";
-	private static final String DESCRIPTION = "description";
-	private static final String GROUND_COVER_TYPE = "ground cover type";
-	private static final String CURR_USAGE = "current usage";
-	private static final String PREV_USAGE = "previous usage";
-	private static final String AREA = "area";
-	private static final String CONFIRMATION = "Confirmation";
-	private static final String CONFIRMED = "Confirmed";
-    private static final String NMARKERS = "number of markers";
-	private static final String MARKER = "marker";
+	private static final String OWNER = "Dono";
+	private static final String NOWNERS = "Número de co-donos";
+	//private static final String DISTRICT = "Distrito";
+	//private static final String COUNTY = "Concelho";
+	//private static final String AUTARCHY = "Freguesia";
+	private static final String DESCRIPTION = "Descrição";
+	private static final String GROUND_COVER_TYPE = "Tipo de solo";
+	private static final String CURR_USAGE = "Uso atual";
+	private static final String PREV_USAGE = "Uso prévio";
+	private static final String AREA = "Área";
+	private static final String CONFIRMATION = "Confirmação";
+	private static final String CONFIRMED = "Confirmado";
+    private static final String NMARKERS = "Número de marcadores";
+	private static final String MARKER = "Marcador";
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-	private static final String BUCKET_NAME = "our-hull.appspot.com";
-	private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
+    private static final String BUCKET_NAME = "landit-app.appspot.com";
+    private static final String URL =  "https://storage.googleapis.com/landit-app.appspot.com/";
 
 	//Keys
-	private static final String USER = "User";
+	private static final String USER = "Utilizador";
     private static final String TOKEN = "Token";
-	private static final String FORUM = "Forum";
-	private static final String PARCEL = "Parcel";
-	private static final String STAT = "Statistics";
-	private static final String SECRET = "Secret";
+	private static final String FORUM = "Fórum";
+	private static final String PARCEL = "Parcela";
+	private static final String STAT = "Estatística";
+	private static final String SECRET = "Segredo";
 
 	private static final boolean ADD = true;
 
-	private static final String TOPIC = "Topic";
-    private static final String CRT_DATE = "Creation date";
-	private static final String PARCEL_TOPIC = "Forum de discussao sobre a parcela.";
+	private static final String TOPIC = "Tópico";
+    private static final String CRT_DATE = "Data de criação";
+	private static final String PARCEL_TOPIC = "Discussão da parcela";
 
 	private static final double ERROR = 0.8798618961777017;
 
@@ -166,7 +171,7 @@ public class ParcelResource {
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, data.county)
 					.set(DISTRICT, data.district)
-					.set(FREGUESIA, data.freguesia)
+					.set(AUTARCHY, data.autarchy)
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -286,7 +291,7 @@ public class ParcelResource {
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
 					.set(DISTRICT, parcel.getString(DISTRICT))
-					.set(FREGUESIA, parcel.getString(FREGUESIA))
+					.set(AUTARCHY, parcel.getString(AUTARCHY))
 					.set(DESCRIPTION, data.description)
 					.set(GROUND_COVER_TYPE, data.groundType)
 					.set(CURR_USAGE, data.currUsage)
@@ -515,7 +520,7 @@ public class ParcelResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 			
-		List<ParcelInfo> parcelList = getRepParcels(user.getString(SPEC));
+		List<ParcelInfo> parcelList = getRepParcels(user.getString(AUTARCHY));
 
 		return Response.ok(g.toJson(parcelList)).build();	
 	}
@@ -595,7 +600,7 @@ public class ParcelResource {
 	@POST
 	@Path("/verify")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response verifyParcel(ParcelVerifyData data){
+	public Response verifyParcel(ParcelVerifyData data) throws IOException{
 		LOG.info("Attempt to verify parcels of user: " + data.username);
 
 		if(!data.isDataValid()){
@@ -612,7 +617,7 @@ public class ParcelResource {
 
 		Transaction tn = datastore.newTransaction();
 
-		try{
+		try {
 			Entity user = datastore.get(userKey);
 			Entity token = datastore.get(tokenKey);
 			Entity parcel = tn.get(parcelKey);
@@ -646,14 +651,14 @@ public class ParcelResource {
 			Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
 					.set(DISTRICT, parcel.getString(DISTRICT))
-					.set(FREGUESIA, parcel.getString(FREGUESIA))
+					.set(AUTARCHY, parcel.getString(AUTARCHY))
 					.set(DESCRIPTION, parcel.getString(DESCRIPTION))
 					.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
 					.set(CURR_USAGE, parcel.getString(CURR_USAGE))
 					.set(PREV_USAGE, parcel.getString(PREV_USAGE))
 					.set(AREA, parcel.getString(AREA))
 					.set(CONFIRMATION, parcel.getString(CONFIRMATION))
-					.set(CONFIRMED, true)
+					.set(CONFIRMED, data.confirmation)
                     .set(NMARKERS, parcel.getString(NMARKERS))
 					.set(NOWNERS, parcel.getString(NOWNERS));
 			
@@ -683,10 +688,11 @@ public class ParcelResource {
 			
 			tn.put(parcel);
 			tn.commit();
+
+			sendEmailToOwners(parcel, tn, data.reason, data.confirmation);
 		
 			return Response.ok("Parcel verified.").build();
-
-		}finally{
+		} finally {
 			if(tn.isActive())
 				tn.rollback();
 		}
@@ -807,12 +813,15 @@ public class ParcelResource {
 				.set(PASSWORD, user.getString(PASSWORD))
 				.set(EMAIL, user.getString(EMAIL))
 				.set(ROLE, user.getString(ROLE))
+				.set(DISTRICT, user.getString(DISTRICT))
+				.set(COUNTY, user.getString(COUNTY))
+				.set(AUTARCHY, user.getString(AUTARCHY))
+				.set(STREET, user.getString(STREET))
 				.set(MPHONE, user.getString(MPHONE))
 				.set(HPHONE, user.getString(HPHONE))
-				.set(ADDRESS, user.getString(ADDRESS))
 				.set(NIF, user.getString(NIF))
 				.set(PHOTO, user.getString(PHOTO))
-				.set(SPEC, user.getString(SPEC))
+				.set(POINTS, user.getLong(POINTS))
 				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
 				.set(NPARCELSCO, nParcelsCo + 1L)
 				.set(NFORUMS, user.getLong(NFORUMS))
@@ -841,12 +850,15 @@ public class ParcelResource {
 				.set(PASSWORD, user.getString(PASSWORD))
 				.set(EMAIL, user.getString(EMAIL))
 				.set(ROLE, user.getString(ROLE))
+				.set(DISTRICT, user.getString(DISTRICT))
+				.set(COUNTY, user.getString(COUNTY))
+				.set(AUTARCHY, user.getString(AUTARCHY))
+				.set(STREET, user.getString(STREET))
 				.set(MPHONE, user.getString(MPHONE))
 				.set(HPHONE, user.getString(HPHONE))
-				.set(ADDRESS, user.getString(ADDRESS))
 				.set(NIF, user.getString(NIF))
 				.set(PHOTO, user.getString(PHOTO))
-				.set(SPEC, user.getString(SPEC))
+				.set(POINTS, user.getLong(POINTS))
 				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
 				.set(NPARCELSCO, nParcelsCo - 1L)
 				.set(NFORUMS, user.getLong(NFORUMS))
@@ -978,7 +990,7 @@ public class ParcelResource {
 				search = DISTRICT;
 				break;
 			default:
-				search = FREGUESIA;
+				search = AUTARCHY;
 				break;
 		}
 
@@ -1031,7 +1043,7 @@ public class ParcelResource {
 
 	private List<ParcelInfo> getRepParcels(String region){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-								  .setFilter(PropertyFilter.eq(FREGUESIA, region))
+								  .setFilter(PropertyFilter.eq(AUTARCHY, region))
 								  .build();
 
 		QueryResults<Entity> parcels = datastore.run(parcelQuery);
@@ -1141,7 +1153,7 @@ public class ParcelResource {
 		}
 
 		ParcelInfo p = new ParcelInfo(parcel.getKey().getAncestors().get(0).getName(), owners, parcel.getKey().getName(), parcel.getString(COUNTY), 
-		parcel.getString(DISTRICT), parcel.getString(FREGUESIA), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
+		parcel.getString(DISTRICT), parcel.getString(AUTARCHY), parcel.getString(DESCRIPTION), parcel.getString(GROUND_COVER_TYPE),
 		parcel.getString(CURR_USAGE), parcel.getString(PREV_USAGE), parcel.getString(AREA), markers, parcel.getString(CONFIRMATION), parcel.getBoolean(CONFIRMED));
 
 		return p;
@@ -1153,4 +1165,30 @@ public class ParcelResource {
 		//TODO
 		return overlaps;
 	}
+
+	private void sendEmailToOwners(Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
+        long nOwners = parcel.getLong(NOWNERS);
+
+        for(long i = 0; i < nOwners; i++) {
+            Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(parcel.getString(OWNER + i));
+            Entity owner = tn.get(ownerKey);
+
+            String subject = "Resultado de verificação da sua parcela, " + parcel.getString(NAME);
+            Content content;
+
+            if(confirmation) {
+                content = new Content("text/plain", 
+                                    "É com agrado que o informamos que a sua parcela, " + parcel.getString(NAME) + ", foi verificada com sucesso.\n" +
+                                    "Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n" +
+                                    "Obrigado por utilizar o nosso serviço!");
+            } else {
+                content = new Content("text/plain", 
+                                    "Infelizmente não foi possível verificar a sua parcela, " + parcel.getString(NAME) + ", como legítima.\n" +
+                                    "Razão:\n" +
+                                    reason);
+            }
+
+            ar.sendAutomaticEmail(owner.getString(EMAIL), subject, content);
+        }
+    }
 }

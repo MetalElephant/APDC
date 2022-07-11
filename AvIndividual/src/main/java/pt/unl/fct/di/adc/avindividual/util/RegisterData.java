@@ -5,10 +5,10 @@ import java.util.regex.Pattern;
 public class RegisterData {
 
 	//Mandatory information
-	public String username, password, pwdConfirmation, email, name, role;
+	public String username, password, pwdConfirmation, email, name, role, district, county, autarchy;
 
 	//Optional or default information
-	public String profile, homePhone, mobilePhone, address,  nif, code;
+	public String homePhone, mobilePhone, street,  nif, code;
 
 	public byte[] photo;
 	
@@ -17,7 +17,8 @@ public class RegisterData {
 	public RegisterData() {}
 	
 	public RegisterData(String username, String password, String confirmation, String email, String name,
-			String homePhone, String mobilePhone, String address, String nif, String code, byte[] photo, String role) {
+			String role, String district, String county, String autarchy, String street,
+			String homePhone, String mobilePhone, String nif, String code, byte[] photo) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
@@ -25,17 +26,21 @@ public class RegisterData {
 		this.email = email;
 		this.name = name;
 		this.role = role;
+		this.district = district;
+		this.county = county;
+		this.autarchy = autarchy;
 
 		//Optional information
+		this.street = street;
 		this.homePhone = homePhone;
 		this.mobilePhone = mobilePhone;
-		this.address = address;
 		this.nif = nif;	
 		this.code = code;
 		this.photo = photo;
 	}
 
-	public RegisterData(String username, String password, String confirmation, String email, String name, String code, String role) {
+	public RegisterData(String username, String password, String confirmation, String email, String name, String code, 
+			String role, String district, String county, String autarchy) {
 		//Mandatory information
 		this.username = username;
 		this.password = password;
@@ -44,6 +49,9 @@ public class RegisterData {
 		this.name = name;
 		this.code = code;
 		this.role = role;
+		this.district = district;
+		this.county = county;
+		this.autarchy = autarchy;
 	}
 
 	public void optionalAttributes() {
@@ -53,8 +61,8 @@ public class RegisterData {
 		if(this.mobilePhone == null || this.mobilePhone.length() == 0)
 			this.mobilePhone = UNDEFINED;
 		
-		if(this.address == null || this.address.length() == 0)
-			this.address = UNDEFINED;
+		if(this.street == null || this.street.length() == 0)
+			this.street = UNDEFINED;
 		
 		if(this.nif == null || this.nif.length() == 0)
 			this.nif = UNDEFINED;
@@ -80,7 +88,6 @@ public class RegisterData {
 	}
 	
 	public boolean validPasswordFormat() {
-		
 		String pwd = this.password;
 		
 		if(pwd.length()>=5) {
@@ -93,8 +100,8 @@ public class RegisterData {
 	        		&& specChars.matcher(pwd).find() && upper.matcher(pwd).find())
 	        		return true;
 		}
-	        return false;
-		
+
+	    return false;
 	}
 	
 	public boolean confirmedPassword() {
