@@ -19,8 +19,9 @@ export default function LoginRegister() {
     const [name, setName] = react.useState("");
     const [homePhone, setHomePhone] = react.useState("");
     const [mobilePhone, setMobilePhone] = react.useState("");
-    const [address, setAddress] = react.useState("");
+    const [street, setStreet] = react.useState("");
     const [nif, setNif] = react.useState("");
+    const [code, setCode] = react.useState("");
     const [role, setRole] = react.useState("");
     const [freg, setFreg] = react.useState([]);
     const [conc, setConc] = react.useState([]);
@@ -165,8 +166,8 @@ export default function LoginRegister() {
         setMobilePhone(e.target.value);
     }
 
-    function addressHandler(e) {
-        setAddress(e.target.value);
+    function streetHandler(e) {
+        setStreet(e.target.value);
     }
 
     function nifHandler(e) {
@@ -213,7 +214,7 @@ export default function LoginRegister() {
         const isRegisterFormValid = registerFormValidation();
         if (isRegisterFormValid) {
             setShowProgress(true)
-            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif, imageArray, role)
+            restCalls.register(usernameRegister, passwordRegister, pwdConfirmation, email, name, homePhone, mobilePhone, nif, imageArray, role, chosenDist, chosenConc, chosenFreg, street, code)
                 .then(() => { resetRegisterValues(); setShowProgress(false); setIsRegisterSubmit(true); setDisplayRegisterMessage(0) })
                 .catch(() => { setShowProgress(false); setIsRegisterNotSubmit(true); setDisplayRegisterMessage(1) })
         }
@@ -245,7 +246,7 @@ export default function LoginRegister() {
         setName("");
         setHomePhone("");
         setMobilePhone("");
-        setAddress("");
+        setStreet("");
         setNif("");
         setRole("");
     }
@@ -677,13 +678,13 @@ export default function LoginRegister() {
                                 <TextField
                                     margin="normal"
                                     fullWidth
-                                    name="address"
+                                    name="street"
                                     label="Morada"
-                                    type="address"
-                                    value={address}
-                                    id="address"
+                                    type="street"
+                                    value={street}
+                                    id="street"
                                     color="success"
-                                    onChange={addressHandler}
+                                    onChange={streetHandler}
                                 />
 
                                 <TextField

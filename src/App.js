@@ -16,19 +16,6 @@ import restCalls from "./restCalls"
 
 export default function App() {
 
-    useEffect(() => {
-        const handleTabClose = event => {
-          event.preventDefault();
-          restCalls.logout()
-        };
-    
-        window.addEventListener('beforeunload', handleTabClose);
-    
-        return () => {
-          window.removeEventListener('beforeunload', handleTabClose);
-        };
-      }, []);
-
     return (
         <Router>
             <div className="content">

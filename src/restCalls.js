@@ -4,7 +4,7 @@ class restCalls {
 
     //depois alterar url https://land--it.appspot.com/rest/users/login
     login(username, password) {
-        return fetch("https://our-hull.appspot.com/rest/users/login", {
+        return fetch("https://landit-app.appspot.com/rest/user/login", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -28,9 +28,8 @@ class restCalls {
         })
     }
 
-
-    register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, address, nif, photo, role) {
-        return fetch("https://our-hull.appspot.com/rest/users/register", {
+    register(username, password, pwdConfirmation, email, name, homePhone, mobilePhone, nif, photo, role, district, county, autarchy, street, code) {
+        return fetch("https://landit-app.appspot.com/rest/user/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -44,10 +43,14 @@ class restCalls {
                 name: name,
                 homePhone: homePhone,
                 mobilePhone: mobilePhone,
-                address: address,
+                street: street,
                 nif: nif,
                 photo: photo,
-                role: role
+                role: role,
+                district: district,
+                county: county,
+                autarchy: autarchy,
+                code: code
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -64,7 +67,7 @@ class restCalls {
     }
 
     registerUserSU(username, email, name, isRep, freguesia) {
-        return fetch("https://our-hull.appspot.com/rest/admin/register", {
+        return fetch("https://landit-app.appspot.com/rest/admin/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json; charset=UTF-8',
@@ -75,7 +78,7 @@ class restCalls {
                 email: email,
                 name: name,
                 isRep: isRep,
-                freguesia: freguesia
+                autarchy: freguesia
             })
         }).then(function (response) {
             if (!response.ok) {
@@ -93,7 +96,7 @@ class restCalls {
 
     parcelRegister(parcelName, owners, district, county, freguesia, description, groundType, currUsage, prevUsage, allLats, allLngs, photo, type) {
         //var splitOwners = owners.split(",");
-        return fetch("https://our-hull.appspot.com/rest/parcel/register", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -104,7 +107,7 @@ class restCalls {
                 parcelName: parcelName,
                 county: county,
                 district: district,
-                freguesia: freguesia,
+                autarchy: freguesia,
                 description: description,
                 groundType: groundType,
                 currUsage: currUsage,
@@ -129,7 +132,7 @@ class restCalls {
     }
 
     modifyParcel(owner, owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs) {
-        return fetch("https://our-hull.appspot.com/rest/parcel/update", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -161,7 +164,7 @@ class restCalls {
     }
 
     deleteParcel(objectName, owner) {
-        return fetch("https://our-hull.appspot.com/rest/parcel/remove", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/remove", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -186,7 +189,7 @@ class restCalls {
     }
 
     deleteUser(usernameToRemove) {
-        return fetch("https://our-hull.appspot.com/rest/users/remove", {
+        return fetch("https://landit-app.appspot.com/rest/user/remove", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -210,7 +213,7 @@ class restCalls {
     }
 
     deleteReward(objectName, owner) {
-        return fetch("https://our-hull.appspot.com/rest/reward/remove", {
+        return fetch("https://landit-app.appspot.com/rest/reward/remove", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -235,7 +238,7 @@ class restCalls {
     }
 
     modifyPassword(oldPassword, newPassword, pwdConfirmation) {
-        return fetch("https://our-hull.appspot.com/rest/users/updatePwd", {
+        return fetch("https://landit-app.appspot.com/rest/user/updatePwd", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -261,7 +264,7 @@ class restCalls {
     }
 
     modifyUserAttributes(usernameToUpdate, name, email, address, homePhone, mobilePhone, nif, photo) {
-        return fetch("https://our-hull.appspot.com/rest/users/update", {
+        return fetch("https://landit-app.appspot.com/rest/user/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -292,7 +295,7 @@ class restCalls {
     }
 
     userInfo() {
-        return fetch("https://our-hull.appspot.com/rest/users/info", {
+        return fetch("https://landit-app.appspot.com/rest/user/info", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -316,7 +319,7 @@ class restCalls {
     }
 
     parcelInfo() {
-        return fetch("https://our-hull.appspot.com/rest/parcel/listUser", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/listUser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -340,7 +343,7 @@ class restCalls {
     }
 
     getParcelsByPosition(latMax, latMin, longMax, longMin) {
-        return fetch("https://our-hull.appspot.com/rest/parcel/searchByPosition", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/searchByPosition", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -368,7 +371,7 @@ class restCalls {
     }
 
     getParcelsByRegion(region, type) {
-        return fetch("https://our-hull.appspot.com/rest/parcel/searchByRegion", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/searchByRegion", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -394,7 +397,7 @@ class restCalls {
     }
 
     getParcelsRep() {
-        return fetch("https://our-hull.appspot.com/rest/parcel/listRep", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/listRep", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -418,7 +421,7 @@ class restCalls {
     }
 
     listAllParcels() {
-        return fetch("https://our-hull.appspot.com/rest/parcel/list", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/list", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -439,7 +442,7 @@ class restCalls {
     }
 
     verifyParcel(owner, parcelName) {
-        return fetch("https://our-hull.appspot.com/rest/parcel/verify", {
+        return fetch("https://landit-app.appspot.com/rest/parcel/verify", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -465,7 +468,7 @@ class restCalls {
     }
 
     listAllUsers() {
-        return fetch("https://our-hull.appspot.com/rest/users/list", {
+        return fetch("https://landit-app.appspot.com/rest/user/list", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -486,7 +489,7 @@ class restCalls {
     }
 
     listAllProps() {
-        return fetch("https://our-hull.appspot.com/rest/users/showAllExceptSelf", {
+        return fetch("https://landit-app.appspot.com/rest/user/showAllExceptSelf", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -510,7 +513,7 @@ class restCalls {
     }
 
     createForum(forumName, topic) {
-        return fetch("https://our-hull.appspot.com/rest/forum/register", {
+        return fetch("https://landit-app.appspot.com/rest/forum/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -535,7 +538,7 @@ class restCalls {
     }
 
     listAllForums() {
-        return fetch("https://our-hull.appspot.com/rest/forum/list", {
+        return fetch("https://landit-app.appspot.com/rest/forum/list", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -556,7 +559,7 @@ class restCalls {
     }
 
     listUserForums() {
-        return fetch("https://our-hull.appspot.com/rest/forum/listUser", {
+        return fetch("https://landit-app.appspot.com/rest/forum/listUser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -580,7 +583,7 @@ class restCalls {
     }
 
     postMessage(message) {
-        return fetch("https://our-hull.appspot.com/rest/forum/message", {
+        return fetch("https://landit-app.appspot.com/rest/forum/message", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -606,7 +609,7 @@ class restCalls {
     }
 
     listForumMessages() {
-        return fetch("https://our-hull.appspot.com/rest/forum/listMessages", {
+        return fetch("https://landit-app.appspot.com/rest/forum/listMessages", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -631,7 +634,7 @@ class restCalls {
     }
 
     createSuperUser() {
-        return fetch("https://our-hull.appspot.com/rest/startup/superuser", {
+        return fetch("https://landit-app.appspot.com/rest/startup/superuser", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -651,7 +654,7 @@ class restCalls {
     }
 
     numberOfUsersStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/users", {
+        return fetch("https://landit-app.appspot.com/rest/stats/users", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -672,7 +675,7 @@ class restCalls {
     }
 
     numberOfParcelsStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/parcels", {
+        return fetch("https://landit-app.appspot.com/rest/stats/parcels", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -693,7 +696,7 @@ class restCalls {
     }
 
     numberOfForumsStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/forums", {
+        return fetch("https://landit-app.appspot.com/rest/stats/forums", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -714,7 +717,7 @@ class restCalls {
     }
 
     numberOfMessagesStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/messages", {
+        return fetch("https://landit-app.appspot.com/rest/stats/messages", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -735,7 +738,7 @@ class restCalls {
     }
 
     averageParcelStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/averageParcels", {
+        return fetch("https://landit-app.appspot.com/rest/stats/averageParcels", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -756,7 +759,7 @@ class restCalls {
     }
 
     averageForumStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/averageForums", {
+        return fetch("https://landit-app.appspot.com/rest/stats/averageForums", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -777,7 +780,7 @@ class restCalls {
     }
 
     averageMessageStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/averageMessages", {
+        return fetch("https://landit-app.appspot.com/rest/stats/averageMessages", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -798,7 +801,7 @@ class restCalls {
     }
 
     userMostParcelsStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/userMostParcels", {
+        return fetch("https://landit-app.appspot.com/rest/stats/userMostParcels", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -819,7 +822,7 @@ class restCalls {
     }
 
     userMostForumsStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/userMostForums", {
+        return fetch("https://landit-app.appspot.com/rest/stats/userMostForums", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -840,7 +843,7 @@ class restCalls {
     }
 
     userMostMessagesStatistics() {
-        return fetch("https://our-hull.appspot.com/rest/stats/userMostMessages", {
+        return fetch("https://landit-app.appspot.com/rest/stats/userMostMessages", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -861,7 +864,7 @@ class restCalls {
     }
 
     listComRewards() {
-        return fetch("https://our-hull.appspot.com/rest/reward/list", {
+        return fetch("https://landit-app.appspot.com/rest/reward/list", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -885,7 +888,7 @@ class restCalls {
     }
 
     listUserRedeemedRewards() {
-        return fetch("https://our-hull.appspot.com/rest/reward/listRedeemed", {
+        return fetch("https://landit-app.appspot.com/rest/reward/listRedeemed", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -909,7 +912,7 @@ class restCalls {
     }
 
     listUserRedeemableRewards() {
-        return fetch("https://our-hull.appspot.com/rest/reward/listRedeemable", {
+        return fetch("https://landit-app.appspot.com/rest/reward/listRedeemable", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -933,7 +936,7 @@ class restCalls {
     }
 
     listAllRewards() {
-        return fetch("https://our-hull.appspot.com/rest/reward/listAll", {
+        return fetch("https://landit-app.appspot.com/rest/reward/listAll", {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -954,7 +957,7 @@ class restCalls {
     }
 
     redeemReward(owner, reward) {
-        return fetch("https://our-hull.appspot.com/rest/reward/redeem", {
+        return fetch("https://landit-app.appspot.com/rest/reward/redeem", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -979,7 +982,7 @@ class restCalls {
     }
 
     createReward(name, description, price) {
-        return fetch("https://our-hull.appspot.com/rest/reward/register", {
+        return fetch("https://landit-app.appspot.com/rest/reward/register", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1006,7 +1009,7 @@ class restCalls {
     }
 
     modifyReward(name, description, owner, price) {
-        return fetch("https://our-hull.appspot.com/rest/reward/update", {
+        return fetch("https://landit-app.appspot.com/rest/reward/update", {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -1033,7 +1036,7 @@ class restCalls {
     }
 
     logout() {
-        return fetch("https://our-hull.appspot.com/rest/users/logout", {
+        return fetch("https://landit-app.appspot.com/rest/user/logout", {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
