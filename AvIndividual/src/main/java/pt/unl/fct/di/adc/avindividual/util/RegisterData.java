@@ -125,6 +125,7 @@ public class RegisterData {
 	}
 
 	public String getCodeUser(){
+		if(this.code.equals("WLCM2LNDT")) return "SU";
 		return this.code.substring(0, this.code.length()-3);
 	}
 	
