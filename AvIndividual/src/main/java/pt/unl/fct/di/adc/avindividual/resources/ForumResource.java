@@ -141,7 +141,7 @@ public class ForumResource {
         Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
         Key forumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, data.owner)).setKind(FORUM).newKey(data.forum);
 
-        IncompleteKey msgIncKey = datastore.newKeyFactory().addAncestors(PathElement.of(FORUM, data.forum)).setKind(MESSAGE).newKey();
+        IncompleteKey msgIncKey = datastore.newKeyFactory().addAncestors(PathElement.of(FORUM, data.forum), PathElement.of(USER, data.owner)).setKind(MESSAGE).newKey();
         Key messageKey = datastore.allocateId(msgIncKey);
 
         Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
@@ -242,7 +242,7 @@ public class ForumResource {
                 return Response.status(Status.FORBIDDEN).entity("User " + data.username + " can't be removed by the user.").build();
             }
 
-            int n = deleteForumMessages(data.name, tn);
+            int n = deleteForumMessages(data.name, data.owner, tn);
 
             sr.removeMsgStats(statKeyM, tn.get(statKeyM), tn, n);
 
@@ -306,13 +306,22 @@ public class ForumResource {
         
             QueryResults<Entity> messages = datastore.run(msgQuery);
 
-            if (!messages.hasNext())
+            Entity msg = null;
+            boolean found = false;
+
+            while(messages.hasNext() && !found){
+                msg = messages.next();
+                if (msg.getKey().getAncestors().get(0).getName().equals(data.forumName) && msg.getKey().getAncestors().get(1).getName().equals(data.forumOwner))
+                    found = true;      
+            }
+
+            if (!found)
                 return Response.status(Status.NOT_FOUND).entity("Message does not exist.").build();
 
             sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
             sr.updateUserStats(owner, tn, !ADD, 3);
 
-            tn.delete(messages.next().getKey());
+            tn.delete(msg.getKey());
             tn.commit();
 
             return Response.ok("Message successfully deleted.").build();
@@ -493,7 +502,7 @@ public class ForumResource {
             return Response.status(Status.NOT_FOUND).entity("Forum " + data.name + " doesn't exists.").build();
         }
 
-        List<MessageInfo> parcelList = getMessageQueries(data.name);
+        List<MessageInfo> parcelList = getMessageQueries(data.name, data.username);
 
         Collections.sort(parcelList, new SortByOrder());
 
@@ -524,10 +533,10 @@ public class ForumResource {
 		return false;
 	}
 
-    private int deleteForumMessages(String forumName, Transaction tn){
+    private int deleteForumMessages(String forumName, String ownerName, Transaction tn){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
-								  .setFilter(PropertyFilter.hasAncestor(
-                				  datastore.newKeyFactory().setKind(FORUM).newKey(forumName)))
+								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(FORUM).newKey(forumName)), 
+                                             PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(FORUM).newKey(ownerName))))
 								  .build();
         
         QueryResults<Entity> messages = datastore.run(msgQuery);
@@ -594,10 +603,9 @@ public class ForumResource {
 		return forums;
     }
 
-    private List<MessageInfo> getMessageQueries(String forum){
+    private List<MessageInfo> getMessageQueries(String forumName, String ownerName){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
-								  .setFilter(PropertyFilter.hasAncestor(
-                				  datastore.newKeyFactory().setKind(FORUM).newKey(forum)))
+								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(FORUM).newKey(forumName)))
 								  .build();
 
 		QueryResults<Entity> messages = datastore.run(msgQuery);
@@ -605,7 +613,8 @@ public class ForumResource {
 		List<MessageInfo> forumMsg = new LinkedList<>();
 
 		messages.forEachRemaining(msg -> {
-			forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE), msg.getLong(ORDER)));
+            if (msg.getKey().getAncestors().get(1).getName().equals(ownerName))
+			    forumMsg.add(new MessageInfo(msg.getString(OWNER), msg.getString(MESSAGE), msg.getString(CRT_DATE), msg.getLong(ORDER)));
 		});
 
         Collections.sort(forumMsg, new SortByOrder());
