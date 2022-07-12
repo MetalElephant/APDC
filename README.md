@@ -22,6 +22,6 @@ Since we know it's hard to get your "everyday Joe" interested in this subject, w
 
 ![EARTHKEEPERS-logo](https://user-images.githubusercontent.com/57989060/168096189-e883b0e9-37da-4db1-9e26-a2bee71de8b7.png)
 
-##Visit us at
-https://www.instagram.com/landit.pt/
-https://www.facebook.com/Land-It-100985179358578
+## Visit us at
+https://www.instagram.com/landit.pt</h2>
+https://www.facebook.com/Land-It-100985179358578</h2>
