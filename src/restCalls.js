@@ -1152,6 +1152,8 @@ class restCalls {
             localStorage.removeItem('redeemableRewards');
             localStorage.removeItem('redeemedRewards');
             localStorage.removeItem('comRewards');
+            localStorage.removeItem('parcelsRep');
+            localStorage.removeItem('rewards');
             return text;
         })
     }

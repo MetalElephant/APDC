@@ -96,12 +96,22 @@ export default function AddUser() {
         setRole(e.target.value)
     }
 
+    function resetValues() {
+        setChosenDist(null)
+        setChosenConc(null)
+        setChosenFreg(null)
+        setUsername("")
+        setEmail("")
+        setName("")
+        setRole("")
+    }
+
     function addUserManager(e) {
         e.preventDefault();
         if (registerFormValidation) {
             setShowProgress(true)
             restCalls.registerUserSU(username, email, name, isRep, chosenDist, chosenConc, chosenFreg)
-                .then(() => { setShowProgress(false); setIsUserRegistered(true); setDisplayMessage(0) })
+                .then(() => { setShowProgress(false); setIsUserRegistered(true); setDisplayMessage(0); resetValues() })
                 .catch(() => { setShowProgress(false); setIsUserNotRegistered(true); setDisplayMessage(1) })
         }
     }

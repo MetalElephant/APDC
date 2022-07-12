@@ -15,6 +15,9 @@ export default function UserInfo() {
     const [nif, setNif] = react.useState("")
     const [role, setRole] = react.useState("")
     const [image, setImage] = react.useState("")
+    const [district, setDistrict] = react.useState("")
+    const [county, setCounty] = react.useState("")
+    const [autarchy, setAutarchy] = react.useState("")
 
     useEffect(() => {
         restCalls.userInfo()
@@ -29,6 +32,9 @@ export default function UserInfo() {
         setNif(user.nif)
         setImage(user.photo)
         setRole(user.role)
+        setDistrict(user.district)
+        setCounty(user.county)
+        setAutarchy(user.autarchy)
     }, [])
 
     return (
@@ -52,6 +58,21 @@ export default function UserInfo() {
                 <Box p={2.5} textAlign="center">
                     <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Nome: {name} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Distrito: {district} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Concelho: {county} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center">
+                    <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontSize: 18 }}> Freguesia: {autarchy} </Typography>
                     </Paper>
                 </Box>
                 <Box p={2.5} textAlign="center">

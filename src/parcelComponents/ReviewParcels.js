@@ -60,7 +60,6 @@ export default function ReviewParcels() {
         var parcel = parcels[index]
         setParcelName(parcel.parcelName)
         setOwner(parcel.owner)
-        setOwners(parcel.owners)
         setDist(parcel.district)
         setConc(parcel.county)
         setFreg(parcel.freguesia)
@@ -73,6 +72,14 @@ export default function ReviewParcels() {
         setConfirmation(parcel.confirmation)
         setCenter({ lat: parcel.markers[0].latitude, lng: parcel.markers[0].longitude })
         setZoom(12)
+        var tempOwners = ""
+        for (let i = 0; i < parcel.owners.length; i++) {
+            if (i !== 0)
+                tempOwners = tempOwners + ", " + parcel.owners[i]
+            else
+                tempOwners = parcel.owners[i]
+        }
+        setOwners(tempOwners)
     }
 
     function updatePolygons() {
@@ -143,7 +150,7 @@ export default function ReviewParcels() {
                 setDisplayError(false)
                 restCalls.verifyParcel(owner, parcelName, false, reason)
                     .then(() => { restCalls.getParcelsRep().then(() => { setShowProgress(false); setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons() }); setIsParcelRejected(true); setDisplayMessage(2) })
-                    .catch(() => { setShowProgress(false); setIsParcelNotRejected(true); setDisplayMessage(3) })
+                    .catch(() => { setShowProgress(false); setIsParcelNotRejected(true); setDisplayMessage(3)})
             }
             else {
                 setDisplayError(true)
@@ -273,7 +280,7 @@ export default function ReviewParcels() {
                     sx={{ width: "80%", pt: 1 }}
                     color="success"
                     variant="outlined"
-                    placeholder="Escreva aqui a razão no caso de rejeitar a parcela"
+                    placeholder="No caso de rejeição de parcela, descreva o motivo..."
                     multiline
                     value={reason}
                     rows={5}
