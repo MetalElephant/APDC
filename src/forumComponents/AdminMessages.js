@@ -40,12 +40,10 @@ export default function MessagesList(props) {
     }
 
     const handleDelete = (message, messageOwner) => {
-        console.log(messageOwner + " sent this: " + message)
-        
-        /*setShowProgress(true)
-        restCalls.removeMessage(owner, forumName, msg, msgOwner)
+        setShowProgress(true)
+        restCalls.removeMessage(props.forumOwner, props.forumName, message, messageOwner)
             .then(() => { setLoaded(false); setShowProgress(false); restCalls.listForumMessages().then(() => setLoaded(true)) })
-            .catch(() => { setLoaded(true); setShowProgress(false) })*/
+            .catch(() => { setLoaded(true); setShowProgress(false) })
     }
 
     const messageErrorValidation = () => {

@@ -30,7 +30,7 @@ export default function AdminCard(props) {
                         <Button onClick={() => { props.onClickRem(owner, name) }} variant="outlined" color="error" size="small">Remover</Button>
                     </CardActions>
                     <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
-                        <Button onClick={() => { props.onClickFun(props.number) }} variant="outlined" color="success" size="small">Aceder</Button>
+                        <Button onClick={() => { props.onClickFun(props.number, props.name, props.owner) }} variant="outlined" color="success" size="small">Aceder</Button>
                     </CardActions>
                 </CardContent>
             </Card>

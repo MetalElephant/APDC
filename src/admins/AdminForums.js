@@ -13,6 +13,8 @@ export default function ForumsList() {
     const [loaded, setLoaded] = react.useState(false)
     const [showMessages, setShowMessages] = react.useState(false)
     const [showProgress, setShowProgress] = react.useState(false)
+    const [forumName, setForumName] = react.useState("")
+    const [forumOwner, setForumOwner] = react.useState("")
 
     var forums = JSON.parse(localStorage.getItem('forumsAll'))
 
@@ -20,8 +22,10 @@ export default function ForumsList() {
         restCalls.listAllForums().then(() => { setLoaded(true) })
     })
 
-    function onClickFun(number) {
+    function onClickFun(number, forumName, forumOwner) {
         localStorage.setItem('forum', JSON.stringify(forums[number]));
+        setForumName(forumName)
+        setForumOwner(forumOwner)
         setShowMessages(true)
     }
 
@@ -37,7 +41,7 @@ export default function ForumsList() {
     function removeForum(owner, name) {
         setShowProgress(true)
         restCalls.removeForum(owner, name)
-            .then(() => { setShowProgress(false) })
+            .then(() => { setLoaded(false); setShowProgress(false); restCalls.listAllForums().then(() => { setLoaded(true) }) })
             .catch(() => { setShowProgress(false) })
     }
 
@@ -97,7 +101,7 @@ export default function ForumsList() {
                 </Grid>
                 {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
                 {(loaded && !showMessages) && generateForums()}
-                {(loaded && showMessages) && <AdminMessages onClickFun={goBack} />}
+                {(loaded && showMessages) && <AdminMessages onClickFun={goBack} forumName={forumName} forumOwner={forumOwner} />}
                 {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
             </Grid>
         </Grid>
