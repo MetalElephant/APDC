@@ -754,6 +754,7 @@ public class ParcelResource {
         return Response.ok(g.toJson(u)).build();
     }
 
+	//Chekc if a user has permission to modify an entity
 	private boolean canModify(Entity user, Entity owner, Entity parcel) {
 		Roles userRole = Roles.valueOf(user.getString(ROLE));
 
@@ -771,6 +772,7 @@ public class ParcelResource {
 		}
 	}
 
+	//Chekc if a user has permission to remove an entity
 	private boolean canRemove(Entity user, Entity owner) {
 		Roles userRole = Roles.valueOf(user.getString(ROLE));
 
@@ -788,6 +790,7 @@ public class ParcelResource {
 		}
 	}
 
+	//Checks if a user is co-owner of a given parcel
 	private boolean isCoOwner(Entity user, Entity parcel){
 		String username = user.getKey().getName();
 		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
@@ -800,6 +803,7 @@ public class ParcelResource {
 		return false;
 	}
 
+	//Checks if all users inside the list are actual users of the system
 	private boolean validUsers(String[] owners, Transaction tn){
 		Key userKey;
 
@@ -812,10 +816,12 @@ public class ParcelResource {
 		return true;
 	}
 
+	//Checks if a user can verify a parcel
 	private boolean canVerify(Entity e1) {
 		return Roles.valueOf(e1.getString(ROLE)) == Roles.REPRESENTANTE;
 	}
 
+	//Returns the list of owners that will be added from the list of co-owners
 	private List<String> ownersAdded(Entity parcel, String[] owners, Transaction tn){
 		List<String> added = new LinkedList<>();
 
@@ -827,6 +833,7 @@ public class ParcelResource {
 		return added;
 	}
 
+	//Returns the list of owners that will be removed from the list of co-owners
 	private List<String> ownersRemoved(Entity parcel, String[] owners, Transaction tn){
 		List<String> removed = new LinkedList<>();
 		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
@@ -839,6 +846,7 @@ public class ParcelResource {
 		return removed;
 	}
 
+	//Check if a user is inside the new list of owners
 	private boolean isStillOwner(String username, String[] owners){
 		for(int i = 0; i < owners.length; i++){
 			if (owners[i].equals(username))
@@ -848,6 +856,7 @@ public class ParcelResource {
 		return false;
 	}
 
+	//Check if a owner belongs to a given parcel
 	private boolean containsOwner(Entity parcel, String owner){
 		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
 
@@ -858,6 +867,7 @@ public class ParcelResource {
 		return false;
 	}
 
+	//Add owner to co-ownership of parcel
 	private void addOwner(String username, String parcelInfo, Transaction tn, boolean confirmation){
         int p = 0;
         if(confirmation) p += 1500;
@@ -898,6 +908,7 @@ public class ParcelResource {
         tn.put(user);
     }
 
+	//Remove owner from co-ownership of parcel
 	private void removeOwner(String owner, String parcelName, Transaction tn){
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(owner);
 		Entity user = tn.get(userKey);
@@ -944,6 +955,7 @@ public class ParcelResource {
 		tn.put(user);
 	}
 
+	//Calculate the area of the polygon in markers
 	private String getArea(LatLng[] markers){
 		double area = 0.0;
      
@@ -961,6 +973,7 @@ public class ParcelResource {
         return String.format("%.2f", area) + " m²";
 	}
 
+	//Transform a point in the globe to a point in a graph
 	private double graphPoint(double p){
 		p = Math.toRadians(p);
 
@@ -972,6 +985,7 @@ public class ParcelResource {
         return (c * 6371000);
 	}
 
+	//Upload confirmation of ownership of parcel to bucket
 	private String uploadConfirmation(String name, byte[] data, int type){
 		String content; 
 
@@ -989,6 +1003,7 @@ public class ParcelResource {
 		return URL + name;
 	}
 
+	//Create a forum for the newly created parcel
 	private void createForum(Transaction tn, Key forumKey, Key statKey, Entity user){
 		Entity forum = tn.get(forumKey);
 
@@ -1007,6 +1022,7 @@ public class ParcelResource {
 		}
 	}
 
+	//Return list of parcels that are inside a given position
 	private List<ParcelInfo> getParcelByPosition(double latMax, double latMin, double longMax, double longMin){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 									.setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true)))
@@ -1038,6 +1054,7 @@ public class ParcelResource {
 		return userParcels;
 	}
 
+	//Return list of parcels that are inside a given region
 	private List<ParcelInfo> getParcelByRegion(String region, int type){
 		String search;
 
@@ -1068,6 +1085,7 @@ public class ParcelResource {
 		return userParcels;
 	}
 
+	//Return list of parcels that belong to a user
 	private List<ParcelInfo> getUserParcels(String owner, Entity user){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)))
@@ -1100,6 +1118,7 @@ public class ParcelResource {
 		return userParcels;
 	}
 
+	//Return list of parcels that a representative can see
 	private List<ParcelInfo> getRepParcels(String region){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(PropertyFilter.eq(AUTARCHY, region))
@@ -1146,6 +1165,7 @@ public class ParcelResource {
 		return false;
 	}
 
+	//Check if line segments of markers are overlapped with line segments of auxMarkers during update
 	private boolean isOverlappedUpdate(LatLng[] markers, String name){
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
 								   .setFilter(CompositeFilter.and(PropertyFilter.eq(CONFIRMED, true))).build();
@@ -1172,6 +1192,7 @@ public class ParcelResource {
 		return false;
 	}
 
+	//Check if line segments of markers are overlapped with line segments of auxMarkers
 	private boolean overlaps(LatLng[] markers, LatLng[] auxMarkers) {
 		boolean overlaps = false;
 		//Checks if a parcel marker is inside the other one
@@ -1199,6 +1220,7 @@ public class ParcelResource {
 		return overlaps;
 	}
 
+	//Build information of given parcel to send to front end
 	private ParcelInfo parcelInfoBuilder(Entity parcel){
 		int n1 = Integer.parseInt(parcel.getString(NOWNERS));
 		int n2 = Integer.parseInt(parcel.getString(NMARKERS));
@@ -1230,12 +1252,8 @@ public class ParcelResource {
 		return true;
 	}
 
-	    // Returns true if the point p lies
-    	// inside the polygon[] with n vertices
-    private boolean isInside(LatLng[] polygon, int n, LatLng p)
-    {
-
-        // Create a point for line segment from p to infinite
+	//Check if the point p lies inside the polygon[] with n vertices
+    private boolean isInside(LatLng[] polygon, int n, LatLng p){
         LatLng extreme = LatLng.of(60.0, p.getLongitude());
 
         int count = 0, i = 0;
@@ -1260,8 +1278,7 @@ public class ParcelResource {
     }
 
     //Check if point q lies on the line segment 'pr'
-    private boolean onSegment(LatLng p, LatLng q, LatLng r)
-    {
+    private boolean onSegment(LatLng p, LatLng q, LatLng r){
         if (q.getLatitude() <= Math.max(p.getLatitude(), r.getLatitude()) &&
             q.getLatitude() >= Math.min(p.getLatitude(), r.getLatitude()) &&
             q.getLongitude() <= Math.max(p.getLongitude(), r.getLongitude()) &&
@@ -1273,8 +1290,7 @@ public class ParcelResource {
     }
  
     //Find orientation of ordered triplet (p, q, r).
-    static int orientation(LatLng p, LatLng q, LatLng r)
-    {
+    private int orientation(LatLng p, LatLng q, LatLng r){
         double val = (q.getLongitude() - p.getLongitude()) * (r.getLatitude() - q.getLatitude())
                 - (q.getLatitude() - p.getLatitude()) * (r.getLongitude() - q.getLongitude());
  
@@ -1286,8 +1302,7 @@ public class ParcelResource {
     }
  
     //Check if line segment 'p1q1' and 'p2q2' intersect
-    private boolean doIntersect(LatLng p1, LatLng q1, LatLng p2, LatLng q2)
-    {
+    private boolean doIntersect(LatLng p1, LatLng q1, LatLng p2, LatLng q2){
         int o1 = orientation(p1, q1, p2);
         int o2 = orientation(p1, q1, q2);
         int o3 = orientation(p2, q2, p1);

@@ -352,39 +352,6 @@ public class ForumResource {
     }
 
     @POST
-    @Path("/search")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response searchForums(RequestData data){
-        LOG.info("Attempt to search forums.");
-
-        if (!data.isDataValid())
-            return Response.status(Status.BAD_REQUEST).entity("Missing or wrong parameter.").build();
-
-        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(data.username);
-        Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);
-
-        Entity user = datastore.get(userKey);
-        Entity token = datastore.get(tokenKey);
-
-        if (user == null) {				
-			LOG.warning("User does not exist");
-			return Response.status(Status.BAD_REQUEST).entity("User " + data.username + " does not exist").build();
-		}
-
-        Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-		Entity secret = datastore.get(secretKey);
-
-		if (!ur.isLoggedIn(secret, token, data.username)){
-			LOG.warning("User " + data.username + " not logged in.");
-			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
-		}
-
-        List<ForumInfo> results = forumSearchQuery(data.name);
-
-        return Response.ok(g.toJson(results)).build();
-    }
-
-    @POST
     @Path("/listUser")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -509,6 +476,7 @@ public class ForumResource {
 		return Response.ok(g.toJson(parcelList)).build();
     }
 
+    //Checks if user has permission to remove entity
 	private boolean canRemove(Entity e1, Entity e2) {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 		Roles e2Role = Roles.valueOf(e2.getString(ROLE));
@@ -533,6 +501,7 @@ public class ForumResource {
 		return false;
 	}
 
+    //Deletes all messages from given forum and return number of messages deleted
     private int deleteForumMessages(String forumName, String ownerName, Transaction tn){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
 								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(FORUM).newKey(forumName)), 
@@ -551,41 +520,7 @@ public class ForumResource {
         return counter;
     }
 
-    private List<ForumInfo> forumSearchQuery(String query){
-        Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
-								  .build();
-
-		QueryResults<Entity> forumResult = datastore.run(forumQuery);
-
-		List<ForumInfo> forums = new LinkedList<>();
-
-		forumResult.forEachRemaining(f -> {
-            if (isQueryOk(f.getKey().getName(), query))
-			    forums.add(new ForumInfo(f.getKey().getAncestors().get(0).getName(), f.getKey().getName(), f.getString(TOPIC), f.getString(CRT_DATE)));
-		});
-
-		return forums;
-    }
-
-    private static boolean isQueryOk(String name, String query){
-        name = name.toLowerCase();
-        query = query.toLowerCase();
-
-        if (query.equals(name))
-            return true;
-
-        String[] sections = query.split(" ");
-        String aux;
-
-        for (int i = 0; i < sections.length; i ++){
-            aux = sections[i];
-            if (aux.length() > 2 && name.contains(aux))
-                return true;
-        }
-
-        return false;
-    }
-
+    //Return list of forum from given user
     private List<ForumInfo> getUserForumQueries(String username){
         Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
 								  .setFilter(PropertyFilter.hasAncestor(
@@ -603,6 +538,7 @@ public class ForumResource {
 		return forums;
     }
 
+    //Return list of messages from given forum
     private List<MessageInfo> getMessageQueries(String forumName, String ownerName){
         Query<Entity> msgQuery = Query.newEntityQueryBuilder().setKind(MESSAGE)
 								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(FORUM).newKey(forumName)))
@@ -622,6 +558,7 @@ public class ForumResource {
 		return forumMsg;
     }
 
+    //Return list of parcels given user
     private List<Entity> getUserParcels(String owner, Entity user){
 		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
 								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)), (PropertyFilter.eq(CONFIRMED, true))))
@@ -653,18 +590,4 @@ public class ForumResource {
 
 		return userParcels;
 	}
-
-    public void deleteUserForums(String username, Transaction tn){
-        Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
-								  .setFilter(PropertyFilter.hasAncestor(
-                				  datastore.newKeyFactory().setKind(USER).newKey(username)))
-								  .build();
-
-		QueryResults<Entity> forumResult = datastore.run(forumQuery);
-
-        while(forumResult.hasNext()){
-            tn.delete(forumResult.next().getKey());
-        }
-    }
-    
 }
