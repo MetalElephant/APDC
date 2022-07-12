@@ -248,7 +248,7 @@ export default function AddUser() {
                                 renderInput={(params) => <TextField {...params} label="Freguesia *" />}
                             />
 
-                            <FormControl sx={{ mb: 2 }} variant="standard">
+                            <FormControl sx={{mt: 1}} variant="standard">
                                 <InputLabel id="id" sx={{ color: "green" }} >Papel</InputLabel>
                                 <Select label="papel" value={role} onChange={roleHandler} sx={{ width: "250px" }}>
                                     <MenuItem value="REPRESENTANTE" label="REPRESENTANTE">
