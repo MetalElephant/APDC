@@ -20,7 +20,12 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelVerifyData;
@@ -53,9 +58,12 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
-	private AdministrativeResource ar = new AdministrativeResource();
+	//private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 	
+	static final String SENDGRID_API_KEY = "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";
+	static final String SENDGRID_SENDER = "app.land.it@gmail.com";
+
 	//User information
 	private static final String NAME = "Nome";
 	private static final String PASSWORD = "Password";
@@ -619,8 +627,8 @@ public class ParcelResource {
 		Transaction tn = datastore.newTransaction();
 
 		try {
-			Entity user = datastore.get(userKey);
-			Entity token = datastore.get(tokenKey);
+			Entity user = tn.get(userKey);
+			Entity token = tn.get(tokenKey);
 			Entity parcel = tn.get(parcelKey);
 			Entity owner = tn.get(ownerKey);
 
@@ -630,7 +638,7 @@ public class ParcelResource {
 			}
 
 			Key secretKey = datastore.newKeyFactory().setKind(SECRET).newKey(user.getString(ROLE));
-			Entity secret = datastore.get(secretKey);
+			Entity secret = tn.get(secretKey);
 	
 			if (!ur.isLoggedIn(secret, token, data.username)){
 				LOG.warning("User " + data.username + " not logged in.");
@@ -690,7 +698,7 @@ public class ParcelResource {
 			tn.put(parcel);
 			tn.commit();
 
-			sendEmailToOwners(parcel, tn, data.reason, data.confirmation);
+			sendEmailToOwners(owner, parcel, tn, data.reason, data.confirmation);
 		
 			return Response.ok("Parcel verified.").build();
 		} finally {
@@ -1336,30 +1344,62 @@ public class ParcelResource {
         return false;
     }
 
-	private void sendEmailToOwners(Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
-        int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
+	private void sendEmailToOwners(Entity owner, Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
+        String subject = "Resultado de verificação da sua parcela, " + parcel.getString(NAME);
+
+		Content content;
+
+		if(confirmation) {
+			content = new Content("text/plain", 
+								"É com agrado que o informamos que a sua parcela, " + parcel.getString(NAME) + ", foi verificada com sucesso.\n" +
+								"Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n\n" +
+								"Obrigado por utilizar o nosso serviço!");
+		} else {
+			content = new Content("text/plain", 
+								"Infelizmente não foi possível verificar a sua parcela, " + parcel.getString(NAME) + ", como legítima.\n" +
+								"Por favor altere a informação necessária da parcela de acordo com o feedback dado de seguida.\n\n" +
+								"Razão:\n" +
+								reason);
+		}
+		
+		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
 
         for(int i = 0; i < nOwners; i++) {
             Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(parcel.getString(OWNER + i));
-            Entity owner = tn.get(ownerKey);
+            Entity nowner = tn.get(ownerKey);
 
-            String subject = "Resultado de verificação da sua parcela, " + parcel.getString(NAME);
-            Content content;
-
-            if(confirmation) {
-                content = new Content("text/plain", 
-                                    "É com agrado que o informamos que a sua parcela, " + parcel.getString(NAME) + ", foi verificada com sucesso.\n" +
-                                    "Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n\n" +
-                                    "Obrigado por utilizar o nosso serviço!");
-            } else {
-                content = new Content("text/plain", 
-                                    "Infelizmente não foi possível verificar a sua parcela, " + parcel.getString(NAME) + ", como legítima.\n" +
-									"Por favor altere a informação necessária da parcela de acordo com o feedback dado de seguida.\n\n" +
-                                    "Razão:\n" +
-                                    reason);
-            }
-
-            ar.sendAutomaticEmail(owner.getString(EMAIL), subject, content);
+            sendAutomaticEmail(nowner.getString(EMAIL), subject, content);
         }
+
+		sendAutomaticEmail(owner.getString(EMAIL), subject, content);
     }
+
+	private void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
+		// Set content for request.
+		Email to = new Email(to_user);
+		Email from = new Email(SENDGRID_SENDER);
+		Mail mail = new Mail(from, subject, to, content);
+
+		// Instantiates SendGrid client.
+		SendGrid sendgrid = new SendGrid(SENDGRID_API_KEY);
+
+		// Instantiate SendGrid request.
+		Request request = new Request();
+
+		try {
+			// Set request configuration.
+			request.setMethod(Method.POST);
+			request.setEndpoint("mail/send");
+			request.setBody(mail.build());
+
+			// Use the client to send the API request.
+			com.sendgrid.Response response = sendgrid.api(request);
+
+			if (response.getStatusCode() != 202) {
+				LOG.warning(String.format("An error occurred: %s", response.getStatusCode()));
+			}
+		} catch (IOException ex) {
+			throw ex;
+		}
+	}
 }

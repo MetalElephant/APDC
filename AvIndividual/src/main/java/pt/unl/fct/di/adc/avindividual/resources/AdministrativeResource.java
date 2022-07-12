@@ -26,6 +26,7 @@ import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 
 import pt.unl.fct.di.adc.avindividual.util.RegisterModeratorData;
+import pt.unl.fct.di.adc.avindividual.util.RequestData;
 import pt.unl.fct.di.adc.avindividual.util.Roles;
 
 @Path("/admin")

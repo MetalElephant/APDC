@@ -221,7 +221,7 @@ public class UserResource {
 		}
 	}
 	
-	@POST
+	@PUT
 	@Path("/login")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
@@ -248,11 +248,11 @@ public class UserResource {
 					Entity secret = tn.get(secretKey);
 					Entity tokenEntity = tn.get(tokenKey);
 					
-					//Guarantee user isn't already logged in
+					/*Guarantee user isn't already logged in
 					if (!canLogin(secret, tokenEntity, tn)) {
 						LOG.warning("User " + data.username + " already logged in.");
 						return Response.status(Status.CONFLICT).entity("User " + data.username + " already logged in.").build();
-					}
+					}*/
 					
 					String token = createToken(secret);
 
@@ -268,7 +268,7 @@ public class UserResource {
 							.set(USER, tokenObj.username)
 							.build();
 					
-					tn.add(tokenEntity);
+					tn.put(tokenEntity);
 					tn.commit();
 					
 					LOG.info("User logged in: " + data.username);
@@ -310,7 +310,8 @@ public class UserResource {
 		Key tokenKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.username);	
 		Key tokenToRemoveKey = datastore.newKeyFactory().setKind(TOKEN).newKey(data.name);
 
-		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+		Key statKeyU = datastore.newKeyFactory().setKind(STAT).newKey(USER);
+		Key statKeyP = datastore.newKeyFactory().setKind(STAT).newKey(PARCEL);
 
 		try {
             Entity user = tn.get(userKey);
@@ -344,18 +345,15 @@ public class UserResource {
 			if(tn.get(tokenToRemoveKey) != null)
 				tn.delete(tokenToRemoveKey);
 			
-			deleteUserEntities(data.name, tn);
+			deleteUserEntities(userToRemove, data.name, statKeyP, tn);
 
 			//Update statistics
-			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
-
-			removeFromParcels(user, tn);
+			sr.updateStats(statKeyU, tn.get(statKeyU), tn, !ADD);
 
 			tn.delete(userToRemoveKey);
 			tn.commit();
 
 			return Response.ok("User " + data.username + " deleted User " + data.name).build();
-
 		} finally {
 			if (tn.isActive())
 				tn.rollback();
@@ -695,19 +693,6 @@ public class UserResource {
 		}
 	}
 
-	//Verify if token exists and is valid
-	private boolean canLogin(Entity secret, Entity token, Transaction tn){
-		if (token == null)
-			return true;
-		
-		if (!verifyToken(secret.getString(SECRET), token.getString(TOKENID))){
-			tn.delete(token.getKey());
-			return true;
-		}
-
-		return false;
-	}
-
 	private boolean verifyToken(String secret, String token) {
 		try {
 			Algorithm alg = Algorithm.HMAC256(secret);
@@ -799,13 +784,6 @@ public class UserResource {
 			bonus += 500;
 
 		return bonus;
-	}
-
-	private void deleteUserEntities(String username, Transaction tn){
-		deleteEntities(username, PARCEL, tn);
-		deleteEntities(username, FORUM, tn);
-		deleteEntities(username, CODE, tn);
-		deleteUserMessages(username, tn);
 	}
 
 	private void deleteEntities(String username, String entity, Transaction tn){
@@ -912,5 +890,112 @@ public class UserResource {
 		codeOwner = builder.build();
 
 		tn.put(codeOwner);
+	}
+
+	private void deleteUserEntities(Entity user, String username, Key statKey, Transaction tn){
+		deleteParcels(username, statKey, tn);
+		removeFromParcels(user, tn);
+		deleteEntities(username, FORUM, tn);
+		deleteEntities(username, CODE, tn);
+		deleteUserMessages(username, tn);
+	}
+
+	private void deleteParcels(String username, Key statKey, Transaction tn){
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
+									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
+									.build();
+									
+		QueryResults<Entity> res = datastore.run(query);
+
+		res.forEachRemaining(parcel -> {
+			int nOwners = Integer.parseInt(parcel.getString(NOWNERS));;
+
+			if (nOwners > 0){
+				String parcelName = parcel.getKey().getName();
+				String owner = parcel.getString(OWNER+(nOwners-1));
+				nOwners--;
+
+				updateParcelRemoval(nOwners, owner, parcelName, parcel, tn);
+				updateUserOwner(owner, parcelName, tn);
+			}else{
+				sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+			}
+
+			tn.delete(parcel.getKey());
+		});
+	}
+
+	private void updateParcelRemoval(int nOwners, String owner, String parcelName, Entity parcel, Transaction tn){
+		int nMarkers = Integer.parseInt(parcel.getString(NMARKERS));
+
+		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, owner)).setKind(PARCEL).newKey(parcelName);
+
+		Builder builder = Entity.newBuilder(parcelKey)
+		.set(COUNTY, parcel.getString(COUNTY))
+		.set(DISTRICT, parcel.getString(DISTRICT))
+		.set(AUTARCHY, parcel.getString(AUTARCHY))
+		.set(DESCRIPTION, parcel.getString(DESCRIPTION))
+		.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
+		.set(CURR_USAGE, parcel.getString(CURR_USAGE))
+		.set(PREV_USAGE, parcel.getString(PREV_USAGE))
+		.set(AREA, parcel.getString(AREA))
+		.set(CONFIRMATION, parcel.getString(CONFIRMATION))
+		.set(CONFIRMED, parcel.getBoolean(CONFIRMED))
+		.set(NMARKERS, parcel.getString(NMARKERS))
+		.set(NOWNERS, String.valueOf(nOwners));
+
+		for(int i = 0; i < nOwners; i++){
+			builder.set(OWNER+i, parcel.getString(OWNER+i));
+		}
+		
+		for(int i = 0; i< nMarkers; i++) {
+			builder.set(MARKER+i, parcel.getLatLng(MARKER+i));
+		}
+
+		Entity newParcel = builder.build();
+
+		tn.put(newParcel);
+	}
+
+	private void updateUserOwner(String username, String parcelName, Transaction tn){
+		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
+		Entity user = tn.get(userKey);
+
+		long nParcelsCo = user.getLong(NPARCELSCO);
+
+		Builder build = Entity.newBuilder(userKey)
+					.set(NAME, user.getString(NAME))
+					.set(PASSWORD, user.getString(PASSWORD))
+					.set(EMAIL, user.getString(EMAIL))
+					.set(ROLE, user.getString(ROLE))
+					.set(DISTRICT, user.getString(DISTRICT))
+					.set(COUNTY, user.getString(COUNTY))
+					.set(AUTARCHY, user.getString(AUTARCHY))
+					.set(STREET, user.getString(STREET))
+					.set(MPHONE, user.getString(MPHONE))
+					.set(HPHONE, user.getString(HPHONE))
+					.set(NIF, user.getString(NIF))
+					.set(PHOTO, user.getString(PHOTO))
+					.set(POINTS, user.getLong(POINTS))
+					.set(NPARCELSCRT, user.getLong(NPARCELSCRT)+1)
+					.set(NPARCELSCO, nParcelsCo-1)
+					.set(NFORUMS, user.getLong(NFORUMS))
+					.set(NMSGS, user.getLong(NMSGS))
+					.set(CTIME, user.getTimestamp(CTIME));
+			
+			int aux = 0;
+			String parcelInfo, parcel;
+
+			for(long i = 0; i < nParcelsCo; i++){
+				parcelInfo = user.getString(PARCEL+i);
+				parcel = parcelInfo.substring(parcelInfo.indexOf(":")+1);
+
+				if(!parcelName.equals(parcel))
+					build.set(PARCEL+(aux++), parcelInfo);
+			}
+
+			user = build.build();
+
+			tn.put(user);
 	}
 }

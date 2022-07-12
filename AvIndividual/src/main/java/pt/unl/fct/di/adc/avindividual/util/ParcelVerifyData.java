@@ -18,7 +18,7 @@ public class ParcelVerifyData {
         if (this.username == null || this.owner == null || this.parcelName == null)
             return false;
 
-        if(!confirmation && (this.reason == null && this.reason.length() != 0))
+        if(!confirmation && (this.reason == null || this.reason.length() != 0))
             return false;
 
         return (this.username.length() != 0 && this.owner.length() != 0 && this.parcelName.length() != 0);
