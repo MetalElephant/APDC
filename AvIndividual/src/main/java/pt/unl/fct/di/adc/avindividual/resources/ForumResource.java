@@ -45,10 +45,14 @@ public class ForumResource {
 
     //User information
     private static final String ROLE = "Papel";
+    private static final String NPARCELSCO = "Núm de parcelas co-propriedade";
 
     //Forum information
     private static final String TOPIC = "Tópico";
     private static final String CRT_DATE = "Data de criação";
+
+    //Parcel information
+    private static final String CONFIRMED = "Confirmado";
 
     //Keys
 	private static final String USER = "Utilizador";
@@ -435,22 +439,25 @@ public class ForumResource {
 		}
 
         Roles role = Roles.valueOf(user.getString(ROLE)); 
-        Query<Entity> parcelQuery;
+        List<Entity> parcelList;
 
         if (role == Roles.SUPERUSER || role == Roles.MODERADOR){
-            parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL).build();
+            Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL).setFilter(PropertyFilter.eq(CONFIRMED, true)).build();
+            QueryResults<Entity> parcels = datastore.run(parcelQuery);
+            parcelList = new LinkedList<>();
+
+            while(parcels.hasNext()){
+                parcelList.add(parcels.next());
+            }
 
         }else{
-            parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
-                         .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(data.username)))
-                         .build();
+            parcelList = getUserParcels(data.username, user);
         }
 
-        QueryResults<Entity> parcels = datastore.run(parcelQuery);
         List<ForumInfo> forumList = new LinkedList<>();
 
-        while(parcels.hasNext()){
-            Key parcelKey = parcels.next().getKey();
+        for(Entity e : parcelList){
+            Key parcelKey = e.getKey();
             
             String parcelOwner = parcelKey.getAncestors().get(0).getName();
             String parcelName = parcelKey.getName();
@@ -605,6 +612,38 @@ public class ForumResource {
 
 		return forumMsg;
     }
+
+    private List<Entity> getUserParcels(String owner, Entity user){
+		Query<Entity> parcelQuery = Query.newEntityQueryBuilder().setKind(PARCEL)
+								  .setFilter(CompositeFilter.and(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(owner)), (PropertyFilter.eq(CONFIRMED, true))))
+								  .build();
+
+		QueryResults<Entity> parcels = datastore.run(parcelQuery);
+
+		List<Entity> userParcels = new LinkedList<>();
+
+		parcels.forEachRemaining(parcel -> {
+			userParcels.add(parcel);
+		});
+
+		long n = user.getLong(NPARCELSCO);
+
+		Key parcelKey;
+		String parcelOwner, parcelName, parcelInfo;
+		int endPos;
+
+		for (long i = 0; i < n; i++){		
+			parcelInfo = user.getString(PARCEL+i);
+			endPos = parcelInfo.indexOf(":");
+			parcelOwner = parcelInfo.substring(0, endPos);
+			parcelName = parcelInfo.substring(endPos+1, parcelInfo.length());
+
+			parcelKey = datastore.newKeyFactory().addAncestor(PathElement.of(USER, parcelOwner)).setKind(PARCEL).newKey(parcelName);
+			userParcels.add(datastore.get(parcelKey));
+		}
+
+		return userParcels;
+	}
 
     public void deleteUserForums(String username, Transaction tn){
         Query<Entity> forumQuery = Query.newEntityQueryBuilder().setKind(FORUM)
