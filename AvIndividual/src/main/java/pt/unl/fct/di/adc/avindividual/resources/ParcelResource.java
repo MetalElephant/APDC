@@ -102,8 +102,8 @@ public class ParcelResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-    private static final String BUCKET_NAME = "our-hull.appspot.com";
-    private static final String URL =  "https://storage.googleapis.com/our-hull.appspot.com/";
+    private static final String BUCKET_NAME = "landit-app.appspot.com";
+    private static final String URL =  "https://storage.googleapis.com/landit-app.com/";
 
 	//Keys
 	private static final String USER = "Utilizador";
@@ -289,7 +289,7 @@ public class ParcelResource {
 				String parcelInfo = data.owner + ":" + data.parcelName;
 
 				for(String added: ownersAdded){
-					addOwner(added, parcelInfo, tn);
+					addOwner(added, parcelInfo, tn, false);
 				}
 
 				for(String removed: ownersRemoved){
@@ -388,7 +388,7 @@ public class ParcelResource {
 					removeOwner(parcel.getString(OWNER+i) , data.objectName, tn);
 
 				sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
-				sr.updateParcelForumStats(owner, !ADD, tn);
+				sr.updateParcelForumStats(owner, !ADD, !ADD, tn);
 			}
 
 			tn.delete(parcelKey);
@@ -657,7 +657,8 @@ public class ParcelResource {
 				return Response.status(Status.FORBIDDEN).entity("User can't verify this parcel.").build();
 			}
 
-			Builder builder = Entity.newBuilder(parcelKey)
+			if (data.confirmation){
+				Builder builder = Entity.newBuilder(parcelKey)
 					.set(COUNTY, parcel.getString(COUNTY))
 					.set(DISTRICT, parcel.getString(DISTRICT))
 					.set(AUTARCHY, parcel.getString(AUTARCHY))
@@ -680,7 +681,7 @@ public class ParcelResource {
 			for(int i = 0; i < n1; i++){
 				aux = parcel.getString(OWNER+i);
 				builder.set(OWNER+i, aux);
-				addOwner(aux, parcelInfo, tn);
+				addOwner(aux, parcelInfo, tn, true);
 			}
 					
 			for(int i = 0; i < n2; i++) {
@@ -691,13 +692,14 @@ public class ParcelResource {
 
 			//Update statistics
 			sr.updateStats(statKeyP, tn.get(statKeyP), tn, ADD);
-			sr.updateParcelForumStats(owner, ADD, tn);
+			sr.updateParcelForumStats(owner, ADD, ADD, tn);
 
 			createForum(tn, forumKey, statKeyF, owner);
-			
-			sendEmailToOwners(owner, parcel, tn, data.reason, data.confirmation);
 
 			tn.put(parcel);
+			}
+			
+			sendEmailToOwners(owner, parcel, tn, data.reason, data.confirmation);
 
 			tn.commit();
 		
@@ -856,42 +858,45 @@ public class ParcelResource {
 		return false;
 	}
 
-	private void addOwner(String username, String parcelInfo, Transaction tn){
-		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
-		Entity user = tn.get(userKey);
+	private void addOwner(String username, String parcelInfo, Transaction tn, boolean confirmation){
+        int p = 0;
+        if(confirmation) p += 1500;
 
-		long nParcelsCo = user.getLong(NPARCELSCO);
+        Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
+        Entity user = tn.get(userKey);
 
-		Builder build = Entity.newBuilder(userKey)
-				.set(NAME, user.getString(NAME))
-				.set(PASSWORD, user.getString(PASSWORD))
-				.set(EMAIL, user.getString(EMAIL))
-				.set(ROLE, user.getString(ROLE))
-				.set(DISTRICT, user.getString(DISTRICT))
-				.set(COUNTY, user.getString(COUNTY))
-				.set(AUTARCHY, user.getString(AUTARCHY))
-				.set(STREET, user.getString(STREET))
-				.set(MPHONE, user.getString(MPHONE))
-				.set(HPHONE, user.getString(HPHONE))
-				.set(NIF, user.getString(NIF))
-				.set(PHOTO, user.getString(PHOTO))
-				.set(POINTS, user.getLong(POINTS))
-				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
-				.set(NPARCELSCO, nParcelsCo + 1L)
-				.set(NFORUMS, user.getLong(NFORUMS))
-				.set(NMSGS, user.getLong(NMSGS))
-				.set(CTIME, user.getTimestamp(CTIME));
+        long nParcelsCo = user.getLong(NPARCELSCO);
 
-		for(long j = 0; j < nParcelsCo; j++){
-			build.set(PARCEL+j, user.getString(PARCEL+j));
-		}
+        Builder build = Entity.newBuilder(userKey)
+                .set(NAME, user.getString(NAME))
+                .set(PASSWORD, user.getString(PASSWORD))
+                .set(EMAIL, user.getString(EMAIL))
+                .set(ROLE, user.getString(ROLE))
+                .set(DISTRICT, user.getString(DISTRICT))
+                .set(COUNTY, user.getString(COUNTY))
+                .set(AUTARCHY, user.getString(AUTARCHY))
+                .set(STREET, user.getString(STREET))
+                .set(MPHONE, user.getString(MPHONE))
+                .set(HPHONE, user.getString(HPHONE))
+                .set(NIF, user.getString(NIF))
+                .set(PHOTO, user.getString(PHOTO))
+                .set(POINTS, user.getLong(POINTS) + p)
+                .set(NPARCELSCRT, user.getLong(NPARCELSCRT))
+                .set(NPARCELSCO, nParcelsCo + 1L)
+                .set(NFORUMS, user.getLong(NFORUMS))
+                .set(NMSGS, user.getLong(NMSGS))
+                .set(CTIME, user.getTimestamp(CTIME));
 
-		build.set(PARCEL+nParcelsCo, parcelInfo);
+        for(long j = 0; j < nParcelsCo; j++){
+            build.set(PARCEL+j, user.getString(PARCEL+j));
+        }
 
-		user = build.build();
+        build.set(PARCEL+nParcelsCo, parcelInfo);
 
-		tn.put(user);
-	}
+        user = build.build();
+
+        tn.put(user);
+    }
 
 	private void removeOwner(String owner, String parcelName, Transaction tn){
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(owner);
@@ -938,6 +943,35 @@ public class ParcelResource {
 
 		tn.put(user);
 	}
+
+	private void givePointsToOwner(Key ownerKey, Entity owner, Transaction tn, boolean confirmation) {
+        int p = 0;
+        if(confirmation) p += 1500;
+
+        Builder builder = Entity.newBuilder(ownerKey)
+        .set(NAME, owner.getString(NAME))
+        .set(PASSWORD, owner.getString(PASSWORD))
+        .set(EMAIL, owner.getString(EMAIL))
+        .set(ROLE, owner.getString(ROLE))
+        .set(DISTRICT, owner.getString(DISTRICT))
+        .set(COUNTY, owner.getString(COUNTY))
+        .set(AUTARCHY, owner.getString(AUTARCHY))
+        .set(STREET, owner.getString(STREET))
+        .set(MPHONE, owner.getString(MPHONE))
+        .set(HPHONE, owner.getString(HPHONE))
+        .set(NIF, owner.getString(NIF))
+        .set(PHOTO, owner.getString(PHOTO))
+        .set(POINTS, owner.getLong(POINTS) + p)
+        .set(NPARCELSCRT, owner.getLong(NPARCELSCRT))
+        .set(NPARCELSCO, owner.getLong(NPARCELSCO))
+        .set(NFORUMS, owner.getLong(NFORUMS))
+        .set(NMSGS, owner.getLong(NMSGS))
+        .set(CTIME, owner.getTimestamp(CTIME));
+
+        Entity e = builder.build();
+
+        tn.put(e);
+    }
 
 	private String getArea(LatLng[] markers){
 		double area = 0.0;

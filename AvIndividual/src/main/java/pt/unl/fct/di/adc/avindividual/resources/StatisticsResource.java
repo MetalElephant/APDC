@@ -135,13 +135,17 @@ public class StatisticsResource {
 		tn.put(user);
 	}
 
-	public void updateParcelForumStats(Entity user, boolean isAdd, Transaction tn){	
+	public void updateParcelForumStats(Entity user, boolean isAdd, boolean addPoints, Transaction tn){	
 		long val = 1L;
 
 		if (!isAdd)
 			val = -1L;
 
 		long nParcelsCo = user.getLong(NPARCELSCO);
+
+		int p = 0;
+
+		if(addPoints) p += 1500;
 
 		Builder build = Entity.newBuilder(user.getKey())
 			.set(NAME, user.getString(NAME))
@@ -156,7 +160,7 @@ public class StatisticsResource {
 			.set(HPHONE, user.getString(HPHONE))
 			.set(NIF, user.getString(NIF))
 			.set(PHOTO, user.getString(PHOTO))
-			.set(POINTS, user.getLong(POINTS))
+        	.set(POINTS, user.getLong(POINTS) + p)
 			.set(NPARCELSCRT, user.getLong(NPARCELSCRT) + val)
 			.set(NPARCELSCO, nParcelsCo)
 			.set(NFORUMS, user.getLong(NFORUMS) + val)
