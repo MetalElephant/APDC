@@ -95,10 +95,12 @@ export default function ForumsList() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
-                {(loaded && !showMessages) && generateForums()}
-                {(loaded && showMessages) && <AdminMessages onClickFun={goBack} />}
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
+                <Grid item xs={8}>
+                    {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
+                    {(loaded && !showMessages) && generateForums()}
+                    {(loaded && showMessages) && <AdminMessages onClickFun={goBack} />}
+                    {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
+                </Grid>
             </Grid>
         </Grid>
     )

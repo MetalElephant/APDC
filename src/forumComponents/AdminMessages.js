@@ -80,7 +80,7 @@ export default function MessagesList(props) {
     }
 
     return (
-        <>
+        <Grid container>
             <Grid item xs={9} direction="column" justifyContent="flex-start" alignItems="center">
                 <Button onClick={props.onClickFun} sx={{ position: "absolute", top: "20%", left: "18%", overflow: "auto" }}>
                     <ArrowBackIcon />
@@ -122,6 +122,6 @@ export default function MessagesList(props) {
                     </Alert> : <></>
                 }
             </Grid>
-        </>
+        </Grid>
     )
 }
