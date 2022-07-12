@@ -58,7 +58,7 @@ public class ParcelResource {
 	private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
     private UserResource ur = new UserResource();
-	//private AdministrativeResource ar = new AdministrativeResource();
+	private AdministrativeResource ar = new AdministrativeResource();
 	private StatisticsResource sr = new StatisticsResource();
 	
 	static final String SENDGRID_API_KEY = "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";
@@ -1361,38 +1361,9 @@ public class ParcelResource {
 			Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
 			Entity user = datastore.get(userKey);
 
-			sendAutomaticEmail(user.getString(EMAIL), subject, content);
+			ar.sendAutomaticEmail(user.getString(EMAIL), subject, content);
 		}
 
-		sendAutomaticEmail(owner.getString(EMAIL), subject, content);
+		ar.sendAutomaticEmail(owner.getString(EMAIL), subject, content);
     }
-
-	private void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
-		// Set content for request.
-		Email to = new Email(to_user);
-		Email from = new Email(SENDGRID_SENDER);
-		Mail mail = new Mail(from, subject, to, content);
-
-		// Instantiates SendGrid client.
-		SendGrid sendgrid = new SendGrid(SENDGRID_API_KEY);
-
-		// Instantiate SendGrid request.
-		Request request = new Request();
-
-		try {
-			// Set request configuration.
-			request.setMethod(Method.POST);
-			request.setEndpoint("mail/send");
-			request.setBody(mail.build());
-
-			// Use the client to send the API request.
-			com.sendgrid.Response response = sendgrid.api(request);
-
-			if (response.getStatusCode() != 202) {
-				LOG.warning(String.format("An error occurred: %s", response.getStatusCode()));
-			}
-		} catch (IOException ex) {
-			throw ex;
-		}
-	}
 }

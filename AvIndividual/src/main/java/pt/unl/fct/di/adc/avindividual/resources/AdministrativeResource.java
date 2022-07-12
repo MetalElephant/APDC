@@ -72,10 +72,6 @@ public class AdministrativeResource {
     
     public AdministrativeResource() {}
 
-	// Use remove user from UserResources to remove moderators
-
-	// Use modify from UserResources to modify moderators
-
 	@POST
 	@Path("/register")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -172,10 +168,12 @@ public class AdministrativeResource {
 		}
 	}
 
+	// Checks if the user registering a mod/rep has the correct role
 	private boolean verifyRegister(Entity userReg) {
 		return (userReg.getString(ROLE).equals(Roles.SUPERUSER.getRole()) || userReg.getString(ROLE).equals(Roles.MODERADOR.getRole()));
 	}
 
+	// Sends an email using the sendgrid API functions
 	public void sendAutomaticEmail(String to_user, String subject, Content content) throws IOException {		
 		// Set content for request.
 		Email to = new Email(to_user);
@@ -204,7 +202,8 @@ public class AdministrativeResource {
 			throw ex;
 		}
 	}
-
+	
+	// Generates a random password with a given length
 	private static String generatePassword(int length) {
 		String capitalCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";

@@ -54,6 +54,7 @@ public class StatisticsResource {
 
 	public StatisticsResource() {}
 
+	// Updates a statistic
 	public void updateStats(Key statKey, Entity stat, Transaction tn, boolean isAdd){
 		long val = 1L;
 		if (!isAdd)
@@ -68,6 +69,7 @@ public class StatisticsResource {
 		}
 	}
 
+	// Removes the statistics related to a foruns messages
 	public void removeMsgStats(Key statKey, Entity stat, Transaction tn, int counter){
 		long val = -counter;
 		
@@ -80,6 +82,7 @@ public class StatisticsResource {
 		}
 	}
 
+	// Updates the statistics related to a given user
 	public void updateUserStats(Entity user, Transaction tn, boolean isAdd, int stat){
 		long val = 1L;
 
@@ -135,6 +138,7 @@ public class StatisticsResource {
 		tn.put(user);
 	}
 
+	// Updated the statistics of a parcel's forum
 	public void updateParcelForumStats(Entity user, boolean isAdd, boolean addPoints, Transaction tn){	
 		long val = 1L;
 

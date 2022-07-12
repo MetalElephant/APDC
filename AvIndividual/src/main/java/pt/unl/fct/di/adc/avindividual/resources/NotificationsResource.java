@@ -114,6 +114,7 @@ public class NotificationsResource {
 		return Response.ok(g.toJson(parcelList)).build();	
     }
 
+    // Returns a list of all the notifications of a given user
     private List<NotificationInfo> getQueries(String username){
         Query<Entity> notificationQuery = Query.newEntityQueryBuilder().setKind(NOTIFICATION)
 								  .setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(NOTIFICATION).newKey(username)))
