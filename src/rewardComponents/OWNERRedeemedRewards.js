@@ -12,7 +12,7 @@ export default function OWNERRedeemedRewards() {
 
     useEffect(() => {
         restCalls.listUserRedeemedRewards().then(() => { setLoaded(true) })
-        setPoints(user.specialization)
+        setPoints(user.points)
     }, [])
 
     function generateRewards() {
