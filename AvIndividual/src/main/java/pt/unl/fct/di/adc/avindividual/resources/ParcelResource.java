@@ -695,10 +695,11 @@ public class ParcelResource {
 
 			createForum(tn, forumKey, statKeyF, owner);
 			
-			tn.put(parcel);
-			tn.commit();
-
 			sendEmailToOwners(owner, parcel, tn, data.reason, data.confirmation);
+
+			tn.put(parcel);
+
+			tn.commit();
 		
 			return Response.ok("Parcel verified.").build();
 		} finally {
@@ -1361,16 +1362,16 @@ public class ParcelResource {
 								"Razão:\n" +
 								reason);
 		}
-		
-		int nOwners = Integer.parseInt(parcel.getString(NOWNERS));
 
-        for(int i = 0; i < nOwners; i++) {
-            Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(parcel.getString(OWNER + i));
-            Entity ownerI = tn.get(ownerKey);
-			String email = ownerI.getString(EMAIL);
+		int n1 = Integer.parseInt(parcel.getString(NOWNERS));
 
-            sendAutomaticEmail(email, subject, content);
-        }
+		for(int i = 0; i < n1; i ++){
+			String username = parcel.getString(OWNER+i);
+			Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
+			Entity user = datastore.get(userKey);
+
+			sendAutomaticEmail(user.getString(EMAIL), subject, content);
+		}
 
 		sendAutomaticEmail(owner.getString(EMAIL), subject, content);
     }

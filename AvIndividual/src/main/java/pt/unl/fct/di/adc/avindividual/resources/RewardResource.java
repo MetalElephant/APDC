@@ -562,7 +562,7 @@ public class RewardResource {
 		List<RewardData> rewardsList = new LinkedList<>();
 
 		rewards.forEachRemaining(reward -> {
-			rewardsList.add(new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(PRICE), (int) reward.getLong(NREDEEMED)));
+			rewardsList.add(new RewardData(reward.getString(NAME), reward.getString(DESCRIPTION), reward.getString(OWNER), (int) reward.getLong(NREDEEMED), (int) reward.getLong(PRICE)));
 		});
 
 		return rewardsList;
