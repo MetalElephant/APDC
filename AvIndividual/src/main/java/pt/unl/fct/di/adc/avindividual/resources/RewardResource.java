@@ -336,7 +336,7 @@ public class RewardResource {
 				.set(HPHONE, user.getString(HPHONE))
 				.set(NIF, user.getString(NIF))
 				.set(PHOTO, user.getString(PHOTO))
-				.set(POINTS, user.getLong(POINTS))
+				.set(POINTS, user.getLong(POINTS) - points)
 				.set(NPARCELSCRT, user.getLong(NPARCELSCRT))
 				.set(NPARCELSCO, user.getLong(NPARCELSCO))
 				.set(NFORUMS, user.getLong(NFORUMS))
