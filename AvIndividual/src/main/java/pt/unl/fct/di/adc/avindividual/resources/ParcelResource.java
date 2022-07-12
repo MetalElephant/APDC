@@ -102,8 +102,8 @@ public class ParcelResource {
 
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
-    private static final String BUCKET_NAME = "our-hull.appspot.com";
-    private static final String URL =  "https://storage.googleapis.com/our-hull.com/";
+    private static final String BUCKET_NAME = "land-it.appspot.com";
+    private static final String URL =  "https://storage.googleapis.com/land-it.com/";
 
 	//Keys
 	private static final String USER = "Utilizador";

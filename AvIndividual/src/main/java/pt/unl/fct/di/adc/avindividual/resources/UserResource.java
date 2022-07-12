@@ -812,8 +812,11 @@ public class UserResource {
 	
 		QueryResults<Entity> res = datastore.run(query);
 
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(MESSAGE);
+
 		res.forEachRemaining(e -> {
 			tn.delete(e.getKey());
+			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
 		});
 	}
 
@@ -979,7 +982,7 @@ public class UserResource {
 		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
 
 		sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
-		
+
 		tn.put(newForum);
 	}
 
