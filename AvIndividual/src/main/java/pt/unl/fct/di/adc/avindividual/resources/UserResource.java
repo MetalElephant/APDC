@@ -1008,7 +1008,7 @@ public class UserResource {
 					.set(POINTS, user.getLong(POINTS))
 					.set(NPARCELSCRT, user.getLong(NPARCELSCRT)+1)
 					.set(NPARCELSCO, nParcelsCo-1)
-					.set(NFORUMS, user.getLong(NFORUMS))
+					.set(NFORUMS, user.getLong(NFORUMS)+1)
 					.set(NMSGS, user.getLong(NMSGS))
 					.set(CTIME, user.getTimestamp(CTIME));
 			
