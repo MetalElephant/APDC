@@ -13,12 +13,12 @@ export default function COMManageRewards() {
     const [allRewards, setAllRewards] = react.useState([])
     const [reward, setReward] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
-    const [isModifyReward, setIsModifyReward] = react.useState(false)
-    const [isNotModifyReward, setIsNotModifyReward] = react.useState(false)
-    const [displayMessageModify, setDisplayMessageModify] = react.useState(false)
-    const [isDeleteReward, setIsDeleteReward] = react.useState(false)
-    const [isNotDeleteReward, setIsNotDeleteReward] = react.useState(false)
-    const [displayMessageDelete, setDisplayMessageDelete] = react.useState(false)
+    const [isModifyReward, setIsModifyReward] = react.useState(false);
+    const [isNotModifyReward, setIsNotModifyReward] = react.useState(false);
+    const [displayMessageModify, setDisplayMessageModify] = react.useState();
+    const [isDeleteReward, setIsDeleteReward] = react.useState(false);
+    const [isNotDeleteReward, setIsNotDeleteReward] = react.useState(false);
+    const [displayMessageDelete, setDisplayMessageDelete] = react.useState();
 
     var rewards = JSON.parse(localStorage.getItem('comRewards'))
 
@@ -43,20 +43,18 @@ export default function COMManageRewards() {
         setOwner(reward.owner)
     }, [reward])
 
-    function modifyReward() {
+    function modifyReward(e) {
+        e.preventDefault();
         restCalls.modifyReward(name, description, owner, value)
-            .then(() => { setIsModifyReward(true); restCalls.listRewards() })
-            .catch(() => {setIsNotModifyReward(true)})
-        setDisplayMessageModify(true)
-        setDisplayMessageDelete(false)
-    }   
+            .then(() => { restCalls.listComRewards(); setIsModifyReward(true); setDisplayMessageModify(0); })
+            .catch(() => { setIsNotModifyReward(true); setDisplayMessageModify(1) })
+    }
 
-    function deleteReward() {
+    function deleteReward(e) {
+        e.preventDefault();
         restCalls.deleteReward(name, owner)
-            .then(() => { setIsDeleteReward(true); restCalls.listRewards() })
-            .catch(() => {setIsNotDeleteReward(true)})
-        setDisplayMessageDelete(true)
-        setDisplayMessageModify(false)
+            .then(() => { restCalls.listComRewards(); setIsDeleteReward(true); setDisplayMessageDelete(0) })
+            .catch(() => { setIsNotDeleteReward(true); setDisplayMessageDelete(1) })
     }
 
     return (
@@ -74,8 +72,16 @@ export default function COMManageRewards() {
                     sx={{ width: "80%", mt: 2 }}
                     renderInput={(params) => <TextField {...params} label="Recompensas" />}
                 />
+                <Button onClick={(e) => { deleteReward(e) }} variant="contained" size="large" color="error" sx={{ mt: 2, width: "80%" }}>Remover Recompensa</Button>
+                {isDeleteReward && (displayMessageDelete === 0) ?
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa eliminada com sucesso.</Typography>
+                    </Alert> : <></>}
+                {isNotDeleteReward && (displayMessageDelete === 1) ?
+                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na eliminação da recompensa.</Typography>
+                    </Alert> : <></>}
 
-                <Button onClick={deleteReward} variant="contained" size="large" color="error" sx={{ mt: 2, width: "80%" }}>Remover Recompensa</Button>
             </Grid>
             <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -135,26 +141,17 @@ export default function COMManageRewards() {
                     variant="outlined"
                     color="success"
                     sx={{ width: "92%", mt: 3, mb: 2, height: "40px", bgcolor: "rgb(50,190,50)" }}
-                    onClick={modifyReward}
+                    onClick={(e) => { modifyReward(e) }}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Modificar Recompensa </Typography>
                 </Button>
             </Grid>
             <Grid item xs={4}>
-                {(isModifyReward && displayMessageModify) ?
+                {isModifyReward && (displayMessageModify === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa modificada com sucesso.</Typography>
                     </Alert> : <></>}
-                {(isNotModifyReward && displayMessageModify) ?
-                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na modificação da recompensa.</Typography>
-                    </Alert> : <></>}
-
-                {(isDeleteReward && displayMessageDelete) ?
-                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa modificada com sucesso.</Typography>
-                    </Alert> : <></>}
-                {(isNotDeleteReward && displayMessageDelete) ?
+                {isNotModifyReward && (displayMessageModify === 1) ?
                     <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na modificação da recompensa.</Typography>
                     </Alert> : <></>}

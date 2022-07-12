@@ -15,10 +15,10 @@ export default function ManageRewards() {
     const [loaded, setLoaded] = react.useState(false)
     const [isModifyReward, setIsModifyReward] = react.useState(false)
     const [isNotModifyReward, setIsNotModifyReward] = react.useState(false)
-    const [displayMessageModify, setDisplayMessageModify] = react.useState(false)
+    const [displayMessageModify, setDisplayMessageModify] = react.useState()
     const [isDeleteReward, setIsDeleteReward] = react.useState(false)
     const [isNotDeleteReward, setIsNotDeleteReward] = react.useState(false)
-    const [displayMessageDelete, setDisplayMessageDelete] = react.useState(false)
+    const [displayMessageDelete, setDisplayMessageDelete] = react.useState()
 
     var rewards = JSON.parse(localStorage.getItem('allRewards'))
 
@@ -45,18 +45,14 @@ export default function ManageRewards() {
 
     function modifyReward() {
         restCalls.modifyReward(name, description, owner, value)
-            .then(() => { setIsModifyReward(true); restCalls.listRewards() })
-            .catch(() => {setIsNotModifyReward(true)})
-        setDisplayMessageModify(true)
-        setDisplayMessageDelete(false)
-    }   
+            .then(() => { restCalls.listAllRewards(); setIsModifyReward(true); setDisplayMessageModify(0) })
+            .catch(() => { setIsNotModifyReward(true); setDisplayMessageModify(1) })
+    }
 
     function deleteReward() {
         restCalls.deleteReward(name, owner)
-            .then(() => { setIsDeleteReward(true); restCalls.listRewards() })
-            .catch(() => {setIsNotDeleteReward(true)})
-        setDisplayMessageDelete(true)
-        setDisplayMessageModify(false)
+            .then(() => { restCalls.listAllRewards(); setIsDeleteReward(true); setDisplayMessageDelete(0) })
+            .catch(() => { setIsNotDeleteReward(true); setDisplayMessageDelete(1) })
     }
 
     return (
@@ -76,6 +72,15 @@ export default function ManageRewards() {
                 />
 
                 <Button onClick={deleteReward} variant="contained" size="large" color="error" sx={{ mt: 2, width: "80%" }}>Remover Recompensa</Button>
+
+                {isDeleteReward && (displayMessageDelete === 0) ?
+                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa eliminada com sucesso.</Typography>
+                    </Alert> : <></>}
+                {isNotDeleteReward && (displayMessageDelete === 1) ?
+                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
+                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na eliminação da recompensa.</Typography>
+                    </Alert> : <></>}
             </Grid>
             <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
                 <Box p={0} pl={3} pr={3} textAlign="center">
@@ -141,20 +146,11 @@ export default function ManageRewards() {
                 </Button>
             </Grid>
             <Grid item xs={4}>
-                {(isModifyReward && displayMessageModify) ?
+                {isModifyReward && (displayMessageModify === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa modificada com sucesso.</Typography>
                     </Alert> : <></>}
-                {(isNotModifyReward && displayMessageModify) ?
-                    <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na modificação da recompensa.</Typography>
-                    </Alert> : <></>}
-
-                {(isDeleteReward && displayMessageDelete) ?
-                    <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
-                        <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Recompensa modificada com sucesso.</Typography>
-                    </Alert> : <></>}
-                {(isNotDeleteReward && displayMessageDelete) ?
+                {isNotModifyReward && (displayMessageModify === 1) ?
                     <Alert severity="error" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha na modificação da recompensa.</Typography>
                     </Alert> : <></>}
