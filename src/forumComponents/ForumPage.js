@@ -8,6 +8,7 @@ import ForumsList from "./ForumsList";
 import { useHistory } from "react-router-dom";
 import restCalls from "../restCalls"
 import LogoutIcon from '@mui/icons-material/Logout';
+import ParcelForums from "./ParcelForums"
 
 export default function ForumPage() {
     let history = useHistory();
@@ -53,9 +54,21 @@ export default function ForumPage() {
                     fullWidth
                     variant="outlined"
                     color="success"
-                    startIcon={<ForumIcon sx={{ color: "black" }} />}
+                    startIcon={<ListAltIcon sx={{ color: "black" }} />}
                     sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                     onClick={() => { setDisplay(2) }}
+                >
+                    <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Fóruns das suas parcelas </Typography>
+                </Button>
+                <Button
+                    type="submit"
+                    id="3"
+                    fullWidth
+                    variant="outlined"
+                    color="success"
+                    startIcon={<ForumIcon sx={{ color: "black" }} />}
+                    sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
+                    onClick={() => { setDisplay(3) }}
                 >
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> Criar Fórum </Typography>
                 </Button>
@@ -75,7 +88,8 @@ export default function ForumPage() {
                 {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
                 {(display === 0) ? <ForumsList /> : <></>}
                 {(display === 1) ? <UserForums /> : <></>}
-                {(display === 2) ? <CreateForum /> : <></>}
+                {(display === 2) ? <ParcelForums /> : <></>}
+                {(display === 3) ? <CreateForum /> : <></>}
         </Grid>
 
     )

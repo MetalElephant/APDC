@@ -13,15 +13,15 @@ export default function OWNERRedeemableRewards() {
 
     useEffect(() => {
         restCalls.listUserRedeemableRewards().then(() => { setLoaded(true) })
-        restCalls.userInfo().then(() => { setPoints(user.specialization) })
+        restCalls.userInfo().then(() => { setPoints(user.points) })
     }, [])
 
     function redeemReward(owner, name) {
         setShowProgress(true)
         setLoaded(false)
         restCalls.redeemReward(owner, name)
-            .then(() => { restCalls.listUserRedeemableRewards()
-                .then(() => { restCalls.userInfo().then(() => {user = JSON.parse(localStorage.getItem('user')); setPoints(user.specialization); setLoaded(true); setShowProgress(false); }) }) })
+            .then(() => { restCalls.listUserRedeemableRewards().then(() => { restCalls.userInfo().then(() => { user = JSON.parse(localStorage.getItem('user')); setPoints(user.specialization); setLoaded(true); setShowProgress(false); }) }) })
+            .catch(() => { setShowProgress(false); setLoaded(true) })
     }
 
     function generateRewards() {
@@ -43,7 +43,7 @@ export default function OWNERRedeemableRewards() {
                                     </Typography>
                                 </CardContent>
                                 <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                                    <Button onClick={() => { redeemReward(reward.owner, reward.name) }} variant="outlined" color="success" size="small">Claim Reward: {reward.price} pontos</Button>
+                                    <Button onClick={() => { redeemReward(reward.owner, reward.name) }} variant="outlined" color="success" size="small">Claim Reward: {reward.timesRedeemed} pontos</Button>
                                 </CardActions>
                             </Card>
                         </Box>

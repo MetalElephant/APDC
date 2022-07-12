@@ -641,6 +641,30 @@ class restCalls {
         })
     }
 
+    listParcelForums() {
+        return fetch("https://landit-app.appspot.com/rest/forum/listParcel", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            localStorage.setItem('forumsParcel', text);
+            return text;
+        })
+    }
+
     postMessage(message) {
         return fetch("https://landit-app.appspot.com/rest/forum/message", {
             method: 'POST',
