@@ -34,7 +34,7 @@ export default function OWNERRedeemedRewards() {
                                     </Typography>
                                 </CardContent>
                                 <CardActions sx={{ display: "flex", justifyContent: "flex-end" }}>
-                                    <Button disabled variant="outlined" color="success" size="small">Claim Reward: {reward.price} pontos</Button>
+                                    <Button disabled variant="outlined" color="success" size="small">Claim Reward: {reward.timesRedeemed} pontos</Button>
                                 </CardActions>
                             </Card>
                         </Box>
