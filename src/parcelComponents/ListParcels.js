@@ -11,7 +11,7 @@ export default function ListParcels() {
     const [parcelIndex, setParcelIndex] = react.useState("")
     const [parcelName, setParcelName] = react.useState("")
     const [owner, setOwner] = react.useState("")
-    const [owners, setOwners] = react.useState("")
+//  const [owners, setOwners] = react.useState("")
     const [dist, setDist] = react.useState(null)
     const [conc, setConc] = react.useState(null)
     const [freg, setFreg] = react.useState(null)
@@ -43,6 +43,15 @@ export default function ListParcels() {
     const [loadButtons, setLoadButtons] = react.useState(false)
     const [loaded, setLoaded] = react.useState(false)
     const [showProgress, setShowProgress] = react.useState(false)
+    const [allUsers, setAllUsers] = react.useState([])
+    const [owners, setOwners] = react.useState([])
+
+    var users = JSON.parse(localStorage.getItem('allProps'))
+
+    useEffect(() => {
+        restCalls.listAllProps().then(() => { users = JSON.parse(localStorage.getItem('allProps')); setAllUsers(users) })
+        restCalls.parcelInfo().then(() => { setLoaded(true) })
+    }, [])
 
     var parcels = JSON.parse(localStorage.getItem('allParcels'))
 
@@ -259,6 +268,7 @@ export default function ListParcels() {
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <Autocomplete
+                        disabled
                         selectOnFocus
                         id="distritos"
                         options={allDist}
@@ -282,6 +292,7 @@ export default function ListParcels() {
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <Autocomplete
+                        disabled
                         selectOnFocus
                         id="concelhos"
                         options={allConc}
@@ -303,6 +314,7 @@ export default function ListParcels() {
                 </Box>
                 <Box p={0} pl={3} pr={3} textAlign="center">
                     <Autocomplete
+                        disabled
                         selectOnFocus
                         id="freguesias"
                         options={allFreg}

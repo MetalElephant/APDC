@@ -33,11 +33,11 @@ export default function ModifyParcel() {
     const [markersErr, setMarkersErr] = react.useState(false);
     const [showProgress, setShowProgress] = react.useState(false)
     const [allUsers, setAllUsers] = react.useState([])
-    const [owners, setOwners] = react.useState([]);
+    const [owners, setOwners] = react.useState([])
 
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
-    var users = JSON.parse(localStorage.getItem('allUsers'))
+    var users = JSON.parse(localStorage.getItem('allProps'))
 
     useEffect(() => {
         restCalls.listAllProps().then(() => { users = JSON.parse(localStorage.getItem('allProps')); setAllUsers(users) })
@@ -46,6 +46,8 @@ export default function ModifyParcel() {
 
     useEffect(() => {
         const temp = []
+        var tempLats = []
+        var tempLngs = []
         if (parcels != null) {
             if (parcels[chosenParcel] != null) {
                 parcels[chosenParcel].markers.map(marker => {
@@ -54,13 +56,13 @@ export default function ModifyParcel() {
                         lng: marker.longitude,
                         time: new Date()
                     })
-                    allLats.push(marker.latitude)
-                    allLngs.push(marker.longitude)
+                    tempLats.push(marker.latitude)
+                    tempLngs.push(marker.longitude)
                 })
                 setMarkers(temp)
                 setMarkersMem(temp)
-                setAllLatsMem(allLats)
-                setAllLngsMem(allLngs)
+                setAllLats(tempLats)
+                setAllLngs(tempLngs)
                 setOriginValues(parcels[chosenParcel]);
                 setLoadButtons(true)
             }

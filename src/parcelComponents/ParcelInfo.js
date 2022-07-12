@@ -22,6 +22,7 @@ export default function ParcelInfo() {
     const [markers, setMarkers] = react.useState([])
     const [loaded, setLoaded] = react.useState(false)
     const [confirmation, setConfirmation] = react.useState("")
+    const [owners, setOwners] = react.useState("")
 
     var parcels = JSON.parse(localStorage.getItem('parcels'))
 
@@ -40,6 +41,7 @@ export default function ParcelInfo() {
             }
 
             var parcel = parcels[chosenParcel]
+            var tempOwners = ""
             if (parcel != null) {
                 setParcelName(parcel.parcelName);
                 setParcelDist(parcel.district);
@@ -51,6 +53,13 @@ export default function ParcelInfo() {
                 setPrevUsage(parcel.prevUsage);
                 setArea(parcel.area);
                 setConfirmation(parcel.confirmation)
+                for (let i = 0; i < parcel.owners.length; i++) {
+                    if (i !== 0)
+                        tempOwners = tempOwners + ", " + parcel.owners[i]
+                    else
+                        tempOwners = parcel.owners[i]
+                }
+                setOwners(tempOwners)
             }
         }
 
@@ -120,6 +129,11 @@ export default function ParcelInfo() {
                 </Box>
                 <Box p={2.5} textAlign="center" >
                     <Paper elevation={12}>
+                        <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> Outros proprietários: {owners} </Typography>
+                    </Paper>
+                </Box>
+                <Box p={2.5} textAlign="center" >
+                    <Paper elevation={12}>
                         <Typography p={1.5} sx={{ fontFamily: 'Verdana', fontWeight: 'bolder', fontSize: 18 }}> {confirmation === "" ? "Documento de verificação" : <a href={confirmation} target="_blank">Documento de verificação</a>} </Typography>
                     </Paper>
                 </Box>
@@ -172,7 +186,7 @@ export default function ParcelInfo() {
                         <GoogleMap
                             mapContainerStyle={{ width: "100%", height: "100%" }}
                             center={{ lat: parcels[chosenParcel].markers[0].latitude, lng: parcels[chosenParcel].markers[0].longitude }}
-                            zoom={area === "" ? 15 : (parseInt(area)/1900)}
+                            zoom={area === "" ? 15 : (parseInt(area) / 1900)}
                         >
                             {/*parcels[chosenParcel].markers.map(marker => (
                                 <Marker
@@ -182,7 +196,7 @@ export default function ParcelInfo() {
                             ))*/}
                             <Polygon
                                 paths={markers}
-                                onClick={() => {console.log("clicked")}}
+                                onClick={() => { console.log("clicked") }}
                                 options={{ strokeOpacity: 0.8, strokeColor: "#000000", fillColor: "#191970" }}
                             />
 
