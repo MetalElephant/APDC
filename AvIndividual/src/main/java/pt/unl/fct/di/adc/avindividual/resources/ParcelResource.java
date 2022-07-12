@@ -20,12 +20,7 @@ import javax.ws.rs.core.Response.Status;
 
 import com.google.cloud.datastore.Entity.Builder;
 import com.google.gson.Gson;
-import com.sendgrid.Method;
-import com.sendgrid.Request;
-import com.sendgrid.SendGrid;
-import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
 
 import pt.unl.fct.di.adc.avindividual.util.ParcelUpdateData;
 import pt.unl.fct.di.adc.avindividual.util.ParcelVerifyData;
@@ -1336,6 +1331,7 @@ public class ParcelResource {
         return false;
     }
 
+	//Sends emails to all owners of given parcel
 	private void sendEmailToOwners(Entity owner, Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
         String subject = "Resultado de verificação da sua parcela, " + parcel.getKey().getName();
 
