@@ -1,18 +1,13 @@
 import react from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
-import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
-import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import RewardsCOMPage from "../rewardComponents/RewardsCOMPage";
 
-
-
 export default function NavbarMerchants() {
-
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
 
     const handleChangeLeft = (event, newValue) => {

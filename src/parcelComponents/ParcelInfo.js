@@ -1,9 +1,7 @@
 import { Box, Typography, Grid, Paper, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
-import mapsAvatar from "../images/maps-avatar.png";
-import react from 'react';
-import { useEffect } from "react";
+import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
-import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Polygon } from '@react-google-maps/api';
 
 export default function ParcelInfo() {
 

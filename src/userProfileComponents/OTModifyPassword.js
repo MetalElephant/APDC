@@ -4,7 +4,6 @@ import { Box, Container, Typography, TextField, Button, Grid, Alert, CircularPro
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-
 export default function ModifyPassword(props) {
 
     const [oldPassword, setOldPassword] = react.useState("");
@@ -167,7 +166,7 @@ export default function ModifyPassword(props) {
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Password modificada com sucesso.</Typography>
                     </Alert> : <></>}
-                {isModifyPwdNotSubmit && (displayMessage === 1) ? 
+                {isModifyPwdNotSubmit && (displayMessage === 1) ?
                     <Alert severity="error" sx={{ width: '100%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Falha ao modificar a password. Por favor, verifique os seus dados.</Typography>
                     </Alert> : <></>}

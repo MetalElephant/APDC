@@ -1,11 +1,10 @@
-import { Button, Box, Typography, Grid, Card, CardContent, CardActions, TextField, Alert, CircularProgress } from "@mui/material";
+import { Button, Typography, Grid, TextField, Alert, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AdminMessageCard from "../forumComponents/AdminMessageCard"
 
 export default function MessagesList(props) {
-
     const [loaded, setLoaded] = react.useState(false)
     const [message, setMessage] = react.useState("");
     const [messageErr, setMessageErr] = react.useState({});
@@ -14,6 +13,7 @@ export default function MessagesList(props) {
     const [displayMessage, setDisplayMessage] = react.useState(false)
     const [showProgress, setShowProgress] = react.useState(false)
 
+    //ignorar a lista abaixo, serve única e exclusivamente para a moderação de mensagens
     const forbiddenWords = ["puta", "caralho", "cona", "obesa", "obeso", "merda", "cabrão", "cabrao", "rabo", "pila",
         "porra", "foda", "fodido", "larapio", "rego", "peido"];
 

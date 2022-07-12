@@ -1,12 +1,10 @@
 import react from "react"
 import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import RedeemIcon from '@mui/icons-material/Redeem';
-import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
 import COMAddReward from "./COMAddReward";
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import restCalls from "../restCalls"
 import LogoutIcon from '@mui/icons-material/Logout';
-import COMRemoveReward from "./COMManageRewards";
 import COMManageRewards from "./COMManageRewards";
 
 
@@ -55,15 +53,15 @@ export default function RewardsMerchantPage() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        startIcon={<LogoutIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { logoutManager()}}
+                        onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }}/>}
-                {(display === 0) ? <COMManageRewards />: <></>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
+                {(display === 0) ? <COMManageRewards /> : <></>}
                 {(display === 1) ? <COMAddReward /> : <></>}
             </Grid>
         </Grid>

@@ -1,9 +1,8 @@
-import react, { useRef, useCallback, useEffect } from 'react'
+import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert, Autocomplete, CircularProgress } from "@mui/material";
 import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
-import { useParams } from 'react-router-dom';
 
 export default function RegisterParcel() {
     const [markers, setMarkers] = react.useState([]);
@@ -206,7 +205,7 @@ export default function RegisterParcel() {
                             allLngs.push(event.latLng.lng())
                         }}
                     >
-                        {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
+                        {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
 
                         {markers.map(marker => (
                             <Marker

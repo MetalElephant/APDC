@@ -3,7 +3,6 @@ import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, Alert, CircularProgress } from "@mui/material";
 
 export default function CreateForum() {
-
     const [forumName, setForumName] = react.useState("");
     const [topic, setTopic] = react.useState("");
 
@@ -53,8 +52,6 @@ export default function CreateForum() {
                                 name="forumName"
                                 label="Name"
                                 id="forumName"
-                                //type={showOldPassword ? "text" : "password"}
-                                //value={oldPassword}
                                 color="success"
                                 onChange={forumNameHandler}
                             />
@@ -66,8 +63,6 @@ export default function CreateForum() {
                                 id="topic"
                                 label="Topic"
                                 name="topic"
-                                //type={showNewPassword ? "text" : "password"}
-                                //value={newPassword}
                                 color="success"
                                 onChange={topicHandler}
                             />
@@ -92,7 +87,7 @@ export default function CreateForum() {
                 alignItems="center"
                 sx={{ mt: "52px" }}
             >
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
 
                 {isForumCreated && (displayMessage === 0) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>

@@ -1,6 +1,5 @@
 import { Box, Typography, Grid, Autocomplete, TextField, Button, Alert, CircularProgress } from "@mui/material";
-import react from 'react';
-import { useEffect } from "react";
+import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import locais from "../locais/distritos.txt"
 
@@ -383,7 +382,7 @@ export default function ListUsers() {
             </Grid>
             <Grid item xs={4}>
 
-                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/>}
+                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
                 {(isUserRemoved && displayMessage) ?
                     <Alert severity="success" sx={{ width: '80%', mt: "25px" }}>
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14 }}>Utilizador removido com sucesso.</Typography>

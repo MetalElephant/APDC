@@ -1,6 +1,6 @@
 import react from "react"
 import restCalls from "../restCalls"
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import RedeemIcon from '@mui/icons-material/Redeem';
 import RedeemTwoToneIcon from '@mui/icons-material/RedeemTwoTone';
@@ -15,7 +15,7 @@ export default function RewardsOWNERPage() {
 
     function logoutManager() {
         setShowProgress(true)
-        restCalls.logout().then(() => {history.push("/"); setShowProgress(true)})
+        restCalls.logout().then(() => { history.push("/"); setShowProgress(true) })
     }
 
     return (
@@ -52,14 +52,14 @@ export default function RewardsOWNERPage() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        startIcon={<LogoutIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
                         onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
                 {(display === 0) && <OWNERRedeemableRewards />}
                 {(display === 1) && <OWNERRedeemedRewards />}
             </Grid>

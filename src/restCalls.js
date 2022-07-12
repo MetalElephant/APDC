@@ -1,8 +1,5 @@
-//fetch api to make calls to rest backend
-
 class restCalls {
 
-    //depois alterar url https://land--it.appspot.com/rest/users/login
     login(username, password) {
         return fetch("https://landit-app.appspot.com/rest/user/login", {
             method: 'PUT',
@@ -1126,7 +1123,7 @@ class restCalls {
                 username: JSON.parse(localStorage.getItem('token')).username,
                 name: name,
                 description: description,
-                owner: owner, 
+                owner: owner,
                 price: price,
             })
         }).then(function (response) {

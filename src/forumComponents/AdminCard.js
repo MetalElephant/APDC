@@ -3,7 +3,6 @@ import react, { useEffect } from "react";
 import { useHistory } from "react-router-dom"
 
 export default function AdminCard(props) {
-
     const [number, setNumber] = react.useState(0)
     const [name, setName] = react.useState("")
     const [owner, setOwner] = react.useState("")

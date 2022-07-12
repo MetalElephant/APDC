@@ -4,9 +4,7 @@ import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid } from "@mui/material";
 import { useHistory } from "react-router-dom"
 
-
 export default function NavbarLR() {
-
     let history = useHistory();
 
     function goBack() {

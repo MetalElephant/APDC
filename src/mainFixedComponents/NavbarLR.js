@@ -3,7 +3,6 @@ import logoEquipa from "../images/logo-equipa.png";
 import logoWelcome from "../images/logo-welcome.png";
 import { Box, Grid } from "@mui/material";
 
-
 export default function NavbarLR() {
 
     return (

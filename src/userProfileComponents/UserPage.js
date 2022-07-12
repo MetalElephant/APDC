@@ -3,7 +3,7 @@ import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import UserInfo from "./UserInfo"
 import ModifyPassword from "./ModifyPassword";
 import restCalls from "../restCalls"
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import ModifyAttributes from "./ModifyAttributes";
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
@@ -67,14 +67,14 @@ export default function Main() {
                         fullWidth
                         variant="outlined"
                         color="success"
-                        startIcon={<LogoutIcon sx={{color:"black"}}/>}
+                        startIcon={<LogoutIcon sx={{ color: "black" }} />}
                         sx={{ mt: 2, width: "95%", height: "40px", bgcolor: "rgb(50,190,50)" }}
-                        onClick={() => { logoutManager()}}
+                        onClick={() => { logoutManager() }}
                     >
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
                 {(display === 0) ? <UserInfo /> : <></>}
                 {(display === 1) ? <ModifyPassword /> : <></>}
                 {(display === 2) ? <ModifyAttributes /> : <></>}

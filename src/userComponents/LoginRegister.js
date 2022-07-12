@@ -1,10 +1,9 @@
-import react from "react"
+import react, { useEffect } from "react"
 import restCalls from "../restCalls"
 import { Box, Container, Typography, TextField, Button, Grid, CircularProgress, FormControl, Alert, Autocomplete, Card, Select, InputLabel, MenuItem } from "@mui/material";
 import { useHistory } from "react-router-dom"
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { useEffect } from "react";
 import locais from "../locais/distritos.txt"
 import OTModifyPassword from "../userProfileComponents/OTModifyPassword"
 

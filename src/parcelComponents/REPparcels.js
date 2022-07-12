@@ -2,14 +2,11 @@ import react from "react"
 import { Button, Grid, Typography } from "@mui/material";
 import restCalls from "../restCalls"
 import ReviewParcels from "./ReviewParcels";
-import { useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import FeedIcon from '@mui/icons-material/Feed';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 
 export default function Main() {
-
     const [searchedParcelsState, setSearchedParcelsState] = react.useState([])
 
     let history = useHistory();

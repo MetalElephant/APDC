@@ -1,16 +1,13 @@
-import react, { useEffect } from "react"
+import react from "react"
 import logoProduto from "../images/logo-produto.png";
 import logoEquipa from "../images/logo-equipa.png";
 import { Box, Grid, Tabs, Tab } from "@mui/material";
 import UserPage from "../userProfileComponents/UserPage";
 import AboutUs from "./AboutUs"
 import ForumPage from "../forumComponents/ForumPage"
-import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import REPparcels from "../parcelComponents/REPparcels";
 
-
 export default function Navbar() {
-
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
 
     const handleChangeLeft = (event, newValue) => {

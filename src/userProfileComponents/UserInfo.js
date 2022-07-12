@@ -1,6 +1,5 @@
 import { Box, Typography, Grid, Paper } from "@mui/material";
-import react from 'react';
-import { useEffect } from "react";
+import react, { useEffect } from 'react';
 import restCalls from "../restCalls"
 import avatar from "../images/avatar.png"
 

@@ -1,6 +1,5 @@
 import { Button, Box, Typography, Card, CardContent, CardActions } from "@mui/material";
 import react, { useEffect } from "react";
-import { useHistory } from "react-router-dom"
 
 export default function ForumsCard(props) {
 

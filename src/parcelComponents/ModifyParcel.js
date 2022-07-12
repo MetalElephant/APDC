@@ -1,9 +1,7 @@
 import react, { useEffect } from 'react'
 import restCalls from "../restCalls"
-import landAvatar from "../images/land-avatar.png";
 import { Box, Container, Typography, TextField, Button, Grid, Alert, Select, FormControl, InputLabel, Autocomplete, CircularProgress, MenuItem, ButtonGroup } from "@mui/material";
-import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
-import { Refresh } from '@mui/icons-material';
+import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function ModifyParcel() {
 

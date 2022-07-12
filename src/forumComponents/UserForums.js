@@ -1,16 +1,12 @@
-import { Button, Box, Typography, Grid, Card, CardMedia, CardContent, CardActions, CircularProgress } from "@mui/material";
+import { Box, Typography, Grid, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 import ForumCard from "./ForumCard"
 import MessagesList from "./MessagesList"
 
 export default function UserForums() {
-
     const [loaded, setLoaded] = react.useState(false)
     const [showMessages, setShowMessages] = react.useState(false)
-    const [removedForum, setRemovedForum] = react.useState(false)
-    const [notRemovedForum, setNotRemovedForum] = react.useState(false)
-    const [showAlert, setShowAlert] = react.useState(0)
 
     var forums = JSON.parse(localStorage.getItem('forumsUser'))
 
@@ -53,7 +49,7 @@ export default function UserForums() {
 
     return (
         <Grid item xs={8} container>
-            {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }}/> }
+            {!loaded && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "40%", left: "50%", overflow: "auto" }} />}
             {(loaded && !showMessages) && generateForums()}
             {(loaded && showMessages) && <MessagesList onClickFun={goBack} />}
         </Grid>

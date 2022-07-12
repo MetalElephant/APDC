@@ -25,7 +25,7 @@ export default function ModifyAttributes() {
     const [userModified, setUserModified] = react.useState(false);
     const [userNotModified, setUserNotModified] = react.useState(false);
     const [showProgress, setShowProgress] = react.useState(false);
-    
+
     const [freg, setFreg] = react.useState([]);
     const [conc, setConc] = react.useState([]);
     const [dist, setDist] = react.useState([]);

@@ -1,9 +1,8 @@
 import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import { Box, Grid, FormControl, Radio, FormControlLabel, FormLabel, Select, InputLabel, MenuItem, RadioGroup, Paper, Typography, Button, TextField, Autocomplete } from "@mui/material";
-import { Data, GoogleMap, LoadScript, Polyline, Polygon } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Polyline, Polygon } from '@react-google-maps/api';
 import locais from "../locais/distritos.txt"
-import { SettingsSystemDaydreamOutlined } from '@mui/icons-material';
 
 export default function SearchParcel() {
 

@@ -13,6 +13,7 @@ export default function MessagesList(props) {
     const [displayMessage, setDisplayMessage] = react.useState(false)
     const [showProgress, setShowProgress] = react.useState(false)
 
+    //ignorar a lista abaixo, serve única e exclusivamente para a moderação de mensagens
     const forbiddenWords = ["puta", "caralho", "cona", "obesa", "obeso", "merda", "cabrão", "cabrao", "rabo", "pila",
         "porra", "foda", "fodido", "larapio", "rego", "peido"];
 
@@ -32,7 +33,7 @@ export default function MessagesList(props) {
             setShowProgress(true)
             restCalls.postMessage(message)
                 .then(() => { setLoaded(false); setIsMessagePosted(true); setIsMessageNotPosted(false); setShowProgress(false); setMessage(""); restCalls.listForumMessages().then(() => setLoaded(true)) })
-                .catch(() => { setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false); setShowProgress(false)})
+                .catch(() => { setLoaded(true); setIsMessageNotPosted(true); setIsMessagePosted(false); setShowProgress(false) })
             setMessageErr({})
             setDisplayMessage(true)
         }
@@ -92,7 +93,7 @@ export default function MessagesList(props) {
                     <ArrowBackIcon />
                 </Button>
                 {loaded && generateMessages()}
-                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "40%", overflow: "auto" }}/>}
+                {(!loaded || showProgress) && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "40%", overflow: "auto" }} />}
             </Grid>
             <Grid item xs={3} >
                 <TextField

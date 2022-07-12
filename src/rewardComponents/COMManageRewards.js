@@ -1,6 +1,5 @@
-import { Box, Typography, Grid, Paper, Autocomplete, TextField, Button, Alert, Radio, FormControl, FormControlLabel, RadioGroup, FormLabel } from "@mui/material";
-import react from 'react';
-import { useEffect } from "react";
+import { Box, Typography, Grid, Autocomplete, TextField, Button, Alert} from "@mui/material";
+import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 
 export default function COMManageRewards() {

@@ -1,6 +1,5 @@
 import { Box, Typography, Grid, CircularProgress, Button, Alert, Paper, TextField, ButtonGroup } from "@mui/material";
-import react from 'react';
-import { useEffect } from "react";
+import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import { GoogleMap, LoadScript, Polygon } from '@react-google-maps/api';
 
@@ -143,14 +142,14 @@ export default function ReviewParcels() {
     }
 
     function rejectParcel() {
-        if(reason !== "") {
+        if (reason !== "") {
             setMessageErr(false)
             if (parcelName !== "" && !confirmed) {
                 setShowProgress(true)
                 setDisplayError(false)
                 restCalls.verifyParcel(owner, parcelName, false, reason)
                     .then(() => { restCalls.getParcelsRep().then(() => { setShowProgress(false); setLoaded(false); parcels = JSON.parse(localStorage.getItem('parcelsRep')); setLoaded(true); updatePolygons() }); setIsParcelRejected(true); setDisplayMessage(2) })
-                    .catch(() => { setShowProgress(false); setIsParcelNotRejected(true); setDisplayMessage(3)})
+                    .catch(() => { setShowProgress(false); setIsParcelNotRejected(true); setDisplayMessage(3) })
             }
             else {
                 setDisplayError(true)

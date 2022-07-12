@@ -10,7 +10,6 @@ import ListParcels from "../parcelComponents/ListParcels"
 export default function SUParcels() {
     let history = useHistory();
 
-    const [display, setDisplay] = react.useState(0);
     const [showProgress, setShowProgress] = react.useState(false);
 
     function logoutManager() {
@@ -47,7 +46,7 @@ export default function SUParcels() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
                 <ListParcels />
             </Grid>
         </Grid>

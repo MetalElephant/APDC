@@ -37,7 +37,7 @@ export default function NavbarSU() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fóruns" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
-                        
+
                     </Tabs>
                 </Grid>
                 <Grid item xs={2}>

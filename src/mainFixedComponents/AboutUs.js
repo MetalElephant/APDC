@@ -6,9 +6,7 @@ import fotoKiara from "../images/fotoKiara.jpg";
 import instaLogo from "../images/insta.png";
 import facebookLogo from "../images/facebook.png";
 
-
-import { Grid, Typography, Card, CardContent, CardMedia } from "@mui/material";
-import { Box } from "@mui/system";
+import { Box, Grid, Typography, Card, CardContent, CardMedia } from "@mui/material";
 
 export default function AboutUs() {
     return (

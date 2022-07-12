@@ -2,11 +2,7 @@ import react from "react"
 import { Button, CircularProgress, Grid, Typography } from "@mui/material";
 import restCalls from "../restCalls"
 import { useHistory } from "react-router-dom";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import FeedIcon from '@mui/icons-material/Feed';
-import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
-import RemoveIcon from '@mui/icons-material/Remove';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ManageRewards from "../rewardComponents/ManageRewards"
 
@@ -48,7 +44,7 @@ export default function SURewards() {
                         <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                     </Button>
                 </Grid>
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }}/>}
+                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "35%", left: "50%", overflow: "auto" }} />}
                 <ManageRewards />
             </Grid>
         </Grid>

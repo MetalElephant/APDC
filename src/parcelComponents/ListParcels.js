@@ -1,9 +1,8 @@
 import { Box, Typography, Grid, ButtonGroup, Autocomplete, TextField, Button, Alert, CircularProgress } from "@mui/material";
-import react from 'react';
-import { useEffect } from "react";
+import react, { useEffect } from 'react';
 import restCalls from "../restCalls";
 import locais from "../locais/distritos.txt"
-import { Data, GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, Marker, Polygon } from '@react-google-maps/api';
 
 export default function ListParcels() {
 

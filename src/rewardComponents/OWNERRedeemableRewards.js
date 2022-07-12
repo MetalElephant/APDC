@@ -1,4 +1,4 @@
-import { Button, Grid, Typography, Box, Card, CardMedia, CardContent, CardActions, CircularProgress } from "@mui/material";
+import { Button, Grid, Typography, Box, Card, CardContent, CardActions, CircularProgress } from "@mui/material";
 import react, { useEffect } from "react";
 import restCalls from "../restCalls";
 

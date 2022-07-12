@@ -85,12 +85,11 @@ export default function ForumPage() {
                     <Typography sx={{ fontFamily: 'Verdana', fontSize: 14, color: "black" }}> logout </Typography>
                 </Button>
             </Grid>
-                {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }}/>}
-                {(display === 0) ? <ForumsList /> : <></>}
-                {(display === 1) ? <UserForums /> : <></>}
-                {(display === 2) ? <ParcelForums /> : <></>}
-                {(display === 3) ? <CreateForum /> : <></>}
+            {showProgress && <CircularProgress size='3rem' color="success" sx={{ position: "absolute", top: "50%", left: "50%", overflow: "auto" }} />}
+            {(display === 0) ? <ForumsList /> : <></>}
+            {(display === 1) ? <UserForums /> : <></>}
+            {(display === 2) ? <ParcelForums /> : <></>}
+            {(display === 3) ? <CreateForum /> : <></>}
         </Grid>
-
     )
 }
