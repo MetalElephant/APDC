@@ -129,7 +129,7 @@ export default function ListUsers() {
         if (chosenUser != null) {
             setShowProgress(true)
             restCalls.deleteUser(chosenUser)
-                .then(() => { restCalls.listAllUsers(); setShowProgress(false); setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true) })
+                .then(() => { setLoaded(false); restCalls.listAllUsers(); setShowProgress(false); setIsUserRemoved(true); setIsUserNotRemoved(false); setDisplayMessage(true); restCalls.listAllUsers().then(() => { setLoaded(true); users = JSON.parse(localStorage.getItem('allUsers')) }) })
                 .catch(() => { setIsUserRemoved(false); setShowProgress(false); setIsUserNotRemoved(true); setDisplayMessage(true) })
             setDisplayModifyMessage(false)
         } else {
@@ -143,7 +143,7 @@ export default function ListUsers() {
         if (isValid()) {
             setShowProgress(true)
             restCalls.modifyUserAttributes(username, name, email, street, homePhone, mobilePhone, nif, null, dist, conc, freg)
-                .then(() => { restCalls.listAllUsers(); setShowProgress(false); resetErrors(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true) })
+                .then(() => { setLoaded(false); restCalls.listAllUsers(); setShowProgress(false); resetErrors(); setIsUserModified(true); setIsUserNotModified(false); setDisplayModifyMessage(true); restCalls.listAllUsers().then(() => { setLoaded(true); users = JSON.parse(localStorage.getItem('allUsers')) }) })
                 .catch(() => { setIsUserModified(false); setShowProgress(false); setIsUserNotModified(true); setDisplayModifyMessage(true) })
             setDisplayMessage(false)
         }

@@ -11,7 +11,7 @@ export default function ListParcels() {
     const [parcelIndex, setParcelIndex] = react.useState("")
     const [parcelName, setParcelName] = react.useState("")
     const [owner, setOwner] = react.useState("")
-//  const [owners, setOwners] = react.useState("")
+    const [owners, setOwners] = react.useState([])
     const [dist, setDist] = react.useState(null)
     const [conc, setConc] = react.useState(null)
     const [freg, setFreg] = react.useState(null)
@@ -33,7 +33,6 @@ export default function ListParcels() {
     const [distToConcState, setDistToConc] = react.useState()
     const [concToFregState, setConcToFreg] = react.useState()
     const [parcel, setParcel] = react.useState([])
-    const [repeat, setRepeat] = react.useState(false)
     const [isParcelRemoved, setIsParcelRemoved] = react.useState(false)
     const [isParcelNotRemoved, setIsParcelNotRemoved] = react.useState(true)
     const [displayMessage, setDisplayMessage] = react.useState(false)
@@ -43,15 +42,6 @@ export default function ListParcels() {
     const [loadButtons, setLoadButtons] = react.useState(false)
     const [loaded, setLoaded] = react.useState(false)
     const [showProgress, setShowProgress] = react.useState(false)
-    const [allUsers, setAllUsers] = react.useState([])
-    const [owners, setOwners] = react.useState([])
-
-    var users = JSON.parse(localStorage.getItem('allProps'))
-
-    useEffect(() => {
-        restCalls.listAllProps().then(() => { users = JSON.parse(localStorage.getItem('allProps')); setAllUsers(users) })
-        restCalls.parcelInfo().then(() => { setLoaded(true) })
-    }, [])
 
     var parcels = JSON.parse(localStorage.getItem('allParcels'))
 
@@ -187,7 +177,7 @@ export default function ListParcels() {
         if (chosenParcel != null) {
             setShowProgress(true)
             restCalls.deleteParcel(chosenParcel, owner)
-                .then(() => { restCalls.listAllParcels(); setShowProgress(false); setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true) })
+                .then(() => { setLoaded(false); restCalls.listAllParcels(); setShowProgress(false); setIsParcelRemoved(true); setIsParcelNotRemoved(false); setDisplayMessage(true); restCalls.listAllParcels().then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('allParcels')) }) })
                 .catch(() => { setIsParcelRemoved(false); setShowProgress(false); setIsParcelNotRemoved(true); setDisplayMessage(true) })
             setDisplayModifyMessage(false)
         } else {
@@ -200,7 +190,7 @@ export default function ListParcels() {
     function modifyParcelManager() {
         setShowProgress(true)
         restCalls.modifyParcel(owner, owners, parcelName, description, groundType, currUsage, prevUsage, allLats, allLngs)
-            .then(() => { setIsParcelModified(true); setShowProgress(false); setIsParcelNotModified(false); setDisplayModifyMessage(true) })
+            .then(() => { setLoaded(false); setIsParcelModified(true); setShowProgress(false); setIsParcelNotModified(false); setDisplayModifyMessage(true); restCalls.listAllParcels().then(() => { setLoaded(true); parcels = JSON.parse(localStorage.getItem('allParcels')) }) })
             .catch(() => { setIsParcelModified(false); setShowProgress(false); setIsParcelNotModified(true); setDisplayModifyMessage(true) })
         setDisplayMessage(false)
     }

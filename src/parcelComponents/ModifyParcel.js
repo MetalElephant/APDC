@@ -18,7 +18,6 @@ export default function ModifyParcel() {
     const [allLngsMem, setAllLngsMem] = react.useState([]);
     const [allLats, setAllLats] = react.useState([]);
     const [allLngs, setAllLngs] = react.useState([]);
-    //const [owners, setOwners] = react.useState("");
     const [owner, setOwner] = react.useState("");
     const [chosenParcel, setChosenParcel] = react.useState("");
 
