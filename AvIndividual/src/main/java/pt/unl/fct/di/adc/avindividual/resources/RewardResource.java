@@ -405,15 +405,6 @@ public class RewardResource {
 			return Response.status(Status.FORBIDDEN).entity("User " + data.username + " not logged in.").build();
 		}
 
-        /*
-         * It may not make sense for a user to be a merchant to see the rewards since normal users have access to them.
-        if(!isUserValid(user)) {
-            LOG.warning("User " + data.username + " isn't a merchant.");
-            
-            return Response.status(Status.FORBIDDEN).entity("User " + data.username + " isn't a merchant.").build();
-        }
-        */
-
         if (reward == null) {
             LOG.warning("Reward " + data.name + " doesn't exist.");
             return Response.status(Status.NOT_FOUND).entity("Reward " + data.name + " doesn't exists.").build();
@@ -507,6 +498,7 @@ public class RewardResource {
         return Response.ok(g.toJson(list)).build();
     }
 
+	// Checks if given user if of role COMERCIANTE
     private boolean isUserValid(Entity user) {
 		
 		String role = user.getString(ROLE);
@@ -518,6 +510,7 @@ public class RewardResource {
 		return true;
 	}
 
+	// Checks how two given entities should interact
     private boolean canModifyOrRemove(Entity e1, Entity e2) {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
@@ -538,6 +531,7 @@ public class RewardResource {
 		return false;
 	}
 
+	// Returns a list with all the rewards created by a given entity
     private List<RewardData> getQueries(String owner){
 		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD)
 					.setFilter(CompositeFilter.and(PropertyFilter.eq(OWNER, owner)))
@@ -554,6 +548,7 @@ public class RewardResource {
 		return userRewards;
 	}
 
+	// Returns a list with all the rewards that have been created
 	private List<RewardData> allRewards() {
 		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
 
@@ -567,7 +562,8 @@ public class RewardResource {
 
 		return rewardsList;
 	}
-
+	
+	// Checks if a user can redeem a reward, based on their county
 	private boolean canUserRedeemReward(String user, String county, Entity reward) {
 		List<RewardData> rewards = rewardsUserCanRedeem(user, county);
 
@@ -580,6 +576,7 @@ public class RewardResource {
 		return false;
 	}
 
+	// Returns a list with all the rewards the user can redeem
 	private List<RewardData> rewardsUserCanRedeem(String username, String county) {
 		Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
 
@@ -596,6 +593,7 @@ public class RewardResource {
 		return rewardsList;
 	}
 
+	// Checks if a given county is the same one as the given reward's owner
 	private boolean sameCounty(String county, Entity reward) {
 		Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(reward.getString(OWNER));
 		Entity owner = datastore.get(ownerKey);
@@ -605,8 +603,9 @@ public class RewardResource {
 		}
 
 		return false;
-}
+	}
 
+	// Returns a list with all the rewards a user has already redeemed
 	private List<RewardData> rewardsUserHasRedeemed(String username) {
         Query<Entity> queryReward = Query.newEntityQueryBuilder().setKind(REWARD).build();
 
@@ -623,6 +622,7 @@ public class RewardResource {
         return rewardsList;
     }
 
+	// Checks if a user, given their username, has already redeemed a given reward
 	private boolean hasRedeemed(String username, Entity reward) {
 		long nUsers = reward.getLong(NREDEEMED);
 

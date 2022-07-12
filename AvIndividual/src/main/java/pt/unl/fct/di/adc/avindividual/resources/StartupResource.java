@@ -231,6 +231,7 @@ public class StartupResource {
         }
     }
 
+    // Generates a random secret with a given length
     private static String generateSecret(int length) {
 		String capitalCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		String lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";

@@ -682,6 +682,7 @@ public class UserResource {
 		return Response.ok(g.toJson(u)).build();
 	}
 
+	// Creates a JWT token given a secret
 	private String createToken(Entity secret) {
 		try {
 			Algorithm alg = Algorithm.HMAC256(secret.getString(SECRET));
@@ -697,6 +698,7 @@ public class UserResource {
 		}
 	}
 
+	// Verifies if a JWT token is valid given a secret
 	private boolean verifyToken(String secret, String token) {
 		try {
 			Algorithm alg = Algorithm.HMAC256(secret);
@@ -711,7 +713,8 @@ public class UserResource {
 			return false;
 		}
 	}
-
+	
+	// Checks if a user is already logged in, given a transaction
 	public boolean isLoggedIn(Entity secret, Entity token, String username, Transaction tn){
 		if (token == null)
 			return false;
@@ -725,6 +728,7 @@ public class UserResource {
 		return true;
 	}
 
+	// Checks if a user is already logged in
 	public boolean isLoggedIn(Entity secret, Entity token, String username){
 		if (token == null)
 			return false;
@@ -747,6 +751,7 @@ public class UserResource {
 		return true;
 	}
 
+	// Checks if an update can proceed given two entities based on their roles
 	public boolean canUpdate(Entity e1, Entity e2) {
 		Roles e1Role = Roles.valueOf(e1.getString(ROLE));
 
@@ -765,6 +770,7 @@ public class UserResource {
 		}
 	}
 
+	// Uploads a photo
 	private String uploadPhoto(String name, byte[] data){
 		if (data == null || data.length == 0)
 			return UNDEFINED;
@@ -778,7 +784,7 @@ public class UserResource {
 		return URL + name;
 	}
 
-	//Add points from code to registered user and new user
+	// Add points from code to registered user and new user
 	private int redeemCode(Entity code, Entity newUser, Entity codeOwner){
 		Timestamp expDate = code.getTimestamp(EXPTIME);
 
@@ -790,6 +796,7 @@ public class UserResource {
 		return bonus;
 	}
 
+	// Deletes everything that has the give user as an ancestor of the given type entity
 	private void deleteEntities(String username, String entity, Transaction tn){
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(entity)
 									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
@@ -805,6 +812,7 @@ public class UserResource {
 		});
 	}
 
+	// Deletes all the messages created by a given user
 	private void deleteUserMessages(String username, Transaction tn) {
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(MESSAGE)
 									.setFilter(PropertyFilter.eq(OWNER, username))
@@ -820,6 +828,7 @@ public class UserResource {
 		});
 	}
 
+	// Deletes a user from all the parcels (if he is a co-owner of them)
 	private void removeFromParcels(Entity user, Transaction tn){
 		long nParcelsCo = user.getLong(NPARCELSCO);
 		String username = user.getKey().getName();
@@ -870,6 +879,7 @@ public class UserResource {
 		}
 	}
 
+	// Adds a given amount of points to a user
 	private void addPointsToOwner(Entity codeOwner, int points, Transaction tn) {
 		long nParcelsCo = codeOwner.getLong(NPARCELSCO);
 		
@@ -902,6 +912,7 @@ public class UserResource {
 		tn.put(codeOwner);
 	}
 
+	// Deletes all entities that are realted to a given user
 	private void deleteUserEntities(Entity user, String username, Key statKey, Transaction tn){
 		deleteParcels(username, statKey, tn);
 		removeFromParcels(user, tn);
@@ -910,6 +921,7 @@ public class UserResource {
 		deleteUserMessages(username, tn);
 	}
 
+	// Deletes all the parcels that he is the sole owner and transfers parcel ownership of the parcel if there are co-owners
 	private void deleteParcels(String username, Key statKey, Transaction tn){
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind(PARCEL)
 									.setFilter(PropertyFilter.hasAncestor(datastore.newKeyFactory().setKind(USER).newKey(username)))
@@ -936,24 +948,25 @@ public class UserResource {
 		});
 	}
 
+	// Updates a parcel, giving its main ownership to the last co-owner
 	private void updateParcelRemoval(int nOwners, String owner, String parcelName, Entity parcel, Transaction tn){
 		int nMarkers = Integer.parseInt(parcel.getString(NMARKERS));
 
 		Key parcelKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, owner)).setKind(PARCEL).newKey(parcelName);
 
 		Builder builder = Entity.newBuilder(parcelKey)
-		.set(COUNTY, parcel.getString(COUNTY))
-		.set(DISTRICT, parcel.getString(DISTRICT))
-		.set(AUTARCHY, parcel.getString(AUTARCHY))
-		.set(DESCRIPTION, parcel.getString(DESCRIPTION))
-		.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
-		.set(CURR_USAGE, parcel.getString(CURR_USAGE))
-		.set(PREV_USAGE, parcel.getString(PREV_USAGE))
-		.set(AREA, parcel.getString(AREA))
-		.set(CONFIRMATION, parcel.getString(CONFIRMATION))
-		.set(CONFIRMED, parcel.getBoolean(CONFIRMED))
-		.set(NMARKERS, parcel.getString(NMARKERS))
-		.set(NOWNERS, String.valueOf(nOwners));
+			.set(COUNTY, parcel.getString(COUNTY))
+			.set(DISTRICT, parcel.getString(DISTRICT))
+			.set(AUTARCHY, parcel.getString(AUTARCHY))
+			.set(DESCRIPTION, parcel.getString(DESCRIPTION))
+			.set(GROUND_COVER_TYPE, parcel.getString(GROUND_COVER_TYPE))
+			.set(CURR_USAGE, parcel.getString(CURR_USAGE))
+			.set(PREV_USAGE, parcel.getString(PREV_USAGE))
+			.set(AREA, parcel.getString(AREA))
+			.set(CONFIRMATION, parcel.getString(CONFIRMATION))
+			.set(CONFIRMED, parcel.getBoolean(CONFIRMED))
+			.set(NMARKERS, parcel.getString(NMARKERS))
+			.set(NOWNERS, String.valueOf(nOwners));
 
 		for(int i = 0; i < nOwners; i++){
 			builder.set(OWNER+i, parcel.getString(OWNER+i));
@@ -968,6 +981,7 @@ public class UserResource {
 		tn.put(newParcel);
 	}
 
+	// Updates a parcel's foruns to a new owner
 	private void updateForumRemoval(String oldOwner, String newOwner, String parcelName, Transaction tn){
 		Key oldForumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, oldOwner)).setKind(FORUM).newKey(parcelName);
 		Key newForumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, newOwner)).setKind(FORUM).newKey(parcelName);
@@ -986,6 +1000,7 @@ public class UserResource {
 		tn.put(newForum);
 	}
 
+	// Update the a user as the new main owner of a parcel
 	private void updateUserOwner(String username, String parcelName, Transaction tn){
 		Key userKey = datastore.newKeyFactory().setKind(USER).newKey(username);
 		Entity user = tn.get(userKey);
