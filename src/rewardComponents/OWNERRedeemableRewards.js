@@ -20,7 +20,7 @@ export default function OWNERRedeemableRewards() {
         setShowProgress(true)
         setLoaded(false)
         restCalls.redeemReward(owner, name)
-            .then(() => { restCalls.listUserRedeemableRewards().then(() => { restCalls.userInfo().then(() => { user = JSON.parse(localStorage.getItem('user')); setPoints(user.specialization); setLoaded(true); setShowProgress(false); }) }) })
+            .then(() => { restCalls.listUserRedeemableRewards().then(() => { restCalls.userInfo().then(() => { user = JSON.parse(localStorage.getItem('user')); setPoints(user.points); setLoaded(true); setShowProgress(false); }) }) })
             .catch(() => { setShowProgress(false); setLoaded(true) })
     }
 

@@ -39,7 +39,7 @@ export default function COMManageRewards() {
     useEffect(() => {
         setName(reward.name)
         setDescription(reward.description)
-        setValue(reward.price)
+        setValue(reward.timesRedeemed)
         setOwner(reward.owner)
     }, [reward])
 
