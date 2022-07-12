@@ -1345,18 +1345,18 @@ public class ParcelResource {
     }
 
 	private void sendEmailToOwners(Entity owner, Entity parcel, Transaction tn, String reason, boolean confirmation) throws IOException {
-        String subject = "Resultado de verificação da sua parcela, " + parcel.getString(NAME);
+        String subject = "Resultado de verificação da sua parcela, " + parcel.getKey().getName();
 
 		Content content;
 
 		if(confirmation) {
 			content = new Content("text/plain", 
-								"É com agrado que o informamos que a sua parcela, " + parcel.getString(NAME) + ", foi verificada com sucesso.\n" +
+								"É com agrado que o informamos que a sua parcela, " + parcel.getKey().getName() + ", foi verificada com sucesso.\n" +
 								"Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n\n" +
 								"Obrigado por utilizar o nosso serviço!");
 		} else {
 			content = new Content("text/plain", 
-								"Infelizmente não foi possível verificar a sua parcela, " + parcel.getString(NAME) + ", como legítima.\n" +
+								"Infelizmente não foi possível verificar a sua parcela, " + parcel.getKey().getName() + ", como legítima.\n" +
 								"Por favor altere a informação necessária da parcela de acordo com o feedback dado de seguida.\n\n" +
 								"Razão:\n" +
 								reason);
@@ -1366,9 +1366,10 @@ public class ParcelResource {
 
         for(int i = 0; i < nOwners; i++) {
             Key ownerKey = datastore.newKeyFactory().setKind(USER).newKey(parcel.getString(OWNER + i));
-            Entity nowner = tn.get(ownerKey);
+            Entity ownerI = tn.get(ownerKey);
+			String email = ownerI.getString(EMAIL);
 
-            sendAutomaticEmail(nowner.getString(EMAIL), subject, content);
+            sendAutomaticEmail(email, subject, content);
         }
 
 		sendAutomaticEmail(owner.getString(EMAIL), subject, content);
