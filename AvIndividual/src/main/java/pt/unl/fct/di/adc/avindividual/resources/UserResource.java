@@ -94,6 +94,10 @@ public class UserResource {
     private static final String NMARKERS = "Número de marcadores";
 	private static final String MARKER = "Marcador";
 
+	//Forum information
+    private static final String TOPIC = "Tópico";
+    private static final String CRT_DATE = "Data de criação";
+
 	//Bucket information
 	private static final String PROJECT_ID = "Land It";
     private static final String BUCKET_NAME = "landit-app.appspot.com";
@@ -793,8 +797,11 @@ public class UserResource {
 	
 		QueryResults<Entity> res = datastore.run(query);
 
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(entity);
+
 		res.forEachRemaining(e -> {
 			tn.delete(e.getKey());
+			sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
 		});
 	}
 
@@ -915,6 +922,7 @@ public class UserResource {
 				String owner = parcel.getString(OWNER+(nOwners-1));
 				nOwners--;
 
+				updateForumRemoval(username, owner, parcelName, tn);
 				updateParcelRemoval(nOwners, owner, parcelName, parcel, tn);
 				updateUserOwner(owner, parcelName, tn);
 			}else{
@@ -955,6 +963,24 @@ public class UserResource {
 		Entity newParcel = builder.build();
 
 		tn.put(newParcel);
+	}
+
+	private void updateForumRemoval(String oldOwner, String newOwner, String parcelName, Transaction tn){
+		Key oldForumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, oldOwner)).setKind(FORUM).newKey(parcelName);
+		Key newForumKey = datastore.newKeyFactory().addAncestors(PathElement.of(USER, newOwner)).setKind(FORUM).newKey(parcelName);
+
+		Entity oldForum = tn.get(oldForumKey);
+
+		Entity newForum = Entity.newBuilder(newForumKey)
+                    .set(TOPIC, oldForum.getString(TOPIC))
+                    .set(CRT_DATE, oldForum.getString(CRT_DATE))
+                    .build();
+
+		Key statKey = datastore.newKeyFactory().setKind(STAT).newKey(FORUM);
+
+		sr.updateStats(statKey, tn.get(statKey), tn, !ADD);
+		
+		tn.put(newForum);
 	}
 
 	private void updateUserOwner(String username, String parcelName, Transaction tn){
