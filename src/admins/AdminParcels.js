@@ -2,15 +2,8 @@ import react from "react"
 import { Button, Grid, Typography, CircularProgress } from "@mui/material";
 import restCalls from "../restCalls"
 import { useHistory } from "react-router-dom";
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
-import LockResetIcon from '@mui/icons-material/LockReset';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import FeedIcon from '@mui/icons-material/Feed';
-import CancelPresentationIcon from '@mui/icons-material/CancelPresentation';
 import ListParcels from "../parcelComponents/ListParcels"
 
 

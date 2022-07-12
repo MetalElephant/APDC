@@ -544,6 +544,58 @@ class restCalls {
         })
     }
 
+    removeForum(owner, forumName) {
+        return fetch("https://landit-app.appspot.com/rest/forum/removeForum", {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                owner: owner,
+                name: forumName
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
+    removeMessage(owner, forumName, msg, msgOwner) {
+        return fetch("https://landit-app.appspot.com/rest/forum/removeMessage", {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: JSON.parse(localStorage.getItem('token')).username,
+                forumOwner: owner,
+                forumName: forumName,
+                msg: msg,
+                msgOwner: msgOwner,
+            })
+        }).then(function (response) {
+            if (!response.ok) {
+                return response.text().then((text) => {
+                    const error = new Error(text)
+                    error.code = response.status;
+                    throw error
+                })
+            }
+            return response.text()
+        }).then(function (text) {
+            return text;
+        })
+    }
+
     listAllForums() {
         return fetch("https://landit-app.appspot.com/rest/forum/list", {
             method: 'GET',

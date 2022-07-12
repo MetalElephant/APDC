@@ -2,7 +2,7 @@ import { Button, Box, Typography, Card, CardContent, CardActions } from "@mui/ma
 import react, { useEffect } from "react";
 import { useHistory } from "react-router-dom"
 
-export default function ForumsCard(props) {
+export default function AdminCard(props) {
 
     const [number, setNumber] = react.useState(0)
     const [name, setName] = react.useState("")
@@ -26,6 +26,9 @@ export default function ForumsCard(props) {
                     <Typography variant="body2" color="text.secondary">
                         - {topic}
                     </Typography>
+                    <CardActions sx={{ display: "flex", justifyContent: "flex-start", pt: 2 }}>
+                        <Button onClick={() => { props.onClickRem(owner, name) }} variant="outlined" color="error" size="small">Remover</Button>
+                    </CardActions>
                     <CardActions sx={{ display: "flex", justifyContent: "flex-end", pt: 2 }}>
                         <Button onClick={() => { props.onClickFun(props.number) }} variant="outlined" color="success" size="small">Aceder</Button>
                     </CardActions>

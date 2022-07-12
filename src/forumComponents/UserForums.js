@@ -8,6 +8,9 @@ export default function UserForums() {
 
     const [loaded, setLoaded] = react.useState(false)
     const [showMessages, setShowMessages] = react.useState(false)
+    const [removedForum, setRemovedForum] = react.useState(false)
+    const [notRemovedForum, setNotRemovedForum] = react.useState(false)
+    const [showAlert, setShowAlert] = react.useState(0)
 
     var forums = JSON.parse(localStorage.getItem('forumsUser'))
 

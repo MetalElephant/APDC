@@ -7,6 +7,7 @@ import StatisticsPage from "../statisticsComponents/StatisticsPage";
 import AdminUsers from "../admins/AdminUsers";
 import AdminParcels from "../admins/AdminParcels";
 import AdminRewards from "../admins/AdminRewards";
+import AdminForums from "../admins/AdminForums"
 
 export default function NavbarSU() {
     const [selectedLeftTab, setSelectedLeftTab] = react.useState(0);
@@ -34,6 +35,7 @@ export default function NavbarSU() {
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Utilizadores" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Parcelas" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Recompensas" />
+                        <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Fóruns" />
                         <Tab sx={{ bgcolor: "whitesmoke", color: "darkgreen" }} label="Estatísticas" />
                         
                     </Tabs>
@@ -46,7 +48,8 @@ export default function NavbarSU() {
             {selectedLeftTab === 1 && <AdminUsers />}
             {selectedLeftTab === 2 && <AdminParcels />}
             {selectedLeftTab === 3 && <AdminRewards />}
-            {selectedLeftTab === 4 && <StatisticsPage />}
+            {selectedLeftTab === 4 && <AdminForums />}
+            {selectedLeftTab === 5 && <StatisticsPage />}
         </>
     )
 }
