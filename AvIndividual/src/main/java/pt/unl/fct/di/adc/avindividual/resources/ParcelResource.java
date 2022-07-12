@@ -944,35 +944,6 @@ public class ParcelResource {
 		tn.put(user);
 	}
 
-	private void givePointsToOwner(Key ownerKey, Entity owner, Transaction tn, boolean confirmation) {
-        int p = 0;
-        if(confirmation) p += 1500;
-
-        Builder builder = Entity.newBuilder(ownerKey)
-        .set(NAME, owner.getString(NAME))
-        .set(PASSWORD, owner.getString(PASSWORD))
-        .set(EMAIL, owner.getString(EMAIL))
-        .set(ROLE, owner.getString(ROLE))
-        .set(DISTRICT, owner.getString(DISTRICT))
-        .set(COUNTY, owner.getString(COUNTY))
-        .set(AUTARCHY, owner.getString(AUTARCHY))
-        .set(STREET, owner.getString(STREET))
-        .set(MPHONE, owner.getString(MPHONE))
-        .set(HPHONE, owner.getString(HPHONE))
-        .set(NIF, owner.getString(NIF))
-        .set(PHOTO, owner.getString(PHOTO))
-        .set(POINTS, owner.getLong(POINTS) + p)
-        .set(NPARCELSCRT, owner.getLong(NPARCELSCRT))
-        .set(NPARCELSCO, owner.getLong(NPARCELSCO))
-        .set(NFORUMS, owner.getLong(NFORUMS))
-        .set(NMSGS, owner.getLong(NMSGS))
-        .set(CTIME, owner.getTimestamp(CTIME));
-
-        Entity e = builder.build();
-
-        tn.put(e);
-    }
-
 	private String getArea(LatLng[] markers){
 		double area = 0.0;
      
