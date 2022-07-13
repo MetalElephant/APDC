@@ -94,7 +94,8 @@ public class RegisterData {
 	        Pattern letters = Pattern.compile("[a-zA-Z]");
 			Pattern upper = Pattern.compile("[A-Z]");
 	        Pattern numbers = Pattern.compile("[0-9]");
-	        Pattern specChars = Pattern.compile ("[!@#$%&*()_+=|<>?{}\\[\\]~-]");
+	        Pattern specChars = Pattern.compile ("/[$&+,:;=?@#|'<>.*()%!-~_^]{}/");
+			
 
 	        if( letters.matcher(pwd).find() && numbers.matcher(pwd).find()
 	        		&& specChars.matcher(pwd).find() && upper.matcher(pwd).find())

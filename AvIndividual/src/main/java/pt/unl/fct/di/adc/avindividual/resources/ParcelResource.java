@@ -1340,7 +1340,7 @@ public class ParcelResource {
 		if(confirmation) {
 			content = new Content("text/plain", 
 								"É com agrado que o informamos que a sua parcela, " + parcel.getKey().getName() + ", foi verificada com sucesso.\n" +
-								"Dado este resultado foram debitados 1500 pontos na sua conta para usufruir das nossas rewards.\n\n" +
+								"Dado este resultado foram adicionados 1500 pontos na sua conta para usufruir das nossas rewards.\n\n" +
 								"Obrigado por utilizar o nosso serviço!");
 		} else {
 			content = new Content("text/plain", 
