@@ -82,7 +82,7 @@ export default function ManageRewards() {
                     </Alert> : <></>}
             </Grid>
             <Grid item xs={4} sx={{ bgcolor: "#F5F5F5" }}>
-                <Box p={0} pl={3} pr={3} textAlign="center">
+                <Box pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
                         fullWidth
@@ -96,7 +96,7 @@ export default function ManageRewards() {
                         }}
                     />
                 </Box>
-                <Box p={0} pl={3} pr={3} textAlign="center">
+                <Box pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
                         fullWidth
@@ -110,7 +110,7 @@ export default function ManageRewards() {
                         }}
                     />
                 </Box>
-                <Box p={0} pl={3} pr={3} textAlign="center">
+                <Box pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
                         fullWidth
@@ -122,7 +122,7 @@ export default function ManageRewards() {
                         onChange={(event) => { setDescription(event.target.value) }}
                     />
                 </Box>
-                <Box p={0} pl={3} pr={3} textAlign="center">
+                <Box pl={3} pr={3} textAlign="center">
                     <TextField
                         margin="normal"
                         fullWidth

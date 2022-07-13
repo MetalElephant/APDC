@@ -304,13 +304,13 @@ export default function LoginRegister() {
             setPasswordErr(passwordErr)
         }
 
-        if (passwordRegister.match(/[$&+,:;=?@#|'<>.*()%!-]/) == null) {
+        if (passwordRegister.match(/[$&+,:;=?@#|'<>.*()%!-_~^()]/) == null) {
             passwordErr.passwordWithoutSpecialCharacter = "Password deve conter pelo menos um caracter especial.";
             isValid = false;
             setPasswordErr(passwordErr)
         }
 
-        if (!pwdConfirmation.match(passwordRegister) || !passwordRegister.match(pwdConfirmation)) {
+        if (pwdConfirmation !== passwordRegister || passwordRegister !== pwdConfirmation) {
             passwordConfirmationErr.passwordConfirmationNotEqualToPassword = "Confirmação deve ser igual a Palavra-passe."
             isValid = false;
             setPasswordConfirmationErr(passwordConfirmationErr)
