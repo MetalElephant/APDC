@@ -1175,6 +1175,9 @@ class restCalls {
             localStorage.removeItem('comRewards');
             localStorage.removeItem('parcelsRep');
             localStorage.removeItem('rewards');
+            localStorage.removeItem('owner');
+            localStorage.removeItem('forumsParcel');
+            localStorage.removeItem('allProps');
             return text;
         })
     }
