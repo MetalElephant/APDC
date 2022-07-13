@@ -90,12 +90,11 @@ public class RegisterData {
 	public boolean validPasswordFormat() {
 		String pwd = this.password;
 		
-		if(pwd.length()>=5) {
-	        Pattern letters = Pattern.compile("[a-zA-Z]");
+		if(pwd.length() >= 5) {
+	        Pattern letters = Pattern.compile("[a-z]");
 			Pattern upper = Pattern.compile("[A-Z]");
 	        Pattern numbers = Pattern.compile("[0-9]");
-	        Pattern specChars = Pattern.compile ("[!@#$.:;%&*~\\-\\()_+=|<>?{}\\[\\]]");
-			// Pattern specChars = Pattern.compile("[^A-Za-z0-9]");
+			Pattern specChars = Pattern.compile("[^A-Za-z0-9]");
 
 	        if( letters.matcher(pwd).find() && numbers.matcher(pwd).find() && 
 					upper.matcher(pwd).find() && specChars.matcher(pwd).find())	
